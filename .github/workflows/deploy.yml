@@ -1,0 +1,75 @@
+name: Deploy Frontend
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build image, push to ECR and deploy on EC2
+    runs-on: ubuntu-latest
+    environment: production
+
+    env:
+      AWS_REGION: eu-north-1
+      AWS_ACCOUNT_ID: "693906847467"
+      ECR_REPOSITORY: healthkicks-frontend
+      IMAGE_TAG: latest
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Credentials provided by environment: production secrets
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+        run: |
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" .
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_ENV"
+
+      - name: Deploy on EC2 (pull + restart container)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            IMAGE_URI=${{ env.IMAGE_URI }}
+
+            # Authenticate ECR on the EC2 instance
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} \
+              | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+
+            # Pull the freshly built image
+            docker pull "$IMAGE_URI"
+
+            # Restart the frontend container (port 8080 exposed)
+            docker stop healthkicks-frontend 2>/dev/null || true
+            docker rm healthkicks-frontend 2>/dev/null || true
+            docker run -d \
+              --name healthkicks-frontend \
+              --restart unless-stopped \
+              -p 8080:8080 \
+              "$IMAGE_URI"
+
+            # Housekeeping: remove dangling images
+            docker image prune -f
