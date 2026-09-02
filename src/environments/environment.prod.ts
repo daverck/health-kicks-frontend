@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://healthkicks.duckdns.org:8000',
-  googleClientId: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
+  apiUrl: 'http://healthkicks.duckdns.org:8443',
+  googleClientId: '84866353361-f0i371foa1q4sdvpdal29t6e8qfv483k.apps.googleusercontent.com',
 };
