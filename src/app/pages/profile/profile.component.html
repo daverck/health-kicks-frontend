@@ -1,0 +1,74 @@
+<div class="mx-auto max-w-3xl space-y-8">
+  <div>
+    <h1 class="text-2xl font-bold">Mon profil</h1>
+    <p class="mt-1 text-sm text-gray-600">Consultez et modifiez vos informations personnelles.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="card py-12 text-center text-sm text-gray-500">Chargement du profil…</div>
+  } @else {
+  @if (auth.user(); as user) {
+  <!-- Read-only account info -->
+    <section class="card">
+      <div class="flex items-center gap-4">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100 text-2xl font-bold text-primary-700">
+          @if (user.avatar_url) {
+            <img [src]="user.avatar_url" [alt]="user.name || user.email" class="h-16 w-16 rounded-full object-cover" />
+          } @else {
+            {{ initials(user) }}
+          }
+        </div>
+        <div>
+          <p class="text-lg font-semibold">{{ user.name || user.email }}</p>
+          <p class="text-sm text-gray-500">{{ user.email }}</p>
+          <div class="mt-2 flex gap-2">
+            <span class="rounded-full bg-primary-50 px-2.5 py-0.5 text-xs font-semibold text-primary-700">{{ user.role }}</span>
+            <span
+              class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              [class.bg-green-100]="user.is_active"
+              [class.text-green-700]="user.is_active"
+              [class.bg-red-100]="!user.is_active"
+              [class.text-red-700]="!user.is_active"
+            >
+              {{ user.is_active ? 'Actif' : 'Inactif' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <dl class="mt-6 grid gap-4 border-t border-gray-100 pt-6 text-sm sm:grid-cols-2">
+        <div><dt class="text-gray-500">ID utilisateur</dt><dd class="mt-0.5 font-mono">{{ user.id }}</dd></div>
+        <div><dt class="text-gray-500">Fournisseur</dt><dd class="mt-0.5">{{ user.avatar_url ? 'Google SSO' : 'Email / mot de passe' }}</dd></div>
+      </dl>
+    </section>
+
+    <!-- Editable form -->
+    <section class="card">
+      <h2 class="text-lg font-semibold">Modifier mes informations</h2>
+      <form (ngSubmit)="save()" [formGroup]="form" class="mt-5 space-y-4">
+        <div>
+          <label class="label" for="name">Nom complet</label>
+          <input id="name" type="text" formControlName="name" class="input" placeholder="Marie Dupont" />
+        </div>
+        <div>
+          <label class="label" for="email">Email</label>
+          <input id="email" type="email" formControlName="email" class="input" />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <p class="mt-1 text-xs text-red-600">Email invalide.</p>
+          }
+        </div>
+
+        @if (saving()) {
+          <p class="text-sm text-gray-500">Enregistrement…</p>
+        }
+        @if (errorMessage()) {
+          <div class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ errorMessage() }}</div>
+        }
+
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          @if (saving()) { Enregistrement… } @else { Enregistrer les modifications }
+        </button>
+      </form>
+    </section>
+  }
+  }
+</div>

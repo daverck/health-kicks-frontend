@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { UserResponse } from '../models/api.models';
+import { UserResponse } from '../../models/api.models';
 
 const TOKEN_KEY = 'hk_access_token';
 

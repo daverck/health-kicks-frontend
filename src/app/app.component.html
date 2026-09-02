@@ -2,16 +2,16 @@
 
 <!-- Toast notifications -->
 <div class="fixed bottom-4 right-4 z-50 flex w-80 flex-col gap-2">
-  @for (toast of toast.toasts(); track toast.id) {
+  @for (t of toast.toasts(); track t.id) {
     <div
       class="rounded-lg px-4 py-3 text-sm font-medium shadow-lg"
-      [class.bg-green-600]="toast.type === 'success'"
-      [class.bg-red-600]="toast.type === 'error'"
-      [class.bg-gray-800]="toast.type === 'info'"
+      [class.bg-green-600]="t.type === 'success'"
+      [class.bg-red-600]="t.type === 'error'"
+      [class.bg-gray-800]="t.type === 'info'"
     >
       <div class="flex items-start justify-between gap-3 text-white">
-        <span>{{ toast.message }}</span>
-        <button (click)="toast.dismiss(toast.id)" class="opacity-70 hover:opacity-100">✕</button>
+        <span>{{ t.message }}</span>
+        <button (click)="toast.dismiss(t.id)" class="opacity-70 hover:opacity-100">✕</button>
       </div>
     </div>
   }

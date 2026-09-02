@@ -6,7 +6,7 @@ import {
   DeviceResponse,
   FallEventPage,
   FallEventResponse,
-} from '../models/api.models';
+} from '../../models/api.models';
 import { environment } from '../../../environments/environment';
 
 /**

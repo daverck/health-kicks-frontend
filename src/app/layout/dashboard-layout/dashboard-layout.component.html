@@ -1,0 +1,57 @@
+<div class="flex min-h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <aside class="hidden w-64 shrink-0 border-r border-gray-200 bg-white md:block">
+    <div class="flex h-16 items-center gap-2 border-b border-gray-100 px-6">
+      <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l2-6 4 12 2-6h6" />
+        </svg>
+      </span>
+      <span class="font-bold">Health<span class="text-primary-600">Kicks</span></span>
+    </div>
+    <nav class="space-y-1 p-4">
+      @for (link of links; track link.path) {
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="bg-primary-50 text-primary-700"
+          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100"
+        >
+          <span>{{ link.icon }}</span> {{ link.label }}
+        </a>
+      }
+    </nav>
+    <div class="absolute bottom-0 w-64 border-t border-gray-100 p-4">
+      <button (click)="logout()" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50">
+        <span>⎋</span> Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <!-- Topbar (mobile nav included) -->
+    <header class="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 md:px-8">
+      <div class="flex items-center gap-4 md:hidden">
+        @for (link of links; track link.path) {
+          <a [routerLink]="link.path" routerLinkActive="text-primary-600" class="text-xl">{{ link.icon }}</a>
+        }
+      </div>
+      <div class="ml-auto flex items-center gap-3">
+        @if (auth.user(); as user) {
+          <div class="text-right">
+            <p class="text-sm font-semibold">{{ user.name || user.email }}</p>
+            <p class="text-xs text-gray-500">{{ user.role }}</p>
+          </div>
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
+            {{ avatarInitial(user) }}
+          </div>
+        }
+        <button (click)="logout()" class="md:hidden text-sm text-red-600">⎋</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-8">
+      <router-outlet />
+    </main>
+  </div>
+</div>

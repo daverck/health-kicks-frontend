@@ -1,0 +1,101 @@
+<div class="mx-auto max-w-5xl space-y-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Historique des événements</h1>
+      <p class="mt-1 text-sm text-gray-600">Chutes détectées et déclenchements de vibration.</p>
+    </div>
+    <button (click)="refresh()" class="btn-secondary">↻ Actualiser</button>
+  </div>
+
+  @if (mocks.useMocks$ | async) {
+    <div class="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
+      ⚠️ <strong>Mode mock actif</strong> — l'endpoint <code class="font-mono text-xs">/devices/&#123;id&#125;/events/falls</code> n'est pas encore disponible côté backend. Les données affichées sont factices.
+    </div>
+  }
+
+  <!-- Device filter -->
+  <div class="flex flex-wrap items-center gap-3">
+    <label class="text-sm font-medium text-gray-700" for="device">Device :</label>
+    <select id="device" class="input w-auto" (change)="onDeviceChange($event)">
+      @for (device of devices(); track device.device_id) {
+        <option [value]="device.device_id" [selected]="device.device_id === selectedDeviceId()">
+          {{ device.name || device.device_id }}
+        </option>
+      }
+    </select>
+    @if (total() !== null) {
+      <span class="text-sm text-gray-500">{{ total() }} événement(s) au total</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="card py-12 text-center text-sm text-gray-500">Chargement de l'historique…</div>
+  } @else if (events().length === 0) {
+    <div class="card py-12 text-center">
+      <p class="text-sm text-gray-500">Aucun événement enregistré pour ce device.</p>
+    </div>
+  } @else {
+    <!-- Timeline (mobile) -->
+    <section class="card md:hidden">
+      <ol class="relative space-y-6 border-l-2 border-gray-100 pl-6">
+        @for (event of events(); track event.id) {
+          <li>
+            <span class="absolute -left-[9px] mt-1.5 h-4 w-4 rounded-full border-2 border-white"
+                  [class.bg-red-500]="event.status_enum === 'fall_detected'"
+                  [class.bg-primary-500]="event.status_enum !== 'fall_detected'"></span>
+            <p class="text-sm font-semibold">{{ event.status_enum }}</p>
+            <p class="text-xs text-gray-500">{{ event.timestamp_utc | date:'medium' }}</p>
+            @if (event.confidence_score != null) {
+              <p class="text-xs text-gray-400">Confiance : {{ (event.confidence_score * 100).toFixed(0) }}%</p>
+            }
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- Table (desktop) -->
+    <section class="card hidden overflow-x-auto p-0 md:block">
+      <table class="min-w-full divide-y divide-gray-100 text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-gray-700">Horodatage</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-700">Statut</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-700">Source / Trigger</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-700">Confiance</th>
+            <th class="px-4 py-3 text-left font-semibold text-gray-700">Device ID</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (event of events(); track event.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ event.timestamp_utc | date:'medium' }}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                      [class.bg-red-100]="event.status_enum === 'fall_detected'"
+                      [class.text-red-700]="event.status_enum === 'fall_detected'"
+                      [class.bg-green-100]="event.status_enum === 'acknowledged' || event.status_enum === 'vibration_sent'"
+                      [class.text-green-700]="event.status_enum === 'acknowledged' || event.status_enum === 'vibration_sent'"
+                      [class.bg-gray-100]="event.status_enum !== 'fall_detected' && event.status_enum !== 'acknowledged' && event.status_enum !== 'vibration_sent'"
+                      [class.text-gray-700]="event.status_enum !== 'fall_detected' && event.status_enum !== 'acknowledged' && event.status_enum !== 'vibration_sent'">
+                  {{ event.status_enum }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-600">{{ sourceOf(event) }}</td>
+              <td class="px-4 py-3 text-gray-600">
+                @if (event.confidence_score != null) { {{ (event.confidence_score * 100).toFixed(0) }}% } @else { — }
+              </td>
+              <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ event.device_id }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between">
+      <button class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">← Précédent</button>
+      <span class="text-sm text-gray-600">Page {{ page() }}{{ totalPages() > 0 ? ' / ' + totalPages() : '' }}</span>
+      <button class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Suivant →</button>
+    </div>
+  }
+</div>

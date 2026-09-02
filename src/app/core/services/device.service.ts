@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DeviceResponse, HealthResponse, HapticTrigger, HapticTriggerResponse } from '../models/api.models';
+import { DeviceResponse, HealthResponse, HapticTrigger, HapticTriggerResponse } from '../../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class DeviceService {
