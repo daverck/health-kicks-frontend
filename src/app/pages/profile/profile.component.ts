@@ -70,7 +70,7 @@ export class ProfileComponent implements OnInit {
         this.saving.set(false);
         this.toast.success('Profil mis à jour !');
         // Refresh the local user copy (me endpoint reflects persisted changes).
-        this.auth.loadMe().subscribe({ error: () => {} });
+        this.auth.loadMe().subscribe({ error: () => { } });
       },
       error: (err) => {
         this.saving.set(false);
