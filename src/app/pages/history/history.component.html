@@ -7,13 +7,15 @@
     <button (click)="refresh()" class="btn-secondary">↻ Actualiser</button>
   </div>
 
-  @if (mocks.useMocks$ | async) {
-    <div class="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
-      ⚠️ <strong>Mode mock actif</strong> — l'endpoint <code class="font-mono text-xs">/devices/&#123;id&#125;/events/falls</code> n'est pas encore disponible côté backend. Les données affichées sont factices.
-    </div>
-  }
-
   <!-- Device filter -->
+  @if (devicesError()) {
+  <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <p class="font-semibold">Impossible de charger vos appareils.</p>
+    <p class="mt-1 text-xs text-red-500">Service temporairement indisponible, veuillez vérifier votre connexion.</p>
+    <button type="button" (click)="loadDevices()"
+      class="mt-3 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Réessayer</button>
+  </div>
+  } @else {
   <div class="flex flex-wrap items-center gap-3">
     <label class="text-sm font-medium text-gray-700" for="device">Device :</label>
     <select id="device" class="input w-auto" (change)="onDeviceChange($event)">
@@ -27,9 +29,17 @@
       <span class="text-sm text-gray-500">{{ total() }} événement(s) au total</span>
     }
   </div>
+  }
 
   @if (loading()) {
     <div class="card py-12 text-center text-sm text-gray-500">Chargement de l'historique…</div>
+  } @else if (eventsError()) {
+    <div class="card border-red-200 bg-red-50 py-12 text-center">
+      <p class="text-sm font-semibold text-red-700">Impossible de charger l'historique des événements.</p>
+      <p class="mt-1 text-xs text-red-500">Service temporairement indisponible, veuillez vérifier votre connexion.</p>
+      <button type="button" (click)="refresh()"
+        class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">Réessayer</button>
+    </div>
   } @else if (events().length === 0) {
     <div class="card py-12 text-center">
       <p class="text-sm text-gray-500">Aucun événement enregistré pour ce device.</p>

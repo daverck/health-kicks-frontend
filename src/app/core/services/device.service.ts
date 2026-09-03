@@ -2,7 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { DeviceResponse, HealthResponse, HapticTrigger, HapticTriggerResponse } from '../../models/api.models';
+import {
+  DeviceResponse,
+  HealthResponse,
+  HapticTrigger,
+  HapticTriggerResponse,
+  FallEventPage,
+} from '../../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class DeviceService {
@@ -20,8 +26,8 @@ export class DeviceService {
     );
   }
 
-  getFallHistory(deviceId: string, page = 1, pageSize = 50) {
-    return this.http.get<any>(`${this.base}/devices/${deviceId}/events/falls`, {
+  getFallHistory(deviceId: string, page = 1, pageSize = 50): Observable<FallEventPage> {
+    return this.http.get<FallEventPage>(`${this.base}/devices/${deviceId}/events/falls`, {
       params: { page: String(page), page_size: String(pageSize) },
     });
   }

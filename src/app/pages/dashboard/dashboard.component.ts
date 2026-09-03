@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
-import { MockApiService } from '../../core/services/mock-api.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, FallEventResponse, HapticTriggerResponse } from '../../models/api.models';
 
@@ -16,11 +15,11 @@ export class DashboardComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private readonly toast = inject(ToastService);
 
-  readonly mocks = inject(MockApiService);
-
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDevice = signal<DeviceResponse | null>(null);
   readonly loadingDevices = signal(true);
+  readonly devicesError = signal(false);
+  readonly eventsError = signal(false);
 
   readonly intensity = signal(180);
   readonly durationMs = signal(500);
@@ -45,12 +44,17 @@ export class DashboardComponent implements OnInit {
         this.loadingDevices.set(false);
         this.loadRecentEvents();
       },
-      error: () => {
-        // Fallback: mock devices (endpoint not ready or backend unreachable).
-        this.devices.set(this.mocks.mockDevices());
-        this.selectedDevice.set(this.mocks.mockDevices()[0]);
+      error: (err) => {
+        // Aucun fallback mock : l'erreur est remontée à l'UI.
+        this.devices.set([]);
+        this.selectedDevice.set(null);
         this.loadingDevices.set(false);
-        this.loadRecentEvents();
+        this.devicesError.set(true);
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
+            : 'Impossible de charger vos appareils. Veuillez réessayer plus tard.'
+        );
       },
     });
   }
@@ -79,16 +83,11 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.triggering.set(false);
-        if (err?.status === 0 || err?.status === 404) {
-          // Mock fallback: simulate a successful trigger locally.
-          const mock = this.mocks.mockHapticTrigger(payload);
-          this.vibrating.set(true);
-          setTimeout(() => this.vibrating.set(false), 1200);
-          this.lastResponse.set(JSON.stringify(mock) + ' (mock)');
-          this.toast.info('Backend indisponible — vibration simulée (mock).');
-        } else {
-          this.toast.error(err?.error?.detail ?? 'Échec du déclenchement de la vibration.');
-        }
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
+            : (err?.error?.detail ?? 'Échec du déclenchement de la vibration.')
+        );
       },
     });
   }
@@ -96,8 +95,13 @@ export class DashboardComponent implements OnInit {
   private loadRecentEvents(): void {
     const device = this.selectedDevice();
     if (!device) return;
-    this.mocks.getFallHistory(device.device_id, 1, 5).subscribe((page) => {
-      this.recentEvents.set(page.items);
+    this.eventsError.set(false);
+    this.deviceService.getFallHistory(device.device_id, 1, 5).subscribe({
+      next: (page) => this.recentEvents.set(page?.items ?? []),
+      error: () => {
+        this.recentEvents.set([]);
+        this.eventsError.set(true);
+      },
     });
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceService } from '../../core/services/device.service';
-import { MockApiService } from '../../core/services/mock-api.service';
+import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, FallEventResponse } from '../../models/api.models';
 
 @Component({
@@ -12,12 +12,14 @@ import { DeviceResponse, FallEventResponse } from '../../models/api.models';
 })
 export class HistoryComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
-  readonly mocks = inject(MockApiService);
+  private readonly toast = inject(ToastService);
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');
   readonly events = signal<FallEventResponse[]>([]);
   readonly loading = signal(true);
+  readonly devicesError = signal(false);
+  readonly eventsError = signal(false);
 
   readonly page = signal(1);
   readonly pageSize = 20;
@@ -33,15 +35,23 @@ export class HistoryComponent implements OnInit {
     this.deviceService.listDevices().subscribe({
       next: (devices) => {
         this.devices.set(devices);
+        this.devicesError.set(false);
         if (devices.length > 0) {
           this.selectedDeviceId.set(devices[0].device_id);
         }
         this.loadEvents();
       },
-      error: () => {
-        this.devices.set(this.mocks.mockDevices());
-        this.selectedDeviceId.set(this.mocks.mockDevices()[0].device_id);
-        this.loadEvents();
+      error: (err) => {
+        // Aucun fallback mock : l'erreur est remontée à l'UI.
+        this.devices.set([]);
+        this.selectedDeviceId.set('');
+        this.devicesError.set(true);
+        this.loading.set(false);
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
+            : 'Impossible de charger vos appareils. Veuillez réessayer plus tard.'
+        );
       },
     });
   }
@@ -72,17 +82,26 @@ export class HistoryComponent implements OnInit {
       return;
     }
     this.loading.set(true);
+    this.eventsError.set(false);
 
-    this.mocks.getFallHistory(deviceId, this.page(), this.pageSize).subscribe({
+    this.deviceService.getFallHistory(deviceId, this.page(), this.pageSize).subscribe({
       next: (page) => {
         this.events.set(page.items);
         this.total.set(page.total);
         this.totalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
         this.events.set([]);
+        this.total.set(null);
+        this.totalPages.set(0);
         this.loading.set(false);
+        this.eventsError.set(true);
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
+            : "Impossible de charger l'historique des événements."
+        );
       },
     });
   }
