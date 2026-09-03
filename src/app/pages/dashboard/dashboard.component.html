@@ -23,7 +23,10 @@
     </div>
     } @else if (devices().length === 0) {
     <div class="rounded-xl border-2 border-dashed border-gray-200 py-10 text-center">
-      <p class="text-sm text-gray-500">Aucun device associé à votre compte.</p>
+      <p class="text-sm text-gray-500">Aucun équipement associé à votre compte.</p>
+      <a routerLink="/dashboard/devices" class="btn-primary mt-4 inline-flex items-center gap-2 text-xs">
+        + Associer un équipement
+      </a>
     </div>
     } @else {
     <div class="grid gap-3 sm:grid-cols-2">

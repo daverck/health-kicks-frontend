@@ -1,10 +1,26 @@
 import {
+  DeviceCreate,
   DeviceResponse,
   FallEventPage,
   FallEventResponse,
   HapticTriggerResponse,
   HealthResponse,
 } from '../../app/models/api.models';
+
+export const mockDeviceCreate: DeviceCreate = {
+  device_id: 'HK-SHOE-001',
+  name: 'Semelle Pied Droit',
+};
+
+export const mockBoundDevice: DeviceResponse = {
+  id: 3,
+  device_id: 'HK-SHOE-001',
+  name: 'Semelle Pied Droit',
+  status: 'offline',
+  last_seen_utc: null,
+  created_at: '2026-09-03T09:00:00Z',
+  bound_at_utc: '2026-09-03T10:15:30Z',
+};
 
 export const mockDevices: DeviceResponse[] = [
   {
@@ -14,6 +30,7 @@ export const mockDevices: DeviceResponse[] = [
     status: 'online',
     last_seen_utc: '2026-09-01T12:00:00Z',
     created_at: '2025-11-02T09:00:00Z',
+    bound_at_utc: '2025-11-02T09:30:00Z',
   },
   {
     id: 2,
@@ -22,6 +39,7 @@ export const mockDevices: DeviceResponse[] = [
     status: 'offline',
     last_seen_utc: '2026-08-30T14:12:00Z',
     created_at: '2025-12-15T11:30:00Z',
+    bound_at_utc: '2025-12-15T11:45:00Z',
   },
 ];
 

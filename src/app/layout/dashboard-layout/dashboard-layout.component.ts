@@ -15,6 +15,7 @@ export class DashboardLayoutComponent implements OnInit {
 
   readonly links = [
     { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
+    { path: '/dashboard/devices', label: 'Mes Équipements', icon: '👟' },
     { path: '/dashboard/history', label: 'Historique', icon: '🕓' },
     { path: '/dashboard/profile', label: 'Mon profil', icon: '👤' },
   ];

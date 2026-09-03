@@ -34,6 +34,11 @@ export interface AuthTokens {
 
 // ---------- Devices / IoT ----------
 
+export interface DeviceCreate {
+  device_id: string;
+  name?: string | null;
+}
+
 export interface DeviceResponse {
   id: number;
   device_id: string;
@@ -41,6 +46,7 @@ export interface DeviceResponse {
   status: string;
   last_seen_utc?: string | null;
   created_at: string;
+  bound_at_utc?: string | null;
 }
 
 export interface HapticTrigger {

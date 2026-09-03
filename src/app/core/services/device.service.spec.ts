@@ -8,6 +8,8 @@ import {
   mockFallEventPage,
   mockHapticResponse,
   mockHealthResponse,
+  mockDeviceCreate,
+  mockBoundDevice,
 } from '../../../testing/mocks/device.mock';
 
 describe('DeviceService', () => {
@@ -35,15 +37,69 @@ describe('DeviceService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should list devices via GET /devices', () => {
+  it('should list devices via GET /devices with default pagination params', () => {
     service.listDevices().subscribe((devices) => {
       expect(devices.length).toBe(2);
       expect(devices).toEqual(mockDevices);
     });
 
-    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices`);
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices?skip=0&limit=100`);
     expect(req.request.method).toBe('GET');
     req.flush(mockDevices);
+  });
+
+  it('should list devices with custom skip and limit params', () => {
+    service.listDevices(10, 25).subscribe();
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices?skip=10&limit=25`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('should bind a device via POST /devices', () => {
+    service.bindDevice(mockDeviceCreate).subscribe((device) => {
+      expect(device).toEqual(mockBoundDevice);
+      expect(device.bound_at_utc).toBe('2026-09-03T10:15:30Z');
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(mockDeviceCreate);
+    req.flush(mockBoundDevice);
+  });
+
+  it('should unbind a device via DELETE /devices/{device_id}', () => {
+    service.unbindDevice('HK-SHOE-001').subscribe();
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices/HK-SHOE-001`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('should format specific bind error messages correctly', () => {
+    // 404
+    expect(service.getBindErrorMessage({ status: 404, error: { detail: 'Device not found' } }))
+      .toContain('Identifiant introuvable');
+
+    // 400 already bound
+    expect(service.getBindErrorMessage({ status: 400, error: { detail: 'Device already bound to this user' } }))
+      .toContain('Cet équipement est déjà associé à votre compte');
+
+    // 400 owned by another
+    expect(service.getBindErrorMessage({ status: 400, error: { detail: 'Device is already owned by another user' } }))
+      .toContain('Cet équipement est déjà rattaché à un autre compte actif');
+
+    // 401
+    expect(service.getBindErrorMessage({ status: 401 }))
+      .toContain('Session expirée');
+
+    // Status 0 (network)
+    expect(service.getBindErrorMessage({ status: 0 }))
+      .toContain('Service temporairement indisponible');
+
+    // Generic fallback
+    expect(service.getBindErrorMessage({ status: 500 }))
+      .toContain("Une erreur est survenue");
   });
 
   it('should trigger haptic vibration via POST /devices/{id}/haptic/trigger', () => {
@@ -83,4 +139,3 @@ describe('DeviceService', () => {
     req.flush(mockHealthResponse);
   });
 });
-
