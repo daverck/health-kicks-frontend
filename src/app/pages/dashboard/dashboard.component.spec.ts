@@ -88,7 +88,7 @@ describe('DashboardComponent', () => {
     component.triggerHaptic();
 
     expect(deviceServiceSpy.triggerHaptic).toHaveBeenCalledWith('hk-device-0001', {
-      intensity: 180,
+      intensity: 184,
       duration_ms: 500,
     });
     expect(component.triggering()).toBeFalse();
@@ -107,12 +107,13 @@ describe('DashboardComponent', () => {
     expect(component.vibrating()).toBeFalse();
   }));
 
-  it('should render recent haptic logs list with intensity, duration and formatted date', () => {
+  it('should render recent haptic logs list with user level, intensity, duration and formatted date', () => {
     fixture.detectChanges();
 
     const hapticList = fixture.nativeElement.querySelector('#recent-haptic-list');
     expect(hapticList).toBeTruthy();
-    expect(hapticList.textContent).toContain('180 / 255');
+    expect(hapticList.textContent).toContain('Niveau 5');
+    expect(hapticList.textContent).toContain('180/255');
     expect(hapticList.textContent).toContain('500 ms');
     expect(hapticList.textContent).toContain('Utilisateur');
   });
@@ -156,22 +157,41 @@ describe('DashboardComponent', () => {
     expect(durationInput.getAttribute('step')).toBe('100');
   });
 
-  it('should render datalists and visual graduations for both intensity and duration sliders', () => {
+  it('should render datalists and visual graduations for 10 intensity levels and duration slider', () => {
     fixture.detectChanges();
 
     const intensityInput: HTMLInputElement = fixture.nativeElement.querySelector('#intensity');
     expect(intensityInput.getAttribute('list')).toBe('intensity-ticks');
+    expect(intensityInput.getAttribute('min')).toBe('1');
+    expect(intensityInput.getAttribute('max')).toBe('10');
+    expect(intensityInput.getAttribute('step')).toBe('1');
 
     const durationInput: HTMLInputElement = fixture.nativeElement.querySelector('#duration');
     expect(durationInput.getAttribute('list')).toBe('duration-ticks');
 
     const intensityDatalist = fixture.nativeElement.querySelector('#intensity-ticks');
     expect(intensityDatalist).toBeTruthy();
-    expect(intensityDatalist.querySelectorAll('option').length).toBe(5);
+    expect(intensityDatalist.querySelectorAll('option').length).toBe(10);
 
     const durationDatalist = fixture.nativeElement.querySelector('#duration-ticks');
     expect(durationDatalist).toBeTruthy();
     expect(durationDatalist.querySelectorAll('option').length).toBe(5);
+  });
+
+  it('should accurately convert 10 user vibration levels to truncated 128..255 backend scale', () => {
+    fixture.detectChanges();
+
+    component.setVibrationLevel(1);
+    expect(component.vibrationLevel()).toBe(1);
+    expect(component.intensity()).toBe(128);
+
+    component.setVibrationLevel(5);
+    expect(component.vibrationLevel()).toBe(5);
+    expect(component.intensity()).toBe(184);
+
+    component.setVibrationLevel(10);
+    expect(component.vibrationLevel()).toBe(10);
+    expect(component.intensity()).toBe(255);
   });
 });
 

@@ -73,32 +73,35 @@
     <div class="mt-6 grid gap-6 md:grid-cols-2">
       <!-- Intensité -->
       <div>
-        <label class="label" for="intensity">Intensité : <span class="font-bold text-primary-600">{{ intensity()
-            }}</span> / 255</label>
-        <input id="intensity" type="range" min="0" max="255" list="intensity-ticks" [value]="intensity()"
-          (input)="intensity.set(+$any($event.target).value)" class="w-full accent-primary-600" />
+        <label class="label" for="intensity">
+          Intensité : <span class="font-bold text-primary-600">Niveau {{ vibrationLevel() }}</span> / 10
+          <span class="ml-1 text-xs font-normal text-gray-400">({{ intensity() }} / 255)</span>
+        </label>
+        <input id="intensity" type="range" min="1" max="10" step="1" list="intensity-ticks" [value]="vibrationLevel()"
+          (input)="setVibrationLevel(+$any($event.target).value)" class="w-full accent-primary-600" />
         <datalist id="intensity-ticks">
-          <option value="0"></option>
-          <option value="64"></option>
-          <option value="128"></option>
-          <option value="192"></option>
-          <option value="255"></option>
+          <option value="1"></option>
+          <option value="2"></option>
+          <option value="3"></option>
+          <option value="4"></option>
+          <option value="5"></option>
+          <option value="6"></option>
+          <option value="7"></option>
+          <option value="8"></option>
+          <option value="9"></option>
+          <option value="10"></option>
         </datalist>
         <!-- Graduations visuelles -->
         <div class="mt-1 px-1">
           <div class="flex justify-between items-center text-gray-300">
-            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
-            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
-            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
-            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
-            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            @for (lvl of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track lvl) {
+              <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            }
           </div>
           <div class="mt-0.5 flex justify-between text-[11px] text-gray-400">
-            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(0)">0</span>
-            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(64)">64</span>
-            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(128)">128</span>
-            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(192)">192</span>
-            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(255)">255</span>
+            @for (lvl of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track lvl) {
+              <span class="cursor-pointer hover:text-primary-600 transition" [class.font-bold]="vibrationLevel() === lvl" (click)="setVibrationLevel(lvl)">{{ lvl }}</span>
+            }
           </div>
         </div>
       </div>
@@ -177,7 +180,8 @@
                 <span class="text-base">📳</span>
                 <div>
                   <div class="font-medium text-gray-800">
-                    Intensité : <span class="font-semibold text-primary-600">{{ log.intensity }} / 255</span>
+                    Intensité : <span class="font-semibold text-primary-600">Niveau {{ intensityToLevel(log.intensity) }}</span>
+                    <span class="text-[11px] text-gray-400"> ({{ log.intensity }}/255)</span>
                     <span class="mx-1 text-gray-300">•</span>
                     Durée : <span class="font-semibold">{{ log.duration_ms }} ms</span>
                   </div>

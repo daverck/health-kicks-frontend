@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, FallEventResponse, HapticLogItem } from '../../models/api.models';
+import { intensityToLevel } from '../../core/utils/haptic.utils';
 
 @Component({
   selector: 'app-history',
@@ -13,6 +14,8 @@ import { DeviceResponse, FallEventResponse, HapticLogItem } from '../../models/a
 export class HistoryComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private readonly toast = inject(ToastService);
+
+  readonly intensityToLevel = intensityToLevel;
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');

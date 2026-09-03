@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, FallEventResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
+import { intensityToLevel, levelToIntensity } from '../../core/utils/haptic.utils';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,10 +22,17 @@ export class DashboardComponent implements OnInit {
   readonly devicesError = signal(false);
   readonly eventsError = signal(false);
 
-  readonly intensity = signal(180);
+  readonly vibrationLevel = signal(5);
+  readonly intensity = computed(() => levelToIntensity(this.vibrationLevel()));
   readonly durationMs = signal(500);
   readonly triggering = signal(false);
   readonly vibrating = signal(false);
+
+  readonly intensityToLevel = intensityToLevel;
+
+  setVibrationLevel(level: number): void {
+    this.vibrationLevel.set(Math.max(1, Math.min(10, Math.round(level))));
+  }
 
   readonly recentEvents = signal<FallEventResponse[]>([]);
   readonly recentHapticLogs = signal<HapticLogItem[]>([]);

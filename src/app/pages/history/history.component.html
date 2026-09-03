@@ -188,7 +188,7 @@
                 </span>
               </div>
               <div class="mt-2 flex items-center justify-between text-sm">
-                <span class="font-medium">Intensité : <strong class="text-primary-600">{{ log.intensity }}</strong> / 255</span>
+                <span class="font-medium">Intensité : <strong class="text-primary-600">Niveau {{ intensityToLevel(log.intensity) }}</strong> <span class="text-xs text-gray-400">({{ log.intensity }}/255)</span></span>
                 <span class="text-gray-600">Durée : <strong>{{ log.duration_ms }} ms</strong></span>
               </div>
             </div>
@@ -212,8 +212,8 @@
                 <tr class="hover:bg-gray-50">
                   <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ log.triggered_at_utc | date:'medium' }}</td>
                   <td class="px-4 py-3">
-                    <span class="font-semibold text-primary-600">{{ log.intensity }}</span>
-                    <span class="text-xs text-gray-400"> / 255</span>
+                    <span class="font-semibold text-primary-600">Niveau {{ intensityToLevel(log.intensity) }}</span>
+                    <span class="text-xs text-gray-400"> ({{ log.intensity }}/255)</span>
                   </td>
                   <td class="px-4 py-3 text-gray-700">{{ log.duration_ms }} ms</td>
                   <td class="px-4 py-3">
