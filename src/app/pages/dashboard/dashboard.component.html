@@ -72,9 +72,9 @@
       <div>
         <label class="label" for="duration">Durée : <span class="font-bold text-primary-600">{{ durationMs() }}</span>
           ms</label>
-        <input id="duration" type="range" min="50" max="10000" step="50" [value]="durationMs()"
+        <input id="duration" type="range" min="100" max="10000" step="100" [value]="durationMs()"
           (input)="durationMs.set(+$any($event.target).value)" class="w-full accent-primary-600" />
-        <div class="mt-1 flex justify-between text-xs text-gray-400"><span>50 ms</span><span>10 s</span></div>
+        <div class="mt-1 flex justify-between text-xs text-gray-400"><span>100 ms</span><span>10 s</span></div>
       </div>
     </div>
 

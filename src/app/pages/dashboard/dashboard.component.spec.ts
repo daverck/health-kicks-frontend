@@ -104,5 +104,15 @@ describe('DashboardComponent', () => {
     expect(component.triggering()).toBeFalse();
     expect(toastServiceSpy.error).toHaveBeenCalledWith('Échec matériel');
   });
+
+  it('should have duration slider configured with 100ms step and 100ms min', () => {
+    fixture.detectChanges();
+
+    const durationInput: HTMLInputElement = fixture.nativeElement.querySelector('#duration');
+    expect(durationInput).toBeTruthy();
+    expect(durationInput.getAttribute('min')).toBe('100');
+    expect(durationInput.getAttribute('max')).toBe('10000');
+    expect(durationInput.getAttribute('step')).toBe('100');
+  });
 });
 
