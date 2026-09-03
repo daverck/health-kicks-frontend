@@ -7,6 +7,7 @@ import {
   mockDevices,
   mockFallEventPage,
   mockFallEvents,
+  mockHapticLogPage,
 } from '../../../testing/mocks/device.mock';
 
 describe('HistoryComponent', () => {
@@ -19,11 +20,13 @@ describe('HistoryComponent', () => {
     deviceServiceSpy = jasmine.createSpyObj('DeviceService', [
       'listDevices',
       'getFallHistory',
+      'getHapticHistory',
     ]);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['error']);
 
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
     deviceServiceSpy.getFallHistory.and.returnValue(of(mockFallEventPage));
+    deviceServiceSpy.getHapticHistory.and.returnValue(of(mockHapticLogPage));
 
     await TestBed.configureTestingModule({
       imports: [HistoryComponent],
@@ -90,6 +93,47 @@ describe('HistoryComponent', () => {
 
     const customEvent = { ...defaultEvent, source: 'manual' };
     expect(component.sourceOf(customEvent)).toBe('manual');
+  });
+
+  it('should switch to haptic tab and load haptic vibration logs', () => {
+    fixture.detectChanges();
+
+    component.setTab('haptic');
+    fixture.detectChanges();
+
+    expect(component.activeTab()).toBe('haptic');
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0001', 1, 20);
+    expect(component.hapticLogs().length).toBe(2);
+    expect(component.loading()).toBeFalse();
+
+    const compiled: HTMLElement = fixture.nativeElement;
+    expect(compiled.textContent).toContain('180');
+    expect(compiled.textContent).toContain('500 ms');
+  });
+
+  it('should handle pagination when on haptic tab', () => {
+    fixture.detectChanges();
+
+    component.setTab('haptic');
+    component.goToPage(3);
+
+    expect(component.hapticPage()).toBe(3);
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0001', 3, 20);
+  });
+
+  it('should handle error when loading haptic history fails', () => {
+    deviceServiceSpy.getHapticHistory.and.returnValue(
+      throwError(() => ({ status: 500 }))
+    );
+
+    fixture.detectChanges();
+    component.setTab('haptic');
+    fixture.detectChanges();
+
+    expect(component.hapticLogs()).toEqual([]);
+    expect(component.eventsError()).toBeTrue();
+    expect(component.loading()).toBeFalse();
+    expect(toastServiceSpy.error).toHaveBeenCalled();
   });
 });
 
