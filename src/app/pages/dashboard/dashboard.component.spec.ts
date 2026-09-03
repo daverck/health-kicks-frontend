@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import {
   mockDevices,
   mockFallEventPage,
+  mockHapticLogPage,
   mockHapticResponse,
 } from '../../../testing/mocks/device.mock';
 
@@ -21,11 +22,13 @@ describe('DashboardComponent', () => {
       'listDevices',
       'triggerHaptic',
       'getFallHistory',
+      'getHapticHistory',
     ]);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error']);
 
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
     deviceServiceSpy.getFallHistory.and.returnValue(of(mockFallEventPage));
+    deviceServiceSpy.getHapticHistory.and.returnValue(of(mockHapticLogPage));
     deviceServiceSpy.triggerHaptic.and.returnValue(of(mockHapticResponse));
 
     await TestBed.configureTestingModule({
@@ -51,6 +54,8 @@ describe('DashboardComponent', () => {
     expect(component.devicesError()).toBeFalse();
     expect(deviceServiceSpy.getFallHistory).toHaveBeenCalledWith('hk-device-0001', 1, 5);
     expect(component.recentEvents().length).toBe(2);
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0001', 1, 5);
+    expect(component.recentHapticLogs().length).toBe(2);
   });
 
   it('should handle error when loading devices fails', () => {
@@ -72,10 +77,13 @@ describe('DashboardComponent', () => {
 
     component.selectDevice(mockDevices[1]);
     expect(component.selectedDevice()).toEqual(mockDevices[1]);
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0002', 1, 5);
   });
 
-  it('should trigger haptic feedback and display toast on success without displaying json payload', fakeAsync(() => {
+  it('should trigger haptic feedback, refresh haptic history, and display toast on success without displaying json payload', fakeAsync(() => {
     fixture.detectChanges();
+
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledTimes(1);
 
     component.triggerHaptic();
 
@@ -87,6 +95,9 @@ describe('DashboardComponent', () => {
     expect(component.vibrating()).toBeTrue();
     expect(toastServiceSpy.success).toHaveBeenCalled();
 
+    // Verify haptic history is refreshed upon trigger success
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledTimes(2);
+
     // Verify raw JSON response is not rendered in template
     const jsonPayload = fixture.nativeElement.querySelector('.font-mono.text-green-700');
     expect(jsonPayload).toBeNull();
@@ -95,6 +106,16 @@ describe('DashboardComponent', () => {
     tick(1200);
     expect(component.vibrating()).toBeFalse();
   }));
+
+  it('should render recent haptic logs list with intensity, duration and formatted date', () => {
+    fixture.detectChanges();
+
+    const hapticList = fixture.nativeElement.querySelector('#recent-haptic-list');
+    expect(hapticList).toBeTruthy();
+    expect(hapticList.textContent).toContain('180 / 255');
+    expect(hapticList.textContent).toContain('500 ms');
+    expect(hapticList.textContent).toContain('Utilisateur');
+  });
 
   it('should not allow triggering haptic feedback when device is offline', () => {
     fixture.detectChanges();

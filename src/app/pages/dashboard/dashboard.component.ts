@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
-import { DeviceResponse, FallEventResponse, HapticTriggerResponse } from '../../models/api.models';
+import { DeviceResponse, FallEventResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +27,7 @@ export class DashboardComponent implements OnInit {
   readonly vibrating = signal(false);
 
   readonly recentEvents = signal<FallEventResponse[]>([]);
+  readonly recentHapticLogs = signal<HapticLogItem[]>([]);
 
   ngOnInit(): void {
     this.loadDevices();
@@ -42,6 +43,7 @@ export class DashboardComponent implements OnInit {
         }
         this.loadingDevices.set(false);
         this.loadRecentEvents();
+        this.loadRecentHapticLogs();
       },
       error: (err) => {
         // Aucun fallback mock : l'erreur est remontée à l'UI.
@@ -60,6 +62,8 @@ export class DashboardComponent implements OnInit {
 
   selectDevice(device: DeviceResponse): void {
     this.selectedDevice.set(device);
+    this.loadRecentEvents();
+    this.loadRecentHapticLogs();
   }
 
   triggerHaptic(): void {
@@ -76,6 +80,7 @@ export class DashboardComponent implements OnInit {
         this.vibrating.set(true);
         setTimeout(() => this.vibrating.set(false), 1200);
         this.toast.success(`Vibration envoyée à ${device.name || device.device_id} !`);
+        this.loadRecentHapticLogs();
       },
       error: (err) => {
         this.triggering.set(false);
@@ -98,6 +103,15 @@ export class DashboardComponent implements OnInit {
         this.recentEvents.set([]);
         this.eventsError.set(true);
       },
+    });
+  }
+
+  loadRecentHapticLogs(): void {
+    const device = this.selectedDevice();
+    if (!device) return;
+    this.deviceService.getHapticHistory(device.device_id, 1, 5).subscribe({
+      next: (page) => this.recentHapticLogs.set(page?.items ?? []),
+      error: () => this.recentHapticLogs.set([]),
     });
   }
 }

@@ -158,12 +158,48 @@
       </p>
       }
     </div>
+
+    <!-- Recent vibrations preview -->
+    <div class="mt-8 border-t border-gray-100 pt-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">Dernières stimulations envoyées</h3>
+        <a routerLink="/dashboard/history" class="text-xs font-medium text-primary-600 hover:text-primary-700">
+          Historique complet →
+        </a>
+      </div>
+      @if (recentHapticLogs().length === 0) {
+        <p class="py-3 text-center text-xs text-gray-400">Aucune stimulation récente enregistrée.</p>
+      } @else {
+        <ul id="recent-haptic-list" class="divide-y divide-gray-100 text-xs">
+          @for (log of recentHapticLogs(); track log.id) {
+            <li class="flex items-center justify-between py-2.5">
+              <div class="flex items-center gap-2.5">
+                <span class="text-base">📳</span>
+                <div>
+                  <div class="font-medium text-gray-800">
+                    Intensité : <span class="font-semibold text-primary-600">{{ log.intensity }} / 255</span>
+                    <span class="mx-1 text-gray-300">•</span>
+                    Durée : <span class="font-semibold">{{ log.duration_ms }} ms</span>
+                  </div>
+                  <div class="text-gray-400">{{ log.triggered_at_utc | date:'medium' }}</div>
+                </div>
+              </div>
+              <span class="inline-flex rounded-full px-2 py-0.5 font-semibold text-[10px]"
+                [class.bg-blue-100]="log.triggered_by_user" [class.text-blue-700]="log.triggered_by_user"
+                [class.bg-purple-100]="!log.triggered_by_user" [class.text-purple-700]="!log.triggered_by_user">
+                {{ log.triggered_by_user ? 'Utilisateur' : 'Automatique' }}
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
   </section>
 
   <!-- Recent events preview -->
   <section class="card">
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">Derniers événements</h2>
+      <h2 class="text-lg font-semibold">Dernières alertes de chute</h2>
       <a routerLink="/dashboard/history" class="text-sm font-medium text-primary-600 hover:text-primary-700">Tout
         l'historique →</a>
     </div>
