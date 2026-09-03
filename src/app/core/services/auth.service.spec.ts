@@ -108,6 +108,9 @@ describe('AuthService', () => {
     expect(service.user()).toBeNull();
     expect(service.isAuthenticated()).toBeFalse();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+
+    service.logout('/');
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 });
 

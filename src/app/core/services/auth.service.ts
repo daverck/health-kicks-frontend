@@ -17,7 +17,10 @@ export class AuthService {
 
   readonly user = this.userSignal.asReadonly();
   readonly token = this.tokenSignal.asReadonly();
-  readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  readonly isAuthenticated = computed(() => {
+    const t = this.tokenSignal();
+    return typeof t === 'string' && t.trim().length > 0;
+  });
 
   private readonly base = `${environment.apiUrl}/api/v1`;
 
@@ -73,10 +76,10 @@ export class AuthService {
     this.tokenSignal.set(token);
   }
 
-  logout(): void {
+  logout(redirectTo = '/login'): void {
     localStorage.removeItem(TOKEN_KEY);
     this.tokenSignal.set(null);
     this.userSignal.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate([redirectTo]);
   }
 }
