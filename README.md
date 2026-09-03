@@ -105,9 +105,15 @@ pnpm exec ng build --configuration production
   - Profil utilisateur : consultation et édition.
   - Contrôle IoT : sélection du device, déclenchement haptique à distance
     (intensité 0–255, durée 50–10000 ms) avec toast de confirmation.
-  - Historique des événements/chutes : timeline + tableau paginé, avec
-    **fallback mock** (`MockApiService`) si l'endpoint backend
-    `/devices/{id}/events/falls` n'est pas encore disponible.
+  - Historique des événements/chutes : timeline + tableau paginé, connecté à
+    l'endpoint backend `/devices/{id}/events/falls`.
+
+## Tests
+
+```bash
+pnpm test          # Mode interactif avec watch
+pnpm run test:ci   # Mode headless CI (une seule passe)
+```
 
 ## Docker
 
@@ -122,10 +128,11 @@ avec fallback SPA (`try_files $uri $uri/ /index.html`).
 
 ## Déploiement CI/CD
 
-`.github/workflows/deploy.yml` — déclenchement **manuel** (`workflow_dispatch`),
-environment **production**. Étapes : build image Docker → push ECR
-(`693906847467.dkr.ecr.eu-north-1.amazonaws.com/healthkicks-frontend:latest`) →
-SSH sur l'EC2 pour `docker pull` + relance du conteneur (port 8080).
+`.github/workflows/deploy.yml` — déclenchement automatique sur `push`/`pull_request` (job `test`), et **manuel** (`workflow_dispatch`) pour le déploiement.
+
+Pipeline structuré en 2 jobs distincts :
+1. **`test`** (Ubuntu + Node 20 + pnpm) : exécute la suite de tests unitaires avec Karma en mode headless (`pnpm run test:ci`).
+2. **`build-and-deploy`** (`needs: test`, environnement `production`) : build de l'image Docker → push sur Amazon ECR (`693906847467.dkr.ecr.eu-north-1.amazonaws.com/healthkicks-frontend:latest`) → déploiement SSH sur EC2 (`docker pull` + relance du conteneur sur le port 8080).
 
 Secrets requis (environment `production`) :
 `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`.
