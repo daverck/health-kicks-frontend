@@ -128,7 +128,7 @@ avec fallback SPA (`try_files $uri $uri/ /index.html`).
 
 ## Déploiement CI/CD
 
-`.github/workflows/deploy.yml` — déclenchement automatique sur `push`/`pull_request` (job `test`), et **manuel** (`workflow_dispatch`) pour le déploiement.
+`.github/workflows/deploy.yml` — déclenchement automatique sur `push`/`pull_request` (job `test`), et déploiement automatique sur la branche `main` après validation des tests.
 
 Pipeline structuré en 2 jobs distincts :
 1. **`test`** (Ubuntu + Node 24 + pnpm) : exécute la suite de tests unitaires avec Karma en mode headless (`pnpm run test:ci`).

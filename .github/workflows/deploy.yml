@@ -1,7 +1,7 @@
 name: Deploy Frontend
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -39,7 +39,9 @@ jobs:
   build-and-deploy:
     name: Build image, push to ECR and deploy on EC2
     needs: test
-    if: github.event_name == 'workflow_dispatch'
+    # Déploiement automatique après succès des tests sur la branche main
+    if: github.ref == 'refs/heads/main'
+    # if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: production
 
