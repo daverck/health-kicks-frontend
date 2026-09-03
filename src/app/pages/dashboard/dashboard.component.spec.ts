@@ -134,5 +134,23 @@ describe('DashboardComponent', () => {
     expect(durationInput.getAttribute('max')).toBe('10000');
     expect(durationInput.getAttribute('step')).toBe('100');
   });
+
+  it('should render datalists and visual graduations for both intensity and duration sliders', () => {
+    fixture.detectChanges();
+
+    const intensityInput: HTMLInputElement = fixture.nativeElement.querySelector('#intensity');
+    expect(intensityInput.getAttribute('list')).toBe('intensity-ticks');
+
+    const durationInput: HTMLInputElement = fixture.nativeElement.querySelector('#duration');
+    expect(durationInput.getAttribute('list')).toBe('duration-ticks');
+
+    const intensityDatalist = fixture.nativeElement.querySelector('#intensity-ticks');
+    expect(intensityDatalist).toBeTruthy();
+    expect(intensityDatalist.querySelectorAll('option').length).toBe(5);
+
+    const durationDatalist = fixture.nativeElement.querySelector('#duration-ticks');
+    expect(durationDatalist).toBeTruthy();
+    expect(durationDatalist.querySelectorAll('option').length).toBe(5);
+  });
 });
 

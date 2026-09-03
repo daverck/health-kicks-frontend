@@ -71,19 +71,68 @@
     </div>
 
     <div class="mt-6 grid gap-6 md:grid-cols-2">
+      <!-- Intensité -->
       <div>
         <label class="label" for="intensity">Intensité : <span class="font-bold text-primary-600">{{ intensity()
             }}</span> / 255</label>
-        <input id="intensity" type="range" min="0" max="255" [value]="intensity()"
+        <input id="intensity" type="range" min="0" max="255" list="intensity-ticks" [value]="intensity()"
           (input)="intensity.set(+$any($event.target).value)" class="w-full accent-primary-600" />
-        <div class="mt-1 flex justify-between text-xs text-gray-400"><span>0</span><span>255</span></div>
+        <datalist id="intensity-ticks">
+          <option value="0"></option>
+          <option value="64"></option>
+          <option value="128"></option>
+          <option value="192"></option>
+          <option value="255"></option>
+        </datalist>
+        <!-- Graduations visuelles -->
+        <div class="mt-1 px-1">
+          <div class="flex justify-between items-center text-gray-300">
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+          </div>
+          <div class="mt-0.5 flex justify-between text-[11px] text-gray-400">
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(0)">0</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(64)">64</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(128)">128</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(192)">192</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="intensity.set(255)">255</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Durée -->
       <div>
         <label class="label" for="duration">Durée : <span class="font-bold text-primary-600">{{ durationMs() }}</span>
           ms</label>
-        <input id="duration" type="range" min="100" max="10000" step="100" [value]="durationMs()"
+        <input id="duration" type="range" min="100" max="10000" step="100" list="duration-ticks" [value]="durationMs()"
           (input)="durationMs.set(+$any($event.target).value)" class="w-full accent-primary-600" />
-        <div class="mt-1 flex justify-between text-xs text-gray-400"><span>100 ms</span><span>10 s</span></div>
+        <datalist id="duration-ticks">
+          <option value="100"></option>
+          <option value="2500"></option>
+          <option value="5000"></option>
+          <option value="7500"></option>
+          <option value="10000"></option>
+        </datalist>
+        <!-- Graduations visuelles -->
+        <div class="mt-1 px-1">
+          <div class="flex justify-between items-center text-gray-300">
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+            <span class="inline-block h-1.5 w-0.5 rounded-full bg-gray-300"></span>
+          </div>
+          <div class="mt-0.5 flex justify-between text-[11px] text-gray-400">
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="durationMs.set(100)">100 ms</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="durationMs.set(2500)">2.5 s</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="durationMs.set(5000)">5 s</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="durationMs.set(7500)">7.5 s</span>
+            <span class="cursor-pointer hover:text-primary-600 transition" (click)="durationMs.set(10000)">10 s</span>
+          </div>
+        </div>
       </div>
     </div>
 
