@@ -4,6 +4,8 @@ import {
   FallEventPage,
   FallEventResponse,
   HapticTriggerResponse,
+  HapticLogItem,
+  HapticLogPage,
   HealthResponse,
 } from '../../app/models/api.models';
 
@@ -64,6 +66,32 @@ export const mockFallEvents: FallEventResponse[] = [
 
 export const mockFallEventPage: FallEventPage = {
   items: mockFallEvents,
+  page: 1,
+  page_size: 20,
+  total: 2,
+};
+
+export const mockHapticLogs: HapticLogItem[] = [
+  {
+    id: 1,
+    device_id: 'hk-device-0001',
+    intensity: 180,
+    duration_ms: 500,
+    triggered_at_utc: '2026-09-02T11:00:00Z',
+    triggered_by_user: true,
+  },
+  {
+    id: 2,
+    device_id: 'hk-device-0001',
+    intensity: 220,
+    duration_ms: 800,
+    triggered_at_utc: '2026-09-02T14:30:00Z',
+    triggered_by_user: false,
+  },
+];
+
+export const mockHapticLogPage: HapticLogPage = {
+  items: mockHapticLogs,
   page: 1,
   page_size: 20,
   total: 2,

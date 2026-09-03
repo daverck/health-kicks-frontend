@@ -8,6 +8,7 @@ import {
   HealthResponse,
   HapticTrigger,
   HapticTriggerResponse,
+  HapticLogPage,
   FallEventPage,
 } from '../../models/api.models';
 
@@ -62,6 +63,12 @@ export class DeviceService {
       `${this.base}/devices/${deviceId}/haptic/trigger`,
       trigger
     );
+  }
+
+  getHapticHistory(deviceId: string, page = 1, pageSize = 20): Observable<HapticLogPage> {
+    return this.http.get<HapticLogPage>(`${this.base}/devices/${deviceId}/haptic/history`, {
+      params: { page: String(page), page_size: String(pageSize) },
+    });
   }
 
   getFallHistory(deviceId: string, page = 1, pageSize = 50): Observable<FallEventPage> {

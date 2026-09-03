@@ -61,6 +61,22 @@ export interface HapticTriggerResponse {
   [key: string]: string | number;
 }
 
+export interface HapticLogItem {
+  id: number;
+  device_id: string;
+  intensity: number;
+  duration_ms: number;
+  triggered_at_utc: string;
+  triggered_by_user: boolean;
+}
+
+export interface HapticLogPage {
+  items: HapticLogItem[];
+  page: number;
+  page_size: number;
+  total: number;
+}
+
 // ---------- Fall events (history) ----------
 
 export interface FallEventResponse {

@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import {
   mockDevices,
   mockFallEventPage,
+  mockHapticLogPage,
   mockHapticResponse,
   mockHealthResponse,
   mockDeviceCreate,
@@ -126,6 +127,20 @@ describe('DeviceService', () => {
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockFallEventPage);
+  });
+
+  it('should retrieve haptic history via GET /devices/{id}/haptic/history with pagination', () => {
+    service.getHapticHistory('hk-device-0001', 1, 20).subscribe((page) => {
+      expect(page.items.length).toBe(2);
+      expect(page.total).toBe(2);
+      expect(page).toEqual(mockHapticLogPage);
+    });
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/haptic/history?page=1&page_size=20`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockHapticLogPage);
   });
 
   it('should check backend health via GET /health', () => {
