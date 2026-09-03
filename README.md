@@ -123,7 +123,7 @@ docker run -p 8080:8080 healthkicks-frontend
 # http://localhost:8080
 ```
 
-Image multi-stage : build Angular via Node 20 + pnpm, service via **Nginx Alpine**
+Image multi-stage : build Angular via Node 24 + pnpm, service via **Nginx Alpine**
 avec fallback SPA (`try_files $uri $uri/ /index.html`).
 
 ## Déploiement CI/CD
@@ -131,7 +131,7 @@ avec fallback SPA (`try_files $uri $uri/ /index.html`).
 `.github/workflows/deploy.yml` — déclenchement automatique sur `push`/`pull_request` (job `test`), et **manuel** (`workflow_dispatch`) pour le déploiement.
 
 Pipeline structuré en 2 jobs distincts :
-1. **`test`** (Ubuntu + Node 20 + pnpm) : exécute la suite de tests unitaires avec Karma en mode headless (`pnpm run test:ci`).
+1. **`test`** (Ubuntu + Node 24 + pnpm) : exécute la suite de tests unitaires avec Karma en mode headless (`pnpm run test:ci`).
 2. **`build-and-deploy`** (`needs: test`, environnement `production`) : build de l'image Docker → push sur Amazon ECR (`693906847467.dkr.ecr.eu-north-1.amazonaws.com/healthkicks-frontend:latest`) → déploiement SSH sur EC2 (`docker pull` + relance du conteneur sur le port 8080).
 
 Secrets requis (environment `production`) :

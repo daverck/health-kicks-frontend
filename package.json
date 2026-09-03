@@ -10,6 +10,9 @@
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCI"
   },
   "private": true,
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "dependencies": {
     "@angular/common": "^19.2.0",
     "@angular/compiler": "^19.2.0",
