@@ -10,12 +10,18 @@
         <span class="text-xl font-bold">Health<span class="text-primary-600">Kicks</span></span>
       </a>
       <h1 class="mt-6 text-2xl font-bold">Créer un compte</h1>
-      <p class="mt-1 text-sm text-gray-600">Rejoignez Health Kicks en quelques secondes.</p>
+      <p class="mt-1 text-sm text-gray-600">Inscription instantanée et sécurisée via SSO.</p>
     </div>
 
-    <div class="card">
+    <div class="card space-y-4">
+      <div class="rounded-lg border border-primary-100 bg-primary-50/70 p-3.5 text-xs text-primary-900 leading-relaxed">
+        <span class="font-semibold">Initialisation automatique :</span> votre compte HealthKicks est activé immédiatement lors de votre première identification via votre compte sécurisé.
+      </div>
+
       <!-- Google SSO -->
-      <button type="button" (click)="registerWithGoogle()" class="btn-secondary w-full" [disabled]="loading()">
+      <button type="button" (click)="registerWithGoogle()"
+        class="btn-secondary flex w-full items-center justify-center gap-3 py-3 text-sm font-semibold shadow-sm hover:bg-gray-50"
+        [disabled]="loading()">
         <svg class="h-5 w-5" viewBox="0 0 24 24">
           <path fill="#4285F4"
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z" />
@@ -25,59 +31,21 @@
           <path fill="#EA4335"
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52Z" />
         </svg>
-        S'inscrire avec Google
+        {{ loading() ? 'Redirection vers Google…' : "S'inscrire avec Google" }}
       </button>
 
-      <div class="my-5 flex items-center gap-3 text-xs text-gray-400">
-        <span class="h-px flex-1 bg-gray-200"></span> ou par email <span class="h-px flex-1 bg-gray-200"></span>
+      @if (errorMessage()) {
+      <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ errorMessage() }}</div>
+      }
+
+      <div class="pt-2 text-center text-xs text-gray-400">
+        Authentification sécurisée OpenID Connect / OAuth 2.0. Aucun mot de passe stocké.
       </div>
-
-      <form (ngSubmit)="onSubmit()" [formGroup]="form" class="space-y-4">
-        <div>
-          <label class="label" for="name">Nom complet</label>
-          <input id="name" type="text" formControlName="name" class="input" placeholder="Marie Dupont"
-            autocomplete="name" />
-        </div>
-        <div>
-          <label class="label" for="email">Email</label>
-          <input id="email" type="email" formControlName="email" class="input" placeholder="vous@exemple.com"
-            autocomplete="email" />
-          @if (form.controls.email.invalid && form.controls.email.touched) {
-          <p class="mt-1 text-xs text-red-600">Veuillez saisir un email valide.</p>
-          }
-        </div>
-        <div>
-          <label class="label" for="password">Mot de passe</label>
-          <input id="password" type="password" formControlName="password" class="input" placeholder="••••••••"
-            autocomplete="new-password" />
-          @if (form.controls.password.invalid && form.controls.password.touched) {
-          <p class="mt-1 text-xs text-red-600">6 caractères minimum.</p>
-          }
-        </div>
-        <div>
-          <label class="label" for="confirmPassword">Confirmer le mot de passe</label>
-          <input id="confirmPassword" type="password" formControlName="confirmPassword" class="input" placeholder="••••••••"
-            autocomplete="new-password" />
-          @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')) {
-          <p class="mt-1 text-xs text-red-600">Veuillez confirmer votre mot de passe.</p>
-          } @else if (form.hasError('passwordMismatch') && (form.controls.confirmPassword.touched || form.controls.password.touched)) {
-          <p class="mt-1 text-xs text-red-600">Les mots de passe ne correspondent pas.</p>
-          }
-        </div>
-
-        @if (errorMessage()) {
-        <div class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{{ errorMessage() }}</div>
-        }
-
-        <button type="submit" class="btn-primary w-full" [disabled]="loading()">
-          @if (loading()) { Création… } @else { Créer mon compte }
-        </button>
-      </form>
     </div>
 
     <p class="mt-6 text-center text-sm text-gray-600">
-      Déjà inscrit ?
-      <a routerLink="/login" class="font-semibold text-primary-600 hover:text-primary-700">Connexion</a>
+      Déjà un compte ?
+      <a routerLink="/login" class="font-semibold text-primary-600 hover:text-primary-700">Se connecter</a>
     </p>
   </div>
 </div>
