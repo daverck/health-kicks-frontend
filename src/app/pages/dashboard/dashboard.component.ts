@@ -25,7 +25,6 @@ export class DashboardComponent implements OnInit {
   readonly durationMs = signal(500);
   readonly triggering = signal(false);
   readonly vibrating = signal(false);
-  readonly lastResponse = signal<string | null>(null);
 
   readonly recentEvents = signal<FallEventResponse[]>([]);
 
@@ -61,24 +60,21 @@ export class DashboardComponent implements OnInit {
 
   selectDevice(device: DeviceResponse): void {
     this.selectedDevice.set(device);
-    this.lastResponse.set(null);
   }
 
   triggerHaptic(): void {
     const device = this.selectedDevice();
-    if (!device || this.triggering()) return;
+    if (!device || this.triggering() || device.status !== 'online') return;
 
     this.triggering.set(true);
-    this.lastResponse.set(null);
 
     const payload = { intensity: this.intensity(), duration_ms: this.durationMs() };
 
     this.deviceService.triggerHaptic(device.device_id, payload).subscribe({
-      next: (res: HapticTriggerResponse) => {
+      next: (_res: HapticTriggerResponse) => {
         this.triggering.set(false);
         this.vibrating.set(true);
         setTimeout(() => this.vibrating.set(false), 1200);
-        this.lastResponse.set(JSON.stringify(res));
         this.toast.success(`Vibration envoyée à ${device.name || device.device_id} !`);
       },
       error: (err) => {

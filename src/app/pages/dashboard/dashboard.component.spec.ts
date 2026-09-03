@@ -72,10 +72,9 @@ describe('DashboardComponent', () => {
 
     component.selectDevice(mockDevices[1]);
     expect(component.selectedDevice()).toEqual(mockDevices[1]);
-    expect(component.lastResponse()).toBeNull();
   });
 
-  it('should trigger haptic feedback and display toast on success', fakeAsync(() => {
+  it('should trigger haptic feedback and display toast on success without displaying json payload', fakeAsync(() => {
     fixture.detectChanges();
 
     component.triggerHaptic();
@@ -88,10 +87,31 @@ describe('DashboardComponent', () => {
     expect(component.vibrating()).toBeTrue();
     expect(toastServiceSpy.success).toHaveBeenCalled();
 
+    // Verify raw JSON response is not rendered in template
+    const jsonPayload = fixture.nativeElement.querySelector('.font-mono.text-green-700');
+    expect(jsonPayload).toBeNull();
+
     // After 1200ms, vibrating becomes false
     tick(1200);
     expect(component.vibrating()).toBeFalse();
   }));
+
+  it('should not allow triggering haptic feedback when device is offline', () => {
+    fixture.detectChanges();
+
+    // Switch to offline device
+    component.selectDevice(mockDevices[1]);
+    fixture.detectChanges();
+
+    component.triggerHaptic();
+
+    expect(deviceServiceSpy.triggerHaptic).not.toHaveBeenCalled();
+
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('#haptic-trigger-btn');
+    expect(button).toBeTruthy();
+    expect(button.disabled).toBeTrue();
+    expect(button.textContent).toContain('HORS LIGNE');
+  });
 
   it('should handle haptic feedback error and show toast error', () => {
     deviceServiceSpy.triggerHaptic.and.returnValue(

@@ -58,8 +58,17 @@
 
   <!-- Haptic trigger -->
   <section class="card" *ngIf="selectedDevice() as device">
-    <h2 class="text-lg font-semibold">Contrôle haptique — <span class="font-mono text-sm text-gray-500">{{
-        device.device_id }}</span></h2>
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold">Contrôle haptique — <span class="font-mono text-sm text-gray-500">{{
+          device.device_id }}</span></h2>
+      <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+        [class.bg-green-100]="device.status === 'online'" [class.text-green-700]="device.status === 'online'"
+        [class.bg-gray-100]="device.status !== 'online'" [class.text-gray-600]="device.status !== 'online'">
+        <span class="h-2 w-2 rounded-full" [class.bg-green-500]="device.status === 'online'"
+          [class.bg-gray-400]="device.status !== 'online'"></span>
+        {{ device.status === 'online' ? 'En ligne' : 'Hors ligne' }}
+      </span>
+    </div>
 
     <div class="mt-6 grid gap-6 md:grid-cols-2">
       <div>
@@ -80,16 +89,24 @@
 
     <!-- Big trigger button -->
     <div class="mt-8 flex flex-col items-center">
-      <button type="button" (click)="triggerHaptic()" [disabled]="triggering()"
-        class="relative flex h-32 w-32 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700 active:scale-95 disabled:opacity-60"
+      <button id="haptic-trigger-btn" type="button" (click)="triggerHaptic()" [disabled]="triggering() || device.status !== 'online'"
+        class="relative flex h-32 w-32 items-center justify-center rounded-full text-white shadow-lg transition"
+        [class.bg-primary-600]="device.status === 'online'"
+        [class.hover:bg-primary-700]="device.status === 'online'"
+        [class.active:scale-95]="device.status === 'online'"
+        [class.bg-gray-400]="device.status !== 'online'"
+        [class.cursor-not-allowed]="device.status !== 'online'"
+        [class.opacity-60]="triggering() || device.status !== 'online'"
         [class.animate-ping-once]="vibrating()">
         <span class="text-center">
           <span class="block text-3xl">📳</span>
-          <span class="mt-1 block text-xs font-semibold">{{ triggering() ? 'Envoi…' : 'DÉCLENCHER' }}</span>
+          <span class="mt-1 block text-xs font-semibold">{{ triggering() ? 'Envoi…' : (device.status === 'online' ? 'DÉCLENCHER' : 'HORS LIGNE') }}</span>
         </span>
       </button>
-      @if (lastResponse()) {
-      <p class="mt-4 rounded-lg bg-green-50 px-4 py-2 font-mono text-xs text-green-700">{{ lastResponse() }}</p>
+      @if (device.status !== 'online') {
+      <p class="mt-4 text-center text-xs text-amber-600">
+        Cet équipement est actuellement hors ligne. La vibration ne peut être déclenchée qu'en ligne.
+      </p>
       }
     </div>
   </section>
