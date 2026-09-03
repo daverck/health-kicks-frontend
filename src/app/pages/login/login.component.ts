@@ -48,7 +48,7 @@ export class LoginComponent {
         this.errorMessage.set(
           err?.status === 0
             ? 'Backend injoignable. Vérifiez que le serveur API est démarré.'
-            : err?.error?.detail ?? 'Identifiants invalides ou endpoint de connexion indisponible.'
+            : (err?.error?.detail ?? 'Identifiants invalides ou service indisponible.')
         );
       },
     });

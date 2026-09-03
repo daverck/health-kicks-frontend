@@ -1,8 +1,23 @@
 import { Component, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+
+export function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const password = group.get('password')?.value;
+  const confirmPassword = group.get('confirmPassword')?.value;
+  if (confirmPassword && password !== confirmPassword) {
+    return { passwordMismatch: true };
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-register',
@@ -19,11 +34,15 @@ export class RegisterComponent {
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
-  readonly form = this.fb.nonNullable.group({
-    name: [''],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-  });
+  readonly form = this.fb.nonNullable.group(
+    {
+      name: [''],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', [Validators.required]],
+    },
+    { validators: passwordsMatchValidator }
+  );
 
   onSubmit(): void {
     if (this.form.invalid || this.loading()) {
@@ -33,7 +52,9 @@ export class RegisterComponent {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    this.auth.register(this.form.getRawValue()).subscribe({
+    const { name, email, password } = this.form.getRawValue();
+
+    this.auth.register({ name, email, password }).subscribe({
       next: () => {
         this.toast.success('Compte créé avec succès !');
         this.router.navigateByUrl('/dashboard');
@@ -43,7 +64,7 @@ export class RegisterComponent {
         this.errorMessage.set(
           err?.status === 0
             ? 'Backend injoignable. Vérifiez que le serveur API est démarré.'
-            : err?.error?.detail ?? "Impossible de créer le compte pour l'instant."
+            : (err?.error?.detail ?? "Impossible de créer le compte pour l'instant.")
         );
       },
     });
