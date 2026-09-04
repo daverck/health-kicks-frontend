@@ -77,11 +77,10 @@ export class AuthService {
    */
   getAzureAuthUrl(state?: string): string {
     const s = state ?? this.generateAzureState();
-    const tenantId = environment.azureTenantId ?? environment.AZURE_TENANT_ID ?? 'common';
-    const clientId = environment.azureClientId ?? environment.AZURE_CLIENT_ID ?? '';
+    const tenantId = environment.azureTenantId || 'common';
+    const clientId = environment.azureClientId || '';
     const redirectUri =
-      environment.azureRedirectUri ??
-      environment.AZURE_REDIRECT_URI ??
+      environment.azureRedirectUri ||
       (typeof window !== 'undefined' ? `${window.location.origin}/login/callback` : 'http://localhost:4200/login/callback');
 
     return `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${encodeURIComponent(

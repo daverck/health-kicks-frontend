@@ -5,8 +5,7 @@ export const environment = {
   azureClientId: '00000000-0000-0000-0000-000000000000',
   azureTenantId: 'common',
   azureRedirectUri: 'http://localhost:4200/login/callback',
-  AZURE_CLIENT_ID: '00000000-0000-0000-0000-000000000000',
-  AZURE_TENANT_ID: 'common',
-  AZURE_REDIRECT_URI: 'http://localhost:4200/login/callback',
 };
+
+
 
