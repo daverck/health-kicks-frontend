@@ -88,3 +88,4 @@ export class AzureCallbackComponent implements OnInit {
     });
   }
 }
+

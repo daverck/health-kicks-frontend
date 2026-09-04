@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AzureCallbackComponent } from './azure-callback.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -10,7 +10,7 @@ describe('AzureCallbackComponent', () => {
   let fixture: ComponentFixture<AzureCallbackComponent>;
   let component: AzureCallbackComponent;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let router: Router;
   let toastServiceSpy: jasmine.SpyObj<ToastService>;
   let queryParams: Record<string, string | null>;
 
@@ -20,14 +20,13 @@ describe('AzureCallbackComponent', () => {
       'validateAzureState',
       'handleAzureCallback',
     ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info']);
 
     await TestBed.configureTestingModule({
       imports: [AzureCallbackComponent],
       providers: [
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy },
         { provide: ToastService, useValue: toastServiceSpy },
         {
           provide: ActivatedRoute,
@@ -42,9 +41,13 @@ describe('AzureCallbackComponent', () => {
       ],
     }).compileComponents();
 
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigateByUrl');
+
     fixture = TestBed.createComponent(AzureCallbackComponent);
     component = fixture.componentInstance;
   };
+
 
   it('should handle access_denied error when user cancels Microsoft login', async () => {
     await setup({ error: 'access_denied' });
@@ -55,7 +58,7 @@ describe('AzureCallbackComponent', () => {
       jasmine.stringMatching(/Connexion Microsoft annulée|Connexion annulée/)
     );
     expect(authServiceSpy.handleAzureCallback).not.toHaveBeenCalled();
-    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('should handle generic OAuth error from Microsoft', async () => {
@@ -97,7 +100,7 @@ describe('AzureCallbackComponent', () => {
     expect(authServiceSpy.validateAzureState).toHaveBeenCalledWith('valid-state');
     expect(authServiceSpy.handleAzureCallback).toHaveBeenCalledWith('valid-code', 'valid-state');
     expect(toastServiceSpy.success).toHaveBeenCalledWith('Connexion avec Microsoft réussie !');
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/dashboard');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
     expect(component.error()).toBeNull();
   });
 
@@ -112,6 +115,7 @@ describe('AzureCallbackComponent', () => {
 
     expect(component.error()).toBe('Échec de validation du token Azure');
     expect(toastServiceSpy.error).toHaveBeenCalledWith('Échec de validation du token Azure');
-    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 });
+

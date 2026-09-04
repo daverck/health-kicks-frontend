@@ -61,6 +61,7 @@ describe('LoginComponent', () => {
     expect(buttons[0].textContent).toContain('Continuer avec Google');
   });
 
+
   it('should render Microsoft SSO button with correct branding label', () => {
     const buttons = fixture.nativeElement.querySelectorAll('button.btn-secondary');
     expect(buttons.length).toBe(2);
