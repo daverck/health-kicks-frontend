@@ -31,8 +31,22 @@
           <path fill="#EA4335"
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52Z" />
         </svg>
-        {{ loading() ? 'Redirection vers Google…' : "S'inscrire avec Google" }}
+        {{ loadingGoogle() ? 'Redirection vers Google…' : "S'inscrire avec Google" }}
       </button>
+
+      <!-- Microsoft SSO -->
+      <button type="button" (click)="registerWithMicrosoft()"
+        class="btn-secondary flex w-full items-center justify-center gap-3 py-3 text-sm font-semibold shadow-sm hover:bg-gray-50"
+        [disabled]="loading()">
+        <svg class="h-5 w-5" viewBox="0 0 23 23">
+          <path fill="#f35325" d="M1 1h10v10H1z" />
+          <path fill="#81bc06" d="M12 1h10v10H12z" />
+          <path fill="#05a6f0" d="M1 12h10v10H1z" />
+          <path fill="#ffba08" d="M12 12h10v10H12z" />
+        </svg>
+        {{ loadingMicrosoft() ? 'Redirection vers Microsoft…' : "S'inscrire avec Microsoft" }}
+      </button>
+
 
       @if (errorMessage()) {
       <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ errorMessage() }}</div>
