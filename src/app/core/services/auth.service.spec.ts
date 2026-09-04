@@ -85,6 +85,57 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
   });
 
+  it('should generate and persist anti-CSRF state in sessionStorage', () => {
+    sessionStorage.clear();
+    const state = service.generateAzureState();
+    expect(state).toBeTruthy();
+    expect(sessionStorage.getItem('azure_oauth_state')).toBe(state);
+  });
+
+  it('should build a valid Microsoft authorization URL', () => {
+    const state = 'test-azure-state-123';
+    const url = service.getAzureAuthUrl(state);
+    expect(url).toContain('https://login.microsoftonline.com/');
+    expect(url).toContain('/oauth2/v2.0/authorize?');
+    expect(url).toContain('client_id=');
+    expect(url).toContain('response_type=code');
+    expect(url).toContain('redirect_uri=');
+    expect(url).toContain('response_mode=query');
+    expect(url).toContain('scope=openid%20profile%20email');
+    expect(url).toContain(`state=${state}`);
+  });
+
+  it('should validate and consume state from sessionStorage', () => {
+    sessionStorage.setItem('azure_oauth_state', 'expected-state');
+    expect(service.validateAzureState('wrong-state')).toBeFalse();
+    // After consumption, state is purged
+    expect(sessionStorage.getItem('azure_oauth_state')).toBeNull();
+
+    sessionStorage.setItem('azure_oauth_state', 'matching-state');
+    expect(service.validateAzureState('matching-state')).toBeTrue();
+    expect(sessionStorage.getItem('azure_oauth_state')).toBeNull();
+
+    expect(service.validateAzureState(null)).toBeFalse();
+  });
+
+  it('should handle Microsoft callback code and state via POST and establish session', () => {
+    service.handleAzureCallback('auth-code-123', 'state-456').subscribe((res) => {
+      expect(res.access_token).toBe(MOCK_TOKEN);
+      expect(res.user?.email).toBe('test@healthkicks.local');
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/azure/callback`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ code: 'auth-code-123', state: 'state-456' });
+    req.flush(mockLoginResponse);
+
+    expect(localStorage.getItem('hk_access_token')).toBe(MOCK_TOKEN);
+    expect(service.token()).toBe(MOCK_TOKEN);
+    expect(service.user()).toEqual(mockUser);
+    expect(service.isAuthenticated()).toBeTrue();
+  });
+
+
   it('should load user profile with loadMe()', () => {
     service.loadMe().subscribe((user) => {
       expect(user).toEqual(mockUser);

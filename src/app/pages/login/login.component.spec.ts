@@ -9,7 +9,7 @@ describe('LoginComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['loginWithGoogle']);
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['loginWithGoogle', 'loginWithMicrosoft']);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
@@ -44,13 +44,27 @@ describe('LoginComponent', () => {
   it('should delegate loginWithGoogle to authService.loginWithGoogle and set loading to true', () => {
     component.loginWithGoogle();
     expect(component.loading()).toBeTrue();
+    expect(component.loadingGoogle()).toBeTrue();
     expect(authServiceSpy.loginWithGoogle).toHaveBeenCalled();
   });
 
+  it('should delegate loginWithMicrosoft to authService.loginWithMicrosoft and set loading to true', () => {
+    component.loginWithMicrosoft();
+    expect(component.loading()).toBeTrue();
+    expect(component.loadingMicrosoft()).toBeTrue();
+    expect(authServiceSpy.loginWithMicrosoft).toHaveBeenCalled();
+  });
+
   it('should render Google SSO button', () => {
-    const googleBtn = fixture.nativeElement.querySelector('button.btn-secondary');
-    expect(googleBtn).toBeTruthy();
-    expect(googleBtn.textContent).toContain('Continuer avec Google');
+    const buttons = fixture.nativeElement.querySelectorAll('button.btn-secondary');
+    expect(buttons.length).toBe(2);
+    expect(buttons[0].textContent).toContain('Continuer avec Google');
+  });
+
+  it('should render Microsoft SSO button with correct branding label', () => {
+    const buttons = fixture.nativeElement.querySelectorAll('button.btn-secondary');
+    expect(buttons.length).toBe(2);
+    expect(buttons[1].textContent).toContain('Se connecter avec Microsoft');
   });
 
   it('should render error message when errorMessage signal is set', () => {
@@ -61,5 +75,6 @@ describe('LoginComponent', () => {
     expect(errorDiv).toBeTruthy();
     expect(errorDiv.textContent).toContain('Erreur de connexion OAuth');
   });
+
 });
 
