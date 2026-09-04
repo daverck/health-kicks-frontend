@@ -1,7 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
+
+
 import { environment } from '../../../environments/environment';
 import { UserResponse } from '../../models/api.models';
 
@@ -44,7 +46,7 @@ export class AuthService {
   // ----- Google SSO (OAuth2 authorization code flow, backend-driven) -----
   /** Redirect the browser to the backend Google OAuth2 entry point. */
   loginWithGoogle(): void {
-    window.location.href = `${this.base}/auth/google/login`;
+    this.redirectTo(`${this.base}/auth/google/login`);
   }
 
   /**
@@ -60,40 +62,41 @@ export class AuthService {
 
   // ----- Microsoft Entra ID SSO (OAuth2 / OIDC authorization code flow) -----
 
-  /** Generate random anti-CSRF state and save it in sessionStorage. */
-  generateAzureState(): string {
-    let state = '';
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      state = crypto.randomUUID();
-    } else {
-      state = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    }
-    sessionStorage.setItem('azure_oauth_state', state);
-    return state;
+  /**
+   * Request the Microsoft authorization URL and signed anti-CSRF state from backend.
+   * Calls GET ${this.base}/auth/azure/login?redirect=false.
+   */
+  getAzureLoginUrl(): Observable<{ authorization_url: string; state: string }> {
+    return this.http.get<{ authorization_url: string; state: string }>(
+      `${this.base}/auth/azure/login`,
+      { params: { redirect: 'false' } }
+    );
   }
 
   /**
-   * Build the Microsoft authorization URL.
+   * Initiate Microsoft SSO:
+   * 1. Query backend for signed state and authorization URL
+   * 2. Store the signed state in sessionStorage
+   * 3. Redirect the browser to the authorization URL
    */
-  getAzureAuthUrl(state?: string): string {
-    const s = state ?? this.generateAzureState();
-    const tenantId = environment.azureTenantId || 'common';
-    const clientId = environment.azureClientId || '';
-    const redirectUri =
-      environment.azureRedirectUri ||
-      (typeof window !== 'undefined' ? `${window.location.origin}/login/callback` : 'http://localhost:4200/login/callback');
-
-    return `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${encodeURIComponent(
-      clientId
-    )}&response_type=code&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&response_mode=query&scope=openid%20profile%20email&state=${encodeURIComponent(s)}`;
+  loginWithMicrosoft() {
+    return this.getAzureLoginUrl().subscribe({
+      next: (res) => {
+        sessionStorage.setItem('azure_oauth_state', res.state);
+        this.redirectTo(res.authorization_url);
+      },
+      error: (err) => {
+        console.error("Erreur lors de l'initialisation de la connexion Microsoft :", err);
+      },
+    });
   }
 
-  /** Redirect the browser to the Microsoft authorization endpoint. */
-  loginWithMicrosoft(): void {
-    window.location.href = this.getAzureAuthUrl();
+  /** Redirect browser to an external URL. */
+  redirectTo(url: string): void {
+    window.location.href = url;
   }
+
+
 
   /** Validate and consume the anti-CSRF state from sessionStorage. */
   validateAzureState(state: string | null): boolean {

@@ -76,8 +76,9 @@ export class AzureCallbackComponent implements OnInit {
         this.toast.success('Connexion avec Microsoft réussie !');
         this.router.navigateByUrl('/dashboard');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading.set(false);
+
         const detail =
           err?.error?.detail ||
           err?.error?.message ||

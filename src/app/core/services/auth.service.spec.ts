@@ -85,27 +85,48 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
   });
 
-  it('should generate and persist anti-CSRF state in sessionStorage', () => {
-    sessionStorage.clear();
-    const state = service.generateAzureState();
-    expect(state).toBeTruthy();
-    expect(sessionStorage.getItem('azure_oauth_state')).toBe(state);
+  it('should fetch Microsoft authorization URL and signed state from backend with getAzureLoginUrl()', () => {
+    const mockAzureLogin = {
+      authorization_url:
+        'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=123&state=signed-state-backend',
+      state: 'signed-state-backend',
+    };
+
+    service.getAzureLoginUrl().subscribe((res) => {
+      expect(res.authorization_url).toBe(mockAzureLogin.authorization_url);
+      expect(res.state).toBe(mockAzureLogin.state);
+    });
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/auth/azure/login?redirect=false`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockAzureLogin);
   });
 
-  it('should build a valid Microsoft authorization URL', () => {
-    const state = 'test-azure-state-123';
-    const url = service.getAzureAuthUrl(state);
-    expect(url).toContain('https://login.microsoftonline.com/');
-    expect(url).toContain('/oauth2/v2.0/authorize?');
-    expect(url).toContain('client_id=');
-    expect(url).toContain('response_type=code');
-    expect(url).toContain('redirect_uri=');
-    expect(url).toContain('response_mode=query');
-    expect(url).toContain('scope=openid%20profile%20email');
-    expect(url).toContain(`state=${state}`);
+  it('should initiate loginWithMicrosoft, store signed state in sessionStorage and redirect', () => {
+    sessionStorage.clear();
+    spyOn(service, 'redirectTo');
+    const mockAzureLogin = {
+      authorization_url:
+        'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=123&state=signed-state-backend',
+      state: 'signed-state-backend',
+    };
+
+    service.loginWithMicrosoft();
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/auth/azure/login?redirect=false`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockAzureLogin);
+
+    expect(sessionStorage.getItem('azure_oauth_state')).toBe('signed-state-backend');
+    expect(service.redirectTo).toHaveBeenCalledWith(mockAzureLogin.authorization_url);
   });
 
   it('should validate and consume state from sessionStorage', () => {
+
     sessionStorage.setItem('azure_oauth_state', 'expected-state');
     expect(service.validateAzureState('wrong-state')).toBeFalse();
     // After consumption, state is purged
