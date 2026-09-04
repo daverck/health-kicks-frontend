@@ -58,6 +58,63 @@ export class AuthService {
     ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
   }
 
+  // ----- Microsoft Entra ID SSO (OAuth2 / OIDC authorization code flow) -----
+
+  /** Generate random anti-CSRF state and save it in sessionStorage. */
+  generateAzureState(): string {
+    let state = '';
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      state = crypto.randomUUID();
+    } else {
+      state = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+    sessionStorage.setItem('azure_oauth_state', state);
+    return state;
+  }
+
+  /**
+   * Build the Microsoft authorization URL.
+   */
+  getAzureAuthUrl(state?: string): string {
+    const s = state ?? this.generateAzureState();
+    const tenantId = environment.azureTenantId ?? environment.AZURE_TENANT_ID ?? 'common';
+    const clientId = environment.azureClientId ?? environment.AZURE_CLIENT_ID ?? '';
+    const redirectUri =
+      environment.azureRedirectUri ??
+      environment.AZURE_REDIRECT_URI ??
+      (typeof window !== 'undefined' ? `${window.location.origin}/login/callback` : 'http://localhost:4200/login/callback');
+
+    return `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?client_id=${encodeURIComponent(
+      clientId
+    )}&response_type=code&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_mode=query&scope=openid%20profile%20email&state=${encodeURIComponent(s)}`;
+  }
+
+  /** Redirect the browser to the Microsoft authorization endpoint. */
+  loginWithMicrosoft(): void {
+    window.location.href = this.getAzureAuthUrl();
+  }
+
+  /** Validate and consume the anti-CSRF state from sessionStorage. */
+  validateAzureState(state: string | null): boolean {
+    const savedState = sessionStorage.getItem('azure_oauth_state');
+    sessionStorage.removeItem('azure_oauth_state');
+    return Boolean(savedState && state && savedState === state);
+  }
+
+  /**
+   * Exchange an authorization code & state for a HealthKicks session via
+   * POST /api/v1/auth/azure/callback.
+   */
+  handleAzureCallback(code: string, state: string) {
+    return this.http.post<{ access_token: string; user?: UserResponse }>(
+      `${this.base}/auth/azure/callback`,
+      { code, state }
+    ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
+  }
+
+
   /** Fetch the current user profile (GET /auth/me). */
   loadMe() {
     return this.http.get<UserResponse>(`${this.base}/auth/me`).pipe(
