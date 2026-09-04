@@ -6,6 +6,3 @@ export const environment = {
   azureTenantId: 'common',
   azureRedirectUri: 'http://localhost:4200/login/callback',
 };
-
-
-
