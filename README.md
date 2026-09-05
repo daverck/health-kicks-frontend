@@ -78,7 +78,7 @@ L'API backend est configurée dans `src/environments/environment.ts` :
 apiUrl: 'http://healthkicks.duckdns.org:8000'
 ```
 
-Pensez à y définir aussi `googleClientId` pour le SSO Google.
+Les flux d'authentification SSO (Google, Microsoft) sont pilotés directement par l'API backend.
 
 ## Développement
 
