@@ -43,20 +43,52 @@ export class AuthService {
     ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
   }
 
-  // ----- Google SSO (OAuth2 authorization code flow, backend-driven) -----
-  /** Redirect the browser to the backend Google OAuth2 entry point. */
-  loginWithGoogle(): void {
-    this.redirectTo(`${this.base}/auth/google/login`);
+  // ----- Google SSO (OAuth2 / OIDC authorization code flow) -----
+
+  /**
+   * Request the Google authorization URL and signed anti-CSRF state from backend.
+   * Calls GET ${this.base}/auth/google/login?redirect=false.
+   */
+  getGoogleLoginUrl(): Observable<{ authorization_url: string; state: string }> {
+    return this.http.get<{ authorization_url: string; state: string }>(
+      `${this.base}/auth/google/login`,
+      { params: { redirect: 'false' } }
+    );
   }
 
   /**
-   * Exchange an authorization `code` (received on the redirect URL) for a
-   * session via the backend callback endpoint.
+   * Initiate Google SSO:
+   * 1. Query backend for signed state and authorization URL
+   * 2. Store the signed state in sessionStorage
+   * 3. Redirect the browser to the authorization URL
+   */
+  loginWithGoogle() {
+    return this.getGoogleLoginUrl().subscribe({
+      next: (res) => {
+        sessionStorage.setItem('google_oauth_state', res.state);
+        this.redirectTo(res.authorization_url);
+      },
+      error: (err) => {
+        console.error("Erreur lors de l'initialisation de la connexion Google :", err);
+      },
+    });
+  }
+
+  /** Validate and consume the anti-CSRF state from sessionStorage. */
+  validateGoogleState(state: string | null): boolean {
+    const savedState = sessionStorage.getItem('google_oauth_state');
+    sessionStorage.removeItem('google_oauth_state');
+    return Boolean(savedState && state && savedState === state);
+  }
+
+  /**
+   * Exchange an authorization code & state for a HealthKicks session via
+   * POST /api/v1/auth/google/callback.
    */
   handleGoogleCallback(code: string, state: string) {
-    return this.http.get<{ access_token: string; user?: UserResponse }>(
+    return this.http.post<{ access_token: string; user?: UserResponse }>(
       `${this.base}/auth/google/callback`,
-      { params: { code, state } }
+      { code, state }
     ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
   }
 

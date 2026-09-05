@@ -71,17 +71,72 @@ describe('AuthService', () => {
     expect(service.token()).toBe(MOCK_TOKEN);
   });
 
-  it('should handle Google callback code and exchange for token', () => {
-    service.handleGoogleCallback('test-auth-code', 'test-state').subscribe((res) => {
-      expect(res.access_token).toBe(MOCK_TOKEN);
+  it('should fetch Google authorization URL and signed state from backend with getGoogleLoginUrl()', () => {
+    const mockGoogleLogin = {
+      authorization_url:
+        'https://accounts.google.com/o/oauth2/v2/auth?client_id=123&state=signed-state-backend',
+      state: 'signed-state-backend',
+    };
+
+    service.getGoogleLoginUrl().subscribe((res) => {
+      expect(res.authorization_url).toBe(mockGoogleLogin.authorization_url);
+      expect(res.state).toBe(mockGoogleLogin.state);
     });
 
     const req = httpTesting.expectOne(
-      `${environment.apiUrl}/api/v1/auth/google/callback?code=test-auth-code&state=test-state`
+      `${environment.apiUrl}/api/v1/auth/google/login?redirect=false`
     );
     expect(req.request.method).toBe('GET');
+    req.flush(mockGoogleLogin);
+  });
+
+  it('should initiate loginWithGoogle, store signed state in sessionStorage and redirect', () => {
+    sessionStorage.clear();
+    spyOn(service, 'redirectTo');
+    const mockGoogleLogin = {
+      authorization_url:
+        'https://accounts.google.com/o/oauth2/v2/auth?client_id=123&state=signed-state-backend',
+      state: 'signed-state-backend',
+    };
+
+    service.loginWithGoogle();
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/auth/google/login?redirect=false`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockGoogleLogin);
+
+    expect(sessionStorage.getItem('google_oauth_state')).toBe('signed-state-backend');
+    expect(service.redirectTo).toHaveBeenCalledWith(mockGoogleLogin.authorization_url);
+  });
+
+  it('should validate and consume Google state from sessionStorage', () => {
+    sessionStorage.setItem('google_oauth_state', 'expected-state');
+    expect(service.validateGoogleState('wrong-state')).toBeFalse();
+    expect(sessionStorage.getItem('google_oauth_state')).toBeNull();
+
+    sessionStorage.setItem('google_oauth_state', 'matching-state');
+    expect(service.validateGoogleState('matching-state')).toBeTrue();
+    expect(sessionStorage.getItem('google_oauth_state')).toBeNull();
+
+    expect(service.validateGoogleState(null)).toBeFalse();
+  });
+
+  it('should handle Google callback code and state via POST and establish session', () => {
+    service.handleGoogleCallback('test-auth-code', 'test-state').subscribe((res) => {
+      expect(res.access_token).toBe(MOCK_TOKEN);
+      expect(res.user?.email).toBe('test@healthkicks.local');
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/google/callback`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ code: 'test-auth-code', state: 'test-state' });
     req.flush(mockLoginResponse);
 
+    expect(localStorage.getItem('hk_access_token')).toBe(MOCK_TOKEN);
+    expect(service.token()).toBe(MOCK_TOKEN);
+    expect(service.user()).toEqual(mockUser);
     expect(service.isAuthenticated()).toBeTrue();
   });
 
