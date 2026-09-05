@@ -211,6 +211,22 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBeTrue();
   });
 
+  it('should support unified getOAuthLoginUrl and handleOAuthCallback for generic providers', () => {
+    service.getOAuthLoginUrl('google').subscribe((res) => {
+      expect(res.authorization_url).toContain('accounts.google.com');
+    });
+    const loginReq = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/google/login?redirect=false`);
+    loginReq.flush({ authorization_url: 'https://accounts.google.com/oauth', state: 's-123' });
+
+    service.handleOAuthCallback('google', 'c-1', 's-1').subscribe((res) => {
+      expect(res.access_token).toBe(MOCK_TOKEN);
+    });
+    const cbReq = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/google/callback`);
+    expect(cbReq.request.method).toBe('POST');
+    expect(cbReq.request.body).toEqual({ code: 'c-1', state: 's-1' });
+    cbReq.flush(mockLoginResponse);
+  });
+
 
   it('should load user profile with loadMe()', () => {
     service.loadMe().subscribe((user) => {

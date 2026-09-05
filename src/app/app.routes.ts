@@ -6,17 +6,10 @@ export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent) },
   { path: 'register', canActivate: [guestGuard], loadComponent: () => import('./pages/register/register.component').then((m) => m.RegisterComponent) },
   {
-    path: 'auth/azure/callback',
+    path: 'auth/:provider/callback',
     loadComponent: () =>
-      import('./pages/azure-callback/azure-callback.component').then(
-        (m) => m.AzureCallbackComponent
-      ),
-  },
-  {
-    path: 'auth/google/callback',
-    loadComponent: () =>
-      import('./pages/google-callback/google-callback.component').then(
-        (m) => m.GoogleCallbackComponent
+      import('./pages/oauth-callback/oauth-callback.component').then(
+        (m) => m.OAuthCallbackComponent
       ),
   },
 

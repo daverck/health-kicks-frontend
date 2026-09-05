@@ -7,6 +7,8 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { UserResponse } from '../../models/api.models';
 
+export type OAuthProvider = 'google' | 'azure';
+
 const TOKEN_KEY = 'hk_access_token';
 
 @Injectable({ providedIn: 'root' })
@@ -43,82 +45,30 @@ export class AuthService {
     ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
   }
 
-  // ----- Google SSO (OAuth2 / OIDC authorization code flow) -----
+  // ----- Unified OAuth2 / SSO flow (Google, Microsoft Entra ID) -----
 
-  /**
-   * Request the Google authorization URL and signed anti-CSRF state from backend.
-   * Calls GET ${this.base}/auth/google/login?redirect=false.
-   */
-  getGoogleLoginUrl(): Observable<{ authorization_url: string; state: string }> {
+  /** Request authorization URL & signed anti-CSRF state from backend for given provider. */
+  getOAuthLoginUrl(provider: OAuthProvider): Observable<{ authorization_url: string; state: string }> {
     return this.http.get<{ authorization_url: string; state: string }>(
-      `${this.base}/auth/google/login`,
+      `${this.base}/auth/${provider}/login`,
       { params: { redirect: 'false' } }
     );
   }
 
   /**
-   * Initiate Google SSO:
+   * Initiate SSO login:
    * 1. Query backend for signed state and authorization URL
-   * 2. Store the signed state in sessionStorage
-   * 3. Redirect the browser to the authorization URL
+   * 2. Store signed state in sessionStorage
+   * 3. Redirect browser to the provider's authorization page
    */
-  loginWithGoogle() {
-    return this.getGoogleLoginUrl().subscribe({
+  loginWithOAuth(provider: OAuthProvider) {
+    return this.getOAuthLoginUrl(provider).subscribe({
       next: (res) => {
-        sessionStorage.setItem('google_oauth_state', res.state);
+        sessionStorage.setItem(`${provider}_oauth_state`, res.state);
         this.redirectTo(res.authorization_url);
       },
       error: (err) => {
-        console.error("Erreur lors de l'initialisation de la connexion Google :", err);
-      },
-    });
-  }
-
-  /** Validate and consume the anti-CSRF state from sessionStorage. */
-  validateGoogleState(state: string | null): boolean {
-    const savedState = sessionStorage.getItem('google_oauth_state');
-    sessionStorage.removeItem('google_oauth_state');
-    return Boolean(savedState && state && savedState === state);
-  }
-
-  /**
-   * Exchange an authorization code & state for a HealthKicks session via
-   * POST /api/v1/auth/google/callback.
-   */
-  handleGoogleCallback(code: string, state: string) {
-    return this.http.post<{ access_token: string; user?: UserResponse }>(
-      `${this.base}/auth/google/callback`,
-      { code, state }
-    ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
-  }
-
-  // ----- Microsoft Entra ID SSO (OAuth2 / OIDC authorization code flow) -----
-
-  /**
-   * Request the Microsoft authorization URL and signed anti-CSRF state from backend.
-   * Calls GET ${this.base}/auth/azure/login?redirect=false.
-   */
-  getAzureLoginUrl(): Observable<{ authorization_url: string; state: string }> {
-    return this.http.get<{ authorization_url: string; state: string }>(
-      `${this.base}/auth/azure/login`,
-      { params: { redirect: 'false' } }
-    );
-  }
-
-  /**
-   * Initiate Microsoft SSO:
-   * 1. Query backend for signed state and authorization URL
-   * 2. Store the signed state in sessionStorage
-   * 3. Redirect the browser to the authorization URL
-   */
-  loginWithMicrosoft() {
-    return this.getAzureLoginUrl().subscribe({
-      next: (res) => {
-        sessionStorage.setItem('azure_oauth_state', res.state);
-        this.redirectTo(res.authorization_url);
-      },
-      error: (err) => {
-        console.error("Erreur lors de l'initialisation de la connexion Microsoft :", err);
+        console.error(`Erreur lors de l'initialisation de la connexion ${provider} :`, err);
       },
     });
   }
@@ -128,25 +78,35 @@ export class AuthService {
     window.location.href = url;
   }
 
-
-
-  /** Validate and consume the anti-CSRF state from sessionStorage. */
-  validateAzureState(state: string | null): boolean {
-    const savedState = sessionStorage.getItem('azure_oauth_state');
-    sessionStorage.removeItem('azure_oauth_state');
+  /** Validate and consume anti-CSRF state from sessionStorage for given provider. */
+  validateOAuthState(provider: OAuthProvider, state: string | null): boolean {
+    const key = `${provider}_oauth_state`;
+    const savedState = sessionStorage.getItem(key);
+    sessionStorage.removeItem(key);
     return Boolean(savedState && state && savedState === state);
   }
 
   /**
    * Exchange an authorization code & state for a HealthKicks session via
-   * POST /api/v1/auth/azure/callback.
+   * POST /api/v1/auth/{provider}/callback.
    */
-  handleAzureCallback(code: string, state: string) {
+  handleOAuthCallback(provider: OAuthProvider, code: string, state: string) {
     return this.http.post<{ access_token: string; user?: UserResponse }>(
-      `${this.base}/auth/azure/callback`,
+      `${this.base}/auth/${provider}/callback`,
       { code, state }
     ).pipe(tap((res) => this.setSession(res.access_token, res.user ?? null)));
   }
+
+  // --- Provider-specific convenience aliases ---
+  getGoogleLoginUrl() { return this.getOAuthLoginUrl('google'); }
+  loginWithGoogle() { return this.loginWithOAuth('google'); }
+  validateGoogleState(state: string | null) { return this.validateOAuthState('google', state); }
+  handleGoogleCallback(code: string, state: string) { return this.handleOAuthCallback('google', code, state); }
+
+  getAzureLoginUrl() { return this.getOAuthLoginUrl('azure'); }
+  loginWithMicrosoft() { return this.loginWithOAuth('azure'); }
+  validateAzureState(state: string | null) { return this.validateOAuthState('azure', state); }
+  handleAzureCallback(code: string, state: string) { return this.handleOAuthCallback('azure', code, state); }
 
 
   /** Fetch the current user profile (GET /auth/me). */
