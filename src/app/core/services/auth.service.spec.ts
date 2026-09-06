@@ -247,6 +247,8 @@ describe('AuthService', () => {
     service.logout();
 
     expect(localStorage.getItem('hk_access_token')).toBeNull();
+    expect(localStorage.getItem('access_token')).toBeNull();
+    expect(localStorage.getItem('refresh_token')).toBeNull();
     expect(service.token()).toBeNull();
     expect(service.user()).toBeNull();
     expect(service.isAuthenticated()).toBeFalse();
@@ -254,6 +256,99 @@ describe('AuthService', () => {
 
     service.logout('/');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+  });
+
+  describe('Token management & Refresh', () => {
+    it('should return null for getAccessToken and getRefreshToken when storage is empty', () => {
+      expect(service.getAccessToken()).toBeNull();
+      expect(service.getRefreshToken()).toBeNull();
+      expect(service.getToken()).toBeNull();
+    });
+
+    it('should retrieve access_token and refresh_token from localStorage', () => {
+      localStorage.setItem('access_token', 'jwt-access');
+      localStorage.setItem('refresh_token', 'jwt-refresh');
+
+      expect(service.getAccessToken()).toBe('jwt-access');
+      expect(service.getToken()).toBe('jwt-access');
+      expect(service.getRefreshToken()).toBe('jwt-refresh');
+    });
+
+    it('should support legacy hk_access_token fallback in getAccessToken', () => {
+      localStorage.setItem('hk_access_token', 'legacy-jwt');
+
+      expect(service.getAccessToken()).toBe('legacy-jwt');
+      expect(service.getToken()).toBe('legacy-jwt');
+    });
+
+    it('should store both access_token and refresh_token when setSession is called with TokenResponse', () => {
+      service.setSession({
+        access_token: 'new-at',
+        refresh_token: 'new-rt',
+        token_type: 'bearer',
+        user: mockUser,
+      });
+
+      expect(localStorage.getItem('access_token')).toBe('new-at');
+      expect(localStorage.getItem('refresh_token')).toBe('new-rt');
+      expect(localStorage.getItem('hk_access_token')).toBe('new-at');
+      expect(service.token()).toBe('new-at');
+      expect(service.user()).toEqual(mockUser);
+      expect(service.isAuthenticated()).toBeTrue();
+    });
+
+    it('should refresh tokens via POST /api/v1/auth/refresh and update session with rotated tokens', () => {
+      localStorage.setItem('refresh_token', 'current-rt');
+
+      const refreshResponse = {
+        access_token: 'rotated-at',
+        refresh_token: 'rotated-rt',
+        token_type: 'bearer',
+        user: mockUser,
+      };
+
+      service.refreshToken().subscribe((res) => {
+        expect(res).toEqual(refreshResponse);
+      });
+
+      const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/refresh`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ refresh_token: 'current-rt' });
+      req.flush(refreshResponse);
+
+      expect(service.getAccessToken()).toBe('rotated-at');
+      expect(service.getRefreshToken()).toBe('rotated-rt');
+      expect(service.token()).toBe('rotated-at');
+      expect(service.user()).toEqual(mockUser);
+    });
+
+    it('should throw an error if refreshToken is called without an available refresh token', (done) => {
+      service.refreshToken().subscribe({
+        next: () => {
+          fail('Should not succeed when refresh token is missing');
+          done();
+        },
+        error: (err) => {
+          expect(err.message).toBe('No refresh token available');
+          httpTesting.expectNone(`${environment.apiUrl}/api/v1/auth/refresh`);
+          done();
+        },
+      });
+    });
+
+    it('should remove both access_token and refresh_token on clearSession()', () => {
+      localStorage.setItem('access_token', 'at');
+      localStorage.setItem('refresh_token', 'rt');
+      localStorage.setItem('hk_access_token', 'at');
+
+      service.clearSession();
+
+      expect(localStorage.getItem('access_token')).toBeNull();
+      expect(localStorage.getItem('refresh_token')).toBeNull();
+      expect(localStorage.getItem('hk_access_token')).toBeNull();
+      expect(service.token()).toBeNull();
+      expect(service.user()).toBeNull();
+    });
   });
 });
 

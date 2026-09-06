@@ -27,6 +27,15 @@ export interface ProfileUpdatePayload {
   email?: string;
 }
 
+export type User = UserResponse;
+
+export interface TokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  token_type?: string;
+  user?: UserResponse | null;
+}
+
 export interface AuthTokens {
   access_token: string;
   token_type?: string;

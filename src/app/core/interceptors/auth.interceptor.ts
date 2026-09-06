@@ -1,26 +1,52 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { Injector, inject } from '@angular/core';
-import { catchError, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
+import { TokenResponse } from '../../models/api.models';
+
+let isRefreshing = false;
+const refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 /**
- * Injects the JWT as `Authorization: Bearer <token>` on every request to the
- * API, and automatically logs out with a clear toast on 401 Unauthorized responses.
+ * Resets the interceptor state (useful for unit testing).
+ */
+export function resetAuthInterceptorState(): void {
+  isRefreshing = false;
+  refreshTokenSubject.next(null);
+}
+
+function addTokenHeader(request: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
+  return request.clone({
+    setHeaders: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
+ * Injects the JWT as `Authorization: Bearer <access_token>` on API requests,
+ * and intercepts 401 Unauthorized responses to perform a transparent session
+ * refresh using the refresh token before replaying queued requests.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const injector = inject(Injector);
-  const token = localStorage.getItem('hk_access_token');
+  const authService = injector.get(AuthService);
+  const toastService = injector.get(ToastService);
+
+  const token = authService.getAccessToken();
 
   const isApiRequest = req.url.startsWith(environment.apiUrl);
-  const isAuthLoginRequest =
+  const isAuthBypassRequest =
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/register') ||
-    req.url.includes('/auth/google/callback');
+    req.url.includes('/auth/refresh') ||
+    req.url.includes('/auth/google') ||
+    req.url.includes('/auth/azure');
 
-  const authReq = token && isApiRequest
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+  const authReq = token && isApiRequest && !isAuthBypassRequest
+    ? addTokenHeader(req, token)
     : req;
 
   return next(authReq).pipe(
@@ -29,14 +55,39 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         error instanceof HttpErrorResponse &&
         error.status === 401 &&
         isApiRequest &&
-        !isAuthLoginRequest
+        !isAuthBypassRequest
       ) {
-        const auth = injector.get(AuthService);
-        const toast = injector.get(ToastService);
+        // Cas 1 : Aucune procédure de refresh en cours
+        if (!isRefreshing) {
+          isRefreshing = true;
+          refreshTokenSubject.next(null);
 
-        auth.logout('/login');
-        toast.error('Votre session a expiré. Veuillez vous reconnecter.');
+          return authService.refreshToken().pipe(
+            switchMap((res: TokenResponse) => {
+              isRefreshing = false;
+              refreshTokenSubject.next(res.access_token);
+              return next(addTokenHeader(req, res.access_token));
+            }),
+            catchError((refreshError: unknown) => {
+              isRefreshing = false;
+              refreshTokenSubject.next(null);
+              authService.logout('/login');
+              toastService.error('Votre session a expiré. Veuillez vous reconnecter.');
+              return throwError(() => refreshError);
+            })
+          );
+        } else {
+          // Cas 2 : Une procédure de refresh est déjà en cours -> mise en file d'attente
+          return refreshTokenSubject.pipe(
+            filter((newToken): newToken is string => newToken !== null),
+            take(1),
+            switchMap((newToken: string) => {
+              return next(addTokenHeader(req, newToken));
+            })
+          );
+        }
       }
+
       return throwError(() => error);
     })
   );
