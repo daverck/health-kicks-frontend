@@ -22,6 +22,7 @@ export const routes: Routes = [
       { path: 'devices', loadComponent: () => import('./pages/devices/devices.component').then((m) => m.DevicesComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent) },
       { path: 'history', loadComponent: () => import('./pages/history/history.component').then((m) => m.HistoryComponent) },
+      { path: 'studio', loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
     ],
   },
   { path: '**', redirectTo: '' },

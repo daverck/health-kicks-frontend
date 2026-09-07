@@ -1,0 +1,307 @@
+<div class="mx-auto max-w-5xl space-y-6">
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Studio de Capture IMU</h1>
+      <p class="mt-1 text-sm text-gray-600">
+        Pilotez les sessions de capture télémétrique (accéléromètre & gyroscope), ressentez le décompte haptique au pied et inspectez vos courbes.
+      </p>
+    </div>
+
+    @if (state() !== 'idle') {
+      <button
+        type="button"
+        (click)="resetToIdle()"
+        class="rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+      >
+        ✕ Annuler & Retour
+      </button>
+    }
+  </div>
+
+  <!-- Device Selection Bar -->
+  <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <label for="device-select" class="text-sm font-medium text-gray-700">Équipement cible :</label>
+        @if (devicesLoading()) {
+          <span class="text-sm text-gray-500">Recherche des semelles connectées…</span>
+        } @else if (devices().length === 0) {
+          <span class="text-sm font-semibold text-amber-600">Aucun équipement associé. Veuillez appairer une semelle dans la section Équipements.</span>
+        } @else {
+          <select
+            id="device-select"
+            [disabled]="state() !== 'idle'"
+            [ngModel]="selectedDeviceId()"
+            (ngModelChange)="onDeviceSelect($event)"
+            class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-400"
+          >
+            @for (device of devices(); track device.device_id) {
+              <option [value]="device.device_id">
+                {{ device.name || device.device_id }} ({{ device.status }})
+              </option>
+            }
+          </select>
+        }
+      </div>
+
+      <!-- Current Step Badge -->
+      <div class="flex items-center gap-2">
+        <span class="text-xs uppercase tracking-wider text-gray-400">Statut :</span>
+        <span
+          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+          [class.bg-gray-100]="state() === 'idle'"
+          [class.text-gray-700]="state() === 'idle'"
+          [class.bg-amber-100]="state() === 'countdown'"
+          [class.text-amber-800]="state() === 'countdown'"
+          [class.bg-blue-100]="state() === 'recording'"
+          [class.text-blue-800]="state() === 'recording'"
+          [class.bg-purple-100]="state() === 'fetching'"
+          [class.text-purple-800]="state() === 'fetching'"
+          [class.bg-emerald-100]="state() === 'inspecting'"
+          [class.text-emerald-800]="state() === 'inspecting'"
+        >
+          <span class="h-2 w-2 rounded-full"
+            [class.bg-gray-400]="state() === 'idle'"
+            [class.bg-amber-500]="state() === 'countdown'"
+            [class.bg-blue-500]="state() === 'recording'"
+            [class.bg-purple-500]="state() === 'fetching'"
+            [class.bg-emerald-500]="state() === 'inspecting'"
+          ></span>
+          @switch (state()) {
+            @case ('idle') { Prêt }
+            @case ('countdown') { Vibrations (Décompte) }
+            @case ('recording') { Enregistrement (5s) }
+            @case ('fetching') { Récupération Télémétrie }
+            @case ('inspecting') { Inspection }
+          }
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1: IDLE - Movement Label Choice & Launch -->
+  @if (state() === 'idle') {
+    <div class="space-y-6">
+      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 class="text-base font-semibold text-gray-900">1. Sélection du mouvement / scénario</h2>
+        <p class="mt-1 text-sm text-gray-500">
+          Choisissez le type d'activité ou d'incident simulé pour étiqueter l'enregistrement dans la base télémétrique.
+        </p>
+
+        <!-- Touch Grid -->
+        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          @for (label of predefinedLabels; track label.id) {
+            <button
+              type="button"
+              (click)="selectLabel(label.id)"
+              class="flex flex-col items-center justify-center rounded-xl border p-4 text-center transition hover:shadow-md"
+              [class.border-primary-600]="selectedLabel() === label.id && !customLabel()"
+              [class.bg-primary-50]="selectedLabel() === label.id && !customLabel()"
+              [class.text-primary-800]="selectedLabel() === label.id && !customLabel()"
+              [class.border-gray-200]="selectedLabel() !== label.id || customLabel()"
+              [class.bg-white]="selectedLabel() !== label.id || customLabel()"
+              [class.text-gray-700]="selectedLabel() !== label.id || customLabel()"
+            >
+              <span class="text-3xl">{{ label.icon }}</span>
+              <span class="mt-2 text-sm font-semibold">{{ label.name }}</span>
+              <span class="mt-0.5 text-[11px] text-gray-400">{{ label.description }}</span>
+            </button>
+          }
+        </div>
+
+        <!-- Custom Label input -->
+        <div class="mt-6 border-t border-gray-100 pt-4">
+          <label for="custom-label" class="block text-xs font-semibold uppercase tracking-wider text-gray-500">
+            Ou label personnalisé (optionnel) :
+          </label>
+          <div class="mt-2 flex max-w-md items-center gap-2">
+            <input
+              id="custom-label"
+              type="text"
+              placeholder="ex: danse, pivot_rapide, saut..."
+              [ngModel]="customLabel()"
+              (ngModelChange)="customLabel.set($event)"
+              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            />
+            @if (customLabel()) {
+              <button
+                type="button"
+                (click)="customLabel.set('')"
+                class="text-xs text-gray-400 hover:text-gray-600"
+              >
+                Effacer
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex flex-col items-center justify-center rounded-xl border border-primary-100 bg-gradient-to-b from-primary-50/50 to-white p-8 text-center shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900">Prêt pour la capture ?</h3>
+        <p class="mt-1 max-w-md text-sm text-gray-600">
+          En cliquant ci-dessous, la semelle vibrera <strong>3 fois</strong> pour donner le départ, puis enregistrera vos données inertielles pendant <strong>5 secondes</strong>.
+        </p>
+        <div class="mt-2 text-xs font-semibold text-primary-700">
+          Label sélectionné : « {{ effectiveLabel() }} »
+        </div>
+
+        <button
+          type="button"
+          (click)="startSession()"
+          [disabled]="devices().length === 0 || !selectedDeviceId()"
+          class="mt-6 inline-flex items-center gap-3 rounded-xl bg-primary-600 px-8 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span>🎬</span> Lancer l'enregistrement (5s)
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- STEP 2: COUNTDOWN (~1.5s) -->
+  @if (state() === 'countdown') {
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-amber-200 bg-amber-50/70 p-12 text-center shadow-sm">
+      <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-amber-100 ring-8 ring-amber-200/50 animate-pulse">
+        <span class="text-4xl">📳</span>
+      </div>
+      <h2 class="mt-6 text-2xl font-extrabold text-amber-900">Décompte haptique en cours…</h2>
+      <p class="mt-2 max-w-md text-sm text-amber-800">
+        Ressentez les <strong>3 vibrations</strong> sur la semelle. Préparez-vous à démarrer le mouvement dès que l'enregistrement se déclenche !
+      </p>
+      <div class="mt-6 flex items-center gap-3">
+        <span class="flex h-3 w-3 rounded-full bg-amber-500 animate-ping"></span>
+        <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Vibrations de synchronisation…</span>
+      </div>
+    </div>
+  }
+
+  <!-- STEP 3: RECORDING (5.0s with Progress Bar) -->
+  @if (state() === 'recording') {
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-blue-200 bg-blue-50/70 p-12 text-center shadow-sm">
+      <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-blue-100 ring-8 ring-blue-200/50">
+        <span class="text-4xl animate-bounce">🏃</span>
+      </div>
+      <h2 class="mt-6 text-2xl font-extrabold text-blue-900">Enregistrement en cours, exécutez le mouvement !</h2>
+      <p class="mt-2 max-w-md text-sm text-blue-800">
+        Effectuez l'activité « <strong>{{ effectiveLabel() }}</strong> ». La chaussure capte vos accélérations et vitesses angulaires en temps réel.
+      </p>
+
+      <!-- Progress bar -->
+      <div class="mt-8 w-full max-w-md">
+        <div class="flex justify-between text-xs font-semibold text-blue-700 mb-1.5">
+          <span>Temps de capture</span>
+          <span>{{ (recordingProgressPercent() * 5 / 100).toFixed(1) }}s / 5.0s</span>
+        </div>
+        <div class="h-4 w-full overflow-hidden rounded-full bg-blue-200/70 p-0.5">
+          <div
+            class="h-full rounded-full bg-blue-600 transition-all duration-75 ease-linear"
+            [style.width.%]="recordingProgressPercent()"
+          ></div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- STEP 4: FETCHING TELEMETRY (Retry / Polling) -->
+  @if (state() === 'fetching') {
+    <div class="flex flex-col items-center justify-center rounded-2xl border border-purple-200 bg-purple-50/70 p-12 text-center shadow-sm">
+      @if (!fetchingError()) {
+        <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-purple-100 ring-8 ring-purple-200/50">
+          <svg class="h-10 w-10 text-purple-600 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+        <h2 class="mt-6 text-xl font-bold text-purple-900">Récupération des séries temporelles…</h2>
+        <p class="mt-2 max-w-md text-sm text-purple-800">
+          La semelle a transmis ses paquets IMU. La Lambda persiste les points dans DynamoDB (tentative {{ fetchingAttempt() }}/8)…
+        </p>
+      } @else {
+        <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-red-100 ring-8 ring-red-200/50">
+          <span class="text-4xl">⚠️</span>
+        </div>
+        <h2 class="mt-6 text-xl font-bold text-red-900">Télémétrie non encore disponible</h2>
+        <p class="mt-2 max-w-md text-sm text-red-700">
+          Les mesures n'ont pas encore été reçues ou persistées. Vous pouvez relancer la vérification ou réinitialiser.
+        </p>
+        <div class="mt-6 flex gap-3">
+          <button
+            type="button"
+            (click)="runFetching()"
+            class="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-purple-700"
+          >
+            ↻ Réessayer la récupération
+          </button>
+          <button
+            type="button"
+            (click)="resetToIdle()"
+            class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+          >
+            Annuler
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- STEP 5: INSPECTING (IMU Charts & Actions) -->
+  @if (state() === 'inspecting') {
+    <div class="space-y-6">
+      <!-- Session Summary Header -->
+      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-bold text-primary-800">
+                {{ currentSession()?.label || effectiveLabel() }}
+              </span>
+              <span class="font-mono text-xs text-gray-500">
+                Session : {{ currentSession()?.session_id }}
+              </span>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">
+              Équipement : <strong class="text-gray-700">{{ selectedDeviceId() }}</strong> ·
+              Points enregistrés : <strong class="text-gray-700">{{ readings().length }}</strong> échantillons
+            </p>
+          </div>
+
+          <!-- Validation / Rejection Actions -->
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              (click)="rejectSession()"
+              [disabled]="isDeleting()"
+              class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 active:scale-95 disabled:opacity-50"
+            >
+              @if (isDeleting()) {
+                <span class="animate-spin">⏳</span> Suppression…
+              } @else {
+                <span>🗑️</span> Rejeter / Supprimer
+              }
+            </button>
+
+            <button
+              type="button"
+              (click)="validateSession()"
+              class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 active:scale-95"
+            >
+              <span>✅</span> Valider la session
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMU Charts Component -->
+      <app-imu-chart [readings]="readings()" />
+
+      <!-- Bottom Floating / Sticky Confirmation Bar -->
+      <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+        <p class="text-xs text-gray-600">
+          Vérifiez l'allure des signaux ci-dessus. Si le geste simulé est satisfaisant, cliquez sur <strong>Valider</strong> pour conserver les mesures. Dans le cas contraire, cliquez sur <strong>Rejeter / Supprimer</strong> pour purger DynamoDB.
+        </p>
+      </div>
+    </div>
+  }
+</div>
+

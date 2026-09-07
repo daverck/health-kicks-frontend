@@ -116,3 +116,7 @@ export interface IngestionResponse {
   msg_id: string;
   duplicate: boolean;
 }
+
+// ---------- Telemetry & Studio ----------
+
+export * from './telemetry.models';

@@ -1,0 +1,308 @@
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DeviceService } from '../../core/services/device.service';
+import { StudioService } from '../../core/services/studio.service';
+import { ToastService } from '../../core/services/toast.service';
+import { DeviceResponse } from '../../models/api.models';
+import { ImuReading, StudioStartResponse } from '../../models/telemetry.models';
+import { ImuChartComponent } from '../../shared/components/imu-chart/imu-chart.component';
+
+export type StudioState = 'idle' | 'countdown' | 'recording' | 'fetching' | 'inspecting';
+
+export interface PredefinedLabel {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
+export const PREDEFINED_LABELS: PredefinedLabel[] = [
+  { id: 'walk', name: 'Marche', icon: '🚶', description: 'Pas réguliers sur sol plat' },
+  { id: 'run', name: 'Course', icon: '🏃', description: 'Course modérée ou rapide' },
+  { id: 'stairs', name: 'Escaliers', icon: '🪜', description: 'Montée ou descente de marches' },
+  { id: 'stumble_recover', name: 'Trébuchement rattrapé', icon: '⚠️', description: 'Déséquilibre sans impact au sol' },
+  { id: 'fall_forward', name: 'Chute avant', icon: '⤵️', description: 'Perte d’équilibre vers l’avant' },
+  { id: 'fall_backward', name: 'Chute arrière', icon: '⤴️', description: 'Bascule vers l’arrière' },
+  { id: 'fall_lateral', name: 'Chute latérale', icon: '↔️', description: 'Bascule sur le flanc gauche ou droit' },
+  { id: 'fall_recovery', name: 'Chute relevée', icon: '🔄', description: 'Chute au sol suivie d’un redressement' },
+];
+
+@Component({
+  selector: 'app-studio',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ImuChartComponent],
+  templateUrl: './studio.component.html',
+})
+export class StudioComponent implements OnInit, OnDestroy {
+  private readonly deviceService = inject(DeviceService);
+  private readonly studioService = inject(StudioService);
+  private readonly toast = inject(ToastService);
+
+  readonly predefinedLabels = PREDEFINED_LABELS;
+
+  // Devices state
+  readonly devices = signal<DeviceResponse[]>([]);
+  readonly selectedDeviceId = signal<string>('');
+  readonly devicesLoading = signal<boolean>(true);
+  readonly devicesError = signal<boolean>(false);
+
+  // Workflow state machine
+  readonly state = signal<StudioState>('idle');
+  readonly selectedLabel = signal<string>('walk');
+  readonly customLabel = signal<string>('');
+
+  readonly effectiveLabel = computed(() => {
+    const custom = this.customLabel().trim();
+    return custom.length > 0 ? custom : this.selectedLabel();
+  });
+
+  // Session data
+  readonly currentSession = signal<StudioStartResponse | null>(null);
+  readonly readings = signal<ImuReading[]>([]);
+  readonly fetchingAttempt = signal<number>(0);
+  readonly fetchingError = signal<boolean>(false);
+  readonly isDeleting = signal<boolean>(false);
+
+  // Timers & visual progress
+  readonly countdownRemainingMs = signal<number>(1500);
+  readonly recordingProgressPercent = signal<number>(0);
+
+  private countdownTimer?: ReturnType<typeof setTimeout>;
+  private recordingInterval?: ReturnType<typeof setInterval>;
+  private fetchingTimeout?: ReturnType<typeof setTimeout>;
+
+  ngOnInit(): void {
+    this.loadDevices();
+  }
+
+  ngOnDestroy(): void {
+    this.clearAllTimers();
+  }
+
+  loadDevices(): void {
+    this.devicesLoading.set(true);
+    this.devicesError.set(false);
+
+    this.deviceService.listDevices().subscribe({
+      next: (devices) => {
+        this.devices.set(devices);
+        this.devicesLoading.set(false);
+        if (devices.length > 0 && !this.selectedDeviceId()) {
+          this.selectedDeviceId.set(devices[0].device_id);
+        }
+      },
+      error: (err) => {
+        this.devicesLoading.set(false);
+        this.devicesError.set(true);
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, vérifiez votre connexion.'
+            : 'Impossible de charger vos équipements.'
+        );
+      },
+    });
+  }
+
+  onDeviceSelect(deviceId: string): void {
+    this.selectedDeviceId.set(deviceId);
+  }
+
+  selectLabel(labelId: string): void {
+    this.selectedLabel.set(labelId);
+    this.customLabel.set('');
+  }
+
+  /**
+   * 1. Start Capture Command
+   */
+  startSession(): void {
+    const deviceId = this.selectedDeviceId();
+    if (!deviceId) {
+      this.toast.error('Veuillez sélectionner un équipement avant de lancer une session.');
+      return;
+    }
+
+    const label = this.effectiveLabel();
+    if (!label) {
+      this.toast.error('Veuillez spécifier ou sélectionner un label pour la session.');
+      return;
+    }
+
+    this.clearAllTimers();
+    this.state.set('countdown');
+    this.countdownRemainingMs.set(1500);
+    this.recordingProgressPercent.set(0);
+    this.fetchingError.set(false);
+    this.readings.set([]);
+
+    this.studioService.startStudioSession(deviceId, {
+      label,
+      duration_sec: 5,
+      pulse_count: 3,
+      pulse_duration_ms: 100,
+      pulse_pause_ms: 200,
+      pulse_intensity: 220,
+    }).subscribe({
+      next: (res) => {
+        this.currentSession.set(res);
+        this.runCountdown();
+      },
+      error: (err) => {
+        this.state.set('idle');
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, vérifiez votre connexion.'
+            : (err?.error?.detail ?? "Impossible d'initier la session Studio sur l'équipement.")
+        );
+      },
+    });
+  }
+
+  /**
+   * 2. Step: Countdown (~1.5s for 3 haptic pulses)
+   */
+  private runCountdown(): void {
+    const startTime = Date.now();
+    const duration = 1500;
+
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, duration - elapsed);
+      this.countdownRemainingMs.set(remaining);
+
+      if (remaining > 0) {
+        this.countdownTimer = setTimeout(tick, 50);
+      } else {
+        this.runRecording();
+      }
+    };
+
+    tick();
+  }
+
+  /**
+   * 3. Step: Recording (5.0s progress bar)
+   */
+  private runRecording(): void {
+    this.state.set('recording');
+    const totalDurationMs = 5000;
+    const startTime = Date.now();
+
+    this.recordingInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, (elapsed / totalDurationMs) * 100);
+      this.recordingProgressPercent.set(progress);
+
+      if (progress >= 100) {
+        this.clearAllTimers();
+        this.runFetching();
+      }
+    }, 50);
+  }
+
+  /**
+   * 4. Step: Fetching telemetry from API with polling retry (800ms interval)
+   */
+  runFetching(): void {
+    this.state.set('fetching');
+    this.fetchingAttempt.set(0);
+    this.fetchingError.set(false);
+    this.pollReadings();
+  }
+
+  private pollReadings(): void {
+    const session = this.currentSession();
+    const deviceId = this.selectedDeviceId();
+    if (!session || !deviceId) {
+      this.state.set('idle');
+      return;
+    }
+
+    const currentAttempt = this.fetchingAttempt() + 1;
+    this.fetchingAttempt.set(currentAttempt);
+
+    this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
+      next: (res) => {
+        if (res.readings && res.readings.length > 0) {
+          this.readings.set(res.readings);
+          this.state.set('inspecting');
+          this.toast.success(`Télémétrie récupérée (${res.readings.length} points IMU enregistrés) !`);
+        } else if (currentAttempt < 8) {
+          // Retry after 800ms
+          this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
+        } else {
+          this.fetchingError.set(true);
+        }
+      },
+      error: () => {
+        if (currentAttempt < 8) {
+          this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
+        } else {
+          this.fetchingError.set(true);
+        }
+      },
+    });
+  }
+
+  /**
+   * 5. Step: Inspecting actions
+   */
+  validateSession(): void {
+    this.toast.success('Session IMU validée et archivée avec succès !');
+    this.resetToIdle();
+  }
+
+  rejectSession(): void {
+    const session = this.currentSession();
+    const deviceId = this.selectedDeviceId();
+
+    if (!session || !deviceId) {
+      this.resetToIdle();
+      return;
+    }
+
+    this.isDeleting.set(true);
+    this.studioService.deleteSessionReadings(deviceId, session.session_id).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        this.toast.info('Session rejetée et points supprimés de DynamoDB.');
+        this.resetToIdle();
+      },
+      error: (err) => {
+        this.isDeleting.set(false);
+        this.toast.error(
+          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
+        );
+        this.resetToIdle();
+      },
+    });
+  }
+
+  resetToIdle(): void {
+    this.clearAllTimers();
+    this.state.set('idle');
+    this.currentSession.set(null);
+    this.readings.set([]);
+    this.recordingProgressPercent.set(0);
+    this.fetchingAttempt.set(0);
+    this.fetchingError.set(false);
+    this.isDeleting.set(false);
+  }
+
+  private clearAllTimers(): void {
+    if (this.countdownTimer) {
+      clearTimeout(this.countdownTimer);
+      this.countdownTimer = undefined;
+    }
+    if (this.recordingInterval) {
+      clearInterval(this.recordingInterval);
+      this.recordingInterval = undefined;
+    }
+    if (this.fetchingTimeout) {
+      clearTimeout(this.fetchingTimeout);
+      this.fetchingTimeout = undefined;
+    }
+  }
+}
+

@@ -1,0 +1,47 @@
+<div class="space-y-6">
+  @if (!readings || readings.length === 0) {
+    <div class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-gray-500">
+      <span class="text-3xl">📊</span>
+      <p class="mt-2 text-sm">Aucun point de télémétrie IMU disponible pour cette session.</p>
+    </div>
+  } @else {
+    <!-- Acceleration Card -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="mb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-red-100 text-sm font-bold text-red-700">
+            A
+          </span>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">Accélération Tri-axiale & Magnitude</h3>
+            <p class="text-xs text-gray-500">Mesures en unité g ($9.81 m/s^2$) sur les axes X, Y, Z</p>
+          </div>
+        </div>
+        <span class="text-xs font-mono text-gray-400">{{ readings.length }} points</span>
+      </div>
+      <div class="relative h-64 w-full">
+        <canvas #accelCanvas></canvas>
+      </div>
+    </div>
+
+    <!-- Gyroscope Card -->
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="mb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-sm font-bold text-amber-700">
+            G
+          </span>
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900">Vitesse Angulaire (Gyroscope)</h3>
+            <p class="text-xs text-gray-500">Vitesses de rotation en rad/s sur les axes GX, GY, GZ</p>
+          </div>
+        </div>
+        <span class="text-xs font-mono text-gray-400">{{ readings.length }} points</span>
+      </div>
+      <div class="relative h-64 w-full">
+        <canvas #gyroCanvas></canvas>
+      </div>
+    </div>
+  }
+</div>
+
