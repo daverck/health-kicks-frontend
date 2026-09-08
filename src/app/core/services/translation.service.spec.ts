@@ -18,6 +18,13 @@ describe('TranslationService', () => {
     localStorage.clear();
     document.documentElement.setAttribute('dir', 'ltr');
     document.documentElement.setAttribute('lang', 'fr');
+    try {
+      Object.defineProperty(navigator, 'language', {
+        value: 'fr-FR',
+        configurable: true,
+        writable: true,
+      });
+    } catch {}
   });
 
   it('should be created and default to French', () => {
@@ -127,5 +134,43 @@ describe('TranslationService', () => {
     expect(service.translate('non_existent.key')).toBe('non_existent.key');
     // Empty key returns empty string
     expect(service.translate('')).toBe('');
+  });
+
+  it('should fall back to browser language if supported and no saved preference in storage', () => {
+    localStorage.clear();
+    const originalLanguage = navigator.language;
+    try {
+      Object.defineProperty(navigator, 'language', {
+        value: 'es-ES',
+        configurable: true,
+      });
+
+      const newService = TestBed.runInInjectionContext(() => new TranslationService());
+      expect(newService.currentLang()).toBe('es');
+    } finally {
+      Object.defineProperty(navigator, 'language', {
+        value: originalLanguage,
+        configurable: true,
+      });
+    }
+  });
+
+  it('should default to French when browser language is unsupported', () => {
+    localStorage.clear();
+    const originalLanguage = navigator.language;
+    try {
+      Object.defineProperty(navigator, 'language', {
+        value: 'ja-JP',
+        configurable: true,
+      });
+
+      const newService = TestBed.runInInjectionContext(() => new TranslationService());
+      expect(newService.currentLang()).toBe('fr');
+    } finally {
+      Object.defineProperty(navigator, 'language', {
+        value: originalLanguage,
+        configurable: true,
+      });
+    }
   });
 });
