@@ -238,6 +238,8 @@ export const ar = {
     edit_info: 'تعديل معلوماتي',
     full_name: 'الاسم الكامل',
     email: 'البريد الإلكتروني',
+    email_help_oidc: 'عنوان البريد الإلكتروني مرتبط بحساب SSO / OpenID ولا يمكن تعديله هنا.',
+    email_locked_badge: 'للقراءة فقط',
     save_changes: 'حفظ التعديلات',
     saving: 'جار الحفظ…',
     active: 'نشط',

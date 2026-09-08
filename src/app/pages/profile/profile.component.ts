@@ -26,7 +26,7 @@ export class ProfileComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     name: [''],
-    email: ['', [Validators.required, Validators.email]],
+    email: [{ value: '', disabled: true }],
   });
 
   ngOnInit(): void {
@@ -66,8 +66,8 @@ export class ProfileComponent implements OnInit {
     this.saving.set(true);
     this.errorMessage.set(null);
 
-    const { name, email } = this.form.getRawValue();
-    this.userService.updateProfile(user.id, { name, email }).subscribe({
+    const payload = this.form.value;
+    this.userService.updateProfile(user.id, payload).subscribe({
       next: (updated) => {
         this.saving.set(false);
         this.toast.success('Profil mis à jour !');

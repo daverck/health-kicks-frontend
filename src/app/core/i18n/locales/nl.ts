@@ -238,6 +238,8 @@ export const nl = {
     edit_info: 'Mijn gegevens wijzigen',
     full_name: 'Volledige naam',
     email: 'E-mail',
+    email_help_oidc: 'Het e-mailadres is gekoppeld aan uw SSO / OpenID-account en kan hier niet worden gewijzigd.',
+    email_locked_badge: 'Alleen-lezen',
     save_changes: 'Wijzigingen opslaan',
     saving: 'Opslaan…',
     active: 'Actief',

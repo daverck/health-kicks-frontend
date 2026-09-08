@@ -238,6 +238,8 @@ export const en = {
     edit_info: 'Update Profile Details',
     full_name: 'Full Name',
     email: 'Email',
+    email_help_oidc: 'Email address is linked to your SSO / OpenID account and cannot be modified here.',
+    email_locked_badge: 'Read-only',
     save_changes: 'Save Changes',
     saving: 'Saving…',
     active: 'Active',

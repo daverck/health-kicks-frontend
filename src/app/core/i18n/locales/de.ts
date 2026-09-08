@@ -238,6 +238,8 @@ export const de = {
     edit_info: 'Meine Daten bearbeiten',
     full_name: 'Vollständiger Name',
     email: 'E-Mail',
+    email_help_oidc: 'Die E-Mail-Adresse ist mit Ihrem SSO- / OpenID-Konto verknüpft und kann hier nicht geändert werden.',
+    email_locked_badge: 'Schreibgeschützt',
     save_changes: 'Änderungen speichern',
     saving: 'Wird gespeichert…',
     active: 'Aktiv',

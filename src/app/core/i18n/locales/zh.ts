@@ -238,6 +238,8 @@ export const zh = {
     edit_info: '修改个人信息',
     full_name: '完整姓名',
     email: '电子邮箱',
+    email_help_oidc: '电子邮箱已绑定至您的 SSO / OpenID 账户，无法在此修改。',
+    email_locked_badge: '只读',
     save_changes: '保存更改',
     saving: '正在保存…',
     active: '活跃正常',
