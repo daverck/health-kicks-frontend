@@ -23,6 +23,7 @@ export const es = {
     no: 'No',
   },
   nav: {
+    menu: 'Menú',
     dashboard: 'Panel de Control',
     vibrations: 'Vibraciones manuales',
     devices: 'Dispositivos',

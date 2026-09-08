@@ -60,18 +60,51 @@ describe('DashboardLayoutComponent', () => {
     expect(authServiceSpy.logout).toHaveBeenCalled();
   });
 
-  it('should render sticky topbar with user details and mobile logout', () => {
+  it('should render sticky topbar with user details and mobile hamburger button', () => {
     const header: HTMLElement = fixture.nativeElement.querySelector('header');
     expect(header).toBeTruthy();
     expect(header.classList.contains('sticky')).toBeTrue();
     expect(header.classList.contains('top-0')).toBeTrue();
     expect(header.textContent).toContain('Jane Doe');
 
-    const mobileLogoutBtn: HTMLButtonElement | null = header.querySelector('button.md\\:hidden');
+    const hamburgerBtn: HTMLButtonElement | null = header.querySelector('[data-testid="mobile-menu-toggle"]');
+    expect(hamburgerBtn).toBeTruthy();
+    expect(component.isMobileMenuOpen()).toBeFalse();
+
+    hamburgerBtn?.click();
+    expect(component.isMobileMenuOpen()).toBeTrue();
+  });
+
+  it('should toggle, render drawer and close mobile hamburger menu', () => {
+    expect(component.isMobileMenuOpen()).toBeFalse();
+    expect(fixture.nativeElement.querySelector('[data-testid="mobile-menu-close"]')).toBeNull();
+
+    component.toggleMobileMenu();
+    fixture.detectChanges();
+
+    expect(component.isMobileMenuOpen()).toBeTrue();
+    const closeBtn: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="mobile-menu-close"]');
+    expect(closeBtn).toBeTruthy();
+
+    const mobileLinks = fixture.nativeElement.querySelectorAll('aside[role="dialog"] nav a');
+    expect(mobileLinks.length).toBe(component.links.length);
+
+    closeBtn?.click();
+    fixture.detectChanges();
+    expect(component.isMobileMenuOpen()).toBeFalse();
+  });
+
+  it('should allow logout from mobile drawer and close menu', () => {
+    component.isMobileMenuOpen.set(true);
+    fixture.detectChanges();
+
+    const mobileLogoutBtn: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="mobile-drawer-logout"]');
     expect(mobileLogoutBtn).toBeTruthy();
+    expect(mobileLogoutBtn?.textContent).toContain('Déconnexion');
 
     mobileLogoutBtn?.click();
     expect(authServiceSpy.logout).toHaveBeenCalled();
+    expect(component.isMobileMenuOpen()).toBeFalse();
   });
 
   it('should render all dashboard navigation links', () => {

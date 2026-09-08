@@ -23,6 +23,7 @@ export const nl = {
     no: 'Nee',
   },
   nav: {
+    menu: 'Menu',
     dashboard: 'Dashboard',
     vibrations: 'Handmatige trillingen',
     devices: 'Apparaten',

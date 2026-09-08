@@ -23,6 +23,7 @@ export const zh = {
     no: '否',
   },
   nav: {
+    menu: '菜单',
     dashboard: '控制面板',
     vibrations: '手动振动',
     devices: '设备管理',

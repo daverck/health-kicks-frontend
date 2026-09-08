@@ -23,6 +23,7 @@ export const ar = {
     no: 'لا',
   },
   nav: {
+    menu: 'القائمة',
     dashboard: 'لوحة التحكم',
     vibrations: 'الاهتزازات اليدوية',
     devices: 'الأجهزة',

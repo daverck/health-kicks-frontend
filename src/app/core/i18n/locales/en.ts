@@ -23,6 +23,7 @@ export const en = {
     no: 'No',
   },
   nav: {
+    menu: 'Menu',
     dashboard: 'Dashboard',
     vibrations: 'Manual Vibrations',
     devices: 'Devices',

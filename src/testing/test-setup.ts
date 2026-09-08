@@ -18,3 +18,4 @@ if (typeof navigator !== 'undefined') {
     // Ignore in environments where navigator cannot be redefined
   }
 }
+

@@ -23,6 +23,7 @@ export const de = {
     no: 'Nein',
   },
   nav: {
+    menu: 'Menü',
     dashboard: 'Dashboard',
     vibrations: 'Manuelle Vibrationen',
     devices: 'Geräte',

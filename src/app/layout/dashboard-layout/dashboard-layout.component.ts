@@ -1,5 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { UserResponse } from '../../models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -22,6 +23,8 @@ export class DashboardLayoutComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
+  readonly isMobileMenuOpen = signal(false);
+
   readonly links = [
     { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳' },
     { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
@@ -30,9 +33,25 @@ export class DashboardLayoutComponent implements OnInit {
     { path: '/dashboard/profile', labelKey: 'nav.profile', label: 'Mon profil', icon: '👤' },
   ];
 
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.closeMobileMenu();
+      });
+  }
+
   ngOnInit(): void {
     // Load / refresh the user profile on layout init.
     this.auth.loadMe().subscribe({ error: () => {} });
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.update((open) => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
   }
 
   avatarInitial(user: UserResponse): string {
@@ -41,6 +60,7 @@ export class DashboardLayoutComponent implements OnInit {
   }
 
   logout(): void {
+    this.closeMobileMenu();
     this.auth.logout();
   }
 }

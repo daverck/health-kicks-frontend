@@ -1,10 +1,10 @@
 <div class="flex min-h-screen bg-gray-50">
-  <!-- Sidebar -->
+  <!-- Desktop Sidebar -->
   <aside class="hidden w-64 shrink-0 border-r border-gray-200 bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col md:justify-between">
     <div class="flex flex-col min-h-0">
       <!-- Logo -->
       <div class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-100 px-6">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l2-6 4 12 2-6h6" />
           </svg>
@@ -17,7 +17,7 @@
         @for (link of links; track link.path) {
           <a
             [routerLink]="link.path"
-            routerLinkActive="bg-primary-50 text-primary-700"
+            routerLinkActive="bg-primary-50 text-primary-700 font-semibold"
             class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
           >
             <span>{{ link.icon }}</span> {{ link.labelKey | translate }}
@@ -34,29 +34,129 @@
     </div>
   </aside>
 
-  <!-- Main -->
-  <div class="flex min-w-0 flex-1 flex-col">
-    <!-- Topbar (mobile nav included) -->
-    <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200 bg-white/95 backdrop-blur px-4 md:px-8">
-      <div class="flex items-center gap-4 md:hidden">
-        @for (link of links; track link.path) {
-          <a [routerLink]="link.path" routerLinkActive="text-primary-600" class="text-xl">{{ link.icon }}</a>
+  <!-- Mobile Drawer Backdrop & Panel -->
+  @if (isMobileMenuOpen()) {
+    <!-- Backdrop -->
+    <div
+      class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden transition-opacity"
+      (click)="closeMobileMenu()"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Mobile Drawer -->
+    <aside
+      class="fixed inset-y-0 start-0 z-50 flex w-72 flex-col justify-between bg-white shadow-2xl md:hidden"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'nav.menu' | translate"
+    >
+      <div class="flex flex-col min-h-0">
+        <!-- Header with Logo & Close button -->
+        <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-6">
+          <div class="flex items-center gap-2">
+            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l2-6 4 12 2-6h6" />
+              </svg>
+            </span>
+            <span class="font-bold">Health<span class="text-primary-600">Kicks</span></span>
+          </div>
+          <button
+            type="button"
+            (click)="closeMobileMenu()"
+            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition"
+            [attr.aria-label]="'common.close' | translate"
+            data-testid="mobile-menu-close"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- User summary in drawer if logged in -->
+        @if (auth.user(); as user) {
+          <div class="flex items-center gap-3 border-b border-gray-100 bg-gray-50/70 p-4">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
+              {{ avatarInitial(user) }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold text-gray-900">{{ user.name || user.email }}</p>
+              <p class="truncate text-xs text-gray-500">{{ user.role }}</p>
+            </div>
+          </div>
         }
+
+        <!-- Mobile Navigation links with full labels -->
+        <nav class="space-y-1 overflow-y-auto p-4">
+          @for (link of links; track link.path) {
+            <a
+              [routerLink]="link.path"
+              routerLinkActive="bg-primary-50 text-primary-700 font-semibold"
+              (click)="closeMobileMenu()"
+              class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
+            >
+              <span class="text-lg">{{ link.icon }}</span>
+              <span>{{ link.labelKey | translate }}</span>
+            </a>
+          }
+        </nav>
       </div>
-      <div class="ml-auto flex items-center gap-4">
+
+      <!-- Drawer Bottom: Déconnexion -->
+      <div class="shrink-0 border-t border-gray-100 p-4">
+        <button
+          (click)="logout()"
+          class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+          data-testid="mobile-drawer-logout"
+        >
+          <span class="text-lg">⎋</span>
+          <span>{{ 'nav.logout' | translate }}</span>
+        </button>
+      </div>
+    </aside>
+  }
+
+  <!-- Main Content Wrapper -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <!-- Topbar -->
+    <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200 bg-white/95 backdrop-blur px-4 md:px-8">
+      <!-- Mobile: Hamburger Menu Button + Logo -->
+      <div class="flex items-center gap-2 md:hidden">
+        <button
+          type="button"
+          (click)="toggleMobileMenu()"
+          class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+          [attr.aria-label]="'nav.menu' | translate"
+          [attr.aria-expanded]="isMobileMenuOpen()"
+          data-testid="mobile-menu-toggle"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white shadow-sm">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l2-6 4 12 2-6h6" />
+          </svg>
+        </span>
+        <span class="font-bold text-sm">Health<span class="text-primary-600">Kicks</span></span>
+      </div>
+
+      <!-- Right Topbar actions: Language Selector & User Profile -->
+      <div class="ml-auto flex items-center gap-3 sm:gap-4">
         <!-- Language Selector -->
         <app-language-selector />
 
         @if (auth.user(); as user) {
-          <div class="text-right">
-            <p class="text-sm font-semibold">{{ user.name || user.email }}</p>
+          <div class="hidden sm:block text-right">
+            <p class="text-sm font-semibold text-gray-900">{{ user.name || user.email }}</p>
             <p class="text-xs text-gray-500">{{ user.role }}</p>
           </div>
           <div class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
             {{ avatarInitial(user) }}
           </div>
         }
-        <button (click)="logout()" class="md:hidden text-sm text-red-600">⎋</button>
       </div>
     </header>
 
