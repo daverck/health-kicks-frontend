@@ -5,11 +5,17 @@ import { DeviceService } from '../../core/services/device.service';
 import { StudioService } from '../../core/services/studio.service';
 import { ToastService } from '../../core/services/toast.service';
 import { mockDevices } from '../../../testing/mocks/device.mock';
+import { DeviceResponse } from '../../models/api.models';
 import {
   mockStudioStartResponse,
   mockStudioSessionReadingsResponse,
   mockImuReadings,
 } from '../../../testing/mocks/telemetry.mock';
+
+const mockOnlineDevices: DeviceResponse[] = mockDevices.map((d) => ({
+  ...d,
+  status: 'online',
+}));
 
 describe('StudioComponent', () => {
   let component: StudioComponent;
@@ -19,6 +25,7 @@ describe('StudioComponent', () => {
   let toastSpy: jasmine.SpyObj<ToastService>;
 
   beforeEach(async () => {
+    localStorage.clear();
     deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['listDevices']);
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
 
@@ -48,16 +55,161 @@ describe('StudioComponent', () => {
 
   afterEach(() => {
     component.ngOnDestroy();
+    localStorage.clear();
   });
 
-  it('should create and load devices on init', () => {
+  it('should create and load devices on init, pre-selecting the first online device when localStorage is empty', () => {
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
     expect(deviceServiceSpy.listDevices).toHaveBeenCalled();
     expect(component.devices()).toEqual(mockDevices);
     expect(component.selectedDeviceId()).toBe('hk-device-0001');
+    expect(localStorage.getItem('healthkicks_selected_device_id')).toBe('hk-device-0001');
+    expect(component.selectedDevice()).toEqual(mockDevices[0]);
     expect(component.state()).toBe('idle');
+  });
+
+  it('should filter out offline devices from onlineDevices computed signal', () => {
+    fixture.detectChanges();
+
+    expect(component.devices().length).toBe(2);
+    expect(component.onlineDevices().length).toBe(1);
+    expect(component.onlineDevices()[0].device_id).toBe('hk-device-0001');
+    expect(component.onlineDevices()[0].status).toBe('online');
+  });
+
+  it('should fallback to first online device if device saved in localStorage is offline', () => {
+    localStorage.setItem('healthkicks_selected_device_id', 'hk-device-0002');
+
+    fixture.detectChanges();
+
+    expect(component.selectedDeviceId()).toBe('hk-device-0001');
+    expect(component.selectedDevice()?.device_id).toBe('hk-device-0001');
+  });
+
+  it('should pre-select device saved in localStorage if present and online', () => {
+    deviceServiceSpy.listDevices.and.returnValue(of(mockOnlineDevices));
+    localStorage.setItem('healthkicks_selected_device_id', 'hk-device-0002');
+
+    fixture = TestBed.createComponent(StudioComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.selectedDeviceId()).toBe('hk-device-0002');
+    expect(component.selectedDevice()?.device_id).toBe('hk-device-0002');
+  });
+
+  it('should update selectedDeviceId, save to localStorage and call startStudioSession with selected online device', () => {
+    deviceServiceSpy.listDevices.and.returnValue(of(mockOnlineDevices));
+    fixture = TestBed.createComponent(StudioComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    // Select second device (HK-2)
+    component.onDeviceSelect('hk-device-0002');
+    expect(component.selectedDeviceId()).toBe('hk-device-0002');
+    expect(localStorage.getItem('healthkicks_selected_device_id')).toBe('hk-device-0002');
+    expect(component.selectedDevice()?.device_id).toBe('hk-device-0002');
+
+    // Launch capture
+    component.startCapture();
+
+    expect(studioServiceSpy.startStudioSession).toHaveBeenCalledWith('hk-device-0002', jasmine.objectContaining({
+      label: 'walk',
+      duration_sec: 5,
+    }));
+    expect(component.state()).toBe('countdown');
+  });
+
+  it('should prevent startSession if selected device is offline and show toast error', () => {
+    fixture.detectChanges();
+
+    component.selectedDeviceId.set('hk-device-0002'); // offline in mockDevices
+    component.startSession();
+
+    expect(toastSpy.error).toHaveBeenCalledWith("L'équipement sélectionné n'est pas en ligne. Veuillez choisir une semelle connectée.");
+    expect(studioServiceSpy.startStudioSession).not.toHaveBeenCalled();
+    expect(component.state()).toBe('idle');
+  });
+
+  it('should filter online devices via autocomplete search query', () => {
+    deviceServiceSpy.listDevices.and.returnValue(of(mockOnlineDevices));
+    fixture = TestBed.createComponent(StudioComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.filteredOnlineDevices().length).toBe(2);
+
+    // Search by name
+    component.deviceSearchQuery.set('Marie');
+    expect(component.filteredOnlineDevices().length).toBe(1);
+    expect(component.filteredOnlineDevices()[0].device_id).toBe('hk-device-0001');
+
+    // Search by device_id
+    component.deviceSearchQuery.set('0002');
+    expect(component.filteredOnlineDevices().length).toBe(1);
+    expect(component.filteredOnlineDevices()[0].device_id).toBe('hk-device-0002');
+
+    // Search non-matching
+    component.deviceSearchQuery.set('inexistant');
+    expect(component.filteredOnlineDevices().length).toBe(0);
+  });
+
+  it('should toggle, open, and close device dropdown and select via selectDevice()', () => {
+    deviceServiceSpy.listDevices.and.returnValue(of(mockOnlineDevices));
+    fixture = TestBed.createComponent(StudioComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+
+    component.toggleDeviceDropdown();
+    expect(component.isDeviceDropdownOpen()).toBeTrue();
+
+    component.closeDeviceDropdown();
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+
+    component.openDeviceDropdown();
+    expect(component.isDeviceDropdownOpen()).toBeTrue();
+
+    component.deviceSearchQuery.set('test');
+    component.selectDevice('hk-device-0002');
+    expect(component.selectedDeviceId()).toBe('hk-device-0002');
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+    expect(component.deviceSearchQuery()).toBe('');
+  });
+
+  it('should not allow opening device dropdown when not in idle state', () => {
+    fixture.detectChanges();
+    component.state.set('recording');
+
+    component.openDeviceDropdown();
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+
+    component.toggleDeviceDropdown();
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+  });
+
+  it('should render a single searchable device select button and apply green styling to "Prêt" badge in idle state', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const selectBtn = compiled.querySelector('#device-select-btn');
+    expect(selectBtn).toBeTruthy();
+
+    // Verify there is only one device select control (no native select)
+    const nativeSelect = compiled.querySelector('#device-select');
+    expect(nativeSelect).toBeNull();
+
+    // Verify "Prêt" badge is green
+    const statusBadge = compiled.querySelector('.rounded-full.font-bold');
+    expect(statusBadge?.classList.contains('bg-green-100')).toBeTrue();
+    expect(statusBadge?.classList.contains('text-green-800')).toBeTrue();
+
+    // Verify dot is green
+    const statusDot = statusBadge?.querySelector('span');
+    expect(statusDot?.classList.contains('bg-green-500')).toBeTrue();
   });
 
   it('should compute effectiveLabel accurately with predefined and custom labels', () => {
@@ -166,7 +318,6 @@ describe('StudioComponent', () => {
     expect(toastSpy.info).toHaveBeenCalledWith('Session rejetée et points supprimés de DynamoDB.');
     expect(component.state()).toBe('idle');
   });
-
   it('should show error when starting session without selected device', () => {
     fixture.detectChanges();
     component.selectedDeviceId.set('');
@@ -176,4 +327,25 @@ describe('StudioComponent', () => {
     expect(toastSpy.error).toHaveBeenCalledWith('Veuillez sélectionner un équipement avant de lancer une session.');
     expect(studioServiceSpy.startStudioSession).not.toHaveBeenCalled();
   });
+
+  it('should reset to idle state and clear timers when calling resetToIdle()', () => {
+    fixture.detectChanges();
+    component.state.set('countdown');
+    component.resetToIdle();
+    expect(component.state()).toBe('idle');
+
+    component.state.set('recording');
+    component.resetToIdle();
+    expect(component.state()).toBe('idle');
+
+    component.state.set('fetching');
+    component.resetToIdle();
+    expect(component.state()).toBe('idle');
+
+    component.state.set('inspecting');
+    component.resetToIdle();
+    expect(component.state()).toBe('idle');
+  });
 });
+
+

@@ -17,6 +17,8 @@ export interface PredefinedLabel {
   description: string;
 }
 
+export const SELECTED_DEVICE_STORAGE_KEY = 'healthkicks_selected_device_id';
+
 export const PREDEFINED_LABELS: PredefinedLabel[] = [
   { id: 'walk', name: 'Marche', icon: '🚶', description: 'Pas réguliers sur sol plat' },
   { id: 'run', name: 'Course', icon: '🏃', description: 'Course modérée ou rapide' },
@@ -46,6 +48,32 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly selectedDeviceId = signal<string>('');
   readonly devicesLoading = signal<boolean>(true);
   readonly devicesError = signal<boolean>(false);
+
+  // Autocomplete & online filtering
+  readonly deviceSearchQuery = signal<string>('');
+  readonly isDeviceDropdownOpen = signal<boolean>(false);
+
+  readonly onlineDevices = computed(() => {
+    return this.devices().filter((d) => d.status === 'online');
+  });
+
+  readonly filteredOnlineDevices = computed(() => {
+    const query = this.deviceSearchQuery().trim().toLowerCase();
+    const online = this.onlineDevices();
+    if (!query) {
+      return online;
+    }
+    return online.filter(
+      (d) =>
+        (d.name && d.name.toLowerCase().includes(query)) ||
+        d.device_id.toLowerCase().includes(query)
+    );
+  });
+
+  readonly selectedDevice = computed(() => {
+    const id = this.selectedDeviceId();
+    return this.devices().find((d) => d.device_id === id) ?? null;
+  });
 
   // Workflow state machine
   readonly state = signal<StudioState>('idle');
@@ -88,8 +116,15 @@ export class StudioComponent implements OnInit, OnDestroy {
       next: (devices) => {
         this.devices.set(devices);
         this.devicesLoading.set(false);
-        if (devices.length > 0 && !this.selectedDeviceId()) {
-          this.selectedDeviceId.set(devices[0].device_id);
+        const online = devices.filter((d) => d.status === 'online');
+        if (online.length > 0) {
+          const savedId = localStorage.getItem(SELECTED_DEVICE_STORAGE_KEY);
+          const found = online.find((d) => d.device_id === savedId);
+          const deviceToSelect = found ? found.device_id : online[0].device_id;
+          this.selectedDeviceId.set(deviceToSelect);
+          localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceToSelect);
+        } else {
+          this.selectedDeviceId.set('');
         }
       },
       error: (err) => {
@@ -106,11 +141,46 @@ export class StudioComponent implements OnInit, OnDestroy {
 
   onDeviceSelect(deviceId: string): void {
     this.selectedDeviceId.set(deviceId);
+    if (deviceId) {
+      localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceId);
+    }
+  }
+
+  toggleDeviceDropdown(): void {
+    if (this.state() !== 'idle') return;
+    this.isDeviceDropdownOpen.update((open) => !open);
+  }
+
+  openDeviceDropdown(): void {
+    if (this.state() !== 'idle') return;
+    this.isDeviceDropdownOpen.set(true);
+  }
+
+  closeDeviceDropdown(): void {
+    this.isDeviceDropdownOpen.set(false);
+  }
+
+  selectDevice(deviceId: string): void {
+    this.onDeviceSelect(deviceId);
+    this.closeDeviceDropdown();
+    this.deviceSearchQuery.set('');
   }
 
   selectLabel(labelId: string): void {
     this.selectedLabel.set(labelId);
     this.customLabel.set('');
+  }
+
+  startCapture(): void {
+    this.startSession();
+  }
+
+  fetchReadings(): void {
+    this.runFetching();
+  }
+
+  deleteSession(): void {
+    this.rejectSession();
   }
 
   /**
@@ -120,6 +190,12 @@ export class StudioComponent implements OnInit, OnDestroy {
     const deviceId = this.selectedDeviceId();
     if (!deviceId) {
       this.toast.error('Veuillez sélectionner un équipement avant de lancer une session.');
+      return;
+    }
+
+    const isOnline = this.onlineDevices().some((d) => d.device_id === deviceId);
+    if (!isOnline && this.devices().length > 0) {
+      this.toast.error("L'équipement sélectionné n'est pas en ligne. Veuillez choisir une semelle connectée.");
       return;
     }
 

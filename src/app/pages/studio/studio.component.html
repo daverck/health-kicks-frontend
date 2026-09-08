@@ -7,41 +7,126 @@
         Pilotez les sessions de capture télémétrique (accéléromètre & gyroscope), ressentez le décompte haptique au pied et inspectez vos courbes.
       </p>
     </div>
-
-    @if (state() !== 'idle') {
-      <button
-        type="button"
-        (click)="resetToIdle()"
-        class="rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
-      >
-        ✕ Annuler & Retour
-      </button>
-    }
   </div>
 
   <!-- Device Selection Bar -->
   <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-3">
-        <label for="device-select" class="text-sm font-medium text-gray-700">Équipement cible :</label>
+        <label for="device-select-btn" class="text-sm font-medium text-gray-700">Équipement cible :</label>
         @if (devicesLoading()) {
           <span class="text-sm text-gray-500">Recherche des semelles connectées…</span>
         } @else if (devices().length === 0) {
           <span class="text-sm font-semibold text-amber-600">Aucun équipement associé. Veuillez appairer une semelle dans la section Équipements.</span>
+        } @else if (onlineDevices().length === 0) {
+          <div class="flex items-center gap-2 text-sm text-amber-700">
+            <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
+            <span class="font-medium">Aucun équipement en ligne disponible.</span>
+            <span class="text-xs text-gray-500">(Allumez votre semelle pour lancer une capture)</span>
+          </div>
         } @else {
-          <select
-            id="device-select"
-            [disabled]="state() !== 'idle'"
-            [ngModel]="selectedDeviceId()"
-            (ngModelChange)="onDeviceSelect($event)"
-            class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-400"
+          <!-- Single Searchable Select with Integrated Autocomplete Filter -->
+          <div
+            class="relative"
+            [attr.title]="state() !== 'idle' ? 'Verrouillé pendant la capture' : null"
           >
-            @for (device of devices(); track device.device_id) {
-              <option [value]="device.device_id">
-                {{ device.name || device.device_id }} ({{ device.status }})
-              </option>
+            <!-- Dropdown Trigger Button -->
+            <button
+              id="device-select-btn"
+              type="button"
+              (click)="toggleDeviceDropdown()"
+              [disabled]="state() !== 'idle'"
+              class="flex items-center justify-between gap-3 min-w-[260px] rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm transition hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+            >
+              <div class="flex items-center gap-2 truncate">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                <span class="truncate">
+                  {{ selectedDevice()?.name || selectedDeviceId() || 'Sélectionner une semelle…' }}
+                </span>
+              </div>
+              <svg
+                class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+                [class.rotate-180]="isDeviceDropdownOpen()"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+
+            <!-- Dropdown Menu with Search & Filter -->
+            @if (isDeviceDropdownOpen()) {
+              <!-- Backdrop to close on click outside -->
+              <div class="fixed inset-0 z-20" (click)="closeDeviceDropdown()"></div>
+
+              <div
+                class="absolute left-0 top-full z-30 mt-1.5 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
+              >
+                <!-- Search Filter Input inside Dropdown -->
+                <div class="border-b border-gray-100 p-2 bg-gray-50/50">
+                  <div class="relative flex items-center">
+                    <span class="pointer-events-none absolute left-2.5 text-xs text-gray-400">🔍</span>
+                    <input
+                      id="device-search-input"
+                      type="text"
+                      placeholder="Filtrer par nom ou ID…"
+                      [ngModel]="deviceSearchQuery()"
+                      (ngModelChange)="deviceSearchQuery.set($event)"
+                      class="w-full rounded-md border border-gray-200 bg-white pl-8 pr-7 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                      autofocus
+                    />
+                    @if (deviceSearchQuery()) {
+                      <button
+                        type="button"
+                        (click)="deviceSearchQuery.set('')"
+                        class="absolute right-2 text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        ✕
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Online Devices List -->
+                <div class="max-h-56 overflow-y-auto p-1.5">
+                  <div class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                    Semelles en ligne ({{ filteredOnlineDevices().length }})
+                  </div>
+                  @if (filteredOnlineDevices().length === 0) {
+                    <div class="p-4 text-center text-xs text-gray-500">
+                      Aucune semelle en ligne correspondante
+                    </div>
+                  } @else {
+                    @for (dev of filteredOnlineDevices(); track dev.device_id) {
+                      <button
+                        type="button"
+                        (click)="selectDevice(dev.device_id)"
+                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition hover:bg-primary-50"
+                        [class.bg-primary-50]="dev.device_id === selectedDeviceId()"
+                        [class.font-semibold]="dev.device_id === selectedDeviceId()"
+                      >
+                        <div class="flex items-center gap-2 truncate pr-2">
+                          <span class="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                          <span class="truncate text-gray-900">{{ dev.name || dev.device_id }}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                          <span class="font-mono text-[10px] text-gray-400">{{ dev.device_id }}</span>
+                          @if (dev.device_id === selectedDeviceId()) {
+                            <span class="text-xs text-primary-600 font-bold">✓</span>
+                          }
+                        </div>
+                      </button>
+                    }
+                  }
+                </div>
+              </div>
             }
-          </select>
+          </div>
         }
       </div>
 
@@ -50,8 +135,8 @@
         <span class="text-xs uppercase tracking-wider text-gray-400">Statut :</span>
         <span
           class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
-          [class.bg-gray-100]="state() === 'idle'"
-          [class.text-gray-700]="state() === 'idle'"
+          [class.bg-green-100]="state() === 'idle'"
+          [class.text-green-800]="state() === 'idle'"
           [class.bg-amber-100]="state() === 'countdown'"
           [class.text-amber-800]="state() === 'countdown'"
           [class.bg-blue-100]="state() === 'recording'"
@@ -61,8 +146,9 @@
           [class.bg-emerald-100]="state() === 'inspecting'"
           [class.text-emerald-800]="state() === 'inspecting'"
         >
-          <span class="h-2 w-2 rounded-full"
-            [class.bg-gray-400]="state() === 'idle'"
+          <span
+            class="h-2 w-2 rounded-full"
+            [class.bg-green-500]="state() === 'idle'"
             [class.bg-amber-500]="state() === 'countdown'"
             [class.bg-blue-500]="state() === 'recording'"
             [class.bg-purple-500]="state() === 'fetching'"
@@ -150,7 +236,7 @@
         <button
           type="button"
           (click)="startSession()"
-          [disabled]="devices().length === 0 || !selectedDeviceId()"
+          [disabled]="onlineDevices().length === 0 || !selectedDeviceId()"
           class="mt-6 inline-flex items-center gap-3 rounded-xl bg-primary-600 px-8 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <span>🎬</span> Lancer l'enregistrement (5s)
@@ -173,6 +259,15 @@
         <span class="flex h-3 w-3 rounded-full bg-amber-500 animate-ping"></span>
         <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Vibrations de synchronisation…</span>
       </div>
+
+      <!-- Annuler & Retour Button inside Step 2 -->
+      <button
+        type="button"
+        (click)="resetToIdle()"
+        class="mt-8 inline-flex items-center gap-2 rounded-xl border border-amber-300 bg-white px-5 py-2 text-xs font-semibold text-amber-900 shadow-sm hover:bg-amber-100/50 transition active:scale-95"
+      >
+        ✕ Annuler & Retour
+      </button>
     </div>
   }
 
@@ -200,6 +295,15 @@
           ></div>
         </div>
       </div>
+
+      <!-- Annuler & Retour Button inside Step 3 -->
+      <button
+        type="button"
+        (click)="resetToIdle()"
+        class="mt-8 inline-flex items-center gap-2 rounded-xl border border-blue-300 bg-white px-5 py-2 text-xs font-semibold text-blue-900 shadow-sm hover:bg-blue-100/50 transition active:scale-95"
+      >
+        ✕ Annuler & Retour
+      </button>
     </div>
   }
 
@@ -217,6 +321,15 @@
         <p class="mt-2 max-w-md text-sm text-purple-800">
           La semelle a transmis ses paquets IMU. La Lambda persiste les points dans DynamoDB (tentative {{ fetchingAttempt() }}/8)…
         </p>
+
+        <!-- Annuler & Retour Button while fetching -->
+        <button
+          type="button"
+          (click)="resetToIdle()"
+          class="mt-8 inline-flex items-center gap-2 rounded-xl border border-purple-300 bg-white px-5 py-2 text-xs font-semibold text-purple-900 shadow-sm hover:bg-purple-100/50 transition active:scale-95"
+        >
+          ✕ Annuler & Retour
+        </button>
       } @else {
         <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-red-100 ring-8 ring-red-200/50">
           <span class="text-4xl">⚠️</span>
@@ -229,16 +342,16 @@
           <button
             type="button"
             (click)="runFetching()"
-            class="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-purple-700"
+            class="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-purple-700 transition active:scale-95"
           >
             ↻ Réessayer la récupération
           </button>
           <button
             type="button"
             (click)="resetToIdle()"
-            class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+            class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95"
           >
-            Annuler
+            ✕ Annuler & Retour
           </button>
         </div>
       }
@@ -266,13 +379,21 @@
             </p>
           </div>
 
-          <!-- Validation / Rejection Actions -->
-          <div class="flex items-center gap-3">
+          <!-- Validation / Rejection / Return Actions -->
+          <div class="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              (click)="resetToIdle()"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95"
+            >
+              ✕ Annuler & Retour
+            </button>
+
             <button
               type="button"
               (click)="rejectSession()"
               [disabled]="isDeleting()"
-              class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 active:scale-95 disabled:opacity-50"
+              class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 transition active:scale-95 disabled:opacity-50"
             >
               @if (isDeleting()) {
                 <span class="animate-spin">⏳</span> Suppression…
@@ -284,7 +405,7 @@
             <button
               type="button"
               (click)="validateSession()"
-              class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 active:scale-95"
+              class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition active:scale-95"
             >
               <span>✅</span> Valider la session
             </button>
@@ -304,4 +425,3 @@
     </div>
   }
 </div>
-
