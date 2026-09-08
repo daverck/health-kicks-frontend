@@ -6,7 +6,10 @@ import {
   StudioStartRequest,
   StudioStartResponse,
   StudioSessionReadingsResponse,
+  StudioDatasetStats,
 } from '../../models/telemetry.models';
+
+export type { StudioDatasetStats };
 
 @Injectable({ providedIn: 'root' })
 export class StudioService {
@@ -42,6 +45,16 @@ export class StudioService {
   deleteSessionReadings(deviceId: string, sessionId: string): Observable<void> {
     return this.http.delete<void>(
       `${this.base}/devices/${deviceId}/telemetry/sessions/${sessionId}`
+    );
+  }
+
+  /**
+   * Retrieves dataset summary statistics for a device.
+   * GET /api/v1/devices/{device_id}/studio/stats
+   */
+  getStudioStats(deviceId: string): Observable<StudioDatasetStats> {
+    return this.http.get<StudioDatasetStats>(
+      `${this.base}/devices/${deviceId}/studio/stats`
     );
   }
 }

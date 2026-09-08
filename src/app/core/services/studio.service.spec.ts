@@ -7,6 +7,7 @@ import {
   mockStudioStartRequest,
   mockStudioStartResponse,
   mockStudioSessionReadingsResponse,
+  mockStudioDatasetStats,
 } from '../../../testing/mocks/telemetry.mock';
 
 describe('StudioService', () => {
@@ -75,6 +76,20 @@ describe('StudioService', () => {
     req.flush(null, { status: 204, statusText: 'No Content' });
 
     expect(deleted).toBeTrue();
+  });
+
+  it('should get studio dataset statistics via GET /api/v1/devices/{id}/studio/stats', () => {
+    service.getStudioStats('hk-device-0001').subscribe((res) => {
+      expect(res).toEqual(mockStudioDatasetStats);
+      expect(res.total_sessions).toBe(42);
+      expect(res.by_label['walk']).toBe(15);
+    });
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/studio/stats`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockStudioDatasetStats);
   });
 });
 

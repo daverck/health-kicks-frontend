@@ -41,3 +41,9 @@ export interface StudioStartResponse {
   topic: string;
 }
 
+export interface StudioDatasetStats {
+  device_id?: string;
+  total_sessions: number;
+  by_label: Record<string, number>;
+}
+

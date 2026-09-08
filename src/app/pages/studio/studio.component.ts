@@ -5,7 +5,7 @@ import { DeviceService } from '../../core/services/device.service';
 import { StudioService } from '../../core/services/studio.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse } from '../../models/api.models';
-import { ImuReading, StudioStartResponse } from '../../models/telemetry.models';
+import { ImuReading, StudioStartResponse, StudioDatasetStats } from '../../models/telemetry.models';
 import { ImuChartComponent } from '../../shared/components/imu-chart/imu-chart.component';
 
 export type StudioState = 'idle' | 'countdown' | 'recording' | 'fetching' | 'inspecting';
@@ -105,6 +105,40 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly fetchingError = signal<boolean>(false);
   readonly isDeleting = signal<boolean>(false);
 
+  // Dataset statistics & balance guidance
+  readonly targetPerClass = 10;
+  readonly datasetStats = signal<StudioDatasetStats>({ total_sessions: 0, by_label: {} });
+  readonly isLoadingStats = signal<boolean>(false);
+
+  readonly classesReachingTarget = computed(() => {
+    const stats = this.datasetStats();
+    return this.predefinedLabels.filter(
+      (l) => (stats.by_label[l.id] ?? 0) >= this.targetPerClass
+    ).length;
+  });
+
+  getCountForLabel(label: string): number {
+    return this.datasetStats().by_label[label] ?? 0;
+  }
+
+  loadStats(): void {
+    const deviceId = this.selectedDeviceId();
+    if (!deviceId) {
+      this.datasetStats.set({ total_sessions: 0, by_label: {} });
+      return;
+    }
+    this.isLoadingStats.set(true);
+    this.studioService.getStudioStats(deviceId).subscribe({
+      next: (stats) => {
+        this.datasetStats.set(stats);
+        this.isLoadingStats.set(false);
+      },
+      error: () => {
+        this.isLoadingStats.set(false);
+      },
+    });
+  }
+
   // Timers & visual progress
   readonly countdownRemainingMs = signal<number>(1500);
   readonly recordingProgressPercent = signal<number>(0);
@@ -136,8 +170,10 @@ export class StudioComponent implements OnInit, OnDestroy {
           const deviceToSelect = found ? found.device_id : online[0].device_id;
           this.selectedDeviceId.set(deviceToSelect);
           localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceToSelect);
+          this.loadStats();
         } else {
           this.selectedDeviceId.set('');
+          this.loadStats();
         }
       },
       error: (err) => {
@@ -157,6 +193,7 @@ export class StudioComponent implements OnInit, OnDestroy {
     if (deviceId) {
       localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceId);
     }
+    this.loadStats();
   }
 
   toggleDeviceDropdown(): void {
@@ -229,9 +266,9 @@ export class StudioComponent implements OnInit, OnDestroy {
       label,
       duration_sec: 5,
       pulse_count: 3,
-      pulse_duration_ms: 100,
+      pulse_duration_ms: 200,
       pulse_pause_ms: 200,
-      pulse_intensity: 220,
+      pulse_intensity: 255,
     }).subscribe({
       next: (res) => {
         this.currentSession.set(res);
@@ -340,6 +377,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   validateSession(): void {
     this.toast.success('Session IMU validée et archivée avec succès !');
     this.resetToIdle();
+    this.loadStats();
   }
 
   rejectSession(): void {
@@ -357,6 +395,7 @@ export class StudioComponent implements OnInit, OnDestroy {
         this.isDeleting.set(false);
         this.toast.info('Session rejetée et points supprimés de DynamoDB.');
         this.resetToIdle();
+        this.loadStats();
       },
       error: (err) => {
         this.isDeleting.set(false);

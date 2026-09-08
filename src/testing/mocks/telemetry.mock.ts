@@ -3,6 +3,7 @@ import {
   StudioSessionReadingsResponse,
   StudioStartRequest,
   StudioStartResponse,
+  StudioDatasetStats,
 } from '../../app/models/telemetry.models';
 
 export const mockStudioStartRequest: StudioStartRequest = {
@@ -68,5 +69,20 @@ export const mockStudioSessionReadingsResponse: StudioSessionReadingsResponse = 
   label: 'walk',
   sample_count: 3,
   readings: mockImuReadings,
+};
+
+export const mockStudioDatasetStats: StudioDatasetStats = {
+  device_id: 'hk-device-0001',
+  total_sessions: 42,
+  by_label: {
+    walk: 15,
+    run: 10,
+    stairs: 8,
+    stumble_recover: 5,
+    fall_forward: 2,
+    fall_backward: 1,
+    fall_lateral: 1,
+    fall_recovery: 0,
+  },
 };
 

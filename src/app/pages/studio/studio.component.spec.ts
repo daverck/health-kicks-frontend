@@ -10,6 +10,7 @@ import {
   mockStudioStartResponse,
   mockStudioSessionReadingsResponse,
   mockImuReadings,
+  mockStudioDatasetStats,
 } from '../../../testing/mocks/telemetry.mock';
 
 const mockOnlineDevices: DeviceResponse[] = mockDevices.map((d) => ({
@@ -33,10 +34,12 @@ describe('StudioComponent', () => {
       'startStudioSession',
       'getSessionReadings',
       'deleteSessionReadings',
+      'getStudioStats',
     ]);
     studioServiceSpy.startStudioSession.and.returnValue(of(mockStudioStartResponse));
     studioServiceSpy.getSessionReadings.and.returnValue(of(mockStudioSessionReadingsResponse));
     studioServiceSpy.deleteSessionReadings.and.returnValue(of(undefined));
+    studioServiceSpy.getStudioStats.and.returnValue(of(mockStudioDatasetStats));
 
     toastSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info', 'warning']);
 
@@ -251,9 +254,9 @@ describe('StudioComponent', () => {
       label: 'walk',
       duration_sec: 5,
       pulse_count: 3,
-      pulse_duration_ms: 100,
+      pulse_duration_ms: 200,
       pulse_pause_ms: 200,
-      pulse_intensity: 220,
+      pulse_intensity: 255,
     });
     expect(component.state()).toBe('countdown');
 
@@ -345,6 +348,66 @@ describe('StudioComponent', () => {
     component.state.set('inspecting');
     component.resetToIdle();
     expect(component.state()).toBe('idle');
+  });
+
+  it('should load studio dataset statistics on init with current deviceId', () => {
+    fixture.detectChanges();
+
+    expect(studioServiceSpy.getStudioStats).toHaveBeenCalledWith('hk-device-0001');
+    expect(component.datasetStats().total_sessions).toBe(42);
+    expect(component.getCountForLabel('walk')).toBe(15);
+    expect(component.getCountForLabel('run')).toBe(10);
+    expect(component.getCountForLabel('fall_recovery')).toBe(0);
+    expect(component.classesReachingTarget()).toBe(2);
+  });
+
+  it('should render dataset summary banner and label badges in UI', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const summaryBanner = compiled.querySelector('#dataset-stats-summary');
+    expect(summaryBanner).toBeTruthy();
+    expect(summaryBanner?.textContent).toContain('42');
+
+    const badges = compiled.querySelectorAll('.label-badge');
+    expect(badges.length).toBe(component.predefinedLabels.length);
+
+    // First label is 'walk' with count 15 (>= 10, green styling with checkmark)
+    expect(badges[0].textContent).toContain('15');
+    expect(badges[0].textContent).toContain('✓');
+    expect(badges[0].classList.contains('bg-emerald-100')).toBeTrue();
+  });
+
+  it('should refresh dataset stats when validating a session', () => {
+    fixture.detectChanges();
+    const callCountBefore = studioServiceSpy.getStudioStats.calls.count();
+
+    component.state.set('inspecting');
+    component.validateSession();
+
+    expect(studioServiceSpy.getStudioStats.calls.count()).toBe(callCountBefore + 1);
+  });
+
+  it('should refresh dataset stats when rejecting a session', () => {
+    fixture.detectChanges();
+    component.currentSession.set(mockStudioStartResponse);
+    component.selectedDeviceId.set('hk-device-0001');
+    component.state.set('inspecting');
+    const callCountBefore = studioServiceSpy.getStudioStats.calls.count();
+
+    component.rejectSession();
+
+    expect(studioServiceSpy.deleteSessionReadings).toHaveBeenCalledWith('hk-device-0001', 'sess-abc-12345');
+    expect(studioServiceSpy.getStudioStats.calls.count()).toBe(callCountBefore + 1);
+  });
+
+  it('should reload dataset stats when selecting a different device', () => {
+    fixture.detectChanges();
+
+    component.onDeviceSelect('hk-device-0002');
+
+    expect(studioServiceSpy.getStudioStats).toHaveBeenCalledWith('hk-device-0002');
+    expect(component.selectedDeviceId()).toBe('hk-device-0002');
   });
 });
 
