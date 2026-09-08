@@ -30,13 +30,14 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
   { id: 'fall_recovery', name: 'Chute relevée', icon: '🔄', description: 'Chute au sol suivie d’un redressement' },
 ];
 
+import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-studio',
   standalone: true,
-  imports: [CommonModule, FormsModule, ImuChartComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, ImuChartComponent, TranslatePipe],
   templateUrl: './studio.component.html',
 })
 export class StudioComponent implements OnInit, OnDestroy {

@@ -29,6 +29,7 @@ export const zh = {
     devices: '设备管理',
     history: '历史记录',
     studio: '动作采集工作室',
+    studio_history: 'Studio历史记录',
     profile: '个人资料',
     logout: '退出登录',
     home: '首页',

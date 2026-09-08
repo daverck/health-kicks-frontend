@@ -29,6 +29,7 @@ export const de = {
     devices: 'Geräte',
     history: 'Verlauf',
     studio: 'Aufnahme-Studio',
+    studio_history: 'Studio-Verlauf',
     profile: 'Mein Profil',
     logout: 'Abmelden',
     home: 'Startseite',

@@ -29,6 +29,7 @@ export const ar = {
     devices: 'الأجهزة',
     history: 'السجل',
     studio: 'استوديو الالتقاط',
+    studio_history: 'سجل الاستوديو',
     profile: 'ملفي الشخصي',
     logout: 'تسجيل الخروج',
     home: 'الرئيسية',

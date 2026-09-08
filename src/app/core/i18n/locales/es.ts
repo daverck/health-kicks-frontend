@@ -29,6 +29,7 @@ export const es = {
     devices: 'Dispositivos',
     history: 'Historial',
     studio: 'Studio de Captura',
+    studio_history: 'Historial Studio',
     profile: 'Mi Perfil',
     logout: 'Cerrar Sesión',
     home: 'Inicio',

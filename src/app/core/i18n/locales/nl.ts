@@ -29,6 +29,7 @@ export const nl = {
     devices: 'Apparaten',
     history: 'Geschiedenis',
     studio: 'Studio Capture',
+    studio_history: 'Studio-geschiedenis',
     profile: 'Mijn profiel',
     logout: 'Uitloggen',
     home: 'Startpagina',

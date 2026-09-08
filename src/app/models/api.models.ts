@@ -120,3 +120,4 @@ export interface IngestionResponse {
 // ---------- Telemetry & Studio ----------
 
 export * from './telemetry.models';
+export * from './studio-history.model';

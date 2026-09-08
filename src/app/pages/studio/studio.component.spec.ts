@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { StudioComponent } from './studio.component';
 import { DeviceService } from '../../core/services/device.service';
@@ -46,6 +47,7 @@ describe('StudioComponent', () => {
     await TestBed.configureTestingModule({
       imports: [StudioComponent],
       providers: [
+        provideRouter([]),
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: StudioService, useValue: studioServiceSpy },
         { provide: ToastService, useValue: toastSpy },

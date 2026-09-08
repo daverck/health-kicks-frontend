@@ -30,6 +30,7 @@ export class DashboardLayoutComponent implements OnInit {
     { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
     { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓' },
     { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬' },
+    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊' },
     { path: '/dashboard/profile', labelKey: 'nav.profile', label: 'Mon profil', icon: '👤' },
   ];
 
