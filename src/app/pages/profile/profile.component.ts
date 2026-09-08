@@ -7,6 +7,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { UserResponse } from '../../models/api.models';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-profile',
@@ -19,6 +20,7 @@ export class ProfileComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  readonly translation = inject(TranslationService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -55,6 +57,24 @@ export class ProfileComponent implements OnInit {
       .slice(0, 2)
       .map((p) => p[0]!.toUpperCase())
       .join('');
+  }
+
+  roleLabel(role: string): string {
+    if (!role) return '';
+    const key = `profile.roles.${role}`;
+    const translated = this.translation.translate(key);
+    return translated !== key ? translated : role;
+  }
+
+  roleBadgeClass(role: string): string {
+    switch (role) {
+      case 'admin':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'clinician':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-primary-50 text-primary-700 border-primary-200';
+    }
   }
 
   save(): void {

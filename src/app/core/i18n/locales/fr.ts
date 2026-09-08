@@ -236,6 +236,12 @@ export const fr = {
     title: 'Mon profil',
     subtitle: 'Consultez et modifiez vos informations personnelles.',
     user_id: 'ID utilisateur',
+    role: 'Rôle',
+    roles: {
+      admin: 'Administrateur',
+      clinician: 'Praticien',
+      user: 'Utilisateur',
+    },
     provider: 'Fournisseur',
     edit_info: 'Modifier mes informations',
     full_name: 'Nom complet',

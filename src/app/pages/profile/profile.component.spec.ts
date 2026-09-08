@@ -105,4 +105,29 @@ describe('ProfileComponent', () => {
     expect(component.initials({ ...mockUser, name: 'Jean-Claude Van Damme' })).toBe('JV');
     expect(component.initials({ ...mockUser, name: undefined, email: 'alice.smith@example.com' })).toBe('AS');
   });
+
+  it('should display user role in badge and definition list field', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const roleBadge = compiled.querySelector('#profile-role-badge');
+    expect(roleBadge).toBeTruthy();
+    expect(roleBadge?.textContent).toContain('Rôle');
+    expect(roleBadge?.textContent).toContain('Utilisateur');
+
+    const roleField = compiled.querySelector('#profile-role-field');
+    expect(roleField).toBeTruthy();
+    expect(roleField?.textContent?.trim()).toBe('Utilisateur');
+  });
+
+  it('should map role labels and styling classes correctly', () => {
+    expect(component.roleLabel('admin')).toBe('Administrateur');
+    expect(component.roleLabel('clinician')).toBe('Praticien');
+    expect(component.roleLabel('user')).toBe('Utilisateur');
+    expect(component.roleLabel('')).toBe('');
+
+    expect(component.roleBadgeClass('admin')).toContain('bg-purple-100');
+    expect(component.roleBadgeClass('clinician')).toContain('bg-blue-100');
+    expect(component.roleBadgeClass('user')).toContain('bg-primary-50');
+  });
 });

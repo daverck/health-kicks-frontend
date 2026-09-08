@@ -236,6 +236,12 @@ export const en = {
     title: 'My Profile',
     subtitle: 'View and update your personal information.',
     user_id: 'User ID',
+    role: 'Role',
+    roles: {
+      admin: 'Administrator',
+      clinician: 'Clinician',
+      user: 'User',
+    },
     provider: 'Provider',
     edit_info: 'Update Profile Details',
     full_name: 'Full Name',
