@@ -175,6 +175,7 @@ export const zh = {
     under_represented_notice: '部分类别的采集次数少于 {target} 次。建议优先录制这些类别以平衡模型。',
     all_classes_ready: '所有类别均已达到推荐目标！',
     sessions_count_badge: '{count} 次采集',
+    captures_unit: '次采集',
     ready_question: '准备好开始采集了吗？',
     ready_explanation: '点击下方按钮后，鞋垫将振动 3 次提示起步，随后持续记录 5 秒的惯性测量数据。',
     selected_label: '已选标签：“{label}”',

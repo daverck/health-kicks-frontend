@@ -73,14 +73,14 @@ export const mockStudioSessionReadingsResponse: StudioSessionReadingsResponse = 
 
 export const mockStudioDatasetStats: StudioDatasetStats = {
   device_id: 'hk-device-0001',
-  total_sessions: 42,
+  total_sessions: 80,
   by_label: {
-    walk: 15,
-    run: 10,
-    stairs: 8,
-    stumble_recover: 5,
-    fall_forward: 2,
-    fall_backward: 1,
+    walk: 28,
+    run: 25,
+    stairs: 12,
+    stumble_recover: 8,
+    fall_forward: 4,
+    fall_backward: 2,
     fall_lateral: 1,
     fall_recovery: 0,
   },

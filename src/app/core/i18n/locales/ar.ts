@@ -175,6 +175,7 @@ export const ar = {
     under_represented_notice: 'بعض الفئات تحتوي على أقل من {target} تسجيلات. يُرجى تسجيلها أولاً لتحقيق توازن النموذج.',
     all_classes_ready: 'وصلت جميع الفئات إلى الحد الموصى به!',
     sessions_count_badge: '{count} تسجيلات',
+    captures_unit: 'تسجيلات',
     ready_question: 'جاهز لبدء الالتقاط؟',
     ready_explanation: 'عند النقر أدناه، سيهتز الضبان 3 مرات كعد تنازلي، ثم يسجل بيانات الحركة لمدة 5 ثوانٍ.',
     selected_label: 'التصنيف المختار: «{label}»',

@@ -175,6 +175,7 @@ export const nl = {
     under_represented_notice: 'Sommige klassen hebben minder dan {target} opnames. Neem deze eerst op om het model in evenwicht te brengen.',
     all_classes_ready: 'Alle klassen hebben de aanbevolen drempel bereikt!',
     sessions_count_badge: '{count} opnames',
+    captures_unit: 'opnames',
     ready_question: 'Klaar voor opname?',
     ready_explanation: 'Na het klikken trilt de zool 3 keer als aftelling, en registreert daarna 5 seconden uw traagheidsgegevens.',
     selected_label: 'Geselecteerd label: “{label}”',

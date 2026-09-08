@@ -224,6 +224,21 @@
               ></div>
             </div>
           </div>
+
+          <!-- Guidance notice -->
+          <div class="mt-2.5 flex items-center justify-between gap-2 text-xs">
+            @if (classesReachingTarget() < predefinedLabels.length) {
+              <span class="flex items-center gap-1.5 font-medium text-amber-700">
+                <span>⚠️</span>
+                {{ 'studio.under_represented_notice' | translate:{ target: targetPerClass } }}
+              </span>
+            } @else {
+              <span class="flex items-center gap-1.5 font-medium text-emerald-700">
+                <span>✅</span>
+                {{ 'studio.all_classes_ready' | translate }}
+              </span>
+            }
+          </div>
         </div>
 
         <!-- Touch Grid with Label Count Badges -->
@@ -254,12 +269,28 @@
                 @if (getCountForLabel(label.id) >= targetPerClass) {
                   <span>✓</span>
                 }
-                {{ getCountForLabel(label.id) }}
+                {{ getCountForLabel(label.id) }} / {{ targetPerClass }}
               </span>
 
               <span class="text-3xl mt-1">{{ label.icon }}</span>
               <span class="mt-2 text-sm font-semibold">{{ 'studio.labels.' + label.id | translate }}</span>
               <span class="mt-0.5 text-[11px] text-gray-400">{{ 'studio.labels.' + label.id + '_desc' | translate }}</span>
+
+              <!-- Explicit exact capture count chip -->
+              <span
+                class="label-exact-count mt-2.5 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold transition"
+                [class.bg-emerald-50]="getCountForLabel(label.id) >= targetPerClass"
+                [class.text-emerald-700]="getCountForLabel(label.id) >= targetPerClass"
+                [class.border-emerald-200]="getCountForLabel(label.id) >= targetPerClass"
+                [class.bg-amber-50]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
+                [class.text-amber-700]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
+                [class.border-amber-200]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
+                [class.bg-gray-50]="getCountForLabel(label.id) === 0"
+                [class.text-gray-500]="getCountForLabel(label.id) === 0"
+                [class.border-gray-200]="getCountForLabel(label.id) === 0"
+              >
+                <span class="font-bold">{{ getCountForLabel(label.id) }}</span> / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
+              </span>
             </button>
           }
         </div>
@@ -297,8 +328,22 @@
         <p class="mt-1 max-w-md text-sm text-gray-600">
           {{ 'studio.ready_explanation' | translate }}
         </p>
-        <div class="mt-2 text-xs font-semibold text-primary-700">
-          {{ 'studio.selected_label' | translate:{ label: displayLabel() } }}
+        <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-primary-700">
+          <span>{{ 'studio.selected_label' | translate:{ label: displayLabel() } }}</span>
+          <span
+            class="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold"
+            [class.bg-emerald-100]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+            [class.text-emerald-800]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+            [class.border-emerald-200]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+            [class.bg-amber-100]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
+            [class.text-amber-800]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
+            [class.border-amber-200]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
+            [class.bg-gray-100]="getCountForLabel(effectiveLabel()) === 0"
+            [class.text-gray-600]="getCountForLabel(effectiveLabel()) === 0"
+            [class.border-gray-200]="getCountForLabel(effectiveLabel()) === 0"
+          >
+            {{ getCountForLabel(effectiveLabel()) }} / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
+          </span>
         </div>
 
         <button

@@ -354,28 +354,36 @@ describe('StudioComponent', () => {
     fixture.detectChanges();
 
     expect(studioServiceSpy.getStudioStats).toHaveBeenCalledWith('hk-device-0001');
-    expect(component.datasetStats().total_sessions).toBe(42);
-    expect(component.getCountForLabel('walk')).toBe(15);
-    expect(component.getCountForLabel('run')).toBe(10);
+    expect(component.datasetStats().total_sessions).toBe(80);
+    expect(component.getCountForLabel('walk')).toBe(28);
+    expect(component.getCountForLabel('run')).toBe(25);
     expect(component.getCountForLabel('fall_recovery')).toBe(0);
+    expect(component.targetPerClass).toBe(25);
     expect(component.classesReachingTarget()).toBe(2);
   });
 
-  it('should render dataset summary banner and label badges in UI', () => {
+  it('should render dataset summary banner, label badges and exact count chips in UI', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     const summaryBanner = compiled.querySelector('#dataset-stats-summary');
     expect(summaryBanner).toBeTruthy();
-    expect(summaryBanner?.textContent).toContain('42');
+    expect(summaryBanner?.textContent).toContain('80');
 
     const badges = compiled.querySelectorAll('.label-badge');
     expect(badges.length).toBe(component.predefinedLabels.length);
 
-    // First label is 'walk' with count 15 (>= 10, green styling with checkmark)
-    expect(badges[0].textContent).toContain('15');
+    // First label is 'walk' with count 28 (>= 25, green styling with checkmark and exact count / 25)
+    expect(badges[0].textContent).toContain('28');
+    expect(badges[0].textContent).toContain('/ 25');
     expect(badges[0].textContent).toContain('✓');
     expect(badges[0].classList.contains('bg-emerald-100')).toBeTrue();
+
+    // Verify exact count chip inside the card
+    const exactCountChips = compiled.querySelectorAll('.label-exact-count');
+    expect(exactCountChips.length).toBe(component.predefinedLabels.length);
+    expect(exactCountChips[0].textContent).toContain('28');
+    expect(exactCountChips[0].textContent).toContain('/ 25');
   });
 
   it('should refresh dataset stats when validating a session', () => {

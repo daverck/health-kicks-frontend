@@ -175,6 +175,7 @@ export const en = {
     under_represented_notice: 'Some classes have fewer than {target} captures. Prioritize recording them to balance the model.',
     all_classes_ready: 'All classes have reached the recommended threshold!',
     sessions_count_badge: '{count} captures',
+    captures_unit: 'captures',
     ready_question: 'Ready for capture?',
     ready_explanation: 'Upon clicking below, the insole will vibrate 3 times to count down, then record your inertial data for 5 seconds.',
     selected_label: 'Selected label: “{label}”',

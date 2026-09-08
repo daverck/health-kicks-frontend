@@ -175,6 +175,7 @@ export const es = {
     under_represented_notice: 'Algunas clases tienen menos de {target} capturas. Priorice su grabación para equilibrar el modelo.',
     all_classes_ready: '¡Todas las clases han alcanzado el umbral recomendado!',
     sessions_count_badge: '{count} capturas',
+    captures_unit: 'capturas',
     ready_question: '¿Listo para la captura?',
     ready_explanation: 'Al hacer clic abajo, la plantilla vibrará 3 veces como cuenta atrás y registrará sus datos inerciales durante 5 segundos.',
     selected_label: 'Etiqueta seleccionada: «{label}»',

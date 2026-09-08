@@ -175,6 +175,7 @@ export const de = {
     under_represented_notice: 'Einige Klassen haben weniger als {target} Aufnahmen. Nehmen Sie diese bevorzugt auf, um das Modell auszugleichen.',
     all_classes_ready: 'Alle Klassen haben den empfohlenen Schwellenwert erreicht!',
     sessions_count_badge: '{count} Erfassungen',
+    captures_unit: 'Aufnahmen',
     ready_question: 'Bereit für die Aufnahme?',
     ready_explanation: 'Nach dem Klick vibriert die Sohle 3 Mal als Startsignal und zeichnet danach 5 Sekunden lang Ihre Trägheitsdaten auf.',
     selected_label: 'Ausgewählte Bezeichnung: „{label}“',

@@ -175,6 +175,7 @@ export const fr = {
     under_represented_notice: 'Certaines classes comptent moins de {target} captures. Pensez à les enregistrer en priorité pour équilibrer le modèle.',
     all_classes_ready: 'Toutes les classes ont atteint le seuil recommandé !',
     sessions_count_badge: '{count} captures',
+    captures_unit: 'captures',
     ready_question: 'Prêt pour la capture ?',
     ready_explanation: 'En cliquant ci-dessous, la semelle vibrera 3 fois pour donner le départ, puis enregistrera vos données inertielles pendant 5 secondes.',
     selected_label: 'Label sélectionné : « {label} »',

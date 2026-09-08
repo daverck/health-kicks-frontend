@@ -81,8 +81,8 @@ describe('StudioService', () => {
   it('should get studio dataset statistics via GET /api/v1/devices/{id}/studio/stats', () => {
     service.getStudioStats('hk-device-0001').subscribe((res) => {
       expect(res).toEqual(mockStudioDatasetStats);
-      expect(res.total_sessions).toBe(42);
-      expect(res.by_label['walk']).toBe(15);
+      expect(res.total_sessions).toBe(mockStudioDatasetStats.total_sessions);
+      expect(res.by_label['walk']).toBe(mockStudioDatasetStats.by_label['walk']);
     });
 
     const req = httpTesting.expectOne(

@@ -106,7 +106,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly isDeleting = signal<boolean>(false);
 
   // Dataset statistics & balance guidance
-  readonly targetPerClass = 10;
+  readonly targetPerClass = 25;
   readonly datasetStats = signal<StudioDatasetStats>({ total_sessions: 0, by_label: {} });
   readonly isLoadingStats = signal<boolean>(false);
 
