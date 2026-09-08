@@ -6,53 +6,190 @@
 
   <!-- Device selection -->
   <section class="card">
-    <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">{{ 'dashboard.devices_title' | translate }}</h2>
-      <button (click)="loadDevices()" class="text-sm font-medium text-primary-600 hover:text-primary-700">↻
-        {{ 'dashboard.refresh' | translate }}</button>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-lg font-semibold">{{ 'dashboard.devices_title' | translate }}</h2>
+        <p class="text-xs text-gray-500">{{ 'dashboard.select_device_help' | translate }}</p>
+      </div>
+      <button
+        (click)="loadDevices()"
+        [disabled]="loadingDevices()"
+        class="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition"
+      >
+        <span [class.animate-spin]="loadingDevices()">↻</span>
+        <span>{{ 'dashboard.refresh' | translate }}</span>
+      </button>
     </div>
 
     @if (loadingDevices()) {
-    <div class="py-8 text-center text-sm text-gray-500">{{ 'dashboard.loading_devices' | translate }}</div>
+      <div class="py-8 text-center text-sm text-gray-500">{{ 'dashboard.loading_devices' | translate }}</div>
     } @else if (devicesError()) {
-    <div class="rounded-xl border-2 border-red-200 bg-red-50 py-10 text-center">
-      <p class="text-sm font-semibold text-red-700">{{ 'dashboard.load_error_title' | translate }}</p>
-      <p class="mt-1 text-xs text-red-500">{{ 'dashboard.load_error_desc' | translate }}</p>
-      <button type="button" (click)="loadDevices()"
-        class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">{{ 'common.retry' | translate }}</button>
-    </div>
+      <div class="mt-4 rounded-xl border-2 border-red-200 bg-red-50 py-10 text-center">
+        <p class="text-sm font-semibold text-red-700">{{ 'dashboard.load_error_title' | translate }}</p>
+        <p class="mt-1 text-xs text-red-500">{{ 'dashboard.load_error_desc' | translate }}</p>
+        <button type="button" (click)="loadDevices()"
+          class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">{{ 'common.retry' | translate }}</button>
+      </div>
     } @else if (devices().length === 0) {
-    <div class="rounded-xl border-2 border-dashed border-gray-200 py-10 text-center">
-      <p class="text-sm text-gray-500">{{ 'dashboard.no_devices' | translate }}</p>
-      <a routerLink="/dashboard/devices" class="btn-primary mt-4 inline-flex items-center gap-2 text-xs">
-        {{ 'dashboard.pair_device_link' | translate }}
-      </a>
-    </div>
+      <div class="mt-4 rounded-xl border-2 border-dashed border-gray-200 py-10 text-center">
+        <p class="text-sm text-gray-500">{{ 'dashboard.no_devices' | translate }}</p>
+        <a routerLink="/dashboard/devices" class="btn-primary mt-4 inline-flex items-center gap-2 text-xs">
+          {{ 'dashboard.pair_device_link' | translate }}
+        </a>
+      </div>
     } @else {
-    <div class="grid gap-3 sm:grid-cols-2">
-      @for (device of devices(); track device.device_id) {
-      <button type="button" (click)="selectDevice(device)" class="rounded-xl border-2 p-4 text-left transition"
-        [class.border-primary-600]="selectedDevice()?.device_id === device.device_id"
-        [class.bg-primary-50]="selectedDevice()?.device_id === device.device_id"
-        [class.border-gray-200]="selectedDevice()?.device_id !== device.device_id"
-        [class.hover:border-primary-300]="selectedDevice()?.device_id !== device.device_id">
-        <div class="flex items-center justify-between">
-          <span class="font-semibold">{{ device.name || device.device_id }}</span>
-          <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
-            [class.bg-green-100]="device.status === 'online'" [class.text-green-700]="device.status === 'online'"
-            [class.bg-gray-100]="device.status !== 'online'" [class.text-gray-600]="device.status !== 'online'">
-            <span class="h-2 w-2 rounded-full" [class.bg-green-500]="device.status === 'online'"
-              [class.bg-gray-400]="device.status !== 'online'"></span>
-            {{ device.status }}
-          </span>
-        </div>
-        <p class="mt-1 text-xs text-gray-500">{{ device.device_id }}</p>
-        @if (device.last_seen_utc) {
-        <p class="mt-1 text-xs text-gray-400">{{ 'dashboard.last_seen' | translate:{ date: (device.last_seen_utc | date:'short') ?? '' } }}</p>
+      <!-- Single Searchable Select with Integrated Autocomplete Filter -->
+      <div class="relative mt-4">
+        <!-- Select Trigger Button -->
+        <button
+          id="device-select-trigger"
+          type="button"
+          (click)="toggleDeviceDropdown()"
+          class="flex w-full items-center justify-between gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 text-left shadow-sm transition hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          [attr.aria-expanded]="isDeviceDropdownOpen()"
+          data-testid="device-select-trigger"
+        >
+          @if (selectedDevice(); as device) {
+            <div class="flex items-center gap-3 truncate">
+              <span
+                class="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                [class.bg-emerald-500]="device.status === 'online'"
+                [class.bg-gray-400]="device.status !== 'online'"
+              ></span>
+              <div class="truncate">
+                <span class="font-semibold text-sm text-gray-900">{{ device.name || device.device_id }}</span>
+                <span class="font-mono text-xs text-gray-400 ml-2">({{ device.device_id }})</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 flex-shrink-0">
+              <span
+                class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                [class.bg-green-100]="device.status === 'online'"
+                [class.text-green-700]="device.status === 'online'"
+                [class.bg-gray-100]="device.status !== 'online'"
+                [class.text-gray-600]="device.status !== 'online'"
+              >
+                <span
+                  class="h-1.5 w-1.5 rounded-full"
+                  [class.bg-green-500]="device.status === 'online'"
+                  [class.bg-gray-400]="device.status !== 'online'"
+                ></span>
+                {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
+              </span>
+              <svg
+                class="h-4 w-4 text-gray-400 transition-transform duration-150"
+                [class.rotate-180]="isDeviceDropdownOpen()"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+          } @else {
+            <span class="text-sm text-gray-500">{{ 'dashboard.select_device_placeholder' | translate }}</span>
+          }
+        </button>
+
+        <!-- Dropdown Menu with Search Field -->
+        @if (isDeviceDropdownOpen()) {
+          <!-- Backdrop to close on click outside -->
+          <div class="fixed inset-0 z-20" (click)="closeDeviceDropdown()" aria-hidden="true"></div>
+
+          <div
+            class="absolute left-0 right-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
+            data-testid="device-select-dropdown"
+          >
+            <!-- Search bar -->
+            <div class="border-b border-gray-100 p-2.5 bg-gray-50/75">
+              <div class="relative flex items-center">
+                <span class="pointer-events-none absolute left-3 text-xs text-gray-400">🔍</span>
+                <input
+                  id="device-search-field"
+                  type="text"
+                  [placeholder]="'dashboard.search_device_placeholder' | translate"
+                  [ngModel]="deviceSearchQuery()"
+                  (ngModelChange)="deviceSearchQuery.set($event)"
+                  class="w-full rounded-lg border border-gray-200 bg-white pl-8 pr-8 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  autofocus
+                />
+                @if (deviceSearchQuery()) {
+                  <button
+                    type="button"
+                    (click)="deviceSearchQuery.set('')"
+                    class="absolute right-2.5 text-xs text-gray-400 hover:text-gray-600 p-1"
+                    [attr.aria-label]="'common.delete' | translate"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- List of Devices -->
+            <div class="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
+              @if (filteredDevices().length === 0) {
+                <div class="p-4 text-center text-xs text-gray-500">
+                  {{ 'dashboard.no_device_found' | translate }}
+                </div>
+              } @else {
+                @for (device of filteredDevices(); track device.device_id) {
+                  <button
+                    type="button"
+                    (click)="selectDevice(device)"
+                    class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+                    [class.bg-primary-50]="selectedDevice()?.device_id === device.device_id"
+                    [class.text-primary-900]="selectedDevice()?.device_id === device.device_id"
+                    [attr.data-testid]="'device-option-' + device.device_id"
+                  >
+                    <div class="flex items-center gap-2.5 truncate pr-2">
+                      <span
+                        class="h-2 w-2 rounded-full flex-shrink-0"
+                        [class.bg-emerald-500]="device.status === 'online'"
+                        [class.bg-gray-400]="device.status !== 'online'"
+                      ></span>
+                      <div class="truncate">
+                        <span class="font-medium text-gray-900 truncate">
+                          {{ device.name || device.device_id }}
+                        </span>
+                        <span class="font-mono text-[10px] text-gray-400 ml-1.5">
+                          {{ device.device_id }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                      <!-- Status pill badge -->
+                      <span
+                        class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                        [class.bg-green-100]="device.status === 'online'"
+                        [class.text-green-700]="device.status === 'online'"
+                        [class.bg-gray-100]="device.status !== 'online'"
+                        [class.text-gray-600]="device.status !== 'online'"
+                      >
+                        <span
+                          class="h-1.5 w-1.5 rounded-full"
+                          [class.bg-green-500]="device.status === 'online'"
+                          [class.bg-gray-400]="device.status !== 'online'"
+                        ></span>
+                        {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
+                      </span>
+
+                      @if (selectedDevice()?.device_id === device.device_id) {
+                        <span class="text-primary-600 font-bold text-sm">✓</span>
+                      }
+                    </div>
+                  </button>
+                }
+              }
+            </div>
+          </div>
         }
-      </button>
-      }
-    </div>
+      </div>
     }
   </section>
 

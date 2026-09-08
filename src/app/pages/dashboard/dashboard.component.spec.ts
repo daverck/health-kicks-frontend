@@ -87,6 +87,85 @@ describe('DashboardComponent', () => {
     expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0002', 1, 5);
   });
 
+  it('should render searchable device select trigger with online status and toggle dropdown', () => {
+    fixture.detectChanges();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
+    expect(trigger).toBeTruthy();
+    expect(trigger.textContent).toContain('Bracelet Démo — Marie D.');
+    expect(trigger.textContent).toContain('En ligne');
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+
+    trigger.click();
+    fixture.detectChanges();
+
+    expect(component.isDeviceDropdownOpen()).toBeTrue();
+    const dropdown = fixture.nativeElement.querySelector('[data-testid="device-select-dropdown"]');
+    expect(dropdown).toBeTruthy();
+
+    const searchInput: HTMLInputElement = dropdown.querySelector('#device-search-field');
+    expect(searchInput).toBeTruthy();
+  });
+
+  it('should display online and offline statuses in select options', () => {
+    fixture.detectChanges();
+    component.toggleDeviceDropdown();
+    fixture.detectChanges();
+
+    const dev1Option = fixture.nativeElement.querySelector('[data-testid="device-option-hk-device-0001"]');
+    expect(dev1Option).toBeTruthy();
+    expect(dev1Option.textContent).toContain('Bracelet Démo — Marie D.');
+    expect(dev1Option.textContent).toContain('En ligne');
+
+    const dev2Option = fixture.nativeElement.querySelector('[data-testid="device-option-hk-device-0002"]');
+    expect(dev2Option).toBeTruthy();
+    expect(dev2Option.textContent).toContain('Bracelet Test — Salle 4');
+    expect(dev2Option.textContent).toContain('Hors ligne');
+  });
+
+  it('should filter devices based on search query in select dropdown', () => {
+    fixture.detectChanges();
+    component.toggleDeviceDropdown();
+    fixture.detectChanges();
+
+    // Filter matching device 2
+    component.deviceSearchQuery.set('Salle 4');
+    fixture.detectChanges();
+    expect(component.filteredDevices().length).toBe(1);
+    expect(component.filteredDevices()[0].device_id).toBe('hk-device-0002');
+
+    // Filter matching device by id
+    component.deviceSearchQuery.set('0001');
+    fixture.detectChanges();
+    expect(component.filteredDevices().length).toBe(1);
+    expect(component.filteredDevices()[0].device_id).toBe('hk-device-0001');
+
+    // Filter with no match
+    component.deviceSearchQuery.set('nonexistent');
+    fixture.detectChanges();
+    expect(component.filteredDevices().length).toBe(0);
+    const dropdown = fixture.nativeElement.querySelector('[data-testid="device-select-dropdown"]');
+    expect(dropdown.textContent).toContain('Aucun équipement trouvé');
+  });
+
+  it('should select device and close dropdown on option click', fakeAsync(() => {
+    fixture.detectChanges();
+    component.toggleDeviceDropdown();
+    fixture.detectChanges();
+
+    const dev2Option: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="device-option-hk-device-0002"]');
+    dev2Option.click();
+    tick();
+    fixture.detectChanges();
+
+    expect(component.selectedDevice()?.device_id).toBe('hk-device-0002');
+    expect(component.isDeviceDropdownOpen()).toBeFalse();
+
+    const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
+    expect(trigger.textContent).toContain('Bracelet Test — Salle 4');
+    expect(trigger.textContent).toContain('Hors ligne');
+  }));
+
   it('should trigger haptic feedback, refresh haptic history, and display toast on success without displaying json payload', fakeAsync(() => {
     fixture.detectChanges();
 

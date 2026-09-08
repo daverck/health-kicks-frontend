@@ -1,6 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
@@ -11,18 +12,45 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private readonly toast = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDevice = signal<DeviceResponse | null>(null);
   readonly loadingDevices = signal(true);
   readonly devicesError = signal(false);
+
+  readonly isDeviceDropdownOpen = signal(false);
+  readonly deviceSearchQuery = signal('');
+
+  readonly filteredDevices = computed(() => {
+    const query = this.deviceSearchQuery().trim().toLowerCase();
+    const all = this.devices();
+    if (!query) return all;
+    return all.filter(
+      (d) =>
+        (d.name || '').toLowerCase().includes(query) ||
+        d.device_id.toLowerCase().includes(query)
+    );
+  });
+
+  toggleDeviceDropdown(): void {
+    this.isDeviceDropdownOpen.update((open) => !open);
+    if (!this.isDeviceDropdownOpen()) {
+      this.deviceSearchQuery.set('');
+    }
+  }
+
+  closeDeviceDropdown(): void {
+    this.isDeviceDropdownOpen.set(false);
+    this.deviceSearchQuery.set('');
+  }
 
   readonly vibrationLevel = signal(5);
   readonly intensity = computed(() => levelToIntensity(this.vibrationLevel()));
@@ -46,7 +74,8 @@ export class DashboardComponent implements OnInit {
       if (deviceId && this.devices().length > 0) {
         const found = this.devices().find((d) => d.device_id === deviceId);
         if (found && this.selectedDevice()?.device_id !== found.device_id) {
-          this.selectDevice(found);
+          this.selectedDevice.set(found);
+          this.loadRecentHapticLogs();
         }
       }
     });
@@ -84,6 +113,12 @@ export class DashboardComponent implements OnInit {
 
   selectDevice(device: DeviceResponse): void {
     this.selectedDevice.set(device);
+    this.closeDeviceDropdown();
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { deviceId: device.device_id },
+      queryParamsHandling: 'merge',
+    });
     this.loadRecentHapticLogs();
   }
 
