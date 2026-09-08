@@ -5,10 +5,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, FallEventResponse, HapticLogItem } from '../../models/api.models';
 import { intensityToLevel } from '../../core/utils/haptic.utils';
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {

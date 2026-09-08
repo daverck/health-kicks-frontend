@@ -1,31 +1,31 @@
 <div class="mx-auto max-w-5xl space-y-8">
   <div>
-    <h1 class="text-2xl font-bold">Espace Membre</h1>
-    <p class="mt-1 text-sm text-gray-600">Contrôlez vos devices IoT et déclenchez les vibrations haptiques.</p>
+    <h1 class="text-2xl font-bold">{{ 'dashboard.title' | translate }}</h1>
+    <p class="mt-1 text-sm text-gray-600">{{ 'dashboard.subtitle' | translate }}</p>
   </div>
 
   <!-- Device selection -->
   <section class="card">
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">Device IoT</h2>
+      <h2 class="text-lg font-semibold">{{ 'dashboard.devices_title' | translate }}</h2>
       <button (click)="loadDevices()" class="text-sm font-medium text-primary-600 hover:text-primary-700">↻
-        Actualiser</button>
+        {{ 'dashboard.refresh' | translate }}</button>
     </div>
 
     @if (loadingDevices()) {
-    <div class="py-8 text-center text-sm text-gray-500">Chargement des devices…</div>
+    <div class="py-8 text-center text-sm text-gray-500">{{ 'dashboard.loading_devices' | translate }}</div>
     } @else if (devicesError()) {
     <div class="rounded-xl border-2 border-red-200 bg-red-50 py-10 text-center">
-      <p class="text-sm font-semibold text-red-700">Impossible de charger vos appareils.</p>
-      <p class="mt-1 text-xs text-red-500">Service temporairement indisponible, veuillez vérifier votre connexion.</p>
+      <p class="text-sm font-semibold text-red-700">{{ 'dashboard.load_error_title' | translate }}</p>
+      <p class="mt-1 text-xs text-red-500">{{ 'dashboard.load_error_desc' | translate }}</p>
       <button type="button" (click)="loadDevices()"
-        class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">Réessayer</button>
+        class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700">{{ 'common.retry' | translate }}</button>
     </div>
     } @else if (devices().length === 0) {
     <div class="rounded-xl border-2 border-dashed border-gray-200 py-10 text-center">
-      <p class="text-sm text-gray-500">Aucun équipement associé à votre compte.</p>
+      <p class="text-sm text-gray-500">{{ 'dashboard.no_devices' | translate }}</p>
       <a routerLink="/dashboard/devices" class="btn-primary mt-4 inline-flex items-center gap-2 text-xs">
-        + Associer un équipement
+        {{ 'dashboard.pair_device_link' | translate }}
       </a>
     </div>
     } @else {
@@ -48,7 +48,7 @@
         </div>
         <p class="mt-1 text-xs text-gray-500">{{ device.device_id }}</p>
         @if (device.last_seen_utc) {
-        <p class="mt-1 text-xs text-gray-400">Vu : {{ device.last_seen_utc | date:'short' }}</p>
+        <p class="mt-1 text-xs text-gray-400">{{ 'dashboard.last_seen' | translate:{ date: (device.last_seen_utc | date:'short') ?? '' } }}</p>
         }
       </button>
       }
@@ -66,7 +66,7 @@
         [class.bg-gray-100]="device.status !== 'online'" [class.text-gray-600]="device.status !== 'online'">
         <span class="h-2 w-2 rounded-full" [class.bg-green-500]="device.status === 'online'"
           [class.bg-gray-400]="device.status !== 'online'"></span>
-        {{ device.status === 'online' ? 'En ligne' : 'Hors ligne' }}
+        {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
       </span>
     </div>
 
@@ -74,7 +74,7 @@
       <!-- Intensité -->
       <div>
         <label class="label" for="intensity">
-          Intensité : <span class="font-bold text-primary-600">Niveau {{ vibrationLevel() }}</span> / 10
+          {{ 'dashboard.intensity' | translate }} <span class="font-bold text-primary-600">Niveau {{ vibrationLevel() }}</span> / 10
           <span class="ml-1 text-xs font-normal text-gray-400">({{ intensity() }} / 255)</span>
         </label>
         <input id="intensity" type="range" min="1" max="10" step="1" list="intensity-ticks" [value]="vibrationLevel()"
@@ -108,7 +108,7 @@
 
       <!-- Durée -->
       <div>
-        <label class="label" for="duration">Durée : <span class="font-bold text-primary-600">{{ durationMs() }}</span>
+        <label class="label" for="duration">{{ 'dashboard.duration' | translate }} <span class="font-bold text-primary-600">{{ durationMs() }}</span>
           ms</label>
         <input id="duration" type="range" min="100" max="10000" step="100" list="duration-ticks" [value]="durationMs()"
           (input)="durationMs.set(+$any($event.target).value)" class="w-full accent-primary-600" />
@@ -152,12 +152,12 @@
         [class.animate-ping-once]="vibrating()">
         <span class="text-center">
           <span class="block text-3xl">📳</span>
-          <span class="mt-1 block text-xs font-semibold">{{ triggering() ? 'Envoi…' : (device.status === 'online' ? 'DÉCLENCHER' : 'HORS LIGNE') }}</span>
+          <span class="mt-1 block text-xs font-semibold">{{ triggering() ? ('dashboard.sending' | translate) : (device.status === 'online' ? ('dashboard.trigger_btn' | translate) : ('common.offline' | translate | uppercase)) }}</span>
         </span>
       </button>
       @if (device.status !== 'online') {
       <p class="mt-4 text-center text-xs text-amber-600">
-        Cet équipement est actuellement hors ligne. La vibration ne peut être déclenchée qu'en ligne.
+        {{ 'dashboard.offline_notice' | translate }}
       </p>
       }
     </div>
@@ -165,13 +165,13 @@
     <!-- Recent vibrations preview -->
     <div class="mt-8 border-t border-gray-100 pt-6">
       <div class="mb-3 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-700">Dernières stimulations envoyées</h3>
+        <h3 class="text-sm font-semibold text-gray-700">{{ 'dashboard.recent_haptics_title' | translate }}</h3>
         <a routerLink="/dashboard/history" class="text-xs font-medium text-primary-600 hover:text-primary-700">
-          Historique complet →
+          {{ 'dashboard.all_history' | translate }}
         </a>
       </div>
       @if (recentHapticLogs().length === 0) {
-        <p class="py-3 text-center text-xs text-gray-400">Aucune stimulation récente enregistrée.</p>
+        <p class="py-3 text-center text-xs text-gray-400">{{ 'dashboard.no_recent_haptics' | translate }}</p>
       } @else {
         <ul id="recent-haptic-list" class="divide-y divide-gray-100 text-xs">
           @for (log of recentHapticLogs(); track log.id) {
@@ -180,10 +180,10 @@
                 <span class="text-base">📳</span>
                 <div>
                   <div class="font-medium text-gray-800">
-                    Intensité : <span class="font-semibold text-primary-600">Niveau {{ intensityToLevel(log.intensity) }}</span>
+                    {{ 'dashboard.intensity' | translate }} <span class="font-semibold text-primary-600">Niveau {{ intensityToLevel(log.intensity) }}</span>
                     <span class="text-[11px] text-gray-400"> ({{ log.intensity }}/255)</span>
                     <span class="mx-1 text-gray-300">•</span>
-                    Durée : <span class="font-semibold">{{ log.duration_ms }} ms</span>
+                    {{ 'dashboard.duration' | translate }} <span class="font-semibold">{{ log.duration_ms }} ms</span>
                   </div>
                   <div class="text-gray-400">{{ log.triggered_at_utc | date:'medium' }}</div>
                 </div>
@@ -191,7 +191,7 @@
               <span class="inline-flex rounded-full px-2 py-0.5 font-semibold text-[10px]"
                 [class.bg-blue-100]="log.triggered_by_user" [class.text-blue-700]="log.triggered_by_user"
                 [class.bg-purple-100]="!log.triggered_by_user" [class.text-purple-700]="!log.triggered_by_user">
-                {{ log.triggered_by_user ? 'Utilisateur' : 'Automatique' }}
+                {{ log.triggered_by_user ? ('dashboard.user_trigger' | translate) : ('dashboard.auto_trigger' | translate) }}
               </span>
             </li>
           }
@@ -203,16 +203,15 @@
   <!-- Recent events preview -->
   <section class="card">
     <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">Dernières alertes de chute</h2>
-      <a routerLink="/dashboard/history" class="text-sm font-medium text-primary-600 hover:text-primary-700">Tout
-        l'historique →</a>
+      <h2 class="text-lg font-semibold">{{ 'dashboard.recent_falls_title' | translate }}</h2>
+      <a routerLink="/dashboard/history" class="text-sm font-medium text-primary-600 hover:text-primary-700">{{ 'dashboard.all_history' | translate }}</a>
     </div>
     @if (eventsError()) {
     <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      Impossible de charger les derniers événements — le service est indisponible.
+      {{ 'dashboard.load_error_desc' | translate }}
     </div>
     } @else if (recentEvents().length === 0) {
-    <p class="py-6 text-center text-sm text-gray-500">Aucun événement récent.</p>
+    <p class="py-6 text-center text-sm text-gray-500">{{ 'dashboard.no_recent_events' | translate }}</p>
     } @else {
     <ul class="divide-y divide-gray-100">
       @for (event of recentEvents(); track event.id) {

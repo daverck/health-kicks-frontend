@@ -6,10 +6,12 @@ import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceCreate, DeviceResponse } from '../../models/api.models';
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './devices.component.html',
 })
 export class DevicesComponent implements OnInit {

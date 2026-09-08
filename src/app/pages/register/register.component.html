@@ -9,8 +9,8 @@
         </span>
         <span class="text-xl font-bold">Health<span class="text-primary-600">Kicks</span></span>
       </a>
-      <h1 class="mt-6 text-2xl font-bold">Créer un compte</h1>
-      <p class="mt-1 text-sm text-gray-600">Inscription instantanée et sécurisée via SSO.</p>
+      <h1 class="mt-6 text-2xl font-bold">{{ 'auth.register_title' | translate }}</h1>
+      <p class="mt-1 text-sm text-gray-600">{{ 'auth.register_subtitle' | translate }}</p>
     </div>
 
     <div class="card space-y-4">
@@ -31,7 +31,7 @@
           <path fill="#EA4335"
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15A11 11 0 0 0 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52Z" />
         </svg>
-        {{ loadingGoogle() ? 'Redirection vers Google…' : "S'inscrire avec Google" }}
+        {{ loadingGoogle() ? ('auth.signing_up' | translate) : "S'inscrire avec Google" }}
       </button>
 
       <!-- Microsoft SSO -->
@@ -44,7 +44,7 @@
           <path fill="#05a6f0" d="M1 12h10v10H1z" />
           <path fill="#ffba08" d="M12 12h10v10H12z" />
         </svg>
-        {{ loadingMicrosoft() ? 'Redirection vers Microsoft…' : "S'inscrire avec Microsoft" }}
+        {{ loadingMicrosoft() ? ('auth.signing_up' | translate) : "S'inscrire avec Microsoft" }}
       </button>
 
 
@@ -59,7 +59,7 @@
 
     <p class="mt-6 text-center text-sm text-gray-600">
       Déjà un compte ?
-      <a routerLink="/login" class="font-semibold text-primary-600 hover:text-primary-700">Se connecter</a>
+      <a routerLink="/login" class="font-semibold text-primary-600 hover:text-primary-700">{{ 'auth.sign_in' | translate }}</a>
     </p>
   </div>
 </div>

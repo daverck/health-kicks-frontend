@@ -6,10 +6,12 @@ import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
 import { UserResponse } from '../../models/api.models';
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   templateUrl: './profile.component.html',
 })
 export class ProfileComponent implements OnInit {

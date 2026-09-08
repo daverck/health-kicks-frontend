@@ -6,10 +6,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, FallEventResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
 import { intensityToLevel, levelToIntensity } from '../../core/utils/haptic.utils';
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslatePipe],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {

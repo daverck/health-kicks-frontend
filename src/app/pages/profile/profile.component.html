@@ -1,11 +1,11 @@
 <div class="mx-auto max-w-3xl space-y-8">
   <div>
-    <h1 class="text-2xl font-bold">Mon profil</h1>
-    <p class="mt-1 text-sm text-gray-600">Consultez et modifiez vos informations personnelles.</p>
+    <h1 class="text-2xl font-bold">{{ 'profile.title' | translate }}</h1>
+    <p class="mt-1 text-sm text-gray-600">{{ 'profile.subtitle' | translate }}</p>
   </div>
 
   @if (loading()) {
-    <div class="card py-12 text-center text-sm text-gray-500">Chargement du profil…</div>
+    <div class="card py-12 text-center text-sm text-gray-500">{{ 'common.loading' | translate }}</div>
   } @else {
   @if (auth.user(); as user) {
   <!-- Read-only account info -->
@@ -30,42 +30,42 @@
               [class.bg-red-100]="!user.is_active"
               [class.text-red-700]="!user.is_active"
             >
-              {{ user.is_active ? 'Actif' : 'Inactif' }}
+              {{ user.is_active ? ('profile.active' | translate) : ('profile.inactive' | translate) }}
             </span>
           </div>
         </div>
       </div>
       <dl class="mt-6 grid gap-4 border-t border-gray-100 pt-6 text-sm sm:grid-cols-2">
-        <div><dt class="text-gray-500">ID utilisateur</dt><dd class="mt-0.5 font-mono">{{ user.id }}</dd></div>
-        <div><dt class="text-gray-500">Fournisseur</dt><dd class="mt-0.5">{{ user.avatar_url ? 'Google SSO' : 'Email / mot de passe' }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'profile.user_id' | translate }}</dt><dd class="mt-0.5 font-mono">{{ user.id }}</dd></div>
+        <div><dt class="text-gray-500">{{ 'profile.provider' | translate }}</dt><dd class="mt-0.5">{{ user.avatar_url ? 'Google SSO' : 'Email / mot de passe' }}</dd></div>
       </dl>
     </section>
 
     <!-- Editable form -->
     <section class="card">
-      <h2 class="text-lg font-semibold">Modifier mes informations</h2>
+      <h2 class="text-lg font-semibold">{{ 'profile.edit_info' | translate }}</h2>
       <form (ngSubmit)="save()" [formGroup]="form" class="mt-5 space-y-4">
         <div>
-          <label class="label" for="name">Nom complet</label>
+          <label class="label" for="name">{{ 'profile.full_name' | translate }}</label>
           <input id="name" type="text" formControlName="name" class="input" placeholder="Marie Dupont" />
         </div>
         <div>
-          <label class="label" for="email">Email</label>
+          <label class="label" for="email">{{ 'profile.email' | translate }}</label>
           <input id="email" type="email" formControlName="email" class="input" />
           @if (form.controls.email.invalid && form.controls.email.touched) {
-            <p class="mt-1 text-xs text-red-600">Email invalide.</p>
+            <p class="mt-1 text-xs text-red-600">{{ 'auth.invalid_email' | translate }}</p>
           }
         </div>
 
         @if (saving()) {
-          <p class="text-sm text-gray-500">Enregistrement…</p>
+          <p class="text-sm text-gray-500">{{ 'profile.saving' | translate }}</p>
         }
         @if (errorMessage()) {
           <div class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ errorMessage() }}</div>
         }
 
         <button type="submit" class="btn-primary" [disabled]="saving()">
-          @if (saving()) { Enregistrement… } @else { Enregistrer les modifications }
+          @if (saving()) { {{ 'profile.saving' | translate }} } @else { {{ 'profile.save_changes' | translate }} }
         </button>
       </form>
     </section>

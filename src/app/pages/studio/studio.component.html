@@ -2,9 +2,9 @@
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Studio de Capture IMU</h1>
+      <h1 class="text-2xl font-bold text-gray-900">{{ 'studio.title' | translate }}</h1>
       <p class="mt-1 text-sm text-gray-600">
-        Pilotez les sessions de capture télémétrique (accéléromètre & gyroscope), ressentez le décompte haptique au pied et inspectez vos courbes.
+        {{ 'studio.subtitle' | translate }}
       </p>
     </div>
   </div>
@@ -13,22 +13,22 @@
   <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-3">
-        <label for="device-select-btn" class="text-sm font-medium text-gray-700">Équipement cible :</label>
+        <label for="device-select-btn" class="text-sm font-medium text-gray-700">{{ 'studio.target_device' | translate }}</label>
         @if (devicesLoading()) {
-          <span class="text-sm text-gray-500">Recherche des semelles connectées…</span>
+          <span class="text-sm text-gray-500">{{ 'studio.searching_devices' | translate }}</span>
         } @else if (devices().length === 0) {
-          <span class="text-sm font-semibold text-amber-600">Aucun équipement associé. Veuillez appairer une semelle dans la section Équipements.</span>
+          <span class="text-sm font-semibold text-amber-600">{{ 'studio.no_paired_devices' | translate }}</span>
         } @else if (onlineDevices().length === 0) {
           <div class="flex items-center gap-2 text-sm text-amber-700">
             <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
-            <span class="font-medium">Aucun équipement en ligne disponible.</span>
-            <span class="text-xs text-gray-500">(Allumez votre semelle pour lancer une capture)</span>
+            <span class="font-medium">{{ 'studio.no_online_devices' | translate }}</span>
+            <span class="text-xs text-gray-500">{{ 'studio.turn_on_insoles' | translate }}</span>
           </div>
         } @else {
           <!-- Single Searchable Select with Integrated Autocomplete Filter -->
           <div
             class="relative"
-            [attr.title]="state() !== 'idle' ? 'Verrouillé pendant la capture' : null"
+            [attr.title]="state() !== 'idle' ? ('studio.locked_tooltip' | translate) : null"
           >
             <!-- Dropdown Trigger Button -->
             <button
@@ -41,7 +41,7 @@
               <div class="flex items-center gap-2 truncate">
                 <span class="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
                 <span class="truncate">
-                  {{ selectedDevice()?.name || selectedDeviceId() || 'Sélectionner une semelle…' }}
+                  {{ selectedDevice()?.name || selectedDeviceId() || ('studio.select_insole' | translate) }}
                 </span>
               </div>
               <svg
@@ -74,7 +74,7 @@
                     <input
                       id="device-search-input"
                       type="text"
-                      placeholder="Filtrer par nom ou ID…"
+                      [placeholder]="'studio.filter_placeholder' | translate"
                       [ngModel]="deviceSearchQuery()"
                       (ngModelChange)="deviceSearchQuery.set($event)"
                       class="w-full rounded-md border border-gray-200 bg-white pl-8 pr-7 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
@@ -95,11 +95,11 @@
                 <!-- Online Devices List -->
                 <div class="max-h-56 overflow-y-auto p-1.5">
                   <div class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                    Semelles en ligne ({{ filteredOnlineDevices().length }})
+                    {{ 'studio.online_count' | translate:{ count: filteredOnlineDevices().length } }}
                   </div>
                   @if (filteredOnlineDevices().length === 0) {
                     <div class="p-4 text-center text-xs text-gray-500">
-                      Aucune semelle en ligne correspondante
+                      {{ 'studio.no_match' | translate }}
                     </div>
                   } @else {
                     @for (dev of filteredOnlineDevices(); track dev.device_id) {
@@ -132,7 +132,7 @@
 
       <!-- Current Step Badge -->
       <div class="flex items-center gap-2">
-        <span class="text-xs uppercase tracking-wider text-gray-400">Statut :</span>
+        <span class="text-xs uppercase tracking-wider text-gray-400">{{ 'studio.status_label' | translate }}</span>
         <span
           class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
           [class.bg-green-100]="state() === 'idle'"
@@ -155,11 +155,11 @@
             [class.bg-emerald-500]="state() === 'inspecting'"
           ></span>
           @switch (state()) {
-            @case ('idle') { Prêt }
-            @case ('countdown') { Vibrations (Décompte) }
-            @case ('recording') { Enregistrement (5s) }
-            @case ('fetching') { Récupération Télémétrie }
-            @case ('inspecting') { Inspection }
+            @case ('idle') { {{ 'studio.step_idle' | translate }} }
+            @case ('countdown') { {{ 'studio.step_countdown' | translate }} }
+            @case ('recording') { {{ 'studio.step_recording' | translate }} }
+            @case ('fetching') { {{ 'studio.step_fetching' | translate }} }
+            @case ('inspecting') { {{ 'studio.step_inspecting' | translate }} }
           }
         </span>
       </div>
@@ -170,9 +170,9 @@
   @if (state() === 'idle') {
     <div class="space-y-6">
       <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 class="text-base font-semibold text-gray-900">1. Sélection du mouvement / scénario</h2>
+        <h2 class="text-base font-semibold text-gray-900">{{ 'studio.step1_title' | translate }}</h2>
         <p class="mt-1 text-sm text-gray-500">
-          Choisissez le type d'activité ou d'incident simulé pour étiqueter l'enregistrement dans la base télémétrique.
+          {{ 'studio.step1_desc' | translate }}
         </p>
 
         <!-- Touch Grid -->
@@ -190,8 +190,8 @@
               [class.text-gray-700]="selectedLabel() !== label.id || customLabel()"
             >
               <span class="text-3xl">{{ label.icon }}</span>
-              <span class="mt-2 text-sm font-semibold">{{ label.name }}</span>
-              <span class="mt-0.5 text-[11px] text-gray-400">{{ label.description }}</span>
+              <span class="mt-2 text-sm font-semibold">{{ 'studio.labels.' + label.id | translate }}</span>
+              <span class="mt-0.5 text-[11px] text-gray-400">{{ 'studio.labels.' + label.id + '_desc' | translate }}</span>
             </button>
           }
         </div>
@@ -199,13 +199,13 @@
         <!-- Custom Label input -->
         <div class="mt-6 border-t border-gray-100 pt-4">
           <label for="custom-label" class="block text-xs font-semibold uppercase tracking-wider text-gray-500">
-            Ou label personnalisé (optionnel) :
+            {{ 'studio.custom_label' | translate }}
           </label>
           <div class="mt-2 flex max-w-md items-center gap-2">
             <input
               id="custom-label"
               type="text"
-              placeholder="ex: danse, pivot_rapide, saut..."
+              [placeholder]="'studio.custom_label_placeholder' | translate"
               [ngModel]="customLabel()"
               (ngModelChange)="customLabel.set($event)"
               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
@@ -216,7 +216,7 @@
                 (click)="customLabel.set('')"
                 class="text-xs text-gray-400 hover:text-gray-600"
               >
-                Effacer
+                {{ 'studio.clear' | translate }}
               </button>
             }
           </div>
@@ -225,12 +225,12 @@
 
       <!-- Action Button -->
       <div class="flex flex-col items-center justify-center rounded-xl border border-primary-100 bg-gradient-to-b from-primary-50/50 to-white p-8 text-center shadow-sm">
-        <h3 class="text-lg font-bold text-gray-900">Prêt pour la capture ?</h3>
+        <h3 class="text-lg font-bold text-gray-900">{{ 'studio.ready_question' | translate }}</h3>
         <p class="mt-1 max-w-md text-sm text-gray-600">
-          En cliquant ci-dessous, la semelle vibrera <strong>3 fois</strong> pour donner le départ, puis enregistrera vos données inertielles pendant <strong>5 secondes</strong>.
+          {{ 'studio.ready_explanation' | translate }}
         </p>
         <div class="mt-2 text-xs font-semibold text-primary-700">
-          Label sélectionné : « {{ effectiveLabel() }} »
+          {{ 'studio.selected_label' | translate:{ label: displayLabel() } }}
         </div>
 
         <button
@@ -239,7 +239,7 @@
           [disabled]="onlineDevices().length === 0 || !selectedDeviceId()"
           class="mt-6 inline-flex items-center gap-3 rounded-xl bg-primary-600 px-8 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-primary-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <span>🎬</span> Lancer l'enregistrement (5s)
+          <span>🎬</span> {{ 'studio.start_capture_btn' | translate }}
         </button>
       </div>
     </div>
@@ -251,13 +251,13 @@
       <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-amber-100 ring-8 ring-amber-200/50 animate-pulse">
         <span class="text-4xl">📳</span>
       </div>
-      <h2 class="mt-6 text-2xl font-extrabold text-amber-900">Décompte haptique en cours…</h2>
+      <h2 class="mt-6 text-2xl font-extrabold text-amber-900">{{ 'studio.countdown_title' | translate }}</h2>
       <p class="mt-2 max-w-md text-sm text-amber-800">
-        Ressentez les <strong>3 vibrations</strong> sur la semelle. Préparez-vous à démarrer le mouvement dès que l'enregistrement se déclenche !
+        {{ 'studio.countdown_desc' | translate }}
       </p>
       <div class="mt-6 flex items-center gap-3">
         <span class="flex h-3 w-3 rounded-full bg-amber-500 animate-ping"></span>
-        <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">Vibrations de synchronisation…</span>
+        <span class="text-xs font-semibold text-amber-700 uppercase tracking-wider">{{ 'studio.sync_vibrations' | translate }}</span>
       </div>
 
       <!-- Annuler & Retour Button inside Step 2 -->
@@ -266,7 +266,7 @@
         (click)="resetToIdle()"
         class="mt-8 inline-flex items-center gap-2 rounded-xl border border-amber-300 bg-white px-5 py-2 text-xs font-semibold text-amber-900 shadow-sm hover:bg-amber-100/50 transition active:scale-95"
       >
-        ✕ Annuler & Retour
+        {{ 'common.cancel_and_back' | translate }}
       </button>
     </div>
   }
@@ -277,15 +277,15 @@
       <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-blue-100 ring-8 ring-blue-200/50">
         <span class="text-4xl animate-bounce">🏃</span>
       </div>
-      <h2 class="mt-6 text-2xl font-extrabold text-blue-900">Enregistrement en cours, exécutez le mouvement !</h2>
+      <h2 class="mt-6 text-2xl font-extrabold text-blue-900">{{ 'studio.recording_title' | translate }}</h2>
       <p class="mt-2 max-w-md text-sm text-blue-800">
-        Effectuez l'activité « <strong>{{ effectiveLabel() }}</strong> ». La chaussure capte vos accélérations et vitesses angulaires en temps réel.
+        {{ 'studio.recording_desc' | translate:{ label: displayLabel() } }}
       </p>
 
       <!-- Progress bar -->
       <div class="mt-8 w-full max-w-md">
         <div class="flex justify-between text-xs font-semibold text-blue-700 mb-1.5">
-          <span>Temps de capture</span>
+          <span>{{ 'studio.capture_time' | translate }}</span>
           <span>{{ (recordingProgressPercent() * 5 / 100).toFixed(1) }}s / 5.0s</span>
         </div>
         <div class="h-4 w-full overflow-hidden rounded-full bg-blue-200/70 p-0.5">
@@ -302,7 +302,7 @@
         (click)="resetToIdle()"
         class="mt-8 inline-flex items-center gap-2 rounded-xl border border-blue-300 bg-white px-5 py-2 text-xs font-semibold text-blue-900 shadow-sm hover:bg-blue-100/50 transition active:scale-95"
       >
-        ✕ Annuler & Retour
+        {{ 'common.cancel_and_back' | translate }}
       </button>
     </div>
   }
@@ -317,9 +317,9 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         </div>
-        <h2 class="mt-6 text-xl font-bold text-purple-900">Récupération des séries temporelles…</h2>
+        <h2 class="mt-6 text-xl font-bold text-purple-900">{{ 'studio.fetching_title' | translate }}</h2>
         <p class="mt-2 max-w-md text-sm text-purple-800">
-          La semelle a transmis ses paquets IMU. La Lambda persiste les points dans DynamoDB (tentative {{ fetchingAttempt() }}/8)…
+          {{ 'studio.fetching_desc' | translate:{ attempt: fetchingAttempt() } }}
         </p>
 
         <!-- Annuler & Retour Button while fetching -->
@@ -328,15 +328,15 @@
           (click)="resetToIdle()"
           class="mt-8 inline-flex items-center gap-2 rounded-xl border border-purple-300 bg-white px-5 py-2 text-xs font-semibold text-purple-900 shadow-sm hover:bg-purple-100/50 transition active:scale-95"
         >
-          ✕ Annuler & Retour
+          {{ 'common.cancel_and_back' | translate }}
         </button>
       } @else {
         <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-red-100 ring-8 ring-red-200/50">
           <span class="text-4xl">⚠️</span>
         </div>
-        <h2 class="mt-6 text-xl font-bold text-red-900">Télémétrie non encore disponible</h2>
+        <h2 class="mt-6 text-xl font-bold text-red-900">{{ 'studio.fetch_error_title' | translate }}</h2>
         <p class="mt-2 max-w-md text-sm text-red-700">
-          Les mesures n'ont pas encore été reçues ou persistées. Vous pouvez relancer la vérification ou réinitialiser.
+          {{ 'studio.fetch_error_desc' | translate }}
         </p>
         <div class="mt-6 flex gap-3">
           <button
@@ -344,14 +344,14 @@
             (click)="runFetching()"
             class="rounded-xl bg-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-purple-700 transition active:scale-95"
           >
-            ↻ Réessayer la récupération
+            {{ 'studio.retry_fetch' | translate }}
           </button>
           <button
             type="button"
             (click)="resetToIdle()"
             class="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95"
           >
-            ✕ Annuler & Retour
+            {{ 'common.cancel_and_back' | translate }}
           </button>
         </div>
       }
@@ -367,15 +367,15 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="inline-flex rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-bold text-primary-800">
-                {{ currentSession()?.label || effectiveLabel() }}
+                {{ currentSession()?.label || displayLabel() }}
               </span>
               <span class="font-mono text-xs text-gray-500">
                 Session : {{ currentSession()?.session_id }}
               </span>
             </div>
             <p class="mt-1 text-xs text-gray-500">
-              Équipement : <strong class="text-gray-700">{{ selectedDeviceId() }}</strong> ·
-              Points enregistrés : <strong class="text-gray-700">{{ readings().length }}</strong> échantillons
+              {{ 'history.device' | translate }} : <strong class="text-gray-700">{{ selectedDeviceId() }}</strong> ·
+              {{ 'studio.points_recorded' | translate:{ count: readings().length } }}
             </p>
           </div>
 
@@ -386,7 +386,7 @@
               (click)="resetToIdle()"
               class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95"
             >
-              ✕ Annuler & Retour
+              {{ 'common.cancel_and_back' | translate }}
             </button>
 
             <button
@@ -396,9 +396,9 @@
               class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 transition active:scale-95 disabled:opacity-50"
             >
               @if (isDeleting()) {
-                <span class="animate-spin">⏳</span> Suppression…
+                <span class="animate-spin">⏳</span> {{ 'common.loading' | translate }}
               } @else {
-                <span>🗑️</span> Rejeter / Supprimer
+                <span>🗑️</span> {{ 'studio.reject_session' | translate }}
               }
             </button>
 
@@ -407,7 +407,7 @@
               (click)="validateSession()"
               class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition active:scale-95"
             >
-              <span>✅</span> Valider la session
+              <span>✅</span> {{ 'studio.validate_session' | translate }}
             </button>
           </div>
         </div>
@@ -419,7 +419,7 @@
       <!-- Bottom Floating / Sticky Confirmation Bar -->
       <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
         <p class="text-xs text-gray-600">
-          Vérifiez l'allure des signaux ci-dessus. Si le geste simulé est satisfaisant, cliquez sur <strong>Valider</strong> pour conserver les mesures. Dans le cas contraire, cliquez sur <strong>Rejeter / Supprimer</strong> pour purger DynamoDB.
+          {{ 'studio.inspect_guidance' | translate }}
         </p>
       </div>
     </div>

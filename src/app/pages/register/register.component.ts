@@ -3,10 +3,12 @@ import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {

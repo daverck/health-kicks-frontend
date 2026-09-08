@@ -30,17 +30,18 @@
       <div
         class="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex"
       >
-        <a href="#concept" class="hover:text-primary-600">Concept</a>
-        <a href="#features" class="hover:text-primary-600">Fonctionnalités</a>
-        <a href="#how" class="hover:text-primary-600">Comment ça marche</a>
+        <a href="#concept" class="hover:text-primary-600 transition">{{ 'nav.concept' | translate }}</a>
+        <a href="#features" class="hover:text-primary-600 transition">{{ 'nav.features' | translate }}</a>
+        <a href="#how" class="hover:text-primary-600 transition">{{ 'nav.how_it_works' | translate }}</a>
       </div>
       <div class="flex items-center gap-3">
+        <app-language-selector />
         <a
           routerLink="/login"
-          class="text-sm font-semibold text-gray-700 hover:text-primary-600"
-          >Connexion</a
+          class="text-sm font-semibold text-gray-700 hover:text-primary-600 transition"
+          >{{ 'nav.login' | translate }}</a
         >
-        <a routerLink="/register" class="btn-primary">Créer un compte</a>
+        <a routerLink="/register" class="btn-primary">{{ 'nav.register' | translate }}</a>
       </div>
     </nav>
   </header>

@@ -3,10 +3,19 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { UserResponse } from '../../models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    TranslatePipe,
+    LanguageSelectorComponent,
+  ],
   templateUrl: './dashboard-layout.component.html',
 })
 export class DashboardLayoutComponent implements OnInit {
@@ -14,11 +23,11 @@ export class DashboardLayoutComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly links = [
-    { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-    { path: '/dashboard/devices', label: 'Mes Équipements', icon: '👟' },
-    { path: '/dashboard/history', label: 'Historique', icon: '🕓' },
-    { path: '/dashboard/studio', label: 'Studio Capture', icon: '🎬' },
-    { path: '/dashboard/profile', label: 'Mon profil', icon: '👤' },
+    { path: '/dashboard', labelKey: 'nav.dashboard', label: 'Dashboard', icon: '🏠' },
+    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
+    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓' },
+    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬' },
+    { path: '/dashboard/profile', labelKey: 'nav.profile', label: 'Mon profil', icon: '👤' },
   ];
 
   ngOnInit(): void {

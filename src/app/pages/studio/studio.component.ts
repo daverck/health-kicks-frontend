@@ -30,16 +30,20 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
   { id: 'fall_recovery', name: 'Chute relevée', icon: '🔄', description: 'Chute au sol suivie d’un redressement' },
 ];
 
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../core/services/translation.service';
+
 @Component({
   selector: 'app-studio',
   standalone: true,
-  imports: [CommonModule, FormsModule, ImuChartComponent],
+  imports: [CommonModule, FormsModule, ImuChartComponent, TranslatePipe],
   templateUrl: './studio.component.html',
 })
 export class StudioComponent implements OnInit, OnDestroy {
   private readonly deviceService = inject(DeviceService);
   private readonly studioService = inject(StudioService);
   private readonly toast = inject(ToastService);
+  private readonly translation = inject(TranslationService);
 
   readonly predefinedLabels = PREDEFINED_LABELS;
 
@@ -83,6 +87,15 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly effectiveLabel = computed(() => {
     const custom = this.customLabel().trim();
     return custom.length > 0 ? custom : this.selectedLabel();
+  });
+
+  readonly displayLabel = computed(() => {
+    const custom = this.customLabel().trim();
+    if (custom) return custom;
+    const id = this.selectedLabel();
+    const key = `studio.labels.${id}`;
+    const translated = this.translation.translate(key);
+    return translated !== key ? translated : id;
   });
 
   // Session data
