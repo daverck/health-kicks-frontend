@@ -321,6 +321,28 @@ describe('StudioComponent', () => {
     expect(toastSpy.info).toHaveBeenCalledWith('Session rejetée et points supprimés de DynamoDB.');
     expect(component.state()).toBe('idle');
   });
+
+  it('should only display delete and validate buttons in inspecting state (no cancel button)', () => {
+    fixture.detectChanges();
+    component.state.set('inspecting');
+    component.readings.set(mockImuReadings);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const rejectBtn = compiled.querySelector('#reject-session-btn');
+    const validateBtn = compiled.querySelector('#validate-session-btn');
+
+    expect(rejectBtn).toBeTruthy();
+    expect(validateBtn).toBeTruthy();
+
+    // Verify there are exactly 2 action buttons in the inspecting header actions
+    const inspectActions = compiled.querySelector('#inspect-actions');
+    expect(inspectActions).toBeTruthy();
+    const actionButtons = inspectActions!.querySelectorAll('button');
+    expect(actionButtons.length).toBe(2);
+    expect(actionButtons[0].id).toBe('reject-session-btn');
+    expect(actionButtons[1].id).toBe('validate-session-btn');
+  });
   it('should show error when starting session without selected device', () => {
     fixture.detectChanges();
     component.selectedDeviceId.set('');

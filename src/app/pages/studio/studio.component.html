@@ -492,17 +492,10 @@
             </p>
           </div>
 
-          <!-- Validation / Rejection / Return Actions -->
-          <div class="flex flex-wrap items-center gap-3">
+          <!-- Validation / Rejection Actions -->
+          <div id="inspect-actions" class="flex flex-wrap items-center gap-3">
             <button
-              type="button"
-              (click)="resetToIdle()"
-              class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95"
-            >
-              {{ 'common.cancel_and_back' | translate }}
-            </button>
-
-            <button
+              id="reject-session-btn"
               type="button"
               (click)="rejectSession()"
               [disabled]="isDeleting()"
@@ -516,6 +509,7 @@
             </button>
 
             <button
+              id="validate-session-btn"
               type="button"
               (click)="validateSession()"
               class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition active:scale-95"
