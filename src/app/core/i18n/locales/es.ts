@@ -24,6 +24,7 @@ export const es = {
   },
   nav: {
     dashboard: 'Panel de Control',
+    vibrations: 'Vibraciones manuales',
     devices: 'Dispositivos',
     history: 'Historial',
     studio: 'Studio de Captura',
@@ -82,8 +83,8 @@ export const es = {
     invalid_email: 'Correo electrónico no válido.',
   },
   dashboard: {
-    title: 'Área de Miembro',
-    subtitle: 'Controle sus dispositivos IoT y active vibraciones hápticas.',
+    title: 'Vibraciones manuales',
+    subtitle: 'Active estimulaciones hápticas directas y ajuste la intensidad y duración en sus plantillas inteligentes.',
     devices_title: 'Dispositivos IoT',
     refresh: 'Actualizar',
     loading_devices: 'Cargando dispositivos…',
@@ -111,6 +112,7 @@ export const es = {
     title: 'Gestión de Dispositivos',
     subtitle: 'Vincule sus plantillas inteligentes y consulte su estado de conexión.',
     pair_btn: '+ Vincular Plantilla',
+    vibration_control: 'Control de vibración',
     loading: 'Cargando dispositivos…',
     empty_title: 'Sin dispositivos vinculados',
     empty_desc: 'Vincule su primera plantilla para comenzar el seguimiento postural y la detección de caídas.',

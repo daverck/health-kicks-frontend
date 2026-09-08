@@ -24,6 +24,7 @@ export const zh = {
   },
   nav: {
     dashboard: '控制面板',
+    vibrations: '手动振动',
     devices: '设备管理',
     history: '历史记录',
     studio: '动作采集工作室',
@@ -82,8 +83,8 @@ export const zh = {
     invalid_email: '邮箱格式无效。',
   },
   dashboard: {
-    title: '会员中心',
-    subtitle: '控制您的物联网设备并触发足底触觉振动。',
+    title: '手动振动',
+    subtitle: '触发即时触觉刺激，并在智能鞋垫上调节强度与持续时间。',
     devices_title: '物联网设备',
     refresh: '刷新',
     loading_devices: '正在加载设备列表…',
@@ -111,6 +112,7 @@ export const zh = {
     title: '设备管理',
     subtitle: '绑定您的智能鞋垫并查看其在线通信状态。',
     pair_btn: '+ 绑定智能鞋垫',
+    vibration_control: '振动控制',
     loading: '正在加载设备…',
     empty_title: '暂未绑定任何设备',
     empty_desc: '绑定您的第一副智能鞋垫，即刻开启步态监测与跌倒保护。',

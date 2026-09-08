@@ -24,6 +24,7 @@ export const de = {
   },
   nav: {
     dashboard: 'Dashboard',
+    vibrations: 'Manuelle Vibrationen',
     devices: 'Geräte',
     history: 'Verlauf',
     studio: 'Aufnahme-Studio',
@@ -82,8 +83,8 @@ export const de = {
     invalid_email: 'Ungültige E-Mail-Adresse.',
   },
   dashboard: {
-    title: 'Mitgliederbereich',
-    subtitle: 'Steuern Sie Ihre IoT-Geräte und lösen Sie haptische Vibrationen aus.',
+    title: 'Manuelle Vibrationen',
+    subtitle: 'Lösen Sie direkte haptische Stimulationen aus und passen Sie Intensität und Dauer Ihrer vernetzten Einlegesohlen an.',
     devices_title: 'IoT-Geräte',
     refresh: 'Aktualisieren',
     loading_devices: 'Geräte werden geladen…',
@@ -111,6 +112,7 @@ export const de = {
     title: 'Geräteverwaltung',
     subtitle: 'Koppeln Sie Ihre intelligenten Sohlen und verwalten Sie deren Verbindungsstatus.',
     pair_btn: '+ Sohle verbinden',
+    vibration_control: 'Vibrationssteuerung',
     loading: 'Geräte laden…',
     empty_title: 'Keine Geräte gekoppelt',
     empty_desc: 'Koppeln Sie Ihre erste Sohle, um Haltungstracking und Sturzerkennung zu starten.',

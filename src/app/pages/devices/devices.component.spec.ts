@@ -170,5 +170,13 @@ describe('DevicesComponent', () => {
     expect(component.unbinding()).toBeFalse();
     expect(toastServiceSpy.error).toHaveBeenCalled();
   });
+
+  it('should render vibration control link pointing to /dashboard/vibrations with deviceId query param', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const links = compiled.querySelectorAll('a[href*="/dashboard/vibrations"]');
+    expect(links.length).toBe(mockDevices.length);
+    expect(links[0].getAttribute('href')).toContain('deviceId=' + mockDevices[0].device_id);
+  });
 });
 

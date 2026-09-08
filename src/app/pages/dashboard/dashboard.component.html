@@ -199,32 +199,4 @@
       }
     </div>
   </section>
-
-  <!-- Recent events preview -->
-  <section class="card">
-    <div class="mb-4 flex items-center justify-between">
-      <h2 class="text-lg font-semibold">{{ 'dashboard.recent_falls_title' | translate }}</h2>
-      <a routerLink="/dashboard/history" class="text-sm font-medium text-primary-600 hover:text-primary-700">{{ 'dashboard.all_history' | translate }}</a>
-    </div>
-    @if (eventsError()) {
-    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-      {{ 'dashboard.load_error_desc' | translate }}
-    </div>
-    } @else if (recentEvents().length === 0) {
-    <p class="py-6 text-center text-sm text-gray-500">{{ 'dashboard.no_recent_events' | translate }}</p>
-    } @else {
-    <ul class="divide-y divide-gray-100">
-      @for (event of recentEvents(); track event.id) {
-      <li class="flex items-center justify-between py-3 text-sm">
-        <div class="flex items-center gap-3">
-          <span class="h-2 w-2 rounded-full" [class.bg-red-500]="event.status_enum === 'fall_detected'"
-            [class.bg-primary-500]="event.status_enum !== 'fall_detected'"></span>
-          <span class="font-medium">{{ event.status_enum }}</span>
-        </div>
-        <span class="text-gray-500">{{ event.timestamp_utc | date:'short' }}</span>
-      </li>
-      }
-    </ul>
-    }
-  </section>
 </div>

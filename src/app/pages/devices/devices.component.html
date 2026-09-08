@@ -133,10 +133,11 @@
       <!-- Card actions -->
       <div class="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
         <a
-          routerLink="/dashboard"
+          [routerLink]="['/dashboard/vibrations']"
+          [queryParams]="{ deviceId: device.device_id }"
           class="text-xs font-semibold text-primary-600 hover:text-primary-700"
         >
-          Contrôle vibration →
+          {{ 'devices.vibration_control' | translate }} →
         </a>
 
         <button

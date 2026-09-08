@@ -24,6 +24,7 @@ export const fr = {
   },
   nav: {
     dashboard: 'Tableau de bord',
+    vibrations: 'Vibrations manuelles',
     devices: 'Équipements',
     history: 'Historique',
     studio: 'Studio Capture',
@@ -82,8 +83,8 @@ export const fr = {
     invalid_email: 'Adresse email invalide.',
   },
   dashboard: {
-    title: 'Espace Membre',
-    subtitle: 'Contrôlez vos devices IoT et déclenchez les vibrations haptiques.',
+    title: 'Vibrations manuelles',
+    subtitle: 'Déclenchez des stimulations haptiques directes et ajustez l’intensité et la durée sur vos semelles connectées.',
     devices_title: 'Device IoT',
     refresh: 'Actualiser',
     loading_devices: 'Chargement des devices…',
@@ -111,6 +112,7 @@ export const fr = {
     title: 'Gestion des équipements',
     subtitle: 'Associez vos semelles connectées et gérez leur statut de liaison.',
     pair_btn: '+ Associer une semelle',
+    vibration_control: 'Contrôle vibrations',
     loading: 'Chargement des équipements…',
     empty_title: 'Aucun équipement associé',
     empty_desc: 'Associez votre première semelle pour commencer le suivi de posture et la détection de chute.',

@@ -1,9 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
-import { DeviceResponse, FallEventResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
+import { DeviceResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
 import { intensityToLevel, levelToIntensity } from '../../core/utils/haptic.utils';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -17,12 +17,12 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 export class DashboardComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private readonly toast = inject(ToastService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDevice = signal<DeviceResponse | null>(null);
   readonly loadingDevices = signal(true);
   readonly devicesError = signal(false);
-  readonly eventsError = signal(false);
 
   readonly vibrationLevel = signal(5);
   readonly intensity = computed(() => levelToIntensity(this.vibrationLevel()));
@@ -36,11 +36,20 @@ export class DashboardComponent implements OnInit {
     this.vibrationLevel.set(Math.max(1, Math.min(10, Math.round(level))));
   }
 
-  readonly recentEvents = signal<FallEventResponse[]>([]);
   readonly recentHapticLogs = signal<HapticLogItem[]>([]);
 
   ngOnInit(): void {
     this.loadDevices();
+
+    this.route.queryParamMap.subscribe((params) => {
+      const deviceId = params.get('deviceId');
+      if (deviceId && this.devices().length > 0) {
+        const found = this.devices().find((d) => d.device_id === deviceId);
+        if (found && this.selectedDevice()?.device_id !== found.device_id) {
+          this.selectDevice(found);
+        }
+      }
+    });
   }
 
   loadDevices(): void {
@@ -48,11 +57,14 @@ export class DashboardComponent implements OnInit {
     this.deviceService.listDevices().subscribe({
       next: (devices) => {
         this.devices.set(devices);
-        if (!this.selectedDevice() && devices.length > 0) {
+        const targetId = this.route.snapshot.queryParamMap.get('deviceId');
+        const matched = targetId ? devices.find((d) => d.device_id === targetId) : null;
+        if (matched) {
+          this.selectedDevice.set(matched);
+        } else if (!this.selectedDevice() && devices.length > 0) {
           this.selectedDevice.set(devices[0]);
         }
         this.loadingDevices.set(false);
-        this.loadRecentEvents();
         this.loadRecentHapticLogs();
       },
       error: (err) => {
@@ -72,7 +84,6 @@ export class DashboardComponent implements OnInit {
 
   selectDevice(device: DeviceResponse): void {
     this.selectedDevice.set(device);
-    this.loadRecentEvents();
     this.loadRecentHapticLogs();
   }
 
@@ -99,19 +110,6 @@ export class DashboardComponent implements OnInit {
             ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
             : (err?.error?.detail ?? 'Échec du déclenchement de la vibration.')
         );
-      },
-    });
-  }
-
-  private loadRecentEvents(): void {
-    const device = this.selectedDevice();
-    if (!device) return;
-    this.eventsError.set(false);
-    this.deviceService.getFallHistory(device.device_id, 1, 5).subscribe({
-      next: (page) => this.recentEvents.set(page?.items ?? []),
-      error: () => {
-        this.recentEvents.set([]);
-        this.eventsError.set(true);
       },
     });
   }

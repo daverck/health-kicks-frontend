@@ -2,11 +2,10 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { DashboardComponent } from './dashboard.component';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import {
   mockDevices,
-  mockFallEventPage,
   mockHapticLogPage,
   mockHapticResponse,
 } from '../../../testing/mocks/device.mock';
@@ -21,13 +20,11 @@ describe('DashboardComponent', () => {
     deviceServiceSpy = jasmine.createSpyObj('DeviceService', [
       'listDevices',
       'triggerHaptic',
-      'getFallHistory',
       'getHapticHistory',
     ]);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error']);
 
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
-    deviceServiceSpy.getFallHistory.and.returnValue(of(mockFallEventPage));
     deviceServiceSpy.getHapticHistory.and.returnValue(of(mockHapticLogPage));
     deviceServiceSpy.triggerHaptic.and.returnValue(of(mockHapticResponse));
 
@@ -44,7 +41,7 @@ describe('DashboardComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should load devices and select the first one on init', () => {
+  it('should load devices and select the first one on init by default', () => {
     fixture.detectChanges(); // triggers ngOnInit
 
     expect(deviceServiceSpy.listDevices).toHaveBeenCalled();
@@ -52,11 +49,21 @@ describe('DashboardComponent', () => {
     expect(component.selectedDevice()).toEqual(mockDevices[0]);
     expect(component.loadingDevices()).toBeFalse();
     expect(component.devicesError()).toBeFalse();
-    expect(deviceServiceSpy.getFallHistory).toHaveBeenCalledWith('hk-device-0001', 1, 5);
-    expect(component.recentEvents().length).toBe(2);
     expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0001', 1, 5);
     expect(component.recentHapticLogs().length).toBe(2);
   });
+
+  it('should preselect device specified in queryParams', fakeAsync(() => {
+    const router = TestBed.inject(Router);
+    router.navigate([], { queryParams: { deviceId: 'hk-device-0002' } });
+    tick();
+
+    const queryFixture = TestBed.createComponent(DashboardComponent);
+    const queryComponent = queryFixture.componentInstance;
+    queryFixture.detectChanges();
+
+    expect(queryComponent.selectedDevice()?.device_id).toBe('hk-device-0002');
+  }));
 
   it('should handle error when loading devices fails', () => {
     deviceServiceSpy.listDevices.and.returnValue(

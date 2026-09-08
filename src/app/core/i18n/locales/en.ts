@@ -24,6 +24,7 @@ export const en = {
   },
   nav: {
     dashboard: 'Dashboard',
+    vibrations: 'Manual Vibrations',
     devices: 'Devices',
     history: 'History',
     studio: 'Studio Capture',
@@ -82,8 +83,8 @@ export const en = {
     invalid_email: 'Invalid email address.',
   },
   dashboard: {
-    title: 'Member Dashboard',
-    subtitle: 'Control your IoT devices and trigger haptic vibrations.',
+    title: 'Manual Vibrations',
+    subtitle: 'Trigger direct haptic stimulations and adjust intensity and duration on your connected insoles.',
     devices_title: 'IoT Devices',
     refresh: 'Refresh',
     loading_devices: 'Loading devices…',
@@ -111,6 +112,7 @@ export const en = {
     title: 'Device Management',
     subtitle: 'Pair your smart insoles and manage their connection status.',
     pair_btn: '+ Pair Insole',
+    vibration_control: 'Vibration Control',
     loading: 'Loading devices…',
     empty_title: 'No devices paired',
     empty_desc: 'Pair your first insole to start posture tracking and real-time fall detection.',

@@ -24,6 +24,7 @@ export const nl = {
   },
   nav: {
     dashboard: 'Dashboard',
+    vibrations: 'Handmatige trillingen',
     devices: 'Apparaten',
     history: 'Geschiedenis',
     studio: 'Studio Capture',
@@ -82,8 +83,8 @@ export const nl = {
     invalid_email: 'Ongeldig e-mailadres.',
   },
   dashboard: {
-    title: 'Ledenruimte',
-    subtitle: 'Bedien uw IoT-apparaten en activeer haptische trillingen.',
+    title: 'Handmatige trillingen',
+    subtitle: 'Start directe haptische stimulaties en pas intensiteit en duur aan op uw slimme zolen.',
     devices_title: 'IoT-apparaten',
     refresh: 'Vernieuwen',
     loading_devices: 'Apparaten laden…',
@@ -111,6 +112,7 @@ export const nl = {
     title: 'Apparaatbeheer',
     subtitle: 'Koppel uw slimme zolen en beheer hun verbindingsstatus.',
     pair_btn: '+ Zool koppelen',
+    vibration_control: 'Trillingscontrole',
     loading: 'Apparaten laden…',
     empty_title: 'Geen gekoppelde apparaten',
     empty_desc: 'Koppel uw eerste zool om houdingstracking en valdetectie te starten.',

@@ -23,7 +23,7 @@ export class DashboardLayoutComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly links = [
-    { path: '/dashboard', labelKey: 'nav.dashboard', label: 'Dashboard', icon: '🏠' },
+    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳' },
     { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
     { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓' },
     { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬' },
