@@ -1,138 +1,134 @@
-# HealthKicksApp
+# HealthKicks Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.27.
+Frontend web application for the **HealthKicks** connected IoT footwear stimulation and fall prevention system.
 
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Built with **Angular 19** (Standalone components, Signals, Lazy-loaded routes) and styled with **Tailwind CSS** & **Angular Material**.
 
 ---
 
-# Health Kicks — Documentation projet
+## Features
 
-Application frontend Angular pour le système IoT de stimulation connectée **Health Kicks**.
+- **Public Landing Page**: Concept presentation, product highlights, and sign-in / sign-up call-to-actions.
+- **Authentication & Security**:
+  - Email + password authentication.
+  - **Google SSO** & **Microsoft Entra ID (Azure AD)** OAuth2 integration via backend API.
+  - Automatic JWT token injection via HTTP interceptor (`Authorization: Bearer <token>`) with 401 handling & automatic redirection.
+- **Member Dashboard**:
+  - **Device Management**: Real-time connectivity status (online/offline indicators), device selection with search, and factory-registered device binding.
+  - **Haptic Control**: Remote haptic stimulation triggering (intensity 0–255, duration 50–10000 ms) with toast notifications.
+  - **Fall Events & Timeline**: Real-time event log, interactive timeline, and paginated event table.
+  - **Studio Mode**: High-frequency IMU capture session runner with countdown, real-time vibration inspection graph (Chart.js), and AWS IoT command dispatch.
+  - **Studio History**: Historical capture session explorer, RBAC filtering (admin vs. regular user), label curation with DynamoDB synchronization, and raw IMU waveform visualization.
+  - **User Profile**: Account details, certified OIDC read-only email display, role badge, and profile update forms.
+- **Internationalization (i18n)**: Runtime multi-language support (English and French) with automatic browser language detection fallback.
 
-## Stack
+---
 
-- **Angular 19** (Standalone Components, Signals, routes lazy-loaded)
-- **Tailwind CSS 3**
-- **pnpm** comme gestionnaire de paquets
+## Tech Stack
 
-## Configuration
+- **Framework**: Angular 19 (Standalone Architecture, Signals, Reactive Forms)
+- **Styling**: Tailwind CSS 3 & Angular Material
+- **Charts**: Chart.js with Angular integration
+- **Package Manager**: pnpm
 
-L'API backend est configurée dans `src/environments/environment.ts` :
+---
 
-```ts
-apiUrl: 'http://healthkicks.duckdns.org:8000'
-```
+## Getting Started
 
-Les flux d'authentification SSO (Google, Microsoft) sont pilotés directement par l'API backend.
+### Prerequisites
 
-## Développement
+- Node.js 22+ (or 24+)
+- [pnpm](https://pnpm.io/) 9+
+
+### Installation
 
 ```bash
 pnpm install
-pnpm start        # http://localhost:4200
 ```
 
-## Build production
+### Environment Configuration
+
+The backend API URL is configured in `src/environments/environment.ts`:
+
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'https://healthkicks.duckdns.org',
+};
+```
+
+For local backend development, update `apiUrl` to `http://localhost:8000`.
+
+### Development Server
+
+Run the development server on `http://localhost:4200/`:
 
 ```bash
-pnpm exec ng build --configuration production
-# sortie : dist/health-kicks-app/browser
+pnpm start
+# or: ng serve
 ```
 
-## Fonctionnalités
+The application will automatically reload if you change any source files.
 
-- **Landing page publique** : présentation du concept, CTA Connexion / Inscription.
-- **Authentification** : email + mot de passe, **Google SSO** (OAuth2 via le backend
-  `/api/v1/auth/google/login` et callback géré par `/auth/google/callback` côté SPA).
-- **AuthInterceptor** : injection du JWT (`Authorization: Bearer <token>`) sur chaque
-  requête API + redirection `/login` sur 401.
-- **Espace Membre** (protégé par `authGuard`) :
-  - Profil utilisateur : consultation et édition.
-  - Contrôle IoT : sélection du device, déclenchement haptique à distance
-    (intensité 0–255, durée 50–10000 ms) avec toast de confirmation.
-  - Historique des événements/chutes : timeline + tableau paginé, connecté à
-    l'endpoint backend `/devices/{id}/events/falls`.
+---
 
-## Tests
+## Building
+
+To build the project for production:
 
 ```bash
-pnpm test          # Mode interactif avec watch
-pnpm run test:ci   # Mode headless CI (une seule passe)
+pnpm run build
+# Output directory: dist/health-kicks-app/browser
 ```
+
+---
+
+## Testing
+
+### Unit Tests
+
+Run unit tests via Karma:
+
+```bash
+# Interactive watch mode:
+pnpm test
+
+# Single headless run for CI / automated testing:
+pnpm run test:ci
+```
+
+---
 
 ## Docker
 
+A multi-stage Dockerfile is provided (Angular build with Node + pnpm, served via **Nginx Alpine** with SPA fallback routing):
+
 ```bash
+# Build the Docker image:
 docker build -t healthkicks-frontend .
-docker run -p 8080:8080 healthkicks-frontend
-# http://localhost:8080
+
+# Run the container locally on port 8080:
+docker run -d -p 8080:8080 --name healthkicks-frontend healthkicks-frontend
 ```
 
-Image multi-stage : build Angular via Node 24 + pnpm, service via **Nginx Alpine**
-avec fallback SPA (`try_files $uri $uri/ /index.html`).
+Open `http://localhost:8080/` in your browser.
 
-## Déploiement CI/CD
+---
 
-`.github/workflows/deploy.yml` — déclenchement automatique sur `push`/`pull_request` (job `test`), et déploiement automatique sur la branche `main` après validation des tests.
+## CI/CD Deployment
 
-Pipeline structuré en 2 jobs distincts :
-1. **`test`** (Ubuntu + Node 24 + pnpm) : exécute la suite de tests unitaires avec Karma en mode headless (`pnpm run test:ci`).
-2. **`build-and-deploy`** (`needs: test`, environnement `production`) : build de l'image Docker → push sur Amazon ECR (`693906847467.dkr.ecr.eu-north-1.amazonaws.com/healthkicks-frontend:latest`) → déploiement SSH sur EC2 (`docker pull` + relance du conteneur sur le port 8080).
+The GitHub Actions workflow is defined in `.github/workflows/deploy.yml`:
+- Triggered automatically on `push` and `pull_request` (runs unit tests via Karma headless).
+- On pushes to `main` (after tests pass):
+  1. Builds the production Docker image.
+  2. Pushes the image to **Amazon ECR** (`693906847467.dkr.ecr.eu-north-1.amazonaws.com/healthkicks-frontend:latest`).
+  3. Deploys via SSH to the production EC2 host (`docker pull` and rolling container restart).
 
-Secrets requis (environment `production`) :
-`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY`.
+### Required Secrets (Production Environment)
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `EC2_HOST`
+- `EC2_USER`
+- `EC2_SSH_KEY`
+
