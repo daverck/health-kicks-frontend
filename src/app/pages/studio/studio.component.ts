@@ -10,25 +10,15 @@ import { ImuChartComponent } from '../../shared/components/imu-chart/imu-chart.c
 
 export type StudioState = 'idle' | 'countdown' | 'recording' | 'fetching' | 'inspecting';
 
-export interface PredefinedLabel {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-}
+import {
+  PredefinedLabel,
+  PREDEFINED_LABELS,
+  SELECTED_DEVICE_STORAGE_KEY,
+  StudioActivityCode,
+} from '../../models/studio.model';
 
-export const SELECTED_DEVICE_STORAGE_KEY = 'healthkicks_selected_device_id';
-
-export const PREDEFINED_LABELS: PredefinedLabel[] = [
-  { id: 'walk', name: 'Marche', icon: '🚶', description: 'Pas réguliers sur sol plat' },
-  { id: 'run', name: 'Course', icon: '🏃', description: 'Course modérée ou rapide' },
-  { id: 'stairs', name: 'Escaliers', icon: '🪜', description: 'Montée ou descente de marches' },
-  { id: 'stumble_recover', name: 'Trébuchement rattrapé', icon: '⚠️', description: 'Déséquilibre sans impact au sol' },
-  { id: 'fall_forward', name: 'Chute avant', icon: '⤵️', description: 'Perte d’équilibre vers l’avant' },
-  { id: 'fall_backward', name: 'Chute arrière', icon: '⤴️', description: 'Bascule vers l’arrière' },
-  { id: 'fall_lateral', name: 'Chute latérale', icon: '↔️', description: 'Bascule sur le flanc gauche ou droit' },
-  { id: 'fall_recovery', name: 'Chute relevée', icon: '🔄', description: 'Chute au sol suivie d’un redressement' },
-];
+export type { PredefinedLabel, StudioActivityCode };
+export { PREDEFINED_LABELS, SELECTED_DEVICE_STORAGE_KEY };
 
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';

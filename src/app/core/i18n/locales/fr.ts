@@ -208,6 +208,8 @@ export const fr = {
     session_rejected: 'Session rejetée et points supprimés de DynamoDB.',
     telemetry_retrieved: 'Télémétrie récupérée ({count} points IMU enregistrés) !',
     labels: {
+      idle: 'Immobile / Repos',
+      idle_desc: 'Capteur posé sur une table ou personne immobile',
       walk: 'Marche',
       walk_desc: 'Pas réguliers sur sol plat',
       run: 'Course',

@@ -207,6 +207,8 @@ export const de = {
     session_rejected: 'Sitzung verworfen und Daten aus DynamoDB gelöscht.',
     telemetry_retrieved: 'Telemetrie erfolgreich abgerufen ({count} IMU-Punkte erfasst)!',
     labels: {
+      idle: 'Stillstand / Ruhe',
+      idle_desc: 'Sensor liegt auf dem Tisch oder Person steht/sitzt ruhig',
       walk: 'Gehen',
       walk_desc: 'Regelmäßige Schritte auf ebenem Boden',
       run: 'Laufen',

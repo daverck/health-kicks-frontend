@@ -207,6 +207,8 @@ export const ar = {
     session_rejected: 'تم رفض الجلسة وحذف نقاط البيانات من DynamoDB.',
     telemetry_retrieved: 'تم استرجاع القياسات بنجاح (تم تسجيل {count} نقطة)!',
     labels: {
+      idle: 'سكون / راحة',
+      idle_desc: 'المستشعر ثابت على الطاولة أو الشخص جالس/واقف دون حركة',
       walk: 'مشي طبيعي',
       walk_desc: 'خطوات منتظمة على أرض مستوية',
       run: 'جري',

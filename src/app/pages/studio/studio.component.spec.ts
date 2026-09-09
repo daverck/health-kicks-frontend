@@ -223,6 +223,11 @@ describe('StudioComponent', () => {
     // Default label is walk
     expect(component.effectiveLabel()).toBe('walk');
 
+    // Select idle activity pastille
+    component.selectLabel('idle');
+    expect(component.selectedLabel()).toBe('idle');
+    expect(component.effectiveLabel()).toBe('idle');
+
     // Select another predefined label
     component.selectLabel('fall_forward');
     expect(component.effectiveLabel()).toBe('fall_forward');
@@ -234,6 +239,46 @@ describe('StudioComponent', () => {
     // Resetting custom label restores predefined
     component.customLabel.set('');
     expect(component.effectiveLabel()).toBe('fall_forward');
+  });
+
+  it('should allow selecting idle activity pastille and dispatch capture with label idle', () => {
+    deviceServiceSpy.listDevices.and.returnValue(of(mockOnlineDevices));
+    fixture = TestBed.createComponent(StudioComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    // Verify predefinedLabels includes idle
+    const idleDef = component.predefinedLabels.find((l) => l.id === 'idle');
+    expect(idleDef).toBeDefined();
+    expect(idleDef?.name).toBe('Immobile / Repos');
+    expect(idleDef?.icon).toBe('⏸️');
+
+    // Select idle pastille
+    component.selectLabel('idle');
+    expect(component.selectedLabel()).toBe('idle');
+    expect(component.effectiveLabel()).toBe('idle');
+
+    // Launch capture
+    component.startCapture();
+
+    expect(studioServiceSpy.startStudioSession).toHaveBeenCalledWith('hk-device-0001', jasmine.objectContaining({
+      label: 'idle',
+      duration_sec: 5,
+    }));
+    expect(component.state()).toBe('countdown');
+  });
+
+  it('should read count for idle label from dataset stats', () => {
+    fixture.detectChanges();
+
+    component.datasetStats.set({
+      total_sessions: 15,
+      by_label: { idle: 7, walk: 8 },
+    });
+
+    expect(component.getCountForLabel('idle')).toBe(7);
+    expect(component.getCountForLabel('walk')).toBe(8);
+    expect(component.getCountForLabel('run')).toBe(0);
   });
 
   it('should handle device loading error gracefully', () => {

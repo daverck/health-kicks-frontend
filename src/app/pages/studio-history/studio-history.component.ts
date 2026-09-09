@@ -279,6 +279,9 @@ export class StudioHistoryComponent implements OnInit {
   }
 
   getLabelBadgeClass(label: string): string {
+    if (label === 'idle') {
+      return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
+    }
     if (label.startsWith('fall_')) {
       return 'bg-red-100 text-red-800 border-red-200';
     }

@@ -208,6 +208,8 @@ export const en = {
     session_rejected: 'Session rejected and data purged from DynamoDB.',
     telemetry_retrieved: 'Telemetry retrieved ({count} IMU points recorded)!',
     labels: {
+      idle: 'Idle / Resting',
+      idle_desc: 'Sensor resting on table or person standing/sitting still',
       walk: 'Walking',
       walk_desc: 'Regular steps on flat ground',
       run: 'Running',

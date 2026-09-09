@@ -207,6 +207,8 @@ export const zh = {
     session_rejected: '已废弃该会话并从 DynamoDB 中清理数据。',
     telemetry_retrieved: '遥测数据获取成功（共记录 {count} 个 IMU 样本点）！',
     labels: {
+      idle: '静止 / 休息',
+      idle_desc: '传感器置于桌面或人员静止站立/坐卧',
       walk: '平地行走',
       walk_desc: '平整地面上的规律步伐',
       run: '慢跑/快跑',

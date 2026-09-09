@@ -207,6 +207,8 @@ export const nl = {
     session_rejected: 'Sessie afgewezen en gewist uit DynamoDB.',
     telemetry_retrieved: 'Telemetrie opgehaald ({count} IMU-meetpunten geregistreerd)!',
     labels: {
+      idle: 'Stilstaand / Rust',
+      idle_desc: 'Sensor op tafel of persoon stilstaand/zittend zonder beweging',
       walk: 'Wandelen',
       walk_desc: 'Normale stappen op vlakke ondergrond',
       run: 'Hardlopen',

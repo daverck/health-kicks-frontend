@@ -266,4 +266,30 @@ describe('StudioHistoryComponent', () => {
     expect(component.isLoadingReadings()).toBeFalse();
     expect(component.readingsError()).toBe('Trames introuvables sur DynamoDB');
   });
+
+  it('should style idle sessions with slate badge and allow filtering by idle', () => {
+    fixture.detectChanges();
+
+    // Check badge class
+    const idleBadge = component.getLabelBadgeClass('idle');
+    expect(idleBadge).toContain('bg-slate-100');
+    expect(idleBadge).toContain('text-slate-800');
+
+    // Check predefinedLabels has idle
+    const idleDef = component.predefinedLabels.find((l) => l.id === 'idle');
+    expect(idleDef).toBeDefined();
+    expect(idleDef?.icon).toBe('⏸️');
+
+    // Filter by idle
+    component.selectedLabel.set('idle');
+    component.onFilterChange();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith(
+      jasmine.objectContaining({
+        label: 'idle',
+        page: 1,
+        size: 20,
+      })
+    );
+  });
 });
