@@ -1,6 +1,8 @@
 import {
   DeviceCreate,
   DeviceResponse,
+  ActivityEvent,
+  ActivityEventPage,
   FallEventPage,
   FallEventResponse,
   HapticTriggerResponse,
@@ -45,31 +47,32 @@ export const mockDevices: DeviceResponse[] = [
   },
 ];
 
-export const mockFallEvents: FallEventResponse[] = [
+export const mockActivityEvents: ActivityEvent[] = [
   {
     id: 101,
     device_id: 'hk-device-0001',
+    event_type: 'fall_forward',
     timestamp_utc: '2026-09-02T08:30:00Z',
     confidence_score: 0.95,
-    raw_imu_json: { ax: 0.12, ay: 0.98, az: -0.05 },
-    status_enum: 'fall_detected',
   },
   {
     id: 102,
     device_id: 'hk-device-0001',
+    event_type: 'walk',
     timestamp_utc: '2026-09-02T10:15:00Z',
     confidence_score: 0.88,
-    raw_imu_json: { ax: 0.05, ay: 0.44, az: -0.89 },
-    status_enum: 'vibration_sent',
   },
 ];
 
-export const mockFallEventPage: FallEventPage = {
-  items: mockFallEvents,
+export const mockActivityEventPage: ActivityEventPage = {
+  items: mockActivityEvents,
   page: 1,
   page_size: 20,
   total: 2,
 };
+
+export const mockFallEvents = mockActivityEvents;
+export const mockFallEventPage = mockActivityEventPage;
 
 export const mockHapticLogs: HapticLogItem[] = [
   {

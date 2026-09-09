@@ -86,23 +86,28 @@ export interface HapticLogPage {
   total: number;
 }
 
-// ---------- Fall events (history) ----------
+// ---------- Activity events (history) ----------
 
-export interface FallEventResponse {
+export interface ActivityEvent {
   id: number;
   device_id: string;
+  event_type: string;
   timestamp_utc: string;
   confidence_score?: number | null;
-  raw_imu_json: Record<string, unknown>;
-  status_enum: string;
 }
 
-export interface FallEventPage {
-  items: FallEventResponse[];
+export type ActivityEventResponse = ActivityEvent;
+
+export interface ActivityEventPage {
+  items: ActivityEvent[];
   page: number;
   page_size: number;
   total: number;
 }
+
+// Backward-compatibility aliases
+export type FallEventResponse = ActivityEvent;
+export type FallEventPage = ActivityEventPage;
 
 // ---------- Health ----------
 

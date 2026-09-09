@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
-import { DeviceResponse, FallEventResponse, HapticLogItem } from '../../models/api.models';
+import { DeviceResponse, ActivityEvent, HapticLogItem } from '../../models/api.models';
 import { intensityToLevel } from '../../core/utils/haptic.utils';
-
+import { PREDEFINED_LABELS } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
@@ -18,17 +18,32 @@ export class HistoryComponent implements OnInit {
   private readonly toast = inject(ToastService);
 
   readonly intensityToLevel = intensityToLevel;
+  readonly predefinedLabels = PREDEFINED_LABELS;
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');
-  readonly activeTab = signal<'falls' | 'haptic'>('falls');
+  readonly activeTab = signal<'activities' | 'haptic'>('activities');
 
-  // Falls history
-  readonly events = signal<FallEventResponse[]>([]);
+  // Activities history
+  readonly events = signal<ActivityEvent[]>([]);
+  readonly selectedEventType = signal<string>('all');
   readonly page = signal(1);
   readonly pageSize = 20;
   readonly total = signal<number | null>(null);
   readonly totalPages = signal(0);
+
+  // Filtered activities displayed in current page
+  readonly filteredEvents = computed<ActivityEvent[]>(() => {
+    const list = this.events();
+    const filter = this.selectedEventType();
+    if (!filter || filter === 'all') {
+      return list;
+    }
+    if (filter === 'falls') {
+      return list.filter((e) => this.isFall(e.event_type));
+    }
+    return list.filter((e) => e.event_type === filter);
+  });
 
   // Haptic vibrations history
   readonly hapticLogs = signal<HapticLogItem[]>([]);
@@ -44,10 +59,16 @@ export class HistoryComponent implements OnInit {
     this.loadDevices();
   }
 
-  setTab(tab: 'falls' | 'haptic'): void {
-    if (this.activeTab() === tab) return;
-    this.activeTab.set(tab);
+  setTab(tab: 'activities' | 'haptic' | 'falls'): void {
+    const targetTab: 'activities' | 'haptic' = tab === 'falls' ? 'activities' : tab;
+    if (this.activeTab() === targetTab) return;
+    this.activeTab.set(targetTab);
     this.loadCurrentTab();
+  }
+
+  onEventTypeChange(ev: Event): void {
+    const value = (ev.target as HTMLSelectElement).value;
+    this.selectedEventType.set(value);
   }
 
   loadDevices(): void {
@@ -82,7 +103,7 @@ export class HistoryComponent implements OnInit {
   }
 
   goToPage(p: number): void {
-    if (this.activeTab() === 'falls') {
+    if (this.activeTab() === 'activities') {
       this.page.set(Math.max(1, p));
       this.loadEvents();
     } else {
@@ -95,12 +116,48 @@ export class HistoryComponent implements OnInit {
     this.loadCurrentTab();
   }
 
-  sourceOf(event: FallEventResponse): string {
-    return (event as FallEventResponse & { source?: string }).source ?? 'imu';
+  sourceOf(event: ActivityEvent): string {
+    return (event as ActivityEvent & { source?: string }).source ?? 'imu';
+  }
+
+  isFall(eventType: string): boolean {
+    if (!eventType) return false;
+    const lower = eventType.toLowerCase();
+    return lower.includes('fall');
+  }
+
+  getActivityIcon(eventType: string): string {
+    const found = this.predefinedLabels.find((l) => l.id === eventType);
+    if (found) return found.icon;
+    if (this.isFall(eventType)) return '🚨';
+    return '🏷️';
+  }
+
+  getActivityBadgeClass(eventType: string): string {
+    if (this.isFall(eventType)) {
+      return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300';
+    }
+    switch (eventType) {
+      case 'idle':
+        return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
+      case 'walk':
+      case 'run':
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300';
+      case 'stairs':
+      case 'stumble_recover':
+        return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300';
+      default:
+        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300';
+    }
+  }
+
+  getActivityLabel(eventType: string): string {
+    const found = this.predefinedLabels.find((l) => l.id === eventType);
+    return found ? found.name : eventType;
   }
 
   loadCurrentTab(): void {
-    if (this.activeTab() === 'falls') {
+    if (this.activeTab() === 'activities') {
       this.loadEvents();
     } else {
       this.loadHapticLogs();
@@ -116,7 +173,7 @@ export class HistoryComponent implements OnInit {
     this.loading.set(true);
     this.eventsError.set(false);
 
-    this.deviceService.getFallHistory(deviceId, this.page(), this.pageSize).subscribe({
+    this.deviceService.getActivityEvents(deviceId, this.page(), this.pageSize).subscribe({
       next: (page) => {
         this.events.set(page.items);
         this.total.set(page.total);

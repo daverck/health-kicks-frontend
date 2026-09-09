@@ -20,37 +20,53 @@
   </div>
   } @else {
   <div class="flex flex-wrap items-center justify-between gap-4">
-    <div class="flex flex-wrap items-center gap-3">
-      <label class="text-sm font-medium text-gray-700" for="device">{{ 'history.device' | translate }} :</label>
-      <select id="device" class="input w-auto" (change)="onDeviceChange($event)">
-        @for (device of devices(); track device.device_id) {
-          <option [value]="device.device_id" [selected]="device.device_id === selectedDeviceId()">
-            {{ device.name || device.device_id }}
-          </option>
-        }
-      </select>
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700" for="device">{{ 'history.device' | translate }} :</label>
+        <select id="device" class="input w-auto text-sm" (change)="onDeviceChange($event)">
+          @for (device of devices(); track device.device_id) {
+            <option [value]="device.device_id" [selected]="device.device_id === selectedDeviceId()">
+              {{ device.name || device.device_id }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Activity type filter -->
+      @if (activeTab() === 'activities') {
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700" for="activity-filter">{{ 'history.activity' | translate }} :</label>
+          <select id="activity-filter" class="input w-auto text-sm" (change)="onEventTypeChange($event)">
+            <option value="all">{{ 'history.filter_all' | translate }}</option>
+            <option value="falls">{{ 'history.filter_falls' | translate }}</option>
+            @for (label of predefinedLabels; track label.id) {
+              <option [value]="label.id">{{ label.icon }} {{ 'studio.labels.' + label.id | translate }}</option>
+            }
+          </select>
+        </div>
+      }
     </div>
 
     <!-- Navigation par onglets -->
     <div class="flex rounded-lg border border-gray-200 bg-white p-1 text-sm">
       <button
-        id="tab-falls"
+        id="tab-activities"
         type="button"
-        (click)="setTab('falls')"
+        (click)="setTab('activities')"
         class="flex items-center gap-2 rounded-md px-3.5 py-1.5 font-medium transition"
-        [class.bg-primary-600]="activeTab() === 'falls'"
-        [class.text-white]="activeTab() === 'falls'"
-        [class.text-gray-600]="activeTab() !== 'falls'"
-        [class.hover:text-gray-900]="activeTab() !== 'falls'"
+        [class.bg-primary-600]="activeTab() === 'activities'"
+        [class.text-white]="activeTab() === 'activities'"
+        [class.text-gray-600]="activeTab() !== 'activities'"
+        [class.hover:text-gray-900]="activeTab() !== 'activities'"
       >
-        <span>⚠️ {{ 'history.tab_falls' | translate }}</span>
+        <span>🏃 {{ 'history.tab_activities' | translate }}</span>
         @if (total() !== null) {
           <span
             class="rounded-full px-2 py-0.5 text-xs font-semibold"
-            [class.bg-white]="activeTab() === 'falls'"
-            [class.text-primary-700]="activeTab() === 'falls'"
-            [class.bg-gray-100]="activeTab() !== 'falls'"
-            [class.text-gray-600]="activeTab() !== 'falls'"
+            [class.bg-white]="activeTab() === 'activities'"
+            [class.text-primary-700]="activeTab() === 'activities'"
+            [class.bg-gray-100]="activeTab() !== 'activities'"
+            [class.text-gray-600]="activeTab() !== 'activities'"
           >
             {{ total() }}
           </span>
@@ -96,26 +112,42 @@
     </div>
   } @else {
 
-    <!-- TAB 1: FALL EVENTS -->
-    @if (activeTab() === 'falls') {
+    <!-- TAB 1: ACTIVITIES -->
+    @if (activeTab() === 'activities') {
       @if (events().length === 0) {
         <div class="card py-12 text-center">
-          <p class="text-sm text-gray-500">{{ 'history.empty_falls' | translate }}</p>
+          <p class="text-sm text-gray-500">{{ 'history.empty_activities' | translate }}</p>
+        </div>
+      } @else if (filteredEvents().length === 0) {
+        <div class="card py-12 text-center">
+          <p class="text-sm text-gray-500">{{ 'history.no_match' | translate }}</p>
         </div>
       } @else {
         <!-- Timeline (mobile) -->
         <section class="card md:hidden">
           <ol class="relative space-y-6 border-l-2 border-gray-100 pl-6">
-            @for (event of events(); track event.id) {
+            @for (event of filteredEvents(); track event.id) {
               <li>
                 <span class="absolute -left-[9px] mt-1.5 h-4 w-4 rounded-full border-2 border-white"
-                      [class.bg-red-500]="event.status_enum === 'fall_detected'"
-                      [class.bg-primary-500]="event.status_enum !== 'fall_detected'"></span>
-                <p class="text-sm font-semibold">{{ event.status_enum }}</p>
-                <p class="text-xs text-gray-500">{{ event.timestamp_utc | date:'medium' }}</p>
-                @if (event.confidence_score != null) {
-                  <p class="text-xs text-gray-400">{{ 'history.confidence' | translate:{ score: (event.confidence_score * 100).toFixed(0) } }}</p>
-                }
+                      [class.bg-red-500]="isFall(event.event_type)"
+                      [class.bg-emerald-500]="event.event_type === 'walk' || event.event_type === 'run'"
+                      [class.bg-slate-400]="event.event_type === 'idle'"
+                      [class.bg-amber-500]="event.event_type === 'stairs' || event.event_type === 'stumble_recover'"
+                      [class.bg-primary-500]="!isFall(event.event_type) && event.event_type !== 'walk' && event.event_type !== 'run' && event.event_type !== 'idle' && event.event_type !== 'stairs' && event.event_type !== 'stumble_recover'"></span>
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border"
+                        [ngClass]="getActivityBadgeClass(event.event_type)">
+                    <span>{{ getActivityIcon(event.event_type) }}</span>
+                    <span>{{ getActivityLabel(event.event_type) }}</span>
+                  </span>
+                  @if (event.confidence_score != null) {
+                    <span class="text-xs font-semibold text-gray-600">
+                      {{ (event.confidence_score * 100).toFixed(0) }} %
+                    </span>
+                  }
+                </div>
+                <p class="mt-1 text-xs text-gray-500">{{ event.timestamp_utc | date:'medium' }}</p>
+                <p class="text-[11px] font-mono text-gray-400">{{ event.device_id }}</p>
               </li>
             }
           </ol>
@@ -127,31 +159,27 @@
             <thead class="bg-gray-50">
               <tr>
                 <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.timestamp' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.status' | translate }}</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.activity' | translate }}</th>
+                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.confidence_col' | translate }}</th>
                 <th class="px-4 py-3 text-left font-semibold text-gray-700">Source</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">Confiance</th>
                 <th class="px-4 py-3 text-left font-semibold text-gray-700">Device ID</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-              @for (event of events(); track event.id) {
+              @for (event of filteredEvents(); track event.id) {
                 <tr class="hover:bg-gray-50">
                   <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ event.timestamp_utc | date:'medium' }}</td>
                   <td class="px-4 py-3">
-                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
-                          [class.bg-red-100]="event.status_enum === 'fall_detected'"
-                          [class.text-red-700]="event.status_enum === 'fall_detected'"
-                          [class.bg-green-100]="event.status_enum === 'acknowledged' || event.status_enum === 'vibration_sent'"
-                          [class.text-green-700]="event.status_enum === 'acknowledged' || event.status_enum === 'vibration_sent'"
-                          [class.bg-gray-100]="event.status_enum !== 'fall_detected' && event.status_enum !== 'acknowledged' && event.status_enum !== 'vibration_sent'"
-                          [class.text-gray-700]="event.status_enum !== 'fall_detected' && event.status_enum !== 'acknowledged' && event.status_enum !== 'vibration_sent'">
-                      {{ event.status_enum }}
+                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border"
+                          [ngClass]="getActivityBadgeClass(event.event_type)">
+                      <span>{{ getActivityIcon(event.event_type) }}</span>
+                      <span>{{ getActivityLabel(event.event_type) }}</span>
                     </span>
                   </td>
-                  <td class="px-4 py-3 text-gray-600">{{ sourceOf(event) }}</td>
-                  <td class="px-4 py-3 text-gray-600">
-                    @if (event.confidence_score != null) { {{ (event.confidence_score * 100).toFixed(0) }}% } @else { — }
+                  <td class="px-4 py-3 text-gray-600 font-medium">
+                    @if (event.confidence_score != null) { {{ (event.confidence_score * 100).toFixed(0) }} % } @else { — }
                   </td>
+                  <td class="px-4 py-3 text-gray-600">{{ sourceOf(event) }}</td>
                   <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ event.device_id }}</td>
                 </tr>
               }

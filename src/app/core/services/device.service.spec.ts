@@ -5,6 +5,7 @@ import { DeviceService } from './device.service';
 import { environment } from '../../../environments/environment';
 import {
   mockDevices,
+  mockActivityEventPage,
   mockFallEventPage,
   mockHapticLogPage,
   mockHapticResponse,
@@ -115,18 +116,30 @@ describe('DeviceService', () => {
     req.flush(mockHapticResponse);
   });
 
-  it('should retrieve fall history via GET /devices/{id}/events/falls with pagination', () => {
-    service.getFallHistory('hk-device-0001', 2, 20).subscribe((page) => {
+  it('should retrieve activity events via GET /devices/{id}/events/activities with pagination', () => {
+    service.getActivityEvents('hk-device-0001', 2, 20).subscribe((page) => {
       expect(page.items.length).toBe(2);
       expect(page.total).toBe(2);
-      expect(page).toEqual(mockFallEventPage);
+      expect(page).toEqual(mockActivityEventPage);
     });
 
     const req = httpTesting.expectOne(
-      `${environment.apiUrl}/api/v1/devices/hk-device-0001/events/falls?page=2&page_size=20`
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/events/activities?page=2&page_size=20`
     );
     expect(req.request.method).toBe('GET');
-    req.flush(mockFallEventPage);
+    req.flush(mockActivityEventPage);
+  });
+
+  it('should delegate getFallHistory to /devices/{id}/events/activities for backward compatibility', () => {
+    service.getFallHistory('hk-device-0001', 1, 10).subscribe((page) => {
+      expect(page).toEqual(mockActivityEventPage);
+    });
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/events/activities?page=1&page_size=10`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockActivityEventPage);
   });
 
   it('should retrieve haptic history via GET /devices/{id}/haptic/history with pagination', () => {
