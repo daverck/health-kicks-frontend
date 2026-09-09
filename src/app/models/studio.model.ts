@@ -26,18 +26,18 @@ export const SELECTED_DEVICE_STORAGE_KEY = 'healthkicks_selected_device_id';
 
 export const PREDEFINED_LABELS: PredefinedLabel[] = [
   {
-    id: 'idle',
-    name: 'Immobile / Repos',
-    icon: '⏸️',
-    description: 'Capteur posé sur une table ou personne debout/assise sans bouger',
-    badgeColor: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200',
-  },
-  {
     id: 'walk',
     name: 'Marche',
     icon: '🚶',
     description: 'Pas réguliers sur sol plat',
     badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  },
+  {
+    id: 'idle',
+    name: 'Immobile / Repos',
+    icon: '⏸️',
+    description: 'Capteur posé sur une table ou personne debout/assise sans bouger',
+    badgeColor: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200',
   },
   {
     id: 'run',

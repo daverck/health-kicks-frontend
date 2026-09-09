@@ -76,6 +76,7 @@ export const mockStudioDatasetStats: StudioDatasetStats = {
   total_sessions: 80,
   by_label: {
     walk: 28,
+    idle: 0,
     run: 25,
     stairs: 12,
     stumble_recover: 8,
