@@ -161,7 +161,6 @@
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[210px]">{{ 'history.activity' | translate }}</th>
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[110px]">{{ 'history.confidence_col' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[100px]">Source</th>
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[230px]">{{ 'history.device' | translate }}</th>
             </tr>
             <!-- Row 2: Filters directly above corresponding columns -->
@@ -184,9 +183,6 @@
               <!-- Confidence: no filter -->
               <th scope="col" class="px-4 py-2"></th>
 
-              <!-- Source: no filter -->
-              <th scope="col" class="px-4 py-2"></th>
-
               <!-- Device Filter -->
               <th scope="col" class="px-4 py-2 text-left">
                 <app-device-select
@@ -203,13 +199,13 @@
           <tbody class="divide-y divide-gray-50">
             @if (events().length === 0) {
               <tr>
-                <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+                <td colspan="4" class="py-12 text-center text-sm text-gray-500">
                   {{ 'history.empty_activities' | translate }}
                 </td>
               </tr>
             } @else if (filteredEvents().length === 0) {
               <tr>
-                <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+                <td colspan="4" class="py-12 text-center text-sm text-gray-500">
                   {{ 'history.no_match' | translate }}
                 </td>
               </tr>
@@ -227,7 +223,6 @@
                   <td class="px-4 py-3 text-gray-600 font-medium">
                     @if (event.confidence_score != null) { {{ (event.confidence_score * 100).toFixed(0) }} % } @else { — }
                   </td>
-                  <td class="px-4 py-3 text-gray-600">{{ sourceOf(event) }}</td>
                   <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ event.device_id }}</td>
                 </tr>
               }
