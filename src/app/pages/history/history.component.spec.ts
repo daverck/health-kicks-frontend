@@ -150,14 +150,6 @@ describe('HistoryComponent', () => {
     expect(toastServiceSpy.error).toHaveBeenCalled();
   });
 
-  it('should format source correctly with sourceOf() fallback', () => {
-    const defaultEvent = mockActivityEvents[0];
-    expect(component.sourceOf(defaultEvent)).toBe('imu');
-
-    const customEvent = { ...defaultEvent, source: 'manual' };
-    expect(component.sourceOf(customEvent)).toBe('manual');
-  });
-
   it('should switch to haptic tab and load haptic vibration logs', () => {
     fixture.detectChanges();
 

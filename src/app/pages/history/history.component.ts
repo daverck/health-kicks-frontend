@@ -123,10 +123,6 @@ export class HistoryComponent implements OnInit {
     this.loadCurrentTab();
   }
 
-  sourceOf(event: ActivityEvent): string {
-    return (event as ActivityEvent & { source?: string }).source ?? 'imu';
-  }
-
   isFall(eventType: string): boolean {
     if (!eventType) return false;
     const lower = eventType.toLowerCase();
