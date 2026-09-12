@@ -43,7 +43,7 @@ describe('DashboardLayoutComponent', () => {
     expect(authServiceSpy.loadMe).toHaveBeenCalled();
   });
 
-  it('should render sticky desktop sidebar with flex layout and bottom logout button', () => {
+  it('should render sticky desktop sidebar with user profile link and bottom logout button', () => {
     const aside: HTMLElement = fixture.nativeElement.querySelector('aside');
     expect(aside).toBeTruthy();
     expect(aside.classList.contains('md:sticky')).toBeTrue();
@@ -52,7 +52,13 @@ describe('DashboardLayoutComponent', () => {
     expect(aside.classList.contains('md:flex-col')).toBeTrue();
     expect(aside.classList.contains('md:justify-between')).toBeTrue();
 
-    const logoutBtn: HTMLButtonElement | null = aside.querySelector('button');
+    // Profile link shows user name
+    const profileLink: HTMLAnchorElement | null = aside.querySelector('[data-testid="sidebar-profile-link"]');
+    expect(profileLink).toBeTruthy();
+    expect(profileLink?.textContent).toContain('Jane Doe');
+
+    // Logout button is present at bottom
+    const logoutBtn: HTMLButtonElement | null = aside.querySelector('[data-testid="sidebar-logout"]');
     expect(logoutBtn).toBeTruthy();
     expect(logoutBtn?.textContent).toContain('Déconnexion');
 
@@ -60,12 +66,15 @@ describe('DashboardLayoutComponent', () => {
     expect(authServiceSpy.logout).toHaveBeenCalled();
   });
 
-  it('should render sticky topbar with user details and mobile hamburger button', () => {
+  it('should render mobile-only topbar with hamburger button (no topbar on desktop)', () => {
     const header: HTMLElement = fixture.nativeElement.querySelector('header');
     expect(header).toBeTruthy();
     expect(header.classList.contains('sticky')).toBeTrue();
     expect(header.classList.contains('top-0')).toBeTrue();
-    expect(header.textContent).toContain('Jane Doe');
+    // Header is mobile-only (md:hidden)
+    expect(header.classList.contains('md:hidden')).toBeTrue();
+    // User name is NOT in the mobile header anymore
+    expect(header.textContent).not.toContain('Jane Doe');
 
     const hamburgerBtn: HTMLButtonElement | null = header.querySelector('[data-testid="mobile-menu-toggle"]');
     expect(hamburgerBtn).toBeTruthy();
@@ -92,6 +101,15 @@ describe('DashboardLayoutComponent', () => {
     closeBtn?.click();
     fixture.detectChanges();
     expect(component.isMobileMenuOpen()).toBeFalse();
+  });
+
+  it('should render clickable profile link in mobile drawer', () => {
+    component.isMobileMenuOpen.set(true);
+    fixture.detectChanges();
+
+    const mobileProfileLink: HTMLAnchorElement | null = fixture.nativeElement.querySelector('[data-testid="mobile-profile-link"]');
+    expect(mobileProfileLink).toBeTruthy();
+    expect(mobileProfileLink?.textContent).toContain('Jane Doe');
   });
 
   it('should allow logout from mobile drawer and close menu', () => {
