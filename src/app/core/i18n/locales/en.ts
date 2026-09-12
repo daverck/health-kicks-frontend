@@ -156,7 +156,8 @@ export const en = {
   devices: {
     title: 'Device Management',
     subtitle: 'Pair your connected devices and manage their connection status.',
-    pair_btn: '+ Pair Device',
+    pair_btn: 'Pair Device',
+    pair_card_hint: 'Connect a new HealthKicks clip',
     vibration_control: 'Vibration Control',
     loading: 'Loading devices…',
     empty_title: 'No devices paired',

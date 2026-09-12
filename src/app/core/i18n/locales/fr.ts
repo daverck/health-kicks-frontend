@@ -156,7 +156,8 @@ export const fr = {
   devices: {
     title: 'Gestion des équipements',
     subtitle: 'Associez vos équipements connectés et gérez leur statut de liaison.',
-    pair_btn: '+ Associer un équipement',
+    pair_btn: 'Associer un équipement',
+    pair_card_hint: 'Connecter un nouveau clip HealthKicks',
     vibration_control: 'Contrôle vibrations',
     loading: 'Chargement des équipements…',
     empty_title: 'Aucun équipement associé',

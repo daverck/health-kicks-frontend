@@ -156,7 +156,8 @@ export const nl = {
   devices: {
     title: 'Apparaatbeheer',
     subtitle: 'Koppel uw apparaten en beheer hun verbindingsstatus.',
-    pair_btn: '+ Apparaat koppelen',
+    pair_btn: 'Apparaat koppelen',
+    pair_card_hint: 'Nieuwe HealthKicks-clip koppelen',
     vibration_control: 'Trillingscontrole',
     loading: 'Apparaten laden…',
     empty_title: 'Geen gekoppelde apparaten',

@@ -156,7 +156,8 @@ export const de = {
   devices: {
     title: 'Geräteverwaltung',
     subtitle: 'Koppeln Sie Ihre Geräte und verwalten Sie deren Verbindungsstatus.',
-    pair_btn: '+ Gerät verbinden',
+    pair_btn: 'Gerät verbinden',
+    pair_card_hint: 'Neuen HealthKicks-Clip verbinden',
     vibration_control: 'Vibrationssteuerung',
     loading: 'Geräte laden…',
     empty_title: 'Keine Geräte gekoppelt',

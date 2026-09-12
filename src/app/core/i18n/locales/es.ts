@@ -156,7 +156,8 @@ export const es = {
   devices: {
     title: 'Gestión de Dispositivos',
     subtitle: 'Vincule sus dispositivos y consulte su estado de conexión.',
-    pair_btn: '+ Vincular dispositivo',
+    pair_btn: 'Vincular dispositivo',
+    pair_card_hint: 'Conectar un nuevo clip HealthKicks',
     vibration_control: 'Control de vibración',
     loading: 'Cargando dispositivos…',
     empty_title: 'Sin dispositivos vinculados',

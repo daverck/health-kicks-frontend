@@ -156,7 +156,8 @@ export const zh = {
   devices: {
     title: '设备管理',
     subtitle: '绑定您的智能设备并查看其在线通信状态。',
-    pair_btn: '+ 绑定智能设备',
+    pair_btn: '绑定智能设备',
+    pair_card_hint: '连接新的 HealthKicks 设备',
     vibration_control: '振动控制',
     loading: '正在加载设备…',
     empty_title: '暂未绑定任何设备',

@@ -156,7 +156,8 @@ export const ar = {
   devices: {
     title: 'إدارة الأجهزة',
     subtitle: 'اربط أجهزتك الذكية وتحقق من حالة الاتصال.',
-    pair_btn: '+ ربط جهاز جديد',
+    pair_btn: 'ربط جهاز جديد',
+    pair_card_hint: 'ربط جهاز HealthKicks جديد',
     vibration_control: 'التحكم بالاهتزاز',
     loading: 'جار تحميل الأجهزة…',
     empty_title: 'لا توجد أجهزة مرتبطة',
