@@ -68,6 +68,18 @@ describe('DevicesComponent', () => {
     expect(toastServiceSpy.error).toHaveBeenCalled();
   });
 
+  it('should render add-device card in grid and open modal when clicked', () => {
+    fixture.detectChanges();
+    const addCard: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="add-device-card"]');
+    expect(addCard).toBeTruthy();
+    expect(addCard?.textContent).toContain('Associer un équipement');
+    expect(component.showAddModal()).toBeFalse();
+
+    addCard?.click();
+    fixture.detectChanges();
+    expect(component.showAddModal()).toBeTrue();
+  });
+
   it('should open and close the add device modal', () => {
     fixture.detectChanges();
     expect(component.showAddModal()).toBeFalse();
