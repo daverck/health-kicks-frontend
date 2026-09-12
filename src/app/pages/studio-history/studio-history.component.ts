@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  HostListener,
   inject,
   signal,
   computed,
@@ -87,6 +88,22 @@ export class StudioHistoryComponent implements OnInit {
   readonly activeReadings = signal<ImuReading[]>([]);
   readonly isLoadingReadings = signal<boolean>(false);
   readonly readingsError = signal<string | null>(null);
+
+  readonly currentSessionIndex = computed<number>(() => {
+    const current = this.inspectingSession();
+    if (!current) return -1;
+    return this.sessions().findIndex((s) => s.id === current.id);
+  });
+
+  readonly hasPreviousSession = computed<boolean>(() => {
+    return this.currentSessionIndex() > 0;
+  });
+
+  readonly hasNextSession = computed<boolean>(() => {
+    const idx = this.currentSessionIndex();
+    const list = this.sessions();
+    return idx >= 0 && idx < list.length - 1;
+  });
 
   // Curation State inside Drawer
   readonly editLabelValue = signal<string>('');
@@ -189,6 +206,30 @@ export class StudioHistoryComponent implements OnInit {
     this.activeReadings.set([]);
     this.readingsError.set(null);
     this.showDeleteConfirm.set(false);
+  }
+
+  goToPreviousSession(): void {
+    const idx = this.currentSessionIndex();
+    if (idx > 0) {
+      const prev = this.sessions()[idx - 1];
+      this.openInspection(prev);
+    }
+  }
+
+  goToNextSession(): void {
+    const idx = this.currentSessionIndex();
+    const list = this.sessions();
+    if (idx >= 0 && idx < list.length - 1) {
+      const next = this.sessions()[idx + 1];
+      this.openInspection(next);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.inspectingSession()) {
+      this.closeInspection();
+    }
   }
 
   loadReadings(sessionId: string): void {

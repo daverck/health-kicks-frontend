@@ -209,6 +209,60 @@ describe('StudioHistoryComponent', () => {
     expect(compiled.querySelector('#inspection-drawer')).toBeNull();
   });
 
+  it('should navigate between previous and next sessions in inspection drawer', () => {
+    fixture.detectChanges();
+
+    // Open first session (sess-001)
+    component.openInspection(mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    expect(component.currentSessionIndex()).toBe(0);
+    expect(component.hasPreviousSession()).toBeFalse();
+    expect(component.hasNextSession()).toBeTrue();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const prevBtn: HTMLButtonElement | null = compiled.querySelector('[data-testid="prev-session-btn"]');
+    const nextBtn: HTMLButtonElement | null = compiled.querySelector('[data-testid="next-session-btn"]');
+
+    expect(prevBtn).toBeTruthy();
+    expect(nextBtn).toBeTruthy();
+    expect(prevBtn?.disabled).toBeTrue();
+    expect(nextBtn?.disabled).toBeFalse();
+
+    // Click Next -> should inspect sess-002
+    nextBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.inspectingSession()?.id).toBe('sess-002');
+    expect(component.currentSessionIndex()).toBe(1);
+    expect(component.hasPreviousSession()).toBeTrue();
+    expect(component.hasNextSession()).toBeTrue();
+    expect(prevBtn?.disabled).toBeFalse();
+    expect(nextBtn?.disabled).toBeFalse();
+
+    // Click Next again -> should inspect sess-003
+    nextBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.inspectingSession()?.id).toBe('sess-003');
+    expect(component.currentSessionIndex()).toBe(2);
+    expect(component.hasPreviousSession()).toBeTrue();
+    expect(component.hasNextSession()).toBeFalse();
+    expect(nextBtn?.disabled).toBeTrue();
+
+    // Click Prev -> should navigate back to sess-002
+    prevBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.inspectingSession()?.id).toBe('sess-002');
+    expect(component.currentSessionIndex()).toBe(1);
+
+    // Escape closes drawer
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(component.inspectingSession()).toBeNull();
+  });
+
   it('should update session label and update session in local list', () => {
     fixture.detectChanges();
 
