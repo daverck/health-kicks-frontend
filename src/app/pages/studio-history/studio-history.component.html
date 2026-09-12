@@ -23,18 +23,13 @@
       <div class="flex flex-wrap items-center gap-3">
         <!-- Label Filter -->
         <div>
-          <label for="filter-label" class="sr-only">{{ 'studio_history.filter_label' | translate }}</label>
-          <select
-            id="filter-label"
-            [ngModel]="selectedLabel()"
-            (ngModelChange)="selectedLabel.set($event); onFilterChange()"
-            class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-          >
-            <option value="">{{ 'studio_history.filter_all_labels' | translate }}</option>
-            @for (l of predefinedLabels; track l.id) {
-              <option [value]="l.id">{{ l.icon }} {{ 'studio.labels.' + l.id | translate }}</option>
-            }
-          </select>
+          <label class="sr-only">{{ 'studio_history.filter_label' | translate }}</label>
+          <app-activity-select
+            triggerId="filter-label"
+            [(selectedActivity)]="selectedLabel"
+            (activityChange)="onFilterChange()"
+            size="sm"
+          />
         </div>
 
         <!-- Device Filter -->

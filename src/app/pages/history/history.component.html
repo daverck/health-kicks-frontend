@@ -34,14 +34,14 @@
       <!-- Activity type filter -->
       @if (activeTab() === 'activities') {
         <div class="flex items-center gap-2">
-          <label class="text-sm font-medium text-gray-700" for="activity-filter">{{ 'history.activity' | translate }} :</label>
-          <select id="activity-filter" class="input w-auto text-sm" (change)="onEventTypeChange($event)">
-            <option value="all">{{ 'history.filter_all' | translate }}</option>
-            <option value="falls">{{ 'history.filter_falls' | translate }}</option>
-            @for (label of predefinedLabels; track label.id) {
-              <option [value]="label.id">{{ label.icon }} {{ 'studio.labels.' + label.id | translate }}</option>
-            }
-          </select>
+          <label class="text-sm font-medium text-gray-700" for="activity-select-trigger">{{ 'history.activity' | translate }} :</label>
+          <app-activity-select
+            triggerId="activity-select-trigger"
+            [(selectedActivity)]="selectedEventType"
+            [includeFalls]="true"
+            allValue="all"
+            size="sm"
+          />
         </div>
       }
     </div>

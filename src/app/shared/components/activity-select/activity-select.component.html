@@ -1,0 +1,187 @@
+<div class="relative inline-block" [class.w-full]="fullWidth()" [class.block]="fullWidth()">
+  <!-- Select Trigger Button -->
+  <button
+    [id]="triggerId()"
+    type="button"
+    (click)="toggleDropdown()"
+    [disabled]="disabled()"
+    class="flex items-center justify-between gap-2.5 border border-gray-300 bg-white text-left shadow-sm transition hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed"
+    [class]="triggerSizeClasses()"
+    [class.w-full]="fullWidth()"
+    [class.min-w-44]="!fullWidth()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    data-testid="activity-select-trigger"
+  >
+    @if (isAllSelected()) {
+      <div class="flex items-center gap-2 truncate">
+        <span class="text-sm">🏃</span>
+        <span class="font-medium text-gray-900 truncate">
+          {{ allLabel() || ('studio_history.filter_all_labels' | translate) }}
+        </span>
+      </div>
+    } @else if (isFallsSelected()) {
+      <div class="flex items-center gap-2 truncate">
+        <span class="text-sm">🚨</span>
+        <span class="font-medium text-red-700 truncate">
+          {{ fallsLabel() || ('history.filter_falls' | translate) }}
+        </span>
+      </div>
+    } @else if (currentLabel()) {
+      <div class="flex items-center gap-2 truncate">
+        <span class="text-sm flex-shrink-0">{{ currentLabel()!.icon }}</span>
+        <span class="font-semibold text-gray-900 truncate">
+          {{ 'studio.labels.' + currentLabel()!.id | translate }}
+        </span>
+      </div>
+    } @else {
+      <!-- Custom label value or placeholder -->
+      <div class="flex items-center gap-2 truncate">
+        @if (selectedActivity()) {
+          <span class="text-sm">🏷️</span>
+          <span class="font-medium text-gray-900 truncate">{{ selectedActivity() }}</span>
+        } @else {
+          <span class="text-gray-400 truncate">
+            {{ placeholder() || ('studio_history.filter_all_labels' | translate) }}
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Chevron Icon -->
+    <svg
+      class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+      [class.rotate-180]="isOpen()"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+
+  <!-- Dropdown Menu with Search & Filter -->
+  @if (isOpen()) {
+    <!-- Backdrop to close on click outside -->
+    <div class="fixed inset-0 z-20" (click)="closeDropdown()" aria-hidden="true"></div>
+
+    <div
+      class="absolute left-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
+      [class.w-full]="fullWidth()"
+      [class.min-w-[240px]="!fullWidth()"
+      data-testid="activity-select-dropdown"
+    >
+      <!-- Search bar -->
+      <div class="border-b border-gray-100 p-2 bg-gray-50/75">
+        <div class="relative flex items-center">
+          <span class="pointer-events-none absolute left-3 text-xs text-gray-400">🔍</span>
+          <input
+            id="activity-search-field"
+            type="text"
+            [placeholder]="'common.search' | translate"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            class="w-full rounded-lg border border-gray-200 bg-white pl-8 pr-8 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            autofocus
+          />
+          @if (searchQuery()) {
+            <button
+              type="button"
+              (click)="searchQuery.set('')"
+              class="absolute right-2 text-xs text-gray-400 hover:text-gray-600 p-1"
+              [attr.aria-label]="'common.delete' | translate"
+            >
+              ✕
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- List of Activities -->
+      <div class="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
+        <!-- Optional "All activities" item -->
+        @if (allowAll() && !searchQuery()) {
+          <button
+            type="button"
+            (click)="selectAll()"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+            [class.bg-primary-50]="isAllSelected()"
+            [class.text-primary-900]="isAllSelected()"
+            data-testid="activity-option-all"
+          >
+            <div class="flex items-center gap-2 truncate pr-2">
+              <span class="text-sm">🏃</span>
+              <span class="font-medium text-gray-900 truncate">
+                {{ allLabel() || ('studio_history.filter_all_labels' | translate) }}
+              </span>
+            </div>
+            @if (isAllSelected()) {
+              <span class="text-primary-600 font-bold text-sm">✓</span>
+            }
+          </button>
+        }
+
+        <!-- Optional "Falls only" item -->
+        @if (includeFalls() && (!searchQuery() || 'chutes'.includes(searchQuery().toLowerCase()) || 'falls'.includes(searchQuery().toLowerCase()))) {
+          <button
+            type="button"
+            (click)="selectFalls()"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+            [class.bg-primary-50]="isFallsSelected()"
+            [class.text-primary-900]="isFallsSelected()"
+            data-testid="activity-option-falls"
+          >
+            <div class="flex items-center gap-2 truncate pr-2">
+              <span class="text-sm">🚨</span>
+              <span class="font-medium text-red-700 truncate">
+                {{ fallsLabel() || ('history.filter_falls' | translate) }}
+              </span>
+            </div>
+            @if (isFallsSelected()) {
+              <span class="text-primary-600 font-bold text-sm">✓</span>
+            }
+          </button>
+        }
+
+        @if (filteredLabels().length === 0 && searchQuery()) {
+          <div class="p-4 text-center text-xs text-gray-500">
+            {{ 'dashboard.no_device_found' | translate }}
+          </div>
+        } @else {
+          @for (label of filteredLabels(); track label.id) {
+            <button
+              type="button"
+              (click)="selectLabel(label)"
+              class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+              [class.bg-primary-50]="selectedActivity() === label.id"
+              [class.text-primary-900]="selectedActivity() === label.id"
+              [attr.data-testid]="'activity-option-' + label.id"
+            >
+              <div class="flex items-center gap-2.5 truncate pr-2">
+                <span class="text-sm flex-shrink-0">{{ label.icon }}</span>
+                <div class="truncate">
+                  <span class="font-medium text-gray-900 truncate">
+                    {{ 'studio.labels.' + label.id | translate }}
+                  </span>
+                  @if (label.description) {
+                    <p class="truncate text-[10px] text-gray-400">
+                      {{ 'studio.labels.' + label.id + '_desc' | translate }}
+                    </p>
+                  }
+                </div>
+              </div>
+
+              @if (selectedActivity() === label.id) {
+                <span class="text-primary-600 font-bold text-sm flex-shrink-0">✓</span>
+              }
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

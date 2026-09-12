@@ -25,6 +25,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { PREDEFINED_LABELS, PredefinedLabel } from '../studio/studio.component';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
+import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
 
 @Component({
   selector: 'app-studio-history',
@@ -36,6 +37,7 @@ import { DeviceSelectComponent } from '../../shared/components/device-select/dev
     TranslatePipe,
     ImuChartComponent,
     DeviceSelectComponent,
+    ActivitySelectComponent,
   ],
   templateUrl: './studio-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

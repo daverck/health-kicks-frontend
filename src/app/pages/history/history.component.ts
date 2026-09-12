@@ -7,11 +7,12 @@ import { intensityToLevel } from '../../core/utils/haptic.utils';
 import { PREDEFINED_LABELS } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
+import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, DeviceSelectComponent],
+  imports: [CommonModule, TranslatePipe, DeviceSelectComponent, ActivitySelectComponent],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
