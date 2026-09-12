@@ -24,10 +24,12 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../core/services/translation.service';
 
+import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
+
 @Component({
   selector: 'app-studio',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ImuChartComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, ImuChartComponent, TranslatePipe, DeviceSelectComponent],
   templateUrl: './studio.component.html',
 })
 export class StudioComponent implements OnInit, OnDestroy {

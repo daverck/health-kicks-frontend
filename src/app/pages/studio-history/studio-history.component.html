@@ -39,18 +39,14 @@
 
         <!-- Device Filter -->
         <div>
-          <label for="filter-device" class="sr-only">{{ 'studio_history.filter_device' | translate }}</label>
-          <select
-            id="filter-device"
-            [ngModel]="selectedDeviceId()"
-            (ngModelChange)="selectedDeviceId.set($event); onFilterChange()"
-            class="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-          >
-            <option value="">{{ 'studio_history.filter_all_devices' | translate }}</option>
-            @for (dev of devices(); track dev.device_id) {
-              <option [value]="dev.device_id">👟 {{ dev.name || dev.device_id }}</option>
-            }
-          </select>
+          <label class="sr-only">{{ 'studio_history.filter_device' | translate }}</label>
+          <app-device-select
+            [devices]="devices()"
+            [(selectedDeviceId)]="selectedDeviceId"
+            [allowAll]="true"
+            (deviceIdChange)="onFilterChange()"
+            size="sm"
+          />
         </div>
 
         <!-- Admin Only: User ID Filter -->

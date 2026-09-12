@@ -38,102 +38,15 @@
             class="relative"
             [attr.title]="state() !== 'idle' ? ('studio.locked_tooltip' | translate) : null"
           >
-            <!-- Dropdown Trigger Button -->
-            <button
-              id="device-select-btn"
-              type="button"
-              (click)="toggleDeviceDropdown()"
+            <app-device-select
+              triggerId="device-select-btn"
+              [devices]="devices()"
+              [(selectedDeviceId)]="selectedDeviceId"
+              (deviceIdChange)="onDeviceSelect($event)"
+              [onlyOnline]="true"
               [disabled]="state() !== 'idle'"
-              class="flex items-center justify-between gap-3 min-w-[260px] rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-sm transition hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-            >
-              <div class="flex items-center gap-2 truncate">
-                <span class="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
-                <span class="truncate">
-                  {{ selectedDevice()?.name || selectedDeviceId() || ('studio.select_insole' | translate) }}
-                </span>
-              </div>
-              <svg
-                class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
-                [class.rotate-180]="isDeviceDropdownOpen()"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </button>
-
-            <!-- Dropdown Menu with Search & Filter -->
-            @if (isDeviceDropdownOpen()) {
-              <!-- Backdrop to close on click outside -->
-              <div class="fixed inset-0 z-20" (click)="closeDeviceDropdown()"></div>
-
-              <div
-                class="absolute left-0 top-full z-30 mt-1.5 w-72 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
-              >
-                <!-- Search Filter Input inside Dropdown -->
-                <div class="border-b border-gray-100 p-2 bg-gray-50/50">
-                  <div class="relative flex items-center">
-                    <span class="pointer-events-none absolute left-2.5 text-xs text-gray-400">🔍</span>
-                    <input
-                      id="device-search-input"
-                      type="text"
-                      [placeholder]="'studio.filter_placeholder' | translate"
-                      [ngModel]="deviceSearchQuery()"
-                      (ngModelChange)="deviceSearchQuery.set($event)"
-                      class="w-full rounded-md border border-gray-200 bg-white pl-8 pr-7 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                      autofocus
-                    />
-                    @if (deviceSearchQuery()) {
-                      <button
-                        type="button"
-                        (click)="deviceSearchQuery.set('')"
-                        class="absolute right-2 text-xs text-gray-400 hover:text-gray-600"
-                      >
-                        ✕
-                      </button>
-                    }
-                  </div>
-                </div>
-
-                <!-- Online Devices List -->
-                <div class="max-h-56 overflow-y-auto p-1.5">
-                  <div class="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-                    {{ 'studio.online_count' | translate:{ count: filteredOnlineDevices().length } }}
-                  </div>
-                  @if (filteredOnlineDevices().length === 0) {
-                    <div class="p-4 text-center text-xs text-gray-500">
-                      {{ 'studio.no_match' | translate }}
-                    </div>
-                  } @else {
-                    @for (dev of filteredOnlineDevices(); track dev.device_id) {
-                      <button
-                        type="button"
-                        (click)="selectDevice(dev.device_id)"
-                        class="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition hover:bg-primary-50"
-                        [class.bg-primary-50]="dev.device_id === selectedDeviceId()"
-                        [class.font-semibold]="dev.device_id === selectedDeviceId()"
-                      >
-                        <div class="flex items-center gap-2 truncate pr-2">
-                          <span class="h-2 w-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
-                          <span class="truncate text-gray-900">{{ dev.name || dev.device_id }}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5 flex-shrink-0">
-                          <span class="font-mono text-[10px] text-gray-400">{{ dev.device_id }}</span>
-                          @if (dev.device_id === selectedDeviceId()) {
-                            <span class="text-xs text-primary-600 font-bold">✓</span>
-                          }
-                        </div>
-                      </button>
-                    }
-                  }
-                </div>
-              </div>
-            }
+              size="sm"
+            />
           </div>
         }
       </div>

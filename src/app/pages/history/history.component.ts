@@ -6,11 +6,12 @@ import { DeviceResponse, ActivityEvent, HapticLogItem } from '../../models/api.m
 import { intensityToLevel } from '../../core/utils/haptic.utils';
 import { PREDEFINED_LABELS } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, DeviceSelectComponent],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
@@ -95,11 +96,16 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  onDeviceChange(ev: Event): void {
-    this.selectedDeviceId.set((ev.target as HTMLSelectElement).value);
+  onDeviceSelected(deviceId: string): void {
+    this.selectedDeviceId.set(deviceId);
     this.page.set(1);
     this.hapticPage.set(1);
     this.loadCurrentTab();
+  }
+
+  onDeviceChange(ev: Event | string): void {
+    const value = typeof ev === 'string' ? ev : (ev.target as HTMLSelectElement).value;
+    this.onDeviceSelected(value);
   }
 
   goToPage(p: number): void {

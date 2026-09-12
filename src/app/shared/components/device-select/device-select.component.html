@@ -1,0 +1,233 @@
+<div class="relative inline-block" [class.w-full]="fullWidth()" [class.block]="fullWidth()">
+  <!-- Select Trigger Button -->
+  <button
+    [id]="triggerId()"
+    type="button"
+    (click)="toggleDropdown()"
+    [disabled]="disabled()"
+    class="flex items-center justify-between gap-3 border border-gray-300 bg-white text-left shadow-sm transition hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed"
+    [class]="triggerSizeClasses()"
+    [class.w-full]="fullWidth()"
+    [class.min-w-56]="!fullWidth()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    data-testid="device-select-trigger"
+  >
+    @if (isAllSelected()) {
+      <div class="flex items-center gap-2 truncate">
+        <span class="text-sm">👟</span>
+        <span class="font-medium text-gray-900 truncate">
+          {{ allLabel() || ('studio_history.filter_all_devices' | translate) }}
+        </span>
+      </div>
+      <svg
+        class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+        [class.rotate-180]="isOpen()"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    } @else {
+      @if (currentDevice(); as device) {
+        <div class="flex items-center gap-2.5 truncate">
+          <span
+            class="rounded-full flex-shrink-0"
+            [class.h-2]="size() === 'sm'"
+            [class.w-2]="size() === 'sm'"
+            [class.h-2.5]="size() === 'md'"
+            [class.w-2.5]="size() === 'md'"
+            [class.bg-emerald-500]="device.status === 'online'"
+            [class.bg-gray-400]="device.status !== 'online'"
+          ></span>
+          <div class="truncate">
+            <span class="font-semibold text-gray-900 truncate">
+              {{ device.name || device.device_id }}
+            </span>
+            <span class="font-mono text-gray-400 ml-1.5" [class.text-[10px]="size() === 'sm'" [class.text-xs]="size() === 'md'">
+              ({{ device.device_id }})
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <!-- Status pill badge -->
+          <span
+            class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold text-[10px]"
+            [class.bg-green-100]="device.status === 'online'"
+            [class.text-green-700]="device.status === 'online'"
+            [class.bg-gray-100]="device.status !== 'online'"
+            [class.text-gray-600]="device.status !== 'online'"
+          >
+            <span
+              class="h-1.5 w-1.5 rounded-full"
+              [class.bg-green-500]="device.status === 'online'"
+              [class.bg-gray-400]="device.status !== 'online'"
+            ></span>
+            {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
+          </span>
+
+          <svg
+            class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+            [class.rotate-180]="isOpen()"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+      } @else {
+        <span class="text-gray-400 truncate">
+          {{ placeholder() || ('dashboard.select_device_placeholder' | translate) }}
+        </span>
+        <svg
+          class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+          [class.rotate-180]="isOpen()"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      }
+    }
+  </button>
+
+  <!-- Dropdown Menu with Search & Filter -->
+  @if (isOpen()) {
+    <!-- Backdrop to close on click outside -->
+    <div class="fixed inset-0 z-20" (click)="closeDropdown()" aria-hidden="true"></div>
+
+    <div
+      class="absolute left-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
+      [class.w-full]="fullWidth()"
+      [class.min-w-[280px]="!fullWidth()"
+      data-testid="device-select-dropdown"
+    >
+      <!-- Search bar -->
+      <div class="border-b border-gray-100 p-2 bg-gray-50/75">
+        <div class="relative flex items-center">
+          <span class="pointer-events-none absolute left-3 text-xs text-gray-400">🔍</span>
+          <input
+            id="device-search-field"
+            type="text"
+            [placeholder]="'dashboard.search_device_placeholder' | translate"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            class="w-full rounded-lg border border-gray-200 bg-white pl-8 pr-8 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            autofocus
+          />
+          @if (searchQuery()) {
+            <button
+              type="button"
+              (click)="searchQuery.set('')"
+              class="absolute right-2 text-xs text-gray-400 hover:text-gray-600 p-1"
+              [attr.aria-label]="'common.delete' | translate"
+            >
+              ✕
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- List of Devices -->
+      <div class="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
+        <!-- Optional "All devices" item -->
+        @if (allowAll()) {
+          <button
+            type="button"
+            (click)="selectAll()"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+            [class.bg-primary-50]="isAllSelected()"
+            [class.text-primary-900]="isAllSelected()"
+            data-testid="device-option-all"
+          >
+            <div class="flex items-center gap-2 truncate pr-2">
+              <span class="text-sm">👟</span>
+              <span class="font-medium text-gray-900 truncate">
+                {{ allLabel() || ('studio_history.filter_all_devices' | translate) }}
+              </span>
+            </div>
+            @if (isAllSelected()) {
+              <span class="text-primary-600 font-bold text-sm">✓</span>
+            }
+          </button>
+        }
+
+        @if (onlyOnline() && availableDevices().length === 0) {
+          <div class="p-4 text-center text-xs text-amber-700">
+            <span class="font-medium">{{ 'studio.no_online_devices' | translate }}</span>
+          </div>
+        } @else if (filteredDevices().length === 0) {
+          <div class="p-4 text-center text-xs text-gray-500">
+            {{ 'dashboard.no_device_found' | translate }}
+          </div>
+        } @else {
+          @for (device of filteredDevices(); track device.device_id) {
+            <button
+              type="button"
+              (click)="selectDevice(device)"
+              class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+              [class.bg-primary-50]="currentDevice()?.device_id === device.device_id"
+              [class.text-primary-900]="currentDevice()?.device_id === device.device_id"
+              [attr.data-testid]="'device-option-' + device.device_id"
+            >
+              <div class="flex items-center gap-2.5 truncate pr-2">
+                <span
+                  class="h-2 w-2 rounded-full flex-shrink-0"
+                  [class.bg-emerald-500]="device.status === 'online'"
+                  [class.bg-gray-400]="device.status !== 'online'"
+                ></span>
+                <div class="truncate">
+                  <span class="font-medium text-gray-900 truncate">
+                    {{ device.name || device.device_id }}
+                  </span>
+                  <span class="font-mono text-[10px] text-gray-400 ml-1.5">
+                    {{ device.device_id }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <!-- Status pill badge -->
+                <span
+                  class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                  [class.bg-green-100]="device.status === 'online'"
+                  [class.text-green-700]="device.status === 'online'"
+                  [class.bg-gray-100]="device.status !== 'online'"
+                  [class.text-gray-600]="device.status !== 'online'"
+                >
+                  <span
+                    class="h-1.5 w-1.5 rounded-full"
+                    [class.bg-green-500]="device.status === 'online'"
+                    [class.bg-gray-400]="device.status !== 'online'"
+                  ></span>
+                  {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
+                </span>
+
+                @if (currentDevice()?.device_id === device.device_id) {
+                  <span class="text-primary-600 font-bold text-sm">✓</span>
+                }
+              </div>
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
+

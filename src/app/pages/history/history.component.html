@@ -22,14 +22,13 @@
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div class="flex flex-wrap items-center gap-4">
       <div class="flex items-center gap-2">
-        <label class="text-sm font-medium text-gray-700" for="device">{{ 'history.device' | translate }} :</label>
-        <select id="device" class="input w-auto text-sm" (change)="onDeviceChange($event)">
-          @for (device of devices(); track device.device_id) {
-            <option [value]="device.device_id" [selected]="device.device_id === selectedDeviceId()">
-              {{ device.name || device.device_id }}
-            </option>
-          }
-        </select>
+        <label class="text-sm font-medium text-gray-700" for="device-select-trigger">{{ 'history.device' | translate }} :</label>
+        <app-device-select
+          [devices]="devices()"
+          [(selectedDeviceId)]="selectedDeviceId"
+          (deviceIdChange)="onDeviceSelected($event)"
+          size="sm"
+        />
       </div>
 
       <!-- Activity type filter -->
