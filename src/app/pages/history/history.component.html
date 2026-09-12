@@ -71,28 +71,30 @@
       </button>
     </div>
 
-    <!-- Filtres : Équipement & Activité -->
-    <div class="flex flex-wrap items-center gap-4">
-      <div class="flex items-center gap-2">
-        <label class="text-sm font-medium text-gray-700" for="device-select-trigger">{{ 'history.device' | translate }} :</label>
+    <!-- Mobile-only filters (sur desktop, les sélections se font directement dans le header du tableau) -->
+    <div class="flex flex-wrap items-center gap-3 md:hidden w-full sm:w-auto">
+      <div class="flex items-center gap-2 w-full">
+        <label class="text-xs font-medium text-gray-700 shrink-0" for="device-select-trigger-mobile">{{ 'history.device' | translate }} :</label>
         <app-device-select
+          triggerId="device-select-trigger-mobile"
           [devices]="devices()"
           [(selectedDeviceId)]="selectedDeviceId"
           (deviceIdChange)="onDeviceSelected($event)"
           size="sm"
+          [fullWidth]="true"
         />
       </div>
 
-      <!-- Activity type filter -->
       @if (activeTab() === 'activities') {
-        <div class="flex items-center gap-2">
-          <label class="text-sm font-medium text-gray-700" for="activity-select-trigger">{{ 'history.activity' | translate }} :</label>
+        <div class="flex items-center gap-2 w-full">
+          <label class="text-xs font-medium text-gray-700 shrink-0" for="activity-select-trigger-mobile">{{ 'history.activity' | translate }} :</label>
           <app-activity-select
-            triggerId="activity-select-trigger"
+            triggerId="activity-select-trigger-mobile"
             [(selectedActivity)]="selectedEventType"
             [includeFalls]="true"
             allValue="all"
             size="sm"
+            [fullWidth]="true"
           />
         </div>
       }
@@ -114,17 +116,13 @@
 
     <!-- TAB 1: ACTIVITIES -->
     @if (activeTab() === 'activities') {
-      @if (events().length === 0) {
-        <div class="card py-12 text-center">
-          <p class="text-sm text-gray-500">{{ 'history.empty_activities' | translate }}</p>
-        </div>
-      } @else if (filteredEvents().length === 0) {
-        <div class="card py-12 text-center">
-          <p class="text-sm text-gray-500">{{ 'history.no_match' | translate }}</p>
-        </div>
-      } @else {
-        <!-- Timeline (mobile) -->
-        <section class="card md:hidden">
+      <!-- Timeline (mobile) -->
+      <section class="card md:hidden">
+        @if (events().length === 0) {
+          <p class="py-8 text-center text-sm text-gray-500">{{ 'history.empty_activities' | translate }}</p>
+        } @else if (filteredEvents().length === 0) {
+          <p class="py-8 text-center text-sm text-gray-500">{{ 'history.no_match' | translate }}</p>
+        } @else {
           <ol class="relative space-y-6 border-l-2 border-gray-100 pl-6">
             @for (event of filteredEvents(); track event.id) {
               <li>
@@ -151,21 +149,71 @@
               </li>
             }
           </ol>
-        </section>
+        }
+      </section>
 
-        <!-- Table (desktop) -->
-        <section class="card hidden overflow-x-auto p-0 md:block">
-          <table class="min-w-full divide-y divide-gray-100 text-sm">
-            <thead class="bg-gray-50">
+      <!-- Table (desktop) -->
+      <section class="card hidden min-h-[380px] overflow-x-auto p-0 md:block">
+        <table class="min-w-full divide-y divide-gray-100 text-sm">
+          <thead class="bg-gray-50">
+            <!-- Row 1: Column Titles -->
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[210px]">{{ 'history.activity' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[110px]">{{ 'history.confidence_col' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[100px]">Source</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[230px]">{{ 'history.device' | translate }}</th>
+            </tr>
+            <!-- Row 2: Filters directly above corresponding columns -->
+            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal">
+              <!-- Timestamp: no filter yet -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Activity Filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <app-activity-select
+                  triggerId="activity-select-trigger"
+                  [(selectedActivity)]="selectedEventType"
+                  [includeFalls]="true"
+                  allValue="all"
+                  size="sm"
+                  [fullWidth]="true"
+                />
+              </th>
+
+              <!-- Confidence: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Source: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Device Filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <app-device-select
+                  triggerId="device-select-trigger"
+                  [devices]="devices()"
+                  [(selectedDeviceId)]="selectedDeviceId"
+                  (deviceIdChange)="onDeviceSelected($event)"
+                  size="sm"
+                  [fullWidth]="true"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            @if (events().length === 0) {
               <tr>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.timestamp' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.activity' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.confidence_col' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">Source</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">Device ID</th>
+                <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+                  {{ 'history.empty_activities' | translate }}
+                </td>
               </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
+            } @else if (filteredEvents().length === 0) {
+              <tr>
+                <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+                  {{ 'history.no_match' | translate }}
+                </td>
+              </tr>
+            } @else {
               @for (event of filteredEvents(); track event.id) {
                 <tr class="hover:bg-gray-50">
                   <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ event.timestamp_utc | date:'medium' }}</td>
@@ -183,28 +231,26 @@
                   <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ event.device_id }}</td>
                 </tr>
               }
-            </tbody>
-          </table>
-        </section>
+            }
+          </tbody>
+        </table>
+      </section>
 
-        <!-- Pagination -->
-        <div class="flex items-center justify-between">
-          <button class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">← {{ 'common.back' | translate }}</button>
-          <span class="text-sm text-gray-600">Page {{ page() }}{{ totalPages() > 0 ? ' / ' + totalPages() : '' }}</span>
-          <button class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Suivant →</button>
-        </div>
-      }
+      <!-- Pagination -->
+      <div class="flex items-center justify-between">
+        <button class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">← {{ 'common.back' | translate }}</button>
+        <span class="text-sm text-gray-600">Page {{ page() }}{{ totalPages() > 0 ? ' / ' + totalPages() : '' }}</span>
+        <button class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Suivant →</button>
+      </div>
     }
 
     <!-- TAB 2: HAPTIC VIBRATIONS -->
     @if (activeTab() === 'haptic') {
-      @if (hapticLogs().length === 0) {
-        <div class="card py-12 text-center">
-          <p class="text-sm text-gray-500">{{ 'history.empty_haptics' | translate }}</p>
-        </div>
-      } @else {
-        <!-- Mobile cards -->
-        <section class="card space-y-3 md:hidden">
+      <!-- Mobile cards -->
+      <section class="card space-y-3 md:hidden">
+        @if (hapticLogs().length === 0) {
+          <p class="py-8 text-center text-sm text-gray-500">{{ 'history.empty_haptics' | translate }}</p>
+        } @else {
           @for (log of hapticLogs(); track log.id) {
             <div class="border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
               <div class="flex items-center justify-between text-xs text-gray-500">
@@ -221,21 +267,52 @@
               </div>
             </div>
           }
-        </section>
+        }
+      </section>
 
-        <!-- Table (desktop) -->
-        <section class="card hidden overflow-x-auto p-0 md:block">
-          <table class="min-w-full divide-y divide-gray-100 text-sm">
-            <thead class="bg-gray-50">
+      <!-- Table (desktop) -->
+      <section class="card hidden min-h-[380px] overflow-x-auto p-0 md:block">
+        <table class="min-w-full divide-y divide-gray-100 text-sm">
+          <thead class="bg-gray-50">
+            <!-- Row 1: Column Titles -->
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[130px]">{{ 'history.intensity' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[110px]">{{ 'history.duration' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[130px]">Déclenché par</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[230px]">{{ 'history.device' | translate }}</th>
+            </tr>
+            <!-- Row 2: Filters directly above corresponding columns -->
+            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal">
+              <!-- Timestamp: no filter yet -->
+              <th scope="col" class="px-4 py-2"></th>
+              <!-- Intensity: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+              <!-- Duration: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+              <!-- Triggered by: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+              <!-- Device Filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <app-device-select
+                  triggerId="device-select-trigger-haptic"
+                  [devices]="devices()"
+                  [(selectedDeviceId)]="selectedDeviceId"
+                  (deviceIdChange)="onDeviceSelected($event)"
+                  size="sm"
+                  [fullWidth]="true"
+                />
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50">
+            @if (hapticLogs().length === 0) {
               <tr>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.timestamp' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.intensity' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">{{ 'history.duration' | translate }}</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">Déclenché par</th>
-                <th class="px-4 py-3 text-left font-semibold text-gray-700">Device ID</th>
+                <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+                  {{ 'history.empty_haptics' | translate }}
+                </td>
               </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
+            } @else {
               @for (log of hapticLogs(); track log.id) {
                 <tr class="hover:bg-gray-50">
                   <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ log.triggered_at_utc | date:'medium' }}</td>
@@ -256,17 +333,17 @@
                   <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ log.device_id }}</td>
                 </tr>
               }
-            </tbody>
-          </table>
-        </section>
+            }
+          </tbody>
+        </table>
+      </section>
 
-        <!-- Pagination -->
-        <div class="flex items-center justify-between">
-          <button class="btn-secondary" [disabled]="hapticPage() <= 1" (click)="goToPage(hapticPage() - 1)">← {{ 'common.back' | translate }}</button>
-          <span class="text-sm text-gray-600">Page {{ hapticPage() }}{{ hapticTotalPages() > 0 ? ' / ' + hapticTotalPages() : '' }}</span>
-          <button class="btn-secondary" [disabled]="hapticPage() >= hapticTotalPages()" (click)="goToPage(hapticPage() + 1)">Suivant →</button>
-        </div>
-      }
+      <!-- Pagination -->
+      <div class="flex items-center justify-between">
+        <button class="btn-secondary" [disabled]="hapticPage() <= 1" (click)="goToPage(hapticPage() - 1)">← {{ 'common.back' | translate }}</button>
+        <span class="text-sm text-gray-600">Page {{ hapticPage() }}{{ hapticTotalPages() > 0 ? ' / ' + hapticTotalPages() : '' }}</span>
+        <button class="btn-secondary" [disabled]="hapticPage() >= hapticTotalPages()" (click)="goToPage(hapticPage() + 1)">Suivant →</button>
+      </div>
     }
   }
 </div>
