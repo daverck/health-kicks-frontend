@@ -52,9 +52,9 @@ export class DashboardComponent implements OnInit {
     this.deviceSearchQuery.set('');
   }
 
-  readonly vibrationLevel = signal(5);
+  readonly vibrationLevel = signal(8);
   readonly intensity = computed(() => levelToIntensity(this.vibrationLevel()));
-  readonly durationMs = signal(500);
+  readonly durationMs = signal(1000);
   readonly triggering = signal(false);
   readonly vibrating = signal(false);
 

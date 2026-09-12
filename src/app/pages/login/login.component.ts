@@ -21,7 +21,7 @@ export class LoginComponent {
   readonly errorMessage = signal<string | null>(null);
 
   readonly returnUrl = computed(
-    () => this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard'
+    () => this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard/devices'
   );
 
   constructor() {

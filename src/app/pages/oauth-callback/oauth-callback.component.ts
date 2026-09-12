@@ -91,7 +91,7 @@ export class OAuthCallbackComponent implements OnInit {
       next: () => {
         this.loading.set(false);
         this.toast.success(`Connexion avec ${this.providerLabel} réussie !`);
-        this.router.navigateByUrl('/dashboard');
+        this.router.navigateByUrl('/dashboard/devices');
       },
       error: (err: any) => {
         this.loading.set(false);

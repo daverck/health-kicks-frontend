@@ -240,7 +240,7 @@ describe('AuthService', () => {
     expect(service.user()).toEqual(mockUser);
   });
 
-  it('should clear token and state on logout and redirect to login', () => {
+  it('should clear token and state on logout and redirect to landing page by default', () => {
     service.setSession(MOCK_TOKEN, mockUser);
     expect(service.isAuthenticated()).toBeTrue();
 
@@ -252,10 +252,10 @@ describe('AuthService', () => {
     expect(service.token()).toBeNull();
     expect(service.user()).toBeNull();
     expect(service.isAuthenticated()).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
-
-    service.logout('/');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+
+    service.logout('/login');
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
   });
 
   describe('Token management & Refresh', () => {

@@ -18,7 +18,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./layout/dashboard-layout/dashboard-layout.component').then((m) => m.DashboardLayoutComponent),
     children: [
-      { path: '', redirectTo: 'vibrations', pathMatch: 'full' },
+      { path: '', redirectTo: 'devices', pathMatch: 'full' },
       { path: 'vibrations', loadComponent: () => import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent) },
       { path: 'devices', loadComponent: () => import('./pages/devices/devices.component').then((m) => m.DevicesComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent) },

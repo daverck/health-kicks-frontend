@@ -174,8 +174,8 @@ describe('DashboardComponent', () => {
     component.triggerHaptic();
 
     expect(deviceServiceSpy.triggerHaptic).toHaveBeenCalledWith('hk-device-0001', {
-      intensity: 184,
-      duration_ms: 500,
+      intensity: 227,
+      duration_ms: 1000,
     });
     expect(component.triggering()).toBeFalse();
     expect(component.vibrating()).toBeTrue();

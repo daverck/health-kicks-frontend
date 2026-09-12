@@ -169,7 +169,7 @@ export class AuthService {
     this.userSignal.set(null);
   }
 
-  logout(redirectTo = '/login'): void {
+  logout(redirectTo = '/'): void {
     this.clearSession();
     this.router.navigate([redirectTo]);
   }

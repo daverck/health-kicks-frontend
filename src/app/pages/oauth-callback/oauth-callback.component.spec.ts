@@ -113,7 +113,7 @@ describe('OAuthCallbackComponent', () => {
       expect(authServiceSpy.validateOAuthState).toHaveBeenCalledWith('google', 'valid-state');
       expect(authServiceSpy.handleOAuthCallback).toHaveBeenCalledWith('google', 'valid-code', 'valid-state');
       expect(toastServiceSpy.success).toHaveBeenCalledWith('Connexion avec Google réussie !');
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard/devices');
       expect(component.error()).toBeNull();
     });
 
@@ -158,7 +158,7 @@ describe('OAuthCallbackComponent', () => {
       expect(authServiceSpy.validateOAuthState).toHaveBeenCalledWith('azure', 'azure-state');
       expect(authServiceSpy.handleOAuthCallback).toHaveBeenCalledWith('azure', 'azure-code', 'azure-state');
       expect(toastServiceSpy.success).toHaveBeenCalledWith('Connexion avec Microsoft réussie !');
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard/devices');
       expect(component.error()).toBeNull();
     });
   });
