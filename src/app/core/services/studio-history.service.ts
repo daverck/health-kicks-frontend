@@ -38,6 +38,12 @@ export class StudioHistoryService {
       if (params.user_id !== undefined && params.user_id !== null) {
         httpParams = httpParams.set('user_id', params.user_id.toString());
       }
+      if (params.start_date && params.start_date.trim()) {
+        httpParams = httpParams.set('start_date', params.start_date.trim());
+      }
+      if (params.end_date && params.end_date.trim()) {
+        httpParams = httpParams.set('end_date', params.end_date.trim());
+      }
     }
 
     return this.http.get<PaginatedSessionsResponse>(this.base, { params: httpParams });

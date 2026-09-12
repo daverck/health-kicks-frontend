@@ -72,8 +72,17 @@
           </tr>
           <!-- Row 2: Filters directly above corresponding columns -->
           <tr class="border-t border-gray-200 bg-gray-50/70 font-normal normal-case">
-            <!-- Datetime: no filter yet -->
-            <th scope="col" class="px-4 py-2"></th>
+            <!-- Datetime: Date Filter -->
+            <th scope="col" class="px-4 py-2">
+              <app-date-filter
+                triggerId="filter-date"
+                [(startDate)]="startDate"
+                [(endDate)]="endDate"
+                (dateChange)="onFilterChange()"
+                size="sm"
+                [fullWidth]="true"
+              />
+            </th>
 
             <!-- Device Filter -->
             <th scope="col" class="px-4 py-2">

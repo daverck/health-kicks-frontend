@@ -85,12 +85,37 @@
         />
       </div>
 
+      <!-- Date Filter (mobile) -->
+      <div class="flex items-center gap-2 w-full">
+        <label class="text-xs font-medium text-gray-700 shrink-0">Date :</label>
+        @if (activeTab() === 'activities') {
+          <app-date-filter
+            triggerId="activity-date-filter-mobile"
+            [(startDate)]="startDate"
+            [(endDate)]="endDate"
+            (dateChange)="onDateChange($event)"
+            size="sm"
+            [fullWidth]="true"
+          />
+        } @else {
+          <app-date-filter
+            triggerId="haptic-date-filter-mobile"
+            [(startDate)]="hapticStartDate"
+            [(endDate)]="hapticEndDate"
+            (dateChange)="onHapticDateChange($event)"
+            size="sm"
+            [fullWidth]="true"
+          />
+        }
+      </div>
+
       @if (activeTab() === 'activities') {
         <div class="flex items-center gap-2 w-full">
           <label class="text-xs font-medium text-gray-700 shrink-0" for="activity-select-trigger-mobile">{{ 'history.activity' | translate }} :</label>
           <app-activity-select
             triggerId="activity-select-trigger-mobile"
             [(selectedActivity)]="selectedEventType"
+            (activityChange)="onEventTypeChange($event)"
             [includeFalls]="true"
             allValue="all"
             size="sm"
@@ -165,14 +190,24 @@
             </tr>
             <!-- Row 2: Filters directly above corresponding columns -->
             <tr class="border-t border-gray-200 bg-gray-50/70 font-normal">
-              <!-- Timestamp: no filter yet -->
-              <th scope="col" class="px-4 py-2"></th>
+              <!-- Timestamp: Date filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <app-date-filter
+                  triggerId="activity-date-filter-trigger"
+                  [(startDate)]="startDate"
+                  [(endDate)]="endDate"
+                  (dateChange)="onDateChange($event)"
+                  size="sm"
+                  [fullWidth]="true"
+                />
+              </th>
 
               <!-- Activity Filter -->
               <th scope="col" class="px-4 py-2 text-left">
                 <app-activity-select
                   triggerId="activity-select-trigger"
                   [(selectedActivity)]="selectedEventType"
+                  (activityChange)="onEventTypeChange($event)"
                   [includeFalls]="true"
                   allValue="all"
                   size="sm"
@@ -279,8 +314,17 @@
             </tr>
             <!-- Row 2: Filters directly above corresponding columns -->
             <tr class="border-t border-gray-200 bg-gray-50/70 font-normal">
-              <!-- Timestamp: no filter yet -->
-              <th scope="col" class="px-4 py-2"></th>
+              <!-- Timestamp: Date filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <app-date-filter
+                  triggerId="haptic-date-filter-trigger"
+                  [(startDate)]="hapticStartDate"
+                  [(endDate)]="hapticEndDate"
+                  (dateChange)="onHapticDateChange($event)"
+                  size="sm"
+                  [fullWidth]="true"
+                />
+              </th>
               <!-- Intensity: no filter -->
               <th scope="col" class="px-4 py-2"></th>
               <!-- Duration: no filter -->

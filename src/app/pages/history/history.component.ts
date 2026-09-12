@@ -8,11 +8,18 @@ import { PREDEFINED_LABELS } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
+import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, DeviceSelectComponent, ActivitySelectComponent],
+  imports: [
+    CommonModule,
+    TranslatePipe,
+    DeviceSelectComponent,
+    ActivitySelectComponent,
+    DateFilterComponent,
+  ],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
@@ -29,26 +36,20 @@ export class HistoryComponent implements OnInit {
   // Activities history
   readonly events = signal<ActivityEvent[]>([]);
   readonly selectedEventType = signal<string>('all');
+  readonly startDate = signal<string>('');
+  readonly endDate = signal<string>('');
   readonly page = signal(1);
   readonly pageSize = 20;
   readonly total = signal<number | null>(null);
   readonly totalPages = signal(0);
 
-  // Filtered activities displayed in current page
-  readonly filteredEvents = computed<ActivityEvent[]>(() => {
-    const list = this.events();
-    const filter = this.selectedEventType();
-    if (!filter || filter === 'all') {
-      return list;
-    }
-    if (filter === 'falls') {
-      return list.filter((e) => this.isFall(e.event_type));
-    }
-    return list.filter((e) => e.event_type === filter);
-  });
+  // Activities are filtered directly server-side
+  readonly filteredEvents = computed<ActivityEvent[]>(() => this.events());
 
   // Haptic vibrations history
   readonly hapticLogs = signal<HapticLogItem[]>([]);
+  readonly hapticStartDate = signal<string>('');
+  readonly hapticEndDate = signal<string>('');
   readonly hapticPage = signal(1);
   readonly hapticTotal = signal<number | null>(null);
   readonly hapticTotalPages = signal(0);
@@ -68,9 +69,25 @@ export class HistoryComponent implements OnInit {
     this.loadCurrentTab();
   }
 
-  onEventTypeChange(ev: Event): void {
-    const value = (ev.target as HTMLSelectElement).value;
+  onEventTypeChange(ev: Event | string): void {
+    const value = typeof ev === 'string' ? ev : (ev.target as HTMLSelectElement).value;
     this.selectedEventType.set(value);
+    this.page.set(1);
+    this.loadEvents();
+  }
+
+  onDateChange(range: { startDate: string; endDate: string }): void {
+    this.startDate.set(range.startDate);
+    this.endDate.set(range.endDate);
+    this.page.set(1);
+    this.loadEvents();
+  }
+
+  onHapticDateChange(range: { startDate: string; endDate: string }): void {
+    this.hapticStartDate.set(range.startDate);
+    this.hapticEndDate.set(range.endDate);
+    this.hapticPage.set(1);
+    this.loadHapticLogs();
   }
 
   loadDevices(): void {
@@ -176,26 +193,35 @@ export class HistoryComponent implements OnInit {
     this.loading.set(true);
     this.eventsError.set(false);
 
-    this.deviceService.getActivityEvents(deviceId, this.page(), this.pageSize).subscribe({
-      next: (page) => {
-        this.events.set(page.items);
-        this.total.set(page.total);
-        this.totalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.events.set([]);
-        this.total.set(null);
-        this.totalPages.set(0);
-        this.loading.set(false);
-        this.eventsError.set(true);
-        this.toast.error(
-          err?.status === 0
-            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
-            : "Impossible de charger l'historique des événements."
-        );
-      },
-    });
+    this.deviceService
+      .getActivityEvents(
+        deviceId,
+        this.page(),
+        this.pageSize,
+        this.selectedEventType(),
+        this.startDate(),
+        this.endDate()
+      )
+      .subscribe({
+        next: (page) => {
+          this.events.set(page.items);
+          this.total.set(page.total);
+          this.totalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.events.set([]);
+          this.total.set(null);
+          this.totalPages.set(0);
+          this.loading.set(false);
+          this.eventsError.set(true);
+          this.toast.error(
+            err?.status === 0
+              ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
+              : "Impossible de charger l'historique des événements."
+          );
+        },
+      });
   }
 
   private loadHapticLogs(): void {
@@ -207,25 +233,33 @@ export class HistoryComponent implements OnInit {
     this.loading.set(true);
     this.eventsError.set(false);
 
-    this.deviceService.getHapticHistory(deviceId, this.hapticPage(), this.pageSize).subscribe({
-      next: (page) => {
-        this.hapticLogs.set(page.items);
-        this.hapticTotal.set(page.total);
-        this.hapticTotalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.hapticLogs.set([]);
-        this.hapticTotal.set(null);
-        this.hapticTotalPages.set(0);
-        this.loading.set(false);
-        this.eventsError.set(true);
-        this.toast.error(
-          err?.status === 0
-            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
-            : "Impossible de charger l'historique des vibrations."
-        );
-      },
-    });
+    this.deviceService
+      .getHapticHistory(
+        deviceId,
+        this.hapticPage(),
+        this.pageSize,
+        this.hapticStartDate(),
+        this.hapticEndDate()
+      )
+      .subscribe({
+        next: (page) => {
+          this.hapticLogs.set(page.items);
+          this.hapticTotal.set(page.total);
+          this.hapticTotalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.hapticLogs.set([]);
+          this.hapticTotal.set(null);
+          this.hapticTotalPages.set(0);
+          this.loading.set(false);
+          this.eventsError.set(true);
+          this.toast.error(
+            err?.status === 0
+              ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
+              : "Impossible de charger l'historique des vibrations."
+          );
+        },
+      });
   }
 }

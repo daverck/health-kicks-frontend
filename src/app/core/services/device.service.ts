@@ -66,20 +66,50 @@ export class DeviceService {
     );
   }
 
-  getHapticHistory(deviceId: string, page = 1, pageSize = 20): Observable<HapticLogPage> {
+  getHapticHistory(
+    deviceId: string,
+    page = 1,
+    pageSize = 20,
+    startDate?: string,
+    endDate?: string
+  ): Observable<HapticLogPage> {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize),
+    };
+    if (startDate) params['start_date'] = startDate;
+    if (endDate) params['end_date'] = endDate;
+
     return this.http.get<HapticLogPage>(`${this.base}/devices/${deviceId}/haptic/history`, {
-      params: { page: String(page), page_size: String(pageSize) },
+      params,
     });
   }
 
-  getActivityEvents(deviceId: string, page = 1, pageSize = 50): Observable<ActivityEventPage> {
+  getActivityEvents(
+    deviceId: string,
+    page = 1,
+    pageSize = 50,
+    eventType?: string,
+    startDate?: string,
+    endDate?: string
+  ): Observable<ActivityEventPage> {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(pageSize),
+    };
+    if (eventType && eventType !== 'all') {
+      params['event_type'] = eventType;
+    }
+    if (startDate) params['start_date'] = startDate;
+    if (endDate) params['end_date'] = endDate;
+
     return this.http.get<ActivityEventPage>(`${this.base}/devices/${deviceId}/events/activities`, {
-      params: { page: String(page), page_size: String(pageSize) },
+      params,
     });
   }
 
   getFallHistory(deviceId: string, page = 1, pageSize = 50): Observable<ActivityEventPage> {
-    return this.getActivityEvents(deviceId, page, pageSize);
+    return this.getActivityEvents(deviceId, page, pageSize, 'falls');
   }
 
   health(): Observable<HealthResponse> {

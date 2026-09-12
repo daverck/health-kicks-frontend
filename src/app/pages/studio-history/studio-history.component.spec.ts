@@ -119,13 +119,15 @@ describe('StudioHistoryComponent', () => {
     expect(authorCells[0].textContent).toContain('admin@healthkicks.org');
   });
 
-  it('should filter by label, device, and user_id (for admin) and reset page to 1', () => {
+  it('should filter by label, device, user_id (for admin), dates and reset page to 1', () => {
     currentUserSignal.set(adminUser);
     fixture.detectChanges();
 
     component.selectedLabel.set('fall_forward');
     component.selectedDeviceId.set('hk-device-0001');
     component.filterUserId.set('2');
+    component.startDate.set('2026-09-01');
+    component.endDate.set('2026-09-10');
     component.onFilterChange();
 
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
@@ -134,6 +136,8 @@ describe('StudioHistoryComponent', () => {
       label: 'fall_forward',
       device_id: 'hk-device-0001',
       user_id: 2,
+      start_date: '2026-09-01',
+      end_date: '2026-09-10',
     });
   });
 
@@ -142,11 +146,15 @@ describe('StudioHistoryComponent', () => {
 
     component.selectedLabel.set('stairs');
     component.selectedDeviceId.set('hk-device-0002');
+    component.startDate.set('2026-09-01');
+    component.endDate.set('2026-09-10');
     component.resetFilters();
 
     expect(component.selectedLabel()).toBe('');
     expect(component.selectedDeviceId()).toBe('');
     expect(component.filterUserId()).toBe('');
+    expect(component.startDate()).toBe('');
+    expect(component.endDate()).toBe('');
     expect(component.page()).toBe(1);
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
       page: 1,

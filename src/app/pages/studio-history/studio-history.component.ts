@@ -27,6 +27,7 @@ import { PREDEFINED_LABELS, PredefinedLabel } from '../studio/studio.component';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
+import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
 
 @Component({
   selector: 'app-studio-history',
@@ -39,6 +40,7 @@ import { ActivitySelectComponent } from '../../shared/components/activity-select
     ImuChartComponent,
     DeviceSelectComponent,
     ActivitySelectComponent,
+    DateFilterComponent,
   ],
   templateUrl: './studio-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,6 +66,8 @@ export class StudioHistoryComponent implements OnInit {
   readonly selectedLabel = signal<string>('');
   readonly selectedDeviceId = signal<string>('');
   readonly filterUserId = signal<string>('');
+  readonly startDate = signal<string>('');
+  readonly endDate = signal<string>('');
   readonly devices = signal<DeviceResponse[]>([]);
 
   // RBAC & Computeds
@@ -79,7 +83,9 @@ export class StudioHistoryComponent implements OnInit {
     return (
       Boolean(this.selectedLabel()) ||
       Boolean(this.selectedDeviceId()) ||
-      Boolean(this.filterUserId())
+      Boolean(this.filterUserId()) ||
+      Boolean(this.startDate()) ||
+      Boolean(this.endDate())
     );
   });
 
@@ -144,6 +150,12 @@ export class StudioHistoryComponent implements OnInit {
         params.user_id = parsed;
       }
     }
+    if (this.startDate()) {
+      params.start_date = this.startDate();
+    }
+    if (this.endDate()) {
+      params.end_date = this.endDate();
+    }
 
     this.studioHistoryService.getSessions(params).subscribe({
       next: (res) => {
@@ -173,6 +185,8 @@ export class StudioHistoryComponent implements OnInit {
     this.selectedLabel.set('');
     this.selectedDeviceId.set('');
     this.filterUserId.set('');
+    this.startDate.set('');
+    this.endDate.set('');
     this.page.set(1);
     this.loadSessions();
   }

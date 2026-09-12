@@ -130,13 +130,25 @@ describe('DeviceService', () => {
     req.flush(mockActivityEventPage);
   });
 
-  it('should delegate getFallHistory to /devices/{id}/events/activities for backward compatibility', () => {
+  it('should pass event_type and date filters when provided to getActivityEvents', () => {
+    service
+      .getActivityEvents('hk-device-0001', 1, 50, 'walking', '2026-09-01', '2026-09-10')
+      .subscribe();
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/events/activities?page=1&page_size=50&event_type=walking&start_date=2026-09-01&end_date=2026-09-10`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockActivityEventPage);
+  });
+
+  it('should delegate getFallHistory to /devices/{id}/events/activities with event_type=falls', () => {
     service.getFallHistory('hk-device-0001', 1, 10).subscribe((page) => {
       expect(page).toEqual(mockActivityEventPage);
     });
 
     const req = httpTesting.expectOne(
-      `${environment.apiUrl}/api/v1/devices/hk-device-0001/events/activities?page=1&page_size=10`
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/events/activities?page=1&page_size=10&event_type=falls`
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockActivityEventPage);
@@ -151,6 +163,18 @@ describe('DeviceService', () => {
 
     const req = httpTesting.expectOne(
       `${environment.apiUrl}/api/v1/devices/hk-device-0001/haptic/history?page=1&page_size=20`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockHapticLogPage);
+  });
+
+  it('should pass date filters to getHapticHistory when provided', () => {
+    service
+      .getHapticHistory('hk-device-0001', 1, 20, '2026-09-01', '2026-09-10')
+      .subscribe();
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/hk-device-0001/haptic/history?page=1&page_size=20&start_date=2026-09-01&end_date=2026-09-10`
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockHapticLogPage);

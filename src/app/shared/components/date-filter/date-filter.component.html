@@ -1,0 +1,173 @@
+<div class="relative inline-block" [class.w-full]="fullWidth()" [class.block]="fullWidth()">
+  <!-- Trigger Button -->
+  <button
+    [id]="triggerId()"
+    type="button"
+    (click)="toggleDropdown()"
+    class="flex items-center justify-between gap-2 border text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+    [class]="triggerSizeClasses()"
+    [class.w-full]="fullWidth()"
+    [class.min-w-36]="!fullWidth()"
+    [class.border-primary-400]="hasActiveFilter()"
+    [class.bg-primary-50]="hasActiveFilter()"
+    [class.text-primary-900]="hasActiveFilter()"
+    [class.border-gray-300]="!hasActiveFilter()"
+    [class.bg-white]="!hasActiveFilter()"
+    [class.text-gray-700]="!hasActiveFilter()"
+    [class.hover:border-gray-400]="!hasActiveFilter()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="dialog"
+    data-testid="date-filter-trigger"
+  >
+    <div class="flex items-center gap-1.5 truncate">
+      <span class="text-xs">📅</span>
+      <span class="truncate" [class.font-semibold]="hasActiveFilter()" [class.font-medium]="!hasActiveFilter()">
+        {{ displayLabel() }}
+      </span>
+    </div>
+
+    <div class="flex items-center gap-1 flex-shrink-0">
+      @if (hasActiveFilter()) {
+        <span
+          role="button"
+          tabindex="0"
+          (click)="clear($event)"
+          (keydown.enter)="clear($event)"
+          (keydown.space)="clear($event)"
+          class="rounded p-0.5 text-xs text-primary-600 hover:bg-primary-100 hover:text-primary-800 transition"
+          [title]="'date_filter.clear' | translate"
+          data-testid="date-filter-clear-icon"
+        >
+          ✕
+        </span>
+      }
+
+      <!-- Chevron -->
+      <svg
+        class="h-3.5 w-3.5 transition-transform duration-150"
+        [class.text-primary-600]="hasActiveFilter()"
+        [class.text-gray-400]="!hasActiveFilter()"
+        [class.rotate-180]="isOpen()"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    </div>
+  </button>
+
+  <!-- Dropdown Popover -->
+  @if (isOpen()) {
+    <!-- Backdrop -->
+    <div class="fixed inset-0 z-20" (click)="closeDropdown()" aria-hidden="true"></div>
+
+    <div
+      class="absolute top-full z-30 mt-1.5 w-72 rounded-xl border border-gray-200 bg-white p-3 shadow-xl ring-1 ring-black/5"
+      [class]="dropdownAlignmentClass()"
+      data-testid="date-filter-dropdown"
+    >
+      <!-- Quick Presets -->
+      <div class="mb-3">
+        <div class="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+          Raccourcis
+        </div>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button
+            type="button"
+            (click)="applyPreset('today')"
+            class="rounded-lg border border-gray-200 bg-gray-50/75 px-2 py-1.5 text-left text-xs text-gray-700 hover:border-primary-300 hover:bg-primary-50/50 hover:text-primary-700 transition"
+            data-testid="preset-today"
+          >
+            {{ 'date_filter.today' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="applyPreset('yesterday')"
+            class="rounded-lg border border-gray-200 bg-gray-50/75 px-2 py-1.5 text-left text-xs text-gray-700 hover:border-primary-300 hover:bg-primary-50/50 hover:text-primary-700 transition"
+            data-testid="preset-yesterday"
+          >
+            {{ 'date_filter.yesterday' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="applyPreset('7days')"
+            class="rounded-lg border border-gray-200 bg-gray-50/75 px-2 py-1.5 text-left text-xs text-gray-700 hover:border-primary-300 hover:bg-primary-50/50 hover:text-primary-700 transition"
+            data-testid="preset-7days"
+          >
+            {{ 'date_filter.last_7_days' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="applyPreset('30days')"
+            class="rounded-lg border border-gray-200 bg-gray-50/75 px-2 py-1.5 text-left text-xs text-gray-700 hover:border-primary-300 hover:bg-primary-50/50 hover:text-primary-700 transition"
+            data-testid="preset-30days"
+          >
+            {{ 'date_filter.last_30_days' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-100 pt-3">
+        <div class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+          Période personnalisée
+        </div>
+
+        <div class="space-y-2">
+          <div>
+            <label class="block text-[11px] font-medium text-gray-600 mb-1" for="date-filter-start">
+              {{ 'date_filter.from' | translate }} :
+            </label>
+            <input
+              id="date-filter-start"
+              type="date"
+              [ngModel]="tempStartDate()"
+              (ngModelChange)="tempStartDate.set($event)"
+              class="w-full rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-800 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              data-testid="date-input-start"
+            />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-medium text-gray-600 mb-1" for="date-filter-end">
+              {{ 'date_filter.to' | translate }} :
+            </label>
+            <input
+              id="date-filter-end"
+              type="date"
+              [ngModel]="tempEndDate()"
+              (ngModelChange)="tempEndDate.set($event)"
+              class="w-full rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-800 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              data-testid="date-input-end"
+            />
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="mt-3 flex items-center justify-between border-t border-gray-100 pt-2.5">
+          <button
+            type="button"
+            (click)="clear()"
+            class="rounded-lg px-2.5 py-1 text-xs text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition"
+            data-testid="date-filter-clear-btn"
+          >
+            {{ 'date_filter.clear' | translate }}
+          </button>
+
+          <button
+            type="button"
+            (click)="apply()"
+            class="rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-700 transition"
+            data-testid="date-filter-apply-btn"
+          >
+            {{ 'date_filter.apply' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

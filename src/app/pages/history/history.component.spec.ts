@@ -48,7 +48,14 @@ describe('HistoryComponent', () => {
     expect(deviceServiceSpy.listDevices).toHaveBeenCalled();
     expect(component.devices().length).toBe(2);
     expect(component.selectedDeviceId()).toBe('hk-device-0001');
-    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith('hk-device-0001', 1, 20);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      'all',
+      '',
+      ''
+    );
     expect(component.events().length).toBe(2);
     expect(component.loading()).toBeFalse();
   });
@@ -65,32 +72,57 @@ describe('HistoryComponent', () => {
     expect(compiled.textContent).not.toContain('vibration_sent');
   });
 
-  it('should filter events when selectedEventType changes', () => {
+  it('should reload events server-side when selectedEventType changes', () => {
     fixture.detectChanges();
 
-    // Default: all
-    expect(component.filteredEvents().length).toBe(2);
-
-    // Filter falls only
-    component.selectedEventType.set('falls');
-    expect(component.filteredEvents().length).toBe(1);
-    expect(component.filteredEvents()[0].event_type).toBe('fall_forward');
-
-    // Filter walk only
-    component.selectedEventType.set('walk');
-    expect(component.filteredEvents().length).toBe(1);
-    expect(component.filteredEvents()[0].event_type).toBe('walk');
-
-    // Filter idle (not in mock)
-    component.selectedEventType.set('idle');
-    expect(component.filteredEvents().length).toBe(0);
-
-    // Filter reset
-    component.selectedEventType.set('all');
-    expect(component.filteredEvents().length).toBe(2);
+    component.onEventTypeChange('falls');
+    expect(component.selectedEventType()).toBe('falls');
+    expect(component.page()).toBe(1);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      'falls',
+      '',
+      ''
+    );
   });
 
-  it('should handle onEventTypeChange event', () => {
+  it('should reload events server-side when date range changes', () => {
+    fixture.detectChanges();
+
+    component.onDateChange({ startDate: '2026-09-01', endDate: '2026-09-10' });
+    expect(component.startDate()).toBe('2026-09-01');
+    expect(component.endDate()).toBe('2026-09-10');
+    expect(component.page()).toBe(1);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      'all',
+      '2026-09-01',
+      '2026-09-10'
+    );
+  });
+
+  it('should reload haptics server-side when haptic date range changes', () => {
+    fixture.detectChanges();
+    component.setTab('haptic');
+
+    component.onHapticDateChange({ startDate: '2026-09-01', endDate: '2026-09-10' });
+    expect(component.hapticStartDate()).toBe('2026-09-01');
+    expect(component.hapticEndDate()).toBe('2026-09-10');
+    expect(component.hapticPage()).toBe(1);
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      '2026-09-01',
+      '2026-09-10'
+    );
+  });
+
+  it('should handle onEventTypeChange event with Event object', () => {
     fixture.detectChanges();
 
     const dummyEvent = {
@@ -120,7 +152,14 @@ describe('HistoryComponent', () => {
     component.goToPage(2);
 
     expect(component.page()).toBe(2);
-    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith('hk-device-0001', 2, 20);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001',
+      2,
+      20,
+      'all',
+      '',
+      ''
+    );
   });
 
   it('should handle device selection change', () => {
@@ -134,7 +173,14 @@ describe('HistoryComponent', () => {
 
     expect(component.selectedDeviceId()).toBe('hk-device-0002');
     expect(component.page()).toBe(1);
-    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith('hk-device-0002', 1, 20);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0002',
+      1,
+      20,
+      'all',
+      '',
+      ''
+    );
   });
 
   it('should handle error when loading activity history fails', () => {
@@ -157,7 +203,13 @@ describe('HistoryComponent', () => {
     fixture.detectChanges();
 
     expect(component.activeTab()).toBe('haptic');
-    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0001', 1, 20);
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      '',
+      ''
+    );
     expect(component.hapticLogs().length).toBe(2);
     expect(component.loading()).toBeFalse();
 
@@ -173,7 +225,13 @@ describe('HistoryComponent', () => {
     component.goToPage(3);
 
     expect(component.hapticPage()).toBe(3);
-    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith('hk-device-0001', 3, 20);
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith(
+      'hk-device-0001',
+      3,
+      20,
+      '',
+      ''
+    );
   });
 
   it('should handle error when loading haptic history fails', () => {

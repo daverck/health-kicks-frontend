@@ -30,4 +30,6 @@ export interface StudioHistoryFilterParams {
   label?: string;
   device_id?: string;
   user_id?: number;
+  start_date?: string;
+  end_date?: string;
 }
