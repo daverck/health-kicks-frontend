@@ -29,7 +29,7 @@ describe('DevicesComponent', () => {
     deviceServiceSpy.bindDevice.and.returnValue(of(mockBoundDevice));
     deviceServiceSpy.unbindDevice.and.returnValue(of(undefined));
     deviceServiceSpy.getBindErrorMessage.and.callFake((err: any) => {
-      if (err?.status === 404) return 'Identifiant introuvable. Veuillez vérifier le code figurant sous votre semelle.';
+      if (err?.status === 404) return 'Identifiant introuvable. Veuillez vérifier le code figurant sur votre boîtier ou sur son emballage.';
       if (err?.status === 400) return 'Cet équipement est déjà associé à votre compte.';
       return 'Une erreur est survenue.';
     });
@@ -96,17 +96,17 @@ describe('DevicesComponent', () => {
 
     component.addForm.setValue({
       device_id: 'HK-SHOE-001',
-      name: 'Semelle Pied Droit',
+      name: 'Chaussure Droite',
     });
 
     component.onAddSubmit();
 
     expect(deviceServiceSpy.bindDevice).toHaveBeenCalledWith({
       device_id: 'HK-SHOE-001',
-      name: 'Semelle Pied Droit',
+      name: 'Chaussure Droite',
     });
     expect(toastServiceSpy.success).toHaveBeenCalledWith(
-      "L'équipement Semelle Pied Droit a été associé avec succès !"
+      "L'équipement Chaussure Droite a été associé avec succès !"
     );
     expect(component.showAddModal()).toBeFalse();
     expect(component.submitting()).toBeFalse();

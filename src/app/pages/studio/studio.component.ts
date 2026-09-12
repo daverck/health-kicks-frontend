@@ -238,7 +238,7 @@ export class StudioComponent implements OnInit, OnDestroy {
 
     const isOnline = this.onlineDevices().some((d) => d.device_id === deviceId);
     if (!isOnline && this.devices().length > 0) {
-      this.toast.error("L'équipement sélectionné n'est pas en ligne. Veuillez choisir une semelle connectée.");
+      this.toast.error("L'équipement sélectionné n'est pas en ligne. Veuillez choisir un équipement connecté.");
       return;
     }
 

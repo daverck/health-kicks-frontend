@@ -37,7 +37,7 @@ export class DeviceService {
     const detail = typeof error?.error?.detail === 'string' ? error.error.detail.toLowerCase() : '';
 
     if (error?.status === 404 || detail.includes('not found')) {
-      return 'Identifiant introuvable. Veuillez vérifier le code figurant sous votre semelle ou sur son emballage.';
+      return 'Identifiant introuvable. Veuillez vérifier le code figurant sur votre boîtier ou sur son emballage.';
     }
     if (error?.status === 400) {
       if (detail.includes('already bound') || detail.includes('already bound to this user')) {

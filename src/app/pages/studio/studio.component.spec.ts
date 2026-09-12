@@ -133,7 +133,7 @@ describe('StudioComponent', () => {
     component.selectedDeviceId.set('hk-device-0002'); // offline in mockDevices
     component.startSession();
 
-    expect(toastSpy.error).toHaveBeenCalledWith("L'équipement sélectionné n'est pas en ligne. Veuillez choisir une semelle connectée.");
+    expect(toastSpy.error).toHaveBeenCalledWith("L'équipement sélectionné n'est pas en ligne. Veuillez choisir un équipement connecté.");
     expect(studioServiceSpy.startStudioSession).not.toHaveBeenCalled();
     expect(component.state()).toBe('idle');
   });

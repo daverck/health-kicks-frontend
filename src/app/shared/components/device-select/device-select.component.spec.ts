@@ -7,7 +7,7 @@ const mockDevices: DeviceResponse[] = [
   {
     id: 1,
     device_id: 'hk-dev-001',
-    name: 'Semelle Gauche Sport',
+    name: 'Clip Gauche Sport',
     status: 'online',
     last_seen_utc: '2026-09-12T10:00:00Z',
     created_at: '2026-01-01T00:00:00Z',
@@ -15,7 +15,7 @@ const mockDevices: DeviceResponse[] = [
   {
     id: 2,
     device_id: 'hk-dev-002',
-    name: 'Semelle Droite Confort',
+    name: 'Clip Droit Confort',
     status: 'offline',
     last_seen_utc: '2026-09-10T12:00:00Z',
     created_at: '2026-01-01T00:00:00Z',
@@ -81,7 +81,7 @@ describe('DeviceSelectComponent', () => {
   it('should render trigger button with placeholder when no device is selected', () => {
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
     expect(trigger).toBeTruthy();
-    expect(trigger.textContent).toContain('Choisir une semelle');
+    expect(trigger.textContent).toContain('Choisir un équipement');
     expect(component.isOpen()).toBeFalse();
   });
 
@@ -90,7 +90,7 @@ describe('DeviceSelectComponent', () => {
     fixture.detectChanges();
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
-    expect(trigger.textContent).toContain('Semelle Gauche Sport');
+    expect(trigger.textContent).toContain('Clip Gauche Sport');
     expect(trigger.textContent).toContain('hk-dev-001');
     expect(trigger.textContent).toContain('En ligne');
 
@@ -104,7 +104,7 @@ describe('DeviceSelectComponent', () => {
     fixture.detectChanges();
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
-    expect(trigger.textContent).toContain('Semelle Droite Confort');
+    expect(trigger.textContent).toContain('Clip Droit Confort');
     expect(trigger.textContent).toContain('hk-dev-002');
     expect(trigger.textContent).toContain('Hors ligne');
 

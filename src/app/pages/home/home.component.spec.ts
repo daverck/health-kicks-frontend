@@ -123,4 +123,42 @@ describe('HomeComponent', () => {
     expect(features?.textContent).toContain('Rappel anti-inactivité prolongée');
     expect(features?.textContent).toContain('Bientôt disponible');
   });
+
+  it('should display the wordplay note in French and hide it in English', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('Le saviez-vous ?');
+    expect(compiled.textContent).toContain('« Kicks » est le terme familier désignant les baskets et chaussures');
+    expect(component.showWordplay()).toBeTrue();
+
+    translationService.setLanguage('en');
+    fixture.detectChanges();
+    expect(component.showWordplay()).toBeFalse();
+    expect(compiled.textContent).not.toContain('Did you know?');
+    expect(compiled.textContent).not.toContain('Le saviez-vous ?');
+  });
+
+  it('should render the shoe photo and toggle interactive simulation modes', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const img = compiled.querySelector('img[src="/images/shoe-clip-device.jpg"]');
+    expect(img).toBeTruthy();
+
+    // Default simulation is walk
+    expect(component.activeSimulation()).toBe('walk');
+    expect(compiled.textContent).toContain('rythme et équilibre stables');
+
+    // Switch to fall simulation
+    component.setSimulation('fall');
+    fixture.detectChanges();
+    expect(compiled.textContent).toContain('Chute détectée par IA embarquée');
+
+    // Switch to haptic simulation
+    component.setSimulation('haptic');
+    fixture.detectChanges();
+    expect(compiled.textContent).toContain('Onde vibratoire transmise aux lacets');
+
+    // Switch to idle simulation
+    component.setSimulation('idle');
+    fixture.detectChanges();
+    expect(compiled.textContent).toContain('Station assise prolongée');
+  });
 });

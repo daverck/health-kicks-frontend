@@ -13,13 +13,13 @@ import {
 
 export const mockDeviceCreate: DeviceCreate = {
   device_id: 'HK-SHOE-001',
-  name: 'Semelle Pied Droit',
+  name: 'Chaussure Droite',
 };
 
 export const mockBoundDevice: DeviceResponse = {
   id: 3,
   device_id: 'HK-SHOE-001',
-  name: 'Semelle Pied Droit',
+  name: 'Chaussure Droite',
   status: 'offline',
   last_seen_utc: null,
   created_at: '2026-09-03T09:00:00Z',
