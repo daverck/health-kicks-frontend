@@ -6,7 +6,7 @@
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
       <a routerLink="/" class="flex items-center gap-2">
         <span
-          class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white"
+          class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white shadow-sm"
         >
           <!-- heartbeat icon -->
           <svg
@@ -23,7 +23,7 @@
             />
           </svg>
         </span>
-        <span class="text-lg font-bold"
+        <span class="text-lg font-bold tracking-tight"
           >Health<span class="text-primary-600">Kicks</span></span
         >
       </a>
@@ -36,93 +36,160 @@
       </div>
       <div class="flex items-center gap-3">
         <app-language-selector />
-        <a
-          routerLink="/login"
-          class="text-sm font-semibold text-gray-700 hover:text-primary-600 transition"
-          >{{ 'nav.login' | translate }}</a
-        >
-        <a routerLink="/register" class="btn-primary">{{ 'nav.register' | translate }}</a>
+        @if (isAuthenticated()) {
+          <a routerLink="/dashboard" class="btn-primary text-sm">{{ 'nav.member_space' | translate }}</a>
+        } @else {
+          <a
+            routerLink="/login"
+            class="text-sm font-semibold text-gray-700 hover:text-primary-600 transition"
+            >{{ 'nav.login' | translate }}</a
+          >
+          <a routerLink="/register" class="btn-primary text-sm">{{ 'nav.register' | translate }}</a>
+        }
       </div>
     </nav>
   </header>
 
   <!-- ===== Hero ===== -->
   <section
-    class="relative overflow-hidden bg-gradient-to-b from-primary-50 to-white"
+    class="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white"
   >
     <div
-      class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 md:grid-cols-2"
+      class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:py-24 md:grid-cols-2"
     >
       <div>
         <span
-          class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-700"
+          class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-700 border border-primary-200/50"
         >
-          ● IoT & Santé connectée
+          ● {{ 'home.badge' | translate }}
         </span>
         <h1
-          class="mt-5 text-4xl font-extrabold leading-tight tracking-tight md:text-5xl"
+          class="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl"
         >
-          La stimulation haptique connectée, au service de la santé.
+          {{ 'home.hero_title_1' | translate }}
+          <span class="text-primary-600 block sm:inline"> {{ 'home.hero_title_2' | translate }}</span>
         </h1>
-        <p class="mt-5 text-lg text-gray-600">
-          Health Kicks est un système IoT de stimulation/vibration qui détecte
-          les chutes, alerte en temps réel et déclenche des vibrations
-          thérapeutiques à distance — le tout piloté depuis un dashboard web
-          sécurisé.
+        <p class="mt-5 text-base md:text-lg leading-relaxed text-gray-600">
+          {{ 'home.hero_subtitle' | translate }}
         </p>
-        <div class="mt-8 flex flex-wrap gap-4">
-          <a routerLink="/login" class="btn-primary px-7 py-3 text-base"
-            >Connexion</a
-          >
-          <a routerLink="/register" class="btn-secondary px-7 py-3 text-base"
-            >Créer un compte</a
-          >
-          <a routerLink="/dashboard" class="btn-secondary px-7 py-3 text-base"
-            >Accéder à l'Espace Membre →</a
-          >
+        <div class="mt-8 flex flex-wrap items-center gap-4">
+          @if (isAuthenticated()) {
+            <a routerLink="/dashboard" class="btn-primary px-7 py-3 text-base shadow-lg shadow-primary-600/20">
+              {{ 'home.cta_dashboard' | translate }}
+            </a>
+          } @else {
+            <a routerLink="/register" class="btn-primary px-7 py-3 text-base shadow-lg shadow-primary-600/20">
+              {{ 'home.cta_start' | translate }}
+            </a>
+          }
+          <a href="#concept" class="btn-secondary px-7 py-3 text-base">
+            {{ 'home.cta_discover' | translate }}
+          </a>
         </div>
       </div>
 
-      <!-- Illustration : device + onde de vibration -->
+      <!-- Illustration : Shoe Clip & Smart Alerts -->
       <div class="flex items-center justify-center">
-        <div class="relative">
-          <div
-            class="absolute -inset-6 rounded-full bg-primary-100 blur-2xl"
-          ></div>
-          <div
-            class="relative flex h-56 w-56 items-center justify-center rounded-3xl border border-primary-200 bg-white shadow-xl"
-          >
-            <svg
-              class="h-28 w-28 text-primary-600"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              viewBox="0 0 24 24"
-            >
-              <rect
-                x="8"
-                y="2.5"
-                width="8"
-                height="19"
-                rx="4"
-                stroke-linecap="round"
-              />
-              <path stroke-linecap="round" d="M12 6.5v2M12 11v6" />
+        <div class="relative w-full max-w-sm">
+          <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary-200 to-indigo-100 blur-2xl opacity-70"></div>
+          
+          <div class="relative rounded-3xl border border-primary-100 bg-white/95 p-6 shadow-2xl backdrop-blur">
+            <!-- Shoe & clip graphic -->
+            <div class="flex flex-col items-center justify-center rounded-2xl bg-gradient-to-b from-primary-50/60 to-white py-8 border border-primary-100/50">
+              <!-- Clip device badge -->
+              <div class="relative flex h-24 w-36 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 shadow-xl shadow-primary-600/30 text-white">
+                <div class="flex flex-col items-center gap-1">
+                  <svg class="h-8 w-8 text-primary-100" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  <span class="text-[11px] font-semibold tracking-wider uppercase opacity-90">Health Kicks</span>
+                </div>
+                <!-- Status LED pulse -->
+                <span class="absolute top-2 right-2 flex h-2.5 w-2.5">
+                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                </span>
+              </div>
+              
+              <!-- Subtle shoelace line design -->
+              <div class="mt-4 flex items-center gap-2 text-xs font-medium text-gray-500">
+                <span class="inline-block h-1 w-8 rounded-full bg-gray-300"></span>
+                <span>{{ 'home.mockup_clip' | translate }}</span>
+                <span class="inline-block h-1 w-8 rounded-full bg-gray-300"></span>
+              </div>
+            </div>
+
+            <!-- Floating indicators -->
+            <div class="mt-4 flex flex-col gap-2.5">
+              <div class="flex items-center justify-between rounded-xl bg-red-50 border border-red-100 px-3.5 py-2.5 text-xs font-semibold text-red-700">
+                <span class="flex items-center gap-2">
+                  <span class="text-base">💥</span>
+                  <span>{{ 'home.mockup_fall' | translate }}</span>
+                </span>
+                <span class="text-[11px] font-normal text-red-500">Edge AI</span>
+              </div>
+
+              <div class="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-100 px-3.5 py-2.5 text-xs font-semibold text-emerald-700">
+                <span class="flex items-center gap-2">
+                  <span class="text-base">📳</span>
+                  <span>{{ 'home.mockup_vibration' | translate }}</span>
+                </span>
+                <span class="text-[11px] font-normal text-emerald-600">MQTT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Concept Section ===== -->
+  <section id="concept" class="border-y border-gray-100 bg-gray-50/60 py-20">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800">
+          {{ 'home.concept_badge' | translate }}
+        </span>
+        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+          {{ 'home.concept_title' | translate }}
+        </h2>
+        <p class="mt-4 text-base text-gray-600 md:text-lg">
+          {{ 'home.concept_subtitle' | translate }}
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        <!-- Card 1: Clip universel sur lacets -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:shadow-md">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
-            <span
-              class="absolute -right-6 top-6 h-4 w-4 animate-ping rounded-full bg-primary-400"
-            ></span>
           </div>
-          <div
-            class="absolute -left-10 -top-4 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-primary-700 shadow-md"
-          >
-            💥 Chute détectée
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.concept_card_1_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.concept_card_1_desc' | translate }}</p>
+        </div>
+
+        <!-- Card 2: Économique & Léger -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:shadow-md">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-          <div
-            class="absolute -bottom-4 -right-8 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-green-700 shadow-md"
-          >
-            📳 Vibration envoyée · 250 ms
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.concept_card_2_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.concept_card_2_desc' | translate }}</p>
+        </div>
+
+        <!-- Card 3: Discret & Bienveillant -->
+        <div class="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:shadow-md">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.concept_card_3_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.concept_card_3_desc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -130,91 +197,95 @@
 
   <!-- ===== Features ===== -->
   <section id="features" class="mx-auto max-w-6xl px-4 py-20">
-    <h2 class="text-center text-3xl font-bold">Un écosystème complet</h2>
-    <p class="mx-auto mt-3 max-w-xl text-center text-gray-600">
-      Du capteur au cloud, chaque brique est pensée pour la fiabilité et la
-      réactivité.
-    </p>
-    <div class="mt-12 grid gap-6 md:grid-cols-3">
-      <div class="card">
-        <div
-          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600"
-        >
-          <svg
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              d="M12 3v3m0 12v3m9-9h-3M6 12H3m13.5-6.5-2 2m-7 7-2 2m11 0-2-2m-7-7-2-2"
-            />
-          </svg>
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+        {{ 'home.features_title' | translate }}
+      </h2>
+      <p class="mt-4 text-base text-gray-600 md:text-lg">
+        {{ 'home.features_subtitle' | translate }}
+      </p>
+    </div>
+
+    <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <!-- Fall Detection -->
+      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <div>
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 text-red-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_fall_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_fall_desc' | translate }}</p>
         </div>
-        <h3 class="text-lg font-semibold">Détection de chutes</h3>
-        <p class="mt-2 text-sm text-gray-600">
-          Capteurs IMU embarqués analysant les mouvements en continu et
-          détectant les chutes avec un score de confiance.
-        </p>
       </div>
-      <div class="card">
-        <div
-          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600"
-        >
-          <svg
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" />
-          </svg>
+
+      <!-- Haptic Feedback -->
+      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:shadow-md">
+        <div>
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_haptic_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_haptic_desc' | translate }}</p>
         </div>
-        <h3 class="text-lg font-semibold">Contrôle à distance</h3>
-        <p class="mt-2 text-sm text-gray-600">
-          Déclenchez une vibration haptique sur n'importe quel device
-          enregistré, avec intensité et durée configurables.
-        </p>
       </div>
-      <div class="card">
-        <div
-          class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600"
-        >
-          <svg
-            class="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path stroke-linecap="round" d="M3 3v18h18M7 14l4-4 3 3 5-6" />
-          </svg>
+
+      <!-- Step Counting (Roadmap) -->
+      <div class="relative flex flex-col justify-between rounded-2xl border border-primary-200/70 bg-gradient-to-b from-white to-primary-50/20 p-6 shadow-sm transition hover:shadow-md">
+        <div class="absolute -top-3 right-4">
+          <span class="inline-flex items-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-800 shadow-sm border border-primary-200">
+            {{ 'home.feature_steps_badge' | translate }}
+          </span>
         </div>
-        <h3 class="text-lg font-semibold">Historique & suivi</h3>
-        <p class="mt-2 text-sm text-gray-600">
-          Timeline complète des événements : chutes, déclenchements, statuts et
-          données IMU brutes archivées.
-        </p>
+        <div>
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_steps_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_steps_desc' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Inactivity Reminder (Roadmap) -->
+      <div class="relative flex flex-col justify-between rounded-2xl border border-primary-200/70 bg-gradient-to-b from-white to-primary-50/20 p-6 shadow-sm transition hover:shadow-md">
+        <div class="absolute -top-3 right-4">
+          <span class="inline-flex items-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-800 shadow-sm border border-primary-200">
+            {{ 'home.feature_inactivity_badge' | translate }}
+          </span>
+        </div>
+        <div>
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_inactivity_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_inactivity_desc' | translate }}</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ===== How it works ===== -->
-  <section id="how" class="bg-gray-50 py-20">
-    <div id="concept" class="mx-auto max-w-6xl px-4">
-      <h2 class="text-center text-3xl font-bold">Comment ça marche&nbsp;?</h2>
+  <section id="how" class="bg-gray-50/70 py-20 border-t border-gray-100">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-center text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+        {{ 'home.how_title' | translate }}
+      </h2>
       <div class="mt-12 grid gap-6 md:grid-cols-4">
-        @for (step of steps; track step.title; let i = $index) {
-          <div class="relative rounded-2xl bg-white p-6 shadow-sm">
+        @for (step of steps; track step.titleKey; let i = $index) {
+          <div class="relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
             <span
-              class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white"
+              class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white shadow-sm"
               >{{ i + 1 }}</span
             >
-            <h3 class="font-semibold">{{ step.title }}</h3>
-            <p class="mt-2 text-sm text-gray-600">{{ step.text }}</p>
+            <h3 class="font-bold text-gray-900">{{ step.titleKey | translate }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ step.descKey | translate }}</p>
           </div>
         }
       </div>
@@ -224,26 +295,36 @@
   <!-- ===== CTA ===== -->
   <section class="mx-auto max-w-6xl px-4 py-20">
     <div
-      class="rounded-3xl bg-gradient-to-r from-primary-600 to-primary-800 px-8 py-14 text-center text-white"
+      class="rounded-3xl bg-gradient-to-r from-primary-600 to-primary-800 px-8 py-14 text-center text-white shadow-xl shadow-primary-900/10"
     >
-      <h2 class="text-3xl font-bold">
-        Prêt à garder vos proches en sécurité&nbsp;?
+      <h2 class="text-3xl font-extrabold tracking-tight md:text-4xl">
+        {{ 'home.cta_title' | translate }}
       </h2>
-      <p class="mx-auto mt-3 max-w-lg text-primary-100">
-        Créez votre compte et reliez votre premier device Health Kicks en
-        quelques minutes.
+      <p class="mx-auto mt-4 max-w-xl text-base md:text-lg text-primary-100">
+        {{ 'home.cta_subtitle' | translate }}
       </p>
-      <div class="mt-8 flex flex-wrap justify-center gap-4">
-        <a
-          routerLink="/register"
-          class="rounded-lg bg-white px-7 py-3 text-sm font-semibold text-primary-700 shadow hover:bg-primary-50"
-          >Créer un compte</a
-        >
-        <a
-          routerLink="/login"
-          class="rounded-lg border border-white/40 px-7 py-3 text-sm font-semibold text-white hover:bg-white/10"
-          >Connexion</a
-        >
+      <div class="mt-8 flex flex-col items-center gap-3">
+        @if (isAuthenticated()) {
+          <a
+            routerLink="/dashboard"
+            class="rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary-700 shadow-md hover:bg-primary-50 transition"
+          >
+            {{ 'home.cta_dashboard' | translate }}
+          </a>
+        } @else {
+          <a
+            routerLink="/register"
+            class="rounded-xl bg-white px-8 py-3.5 text-base font-bold text-primary-700 shadow-md hover:bg-primary-50 transition"
+          >
+            {{ 'home.cta_start' | translate }}
+          </a>
+          <a
+            routerLink="/login"
+            class="text-sm font-medium text-white/80 hover:text-white underline underline-offset-4 transition"
+          >
+            {{ 'home.cta_login_link' | translate }}
+          </a>
+        }
       </div>
     </div>
   </section>
@@ -251,6 +332,6 @@
   <footer
     class="border-t border-gray-100 py-8 text-center text-sm text-gray-500"
   >
-    © {{ currentYear }} Health Kicks — Système IoT de stimulation connectée.
+    © {{ currentYear }} Health Kicks — {{ 'home.footer_rights' | translate }}
   </footer>
 </div>

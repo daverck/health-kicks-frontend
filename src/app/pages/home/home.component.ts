@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -10,12 +11,14 @@ import { LanguageSelectorComponent } from '../../shared/components/language-sele
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
+  private readonly auth = inject(AuthService);
+  readonly isAuthenticated = this.auth.isAuthenticated;
   readonly currentYear = new Date().getFullYear();
 
   readonly steps = [
-    { title: 'Portez le device', text: 'Le bracelet Health Kicks capte les mouvements via ses capteurs IMU haute précision.' },
-    { title: 'Détection intelligente', text: 'Un algorithme embarqué identifie les chutes et calcule un score de confiance.' },
-    { title: 'Alerte cloud', text: "L'événement est transmis au backend via un webhook sécurisé et horodaté." },
-    { title: 'Action immédiate', text: 'Depuis le dashboard, déclenchez une vibration haptique de confirmation ou de soin.' },
+    { titleKey: 'home.how_step_1_title', descKey: 'home.how_step_1_desc' },
+    { titleKey: 'home.how_step_2_title', descKey: 'home.how_step_2_desc' },
+    { titleKey: 'home.how_step_3_title', descKey: 'home.how_step_3_desc' },
+    { titleKey: 'home.how_step_4_title', descKey: 'home.how_step_4_desc' },
   ];
 }

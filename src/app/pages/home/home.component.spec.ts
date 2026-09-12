@@ -1,17 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeComponent } from './home.component';
 import { provideRouter } from '@angular/router';
+import { signal, WritableSignal } from '@angular/core';
 import { TranslationService } from '../../core/services/translation.service';
+import { AuthService } from '../../core/services/auth.service';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
   let translationService: TranslationService;
+  let isAuthenticatedSignal: WritableSignal<boolean>;
 
   beforeEach(async () => {
+    isAuthenticatedSignal = signal(false);
+
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideRouter([]), TranslationService],
+      providers: [
+        provideRouter([]),
+        TranslationService,
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: isAuthenticatedSignal.asReadonly(),
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
@@ -32,12 +46,81 @@ describe('HomeComponent', () => {
     expect(langSelector).toBeTruthy();
   });
 
-  it('should translate navbar links', () => {
+  it('should translate navbar and hero content when language changes', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Connexion');
+    expect(compiled.textContent).toContain('Clip universel sur lacets');
 
     translationService.setLanguage('en');
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Sign In');
+    expect(compiled.textContent).toContain('Universal Shoelace Clip');
+  });
+
+  it('should render unauthenticated CTAs when user is not logged in', () => {
+    isAuthenticatedSignal.set(false);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    // Navbar has login link and register button
+    const navLogin = compiled.querySelector('header a[routerlink="/login"]');
+    const navRegister = compiled.querySelector('header a[routerlink="/register"]');
+    const navDashboard = compiled.querySelector('header a[routerlink="/dashboard"]');
+    expect(navLogin).toBeTruthy();
+    expect(navRegister).toBeTruthy();
+    expect(navDashboard).toBeNull();
+
+    // Hero has register primary CTA and concept anchor
+    const heroCtas = compiled.querySelectorAll('section a');
+    const heroRegister = compiled.querySelector('section a[routerlink="/register"]');
+    expect(heroRegister?.textContent?.trim()).toContain('Commencer gratuitement');
+
+    // Bottom CTA has register button and subtle login link
+    const ctaSection = compiled.querySelectorAll('section')[4];
+    expect(ctaSection?.textContent).toContain('Commencer gratuitement');
+    expect(ctaSection?.textContent).toContain('Déjà un compte ? Se connecter');
+  });
+
+  it('should render authenticated CTAs when user is logged in', () => {
+    isAuthenticatedSignal.set(true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    // Navbar has member space button, but no login/register
+    const navLogin = compiled.querySelector('header a[routerlink="/login"]');
+    const navRegister = compiled.querySelector('header a[routerlink="/register"]');
+    const navDashboard = compiled.querySelector('header a[routerlink="/dashboard"]');
+    expect(navLogin).toBeNull();
+    expect(navRegister).toBeNull();
+    expect(navDashboard).toBeTruthy();
+    expect(navDashboard?.textContent?.trim()).toBe('Espace Membre');
+
+    // Hero has single primary CTA to dashboard
+    const heroDashboard = compiled.querySelector('section a[routerlink="/dashboard"]');
+    expect(heroDashboard).toBeTruthy();
+    expect(heroDashboard?.textContent?.trim()).toContain('Accéder à mon espace');
+
+    // Bottom CTA has single dashboard button and no login link
+    const ctaSection = compiled.querySelectorAll('section')[4];
+    expect(ctaSection?.textContent).toContain('Accéder à mon espace');
+    expect(ctaSection?.textContent).not.toContain('Déjà un compte ? Se connecter');
+  });
+
+  it('should highlight the shoe-clip concept and roadmap features', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // Concept section
+    const concept = compiled.querySelector('#concept');
+    expect(concept?.textContent).toContain('Clip universel sur lacets');
+    expect(concept?.textContent).toContain('Économique & Léger');
+    expect(concept?.textContent).toContain('Discret & Bienveillant');
+
+    // Features section with roadmap items
+    const features = compiled.querySelector('#features');
+    expect(features?.textContent).toContain('Détection de chute en temps réel');
+    expect(features?.textContent).toContain('Stimulation haptique à distance');
+    expect(features?.textContent).toContain('Comptage des pas');
+    expect(features?.textContent).toContain('Rappel anti-inactivité prolongée');
+    expect(features?.textContent).toContain('Bientôt disponible');
   });
 });
