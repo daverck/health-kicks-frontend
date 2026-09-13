@@ -14,10 +14,10 @@ export const REFRESH_TOKEN_KEY = 'refresh_token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
 
-  private readonly userSignal = signal<UserResponse | null>(null);
-  private readonly tokenSignal = signal<string | null>(
+  protected readonly userSignal = signal<UserResponse | null>(null);
+  protected readonly tokenSignal = signal<string | null>(
     localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token')
   );
 

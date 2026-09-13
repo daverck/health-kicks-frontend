@@ -57,6 +57,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         isApiRequest &&
         !isAuthBypassRequest
       ) {
+        // En mode mock, ne pas éjecter l'utilisateur ni boucler sur le refresh token
+        if (environment.mockAuth) {
+          console.warn('[MockAuth] Rejet 401 sur requête API avec faux token :', req.url);
+          return throwError(() => error);
+        }
+
         // Cas 1 : Aucune procédure de refresh en cours
         if (!isRefreshing) {
           isRefreshing = true;
