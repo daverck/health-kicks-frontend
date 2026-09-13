@@ -13,6 +13,7 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     sample_count: 500,
     duration_sec: 5,
     created_at: '2026-09-08T10:30:00.000Z',
+    is_validated: true,
   },
   {
     id: 'sess-002',
@@ -23,6 +24,7 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     sample_count: 500,
     duration_sec: 5,
     created_at: '2026-09-08T11:15:00.000Z',
+    is_validated: false,
   },
   {
     id: 'sess-003',
@@ -33,6 +35,7 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     sample_count: 480,
     duration_sec: 5,
     created_at: '2026-09-08T12:00:00.000Z',
+    is_validated: true,
   },
 ];
 

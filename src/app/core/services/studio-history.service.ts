@@ -44,6 +44,9 @@ export class StudioHistoryService {
       if (params.end_date && params.end_date.trim()) {
         httpParams = httpParams.set('end_date', params.end_date.trim());
       }
+      if (params.is_validated !== undefined && params.is_validated !== null) {
+        httpParams = httpParams.set('is_validated', params.is_validated.toString());
+      }
     }
 
     return this.http.get<PaginatedSessionsResponse>(this.base, { params: httpParams });
@@ -55,6 +58,14 @@ export class StudioHistoryService {
    */
   getSessionReadings(sessionId: string): Observable<StudioSessionReadingsResponse> {
     return this.http.get<StudioSessionReadingsResponse>(`${this.base}/${sessionId}/readings`);
+  }
+
+  /**
+   * Confirms / validates a studio recording session.
+   * PATCH /api/v1/studio/sessions/{sessionId}/confirm
+   */
+  confirmSession(sessionId: string): Observable<StudioSessionSummary> {
+    return this.http.patch<StudioSessionSummary>(`${this.base}/${sessionId}/confirm`, {});
   }
 
   /**

@@ -11,6 +11,7 @@ export interface StudioSessionSummary {
   sample_count: number;
   duration_sec: number;
   created_at: string;
+  is_validated: boolean;
 }
 
 export interface PaginatedSessionsResponse {
@@ -32,4 +33,5 @@ export interface StudioHistoryFilterParams {
   user_id?: number;
   start_date?: string;
   end_date?: string;
+  is_validated?: boolean;
 }

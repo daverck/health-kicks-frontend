@@ -20,9 +20,10 @@ import {
 export type { PredefinedLabel, StudioActivityCode };
 export { PREDEFINED_LABELS, SELECTED_DEVICE_STORAGE_KEY };
 
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../core/services/translation.service';
+import { StudioHistoryService } from '../../core/services/studio-history.service';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 
@@ -35,6 +36,8 @@ import { DeviceSelectComponent } from '../../shared/components/device-select/dev
 export class StudioComponent implements OnInit, OnDestroy {
   private readonly deviceService = inject(DeviceService);
   private readonly studioService = inject(StudioService);
+  private readonly studioHistoryService = inject(StudioHistoryService);
+  private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly translation = inject(TranslationService);
 
@@ -97,6 +100,8 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly fetchingAttempt = signal<number>(0);
   readonly fetchingError = signal<boolean>(false);
   readonly isDeleting = signal<boolean>(false);
+  readonly isValidating = signal<boolean>(false);
+  readonly showDeleteConfirm = signal<boolean>(false);
 
   // Dataset statistics & balance guidance
   readonly targetPerClass = 25;
@@ -368,36 +373,64 @@ export class StudioComponent implements OnInit, OnDestroy {
    * 5. Step: Inspecting actions
    */
   validateSession(): void {
-    this.toast.success('Session IMU validée et archivée avec succès !');
-    this.resetToIdle();
-    this.loadStats();
+    const session = this.currentSession();
+    if (!session) {
+      this.resetToIdle();
+      return;
+    }
+
+    this.isValidating.set(true);
+    this.studioHistoryService.confirmSession(session.session_id).subscribe({
+      next: () => {
+        this.isValidating.set(false);
+        this.toast.success(this.translation.translate('studio.confirm_success'));
+        this.resetToIdle();
+        this.loadStats();
+        this.router.navigate(['/dashboard/studio/history']);
+      },
+      error: (err) => {
+        this.isValidating.set(false);
+        this.toast.error(
+          err?.error?.detail ?? this.translation.translate('studio.confirm_error')
+        );
+      },
+    });
   }
 
   rejectSession(): void {
-    const session = this.currentSession();
-    const deviceId = this.selectedDeviceId();
+    this.showDeleteConfirm.set(true);
+  }
 
-    if (!session || !deviceId) {
+  confirmRejectSession(): void {
+    const session = this.currentSession();
+
+    if (!session) {
       this.resetToIdle();
       return;
     }
 
     this.isDeleting.set(true);
-    this.studioService.deleteSessionReadings(deviceId, session.session_id).subscribe({
+    this.studioHistoryService.deleteSession(session.session_id).subscribe({
       next: () => {
         this.isDeleting.set(false);
-        this.toast.info('Session rejetée et points supprimés de DynamoDB.');
+        this.showDeleteConfirm.set(false);
+        this.toast.info(this.translation.translate('studio.reject_success'));
         this.resetToIdle();
         this.loadStats();
       },
       error: (err) => {
         this.isDeleting.set(false);
+        this.showDeleteConfirm.set(false);
         this.toast.error(
           err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
         );
         this.resetToIdle();
       },
     });
+  }
+
+  cancelRejectPrompt(): void {
+    this.showDeleteConfirm.set(false);
   }
 
   resetToIdle(): void {
@@ -409,6 +442,8 @@ export class StudioComponent implements OnInit, OnDestroy {
     this.fetchingAttempt.set(0);
     this.fetchingError.set(false);
     this.isDeleting.set(false);
+    this.isValidating.set(false);
+    this.showDeleteConfirm.set(false);
   }
 
   private clearAllTimers(): void {

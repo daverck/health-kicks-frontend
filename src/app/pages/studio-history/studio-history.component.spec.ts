@@ -47,11 +47,15 @@ describe('StudioHistoryComponent', () => {
     studioHistoryServiceSpy = jasmine.createSpyObj('StudioHistoryService', [
       'getSessions',
       'getSessionReadings',
+      'confirmSession',
       'updateSessionLabel',
       'deleteSession',
     ]);
     studioHistoryServiceSpy.getSessions.and.returnValue(of(mockPaginatedSessionsResponse));
     studioHistoryServiceSpy.getSessionReadings.and.returnValue(of(mockStudioSessionReadingsResponse));
+    studioHistoryServiceSpy.confirmSession.and.returnValue(
+      of({ ...mockStudioSessionSummaries[1], is_validated: true })
+    );
     studioHistoryServiceSpy.updateSessionLabel.and.returnValue(
       of({ ...mockStudioSessionSummaries[0], label: 'run' })
     );
@@ -119,7 +123,7 @@ describe('StudioHistoryComponent', () => {
     expect(authorCells[0].textContent).toContain('admin@healthkicks.org');
   });
 
-  it('should filter by label, device, user_id (for admin), dates and reset page to 1', () => {
+  it('should filter by label, device, user_id (for admin), dates, is_validated and reset page to 1', () => {
     currentUserSignal.set(adminUser);
     fixture.detectChanges();
 
@@ -128,6 +132,7 @@ describe('StudioHistoryComponent', () => {
     component.filterUserId.set('2');
     component.startDate.set('2026-09-01');
     component.endDate.set('2026-09-10');
+    component.selectedValidated.set('true');
     component.onFilterChange();
 
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
@@ -138,16 +143,65 @@ describe('StudioHistoryComponent', () => {
       user_id: 2,
       start_date: '2026-09-01',
       end_date: '2026-09-10',
+      is_validated: true,
     });
   });
 
-  it('should reset filters and reload sessions', () => {
+  it('should filter by is_validated=false when pending is selected', () => {
+    fixture.detectChanges();
+
+    component.selectedValidated.set('false');
+    component.onFilterChange();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      is_validated: false,
+    });
+  });
+
+  it('should display status badges in table and drawer', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const validatedBadges = compiled.querySelectorAll('[data-testid="badge-validated"]');
+    const pendingBadges = compiled.querySelectorAll('[data-testid="badge-pending"]');
+
+    expect(validatedBadges.length).toBe(2);
+    expect(pendingBadges.length).toBe(1);
+
+    // Open pending session (sess-002) in drawer
+    component.openInspection(mockStudioSessionSummaries[1]);
+    fixture.detectChanges();
+
+    const drawerPendingBadge = compiled.querySelector('[data-testid="drawer-badge-pending"]');
+    expect(drawerPendingBadge).toBeTruthy();
+
+    const drawerConfirmBtn = compiled.querySelector('#drawer-confirm-btn');
+    expect(drawerConfirmBtn).toBeTruthy();
+  });
+
+  it('should confirm session from drawer and update its validation status', () => {
+    fixture.detectChanges();
+
+    component.openInspection(mockStudioSessionSummaries[1]);
+    fixture.detectChanges();
+
+    component.confirmSessionFromDrawer('sess-002');
+
+    expect(studioHistoryServiceSpy.confirmSession).toHaveBeenCalledWith('sess-002');
+    expect(toastSpy.success).toHaveBeenCalledWith('Session validée avec succès !');
+    expect(component.inspectingSession()?.is_validated).toBeTrue();
+  });
+
+  it('should reset filters including status and reload sessions', () => {
     fixture.detectChanges();
 
     component.selectedLabel.set('stairs');
     component.selectedDeviceId.set('hk-device-0002');
     component.startDate.set('2026-09-01');
     component.endDate.set('2026-09-10');
+    component.selectedValidated.set('true');
     component.resetFilters();
 
     expect(component.selectedLabel()).toBe('');
@@ -155,6 +209,7 @@ describe('StudioHistoryComponent', () => {
     expect(component.filterUserId()).toBe('');
     expect(component.startDate()).toBe('');
     expect(component.endDate()).toBe('');
+    expect(component.selectedValidated()).toBe('all');
     expect(component.page()).toBe(1);
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
       page: 1,

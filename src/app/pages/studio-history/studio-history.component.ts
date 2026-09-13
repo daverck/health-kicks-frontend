@@ -68,6 +68,7 @@ export class StudioHistoryComponent implements OnInit {
   readonly filterUserId = signal<string>('');
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
+  readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
   readonly devices = signal<DeviceResponse[]>([]);
 
   // RBAC & Computeds
@@ -85,7 +86,8 @@ export class StudioHistoryComponent implements OnInit {
       Boolean(this.selectedDeviceId()) ||
       Boolean(this.filterUserId()) ||
       Boolean(this.startDate()) ||
-      Boolean(this.endDate())
+      Boolean(this.endDate()) ||
+      this.selectedValidated() !== 'all'
     );
   });
 
@@ -93,6 +95,7 @@ export class StudioHistoryComponent implements OnInit {
   readonly inspectingSession = signal<StudioSessionSummary | null>(null);
   readonly activeReadings = signal<ImuReading[]>([]);
   readonly isLoadingReadings = signal<boolean>(false);
+  readonly isValidatingSession = signal<boolean>(false);
   readonly readingsError = signal<string | null>(null);
 
   readonly currentSessionIndex = computed<number>(() => {
@@ -156,6 +159,11 @@ export class StudioHistoryComponent implements OnInit {
     if (this.endDate()) {
       params.end_date = this.endDate();
     }
+    if (this.selectedValidated() === 'true') {
+      params.is_validated = true;
+    } else if (this.selectedValidated() === 'false') {
+      params.is_validated = false;
+    }
 
     this.studioHistoryService.getSessions(params).subscribe({
       next: (res) => {
@@ -187,8 +195,32 @@ export class StudioHistoryComponent implements OnInit {
     this.filterUserId.set('');
     this.startDate.set('');
     this.endDate.set('');
+    this.selectedValidated.set('all');
     this.page.set(1);
     this.loadSessions();
+  }
+
+  confirmSessionFromDrawer(sessionId: string): void {
+    this.isValidatingSession.set(true);
+    this.studioHistoryService.confirmSession(sessionId).subscribe({
+      next: () => {
+        this.isValidatingSession.set(false);
+        this.toast.success(this.translation.translate('studio_history.session_confirmed_success'));
+        this.sessions.update((list) =>
+          list.map((s) => (s.id === sessionId ? { ...s, is_validated: true } : s))
+        );
+        const current = this.inspectingSession();
+        if (current && current.id === sessionId) {
+          this.inspectingSession.set({ ...current, is_validated: true });
+        }
+      },
+      error: (err) => {
+        this.isValidatingSession.set(false);
+        this.toast.error(
+          err?.error?.detail ?? 'Erreur lors de la validation de la session.'
+        );
+      },
+    });
   }
 
   goToPage(p: number): void {

@@ -49,6 +49,7 @@ describe('StudioHistoryService', () => {
         label: 'fall_forward',
         device_id: 'hk-device-0001',
         user_id: 42,
+        is_validated: true,
       })
       .subscribe((res) => {
         expect(res).toEqual(mockPaginatedSessionsResponse);
@@ -61,7 +62,21 @@ describe('StudioHistoryService', () => {
     expect(req.request.params.get('label')).toBe('fall_forward');
     expect(req.request.params.get('device_id')).toBe('hk-device-0001');
     expect(req.request.params.get('user_id')).toBe('42');
+    expect(req.request.params.get('is_validated')).toBe('true');
     req.flush(mockPaginatedSessionsResponse);
+  });
+
+  it('should confirm session via PATCH /sessions/{id}/confirm', () => {
+    const confirmed = { ...mockStudioSessionSummaries[1], is_validated: true };
+
+    service.confirmSession('sess-002').subscribe((res) => {
+      expect(res).toEqual(confirmed);
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}/sess-002/confirm`);
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({});
+    req.flush(confirmed);
   });
 
   it('should get session readings by session id', () => {

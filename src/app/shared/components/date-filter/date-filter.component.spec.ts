@@ -101,3 +101,4 @@ describe('DateFilterComponent', () => {
     expect(component.isOpen()).toBeFalse();
   });
 });
+

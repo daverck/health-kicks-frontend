@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { StudioComponent } from './studio.component';
 import { DeviceService } from '../../core/services/device.service';
 import { StudioService } from '../../core/services/studio.service';
+import { StudioHistoryService } from '../../core/services/studio-history.service';
 import { ToastService } from '../../core/services/toast.service';
 import { mockDevices } from '../../../testing/mocks/device.mock';
 import { DeviceResponse } from '../../models/api.models';
@@ -13,6 +14,7 @@ import {
   mockImuReadings,
   mockStudioDatasetStats,
 } from '../../../testing/mocks/telemetry.mock';
+import { mockStudioSessionSummaries } from '../../../testing/mocks/studio-history.mock';
 
 const mockOnlineDevices: DeviceResponse[] = mockDevices.map((d) => ({
   ...d,
@@ -24,7 +26,9 @@ describe('StudioComponent', () => {
   let fixture: ComponentFixture<StudioComponent>;
   let deviceServiceSpy: jasmine.SpyObj<DeviceService>;
   let studioServiceSpy: jasmine.SpyObj<StudioService>;
+  let studioHistoryServiceSpy: jasmine.SpyObj<StudioHistoryService>;
   let toastSpy: jasmine.SpyObj<ToastService>;
+  let router: Router;
 
   beforeEach(async () => {
     localStorage.clear();
@@ -42,6 +46,15 @@ describe('StudioComponent', () => {
     studioServiceSpy.deleteSessionReadings.and.returnValue(of(undefined));
     studioServiceSpy.getStudioStats.and.returnValue(of(mockStudioDatasetStats));
 
+    studioHistoryServiceSpy = jasmine.createSpyObj('StudioHistoryService', [
+      'confirmSession',
+      'deleteSession',
+    ]);
+    studioHistoryServiceSpy.confirmSession.and.returnValue(
+      of({ ...mockStudioSessionSummaries[0], id: 'sess-abc-12345', is_validated: true })
+    );
+    studioHistoryServiceSpy.deleteSession.and.returnValue(of(undefined));
+
     toastSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info', 'warning']);
 
     await TestBed.configureTestingModule({
@@ -50,9 +63,13 @@ describe('StudioComponent', () => {
         provideRouter([]),
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: StudioService, useValue: studioServiceSpy },
+        { provide: StudioHistoryService, useValue: studioHistoryServiceSpy },
         { provide: ToastService, useValue: toastSpy },
       ],
     }).compileComponents();
+
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigate');
 
     fixture = TestBed.createComponent(StudioComponent);
     component = fixture.componentInstance;
@@ -344,29 +361,49 @@ describe('StudioComponent', () => {
     expect(component.readings()).toEqual(mockImuReadings);
   }));
 
-  it('should validate session and reset to idle state', () => {
+  it('should validate session via confirmSession, show toast and navigate to history', () => {
     fixture.detectChanges();
+    component.currentSession.set(mockStudioStartResponse);
     component.state.set('inspecting');
     component.readings.set(mockImuReadings);
 
     component.validateSession();
 
-    expect(toastSpy.success).toHaveBeenCalledWith('Session IMU validée et archivée avec succès !');
+    expect(studioHistoryServiceSpy.confirmSession).toHaveBeenCalledWith('sess-abc-12345');
+    expect(toastSpy.success).toHaveBeenCalledWith('Session IMU validée et enregistrée avec succès !');
     expect(component.state()).toBe('idle');
-    expect(component.readings().length).toBe(0);
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard/studio/history']);
   });
 
-  it('should reject session, call deleteSessionReadings and reset to idle state', () => {
+  it('should prompt confirmation when rejectSession is called and delete upon confirmation', () => {
     fixture.detectChanges();
     component.currentSession.set(mockStudioStartResponse);
     component.selectedDeviceId.set('hk-device-0001');
     component.state.set('inspecting');
 
     component.rejectSession();
+    expect(component.showDeleteConfirm()).toBeTrue();
 
-    expect(studioServiceSpy.deleteSessionReadings).toHaveBeenCalledWith('hk-device-0001', 'sess-abc-12345');
-    expect(toastSpy.info).toHaveBeenCalledWith('Session rejetée et points supprimés de DynamoDB.');
+    component.confirmRejectSession();
+
+    expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-abc-12345');
+    expect(toastSpy.info).toHaveBeenCalledWith('Enregistrement écarté et session supprimée.');
     expect(component.state()).toBe('idle');
+    expect(component.showDeleteConfirm()).toBeFalse();
+  });
+
+  it('should allow cancelling the reject prompt without deleting', () => {
+    fixture.detectChanges();
+    component.currentSession.set(mockStudioStartResponse);
+    component.state.set('inspecting');
+
+    component.rejectSession();
+    expect(component.showDeleteConfirm()).toBeTrue();
+
+    component.cancelRejectPrompt();
+    expect(component.showDeleteConfirm()).toBeFalse();
+    expect(studioHistoryServiceSpy.deleteSession).not.toHaveBeenCalled();
+    expect(component.state()).toBe('inspecting');
   });
 
   it('should only display delete and validate buttons in inspecting state (no cancel button)', () => {
@@ -465,11 +502,14 @@ describe('StudioComponent', () => {
 
   it('should refresh dataset stats when validating a session', () => {
     fixture.detectChanges();
+    component.currentSession.set(mockStudioStartResponse);
+    component.selectedDeviceId.set('hk-device-0001');
     const callCountBefore = studioServiceSpy.getStudioStats.calls.count();
 
     component.state.set('inspecting');
     component.validateSession();
 
+    expect(studioHistoryServiceSpy.confirmSession).toHaveBeenCalledWith('sess-abc-12345');
     expect(studioServiceSpy.getStudioStats.calls.count()).toBe(callCountBefore + 1);
   });
 
@@ -480,9 +520,9 @@ describe('StudioComponent', () => {
     component.state.set('inspecting');
     const callCountBefore = studioServiceSpy.getStudioStats.calls.count();
 
-    component.rejectSession();
+    component.confirmRejectSession();
 
-    expect(studioServiceSpy.deleteSessionReadings).toHaveBeenCalledWith('hk-device-0001', 'sess-abc-12345');
+    expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-abc-12345');
     expect(studioServiceSpy.getStudioStats.calls.count()).toBe(callCountBefore + 1);
   });
 
