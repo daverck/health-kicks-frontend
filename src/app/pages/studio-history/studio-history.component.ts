@@ -121,6 +121,7 @@ export class StudioHistoryComponent implements OnInit {
   readonly isUpdatingLabel = signal<boolean>(false);
   readonly isDeletingSession = signal<boolean>(false);
   readonly showDeleteConfirm = signal<boolean>(false);
+  readonly sessionToDelete = signal<StudioSessionSummary | null>(null);
 
   readonly effectiveEditLabel = computed<string>(() => {
     if (this.labelEditMode() === 'custom') {
@@ -298,7 +299,9 @@ export class StudioHistoryComponent implements OnInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.inspectingSession()) {
+    if (this.sessionToDelete()) {
+      this.cancelPromptDelete();
+    } else if (this.inspectingSession()) {
       this.closeInspection();
     }
   }
@@ -322,7 +325,53 @@ export class StudioHistoryComponent implements OnInit {
     });
   }
 
-  // --- Curation Actions ---
+  // --- Curation & Deletion Actions ---
+
+  promptDeleteSession(session: StudioSessionSummary, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.sessionToDelete.set(session);
+  }
+
+  cancelPromptDelete(): void {
+    this.sessionToDelete.set(null);
+  }
+
+  executeDeleteSession(sessionId: string): void {
+    this.isDeletingSession.set(true);
+    this.studioHistoryService.deleteSession(sessionId).subscribe({
+      next: () => {
+        this.isDeletingSession.set(false);
+        this.sessionToDelete.set(null);
+        this.showDeleteConfirm.set(false);
+        this.toast.info(
+          this.translation.translate('studio_history.session_deleted')
+        );
+
+        // Remove from list
+        this.sessions.update((items) => items.filter((it) => it.id !== sessionId));
+        this.total.update((t) => Math.max(0, t - 1));
+
+        // Close inspection drawer if the deleted session was open
+        if (this.inspectingSession()?.id === sessionId) {
+          this.closeInspection();
+        }
+
+        // Reload current page if list became empty and page > 1
+        if (this.sessions().length === 0 && this.page() > 1) {
+          this.page.update((p) => p - 1);
+          this.loadSessions();
+        }
+      },
+      error: (err) => {
+        this.isDeletingSession.set(false);
+        this.toast.error(
+          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
+        );
+      },
+    });
+  }
 
   updateLabel(): void {
     const session = this.inspectingSession();
@@ -365,34 +414,7 @@ export class StudioHistoryComponent implements OnInit {
   deleteSession(): void {
     const session = this.inspectingSession();
     if (!session) return;
-
-    this.isDeletingSession.set(true);
-    this.studioHistoryService.deleteSession(session.id).subscribe({
-      next: () => {
-        this.isDeletingSession.set(false);
-        this.showDeleteConfirm.set(false);
-        this.toast.info(
-          this.translation.translate('studio_history.session_deleted')
-        );
-
-        // Remove from list
-        this.sessions.update((items) => items.filter((it) => it.id !== session.id));
-        this.total.update((t) => Math.max(0, t - 1));
-        this.closeInspection();
-
-        // Reload current page if list became empty and page > 1
-        if (this.sessions().length === 0 && this.page() > 1) {
-          this.page.update((p) => p - 1);
-          this.loadSessions();
-        }
-      },
-      error: (err) => {
-        this.isDeletingSession.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
-        );
-      },
-    });
+    this.executeDeleteSession(session.id);
   }
 
   getLabelBadgeClass(label: string): string {

@@ -264,14 +264,29 @@
 
                 <!-- Actions -->
                 <td class="whitespace-nowrap px-4 py-3 text-right">
-                  <button
-                    [id]="'inspect-btn-' + s.id"
-                    type="button"
-                    (click)="$event.stopPropagation(); openInspection(s)"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-primary-700 shadow-2xs hover:bg-primary-50 transition active:scale-95"
-                  >
-                    <span>👁️</span> {{ 'studio_history.inspect' | translate }}
-                  </button>
+                  <div class="inline-flex items-center gap-1.5 justify-end">
+                    <button
+                      [id]="'inspect-btn-' + s.id"
+                      type="button"
+                      (click)="$event.stopPropagation(); openInspection(s)"
+                      class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary-700 shadow-2xs hover:bg-primary-50 transition active:scale-95"
+                      [title]="'studio_history.inspect' | translate"
+                    >
+                      <span>👁️</span> <span class="hidden sm:inline">{{ 'studio_history.inspect' | translate }}</span>
+                    </button>
+
+                    <button
+                      [id]="'delete-row-btn-' + s.id"
+                      type="button"
+                      (click)="$event.stopPropagation(); promptDeleteSession(s, $event)"
+                      [attr.data-testid]="'delete-row-btn-' + s.id"
+                      class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-1 text-xs font-semibold text-red-600 shadow-2xs hover:border-red-200 hover:bg-red-50 hover:text-red-700 transition active:scale-95"
+                      [title]="'studio_history.delete_session' | translate"
+                      [attr.aria-label]="'studio_history.delete_session' | translate"
+                    >
+                      <span>🗑️</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             }
@@ -667,5 +682,63 @@
         </div>
       </div>
     </aside>
+  }
+
+  <!-- Delete Confirmation Modal (Direct list deletion) -->
+  @if (sessionToDelete(); as session) {
+    <!-- Backdrop -->
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs transition-opacity"
+      (click)="cancelPromptDelete()"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl space-y-4"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-lg text-red-600">
+            🗑️
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900">
+              {{ 'studio_history.delete_session' | translate }}
+            </h3>
+            <p class="text-xs text-gray-500 font-mono mt-0.5">
+              {{ session.device_id }} · {{ session.created_at | date:'dd/MM/yyyy HH:mm' }}
+            </p>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-600">
+          {{ 'studio_history.delete_confirm' | translate }}
+        </p>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+          <button
+            id="cancel-modal-delete-btn"
+            type="button"
+            (click)="cancelPromptDelete()"
+            class="rounded-lg border border-gray-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition active:scale-95"
+          >
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button
+            id="confirm-modal-delete-btn"
+            type="button"
+            (click)="executeDeleteSession(session.id)"
+            [disabled]="isDeletingSession()"
+            data-testid="confirm-modal-delete-btn"
+            class="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-red-700 transition active:scale-95 disabled:opacity-50"
+          >
+            @if (isDeletingSession()) {
+              <span class="animate-spin">⏳</span>
+            }
+            {{ 'studio_history.delete_session' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
   }
 </div>

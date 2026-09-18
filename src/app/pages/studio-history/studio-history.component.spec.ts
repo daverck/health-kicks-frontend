@@ -414,6 +414,57 @@ describe('StudioHistoryComponent', () => {
     expect(component.total()).toBe(2);
   });
 
+  it('should delete session directly from list via row delete button without loading IMU readings', () => {
+    fixture.detectChanges();
+
+    // Reset spy calls to be certain getSessionReadings was not called
+    studioHistoryServiceSpy.getSessionReadings.calls.reset();
+
+    const targetSession = mockStudioSessionSummaries[1]; // sess-002
+    component.promptDeleteSession(targetSession);
+    fixture.detectChanges();
+
+    expect(component.sessionToDelete()).toEqual(targetSession);
+    expect(component.inspectingSession()).toBeNull();
+    expect(studioHistoryServiceSpy.getSessionReadings).not.toHaveBeenCalled();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const confirmBtn = compiled.querySelector('[data-testid="confirm-modal-delete-btn"]') as HTMLButtonElement;
+    expect(confirmBtn).toBeTruthy();
+
+    confirmBtn.click();
+    fixture.detectChanges();
+
+    expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-002');
+    expect(toastSpy.info).toHaveBeenCalled();
+    expect(component.sessionToDelete()).toBeNull();
+    expect(component.sessions().some((s) => s.id === 'sess-002')).toBeFalse();
+    expect(component.total()).toBe(2);
+    expect(studioHistoryServiceSpy.getSessionReadings).not.toHaveBeenCalled();
+  });
+
+  it('should cancel direct list deletion when cancel button or escape key is pressed', () => {
+    fixture.detectChanges();
+
+    const targetSession = mockStudioSessionSummaries[0];
+    component.promptDeleteSession(targetSession);
+    fixture.detectChanges();
+
+    expect(component.sessionToDelete()).toEqual(targetSession);
+
+    // Cancel via method
+    component.cancelPromptDelete();
+    expect(component.sessionToDelete()).toBeNull();
+
+    // Re-prompt and cancel via Escape
+    component.promptDeleteSession(targetSession);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+
+    expect(component.sessionToDelete()).toBeNull();
+    expect(studioHistoryServiceSpy.deleteSession).not.toHaveBeenCalled();
+  });
+
   it('should handle sessions loading error gracefully', () => {
     studioHistoryServiceSpy.getSessions.and.returnValue(
       throwError(() => ({ status: 500, error: { detail: 'Erreur base de données' } }))
