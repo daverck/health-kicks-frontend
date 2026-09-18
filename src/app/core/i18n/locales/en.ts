@@ -347,8 +347,9 @@ export const en = {
   },
   studio_history: {
     title: 'Studio Session History',
-    subtitle: 'Explore, visualize, and manage persisted IMU captures in the database.',
-    back_to_studio: 'Capture Studio',
+    subtitle: 'Explore, visualize, and manage IMU motion captures persisted in the database.',
+    back_to_studio: 'Motion Studio',
+    filters_title: 'Filters',
     filter_label: 'Motion Label',
     filter_all_labels: 'All Motion Labels',
     filter_device: 'Device',

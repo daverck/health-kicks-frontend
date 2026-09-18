@@ -328,6 +328,7 @@ export const fr = {
     title: 'Historique des sessions Studio',
     subtitle: 'Explorez, visualisez et gérez les captures IMU persistées dans la base de données.',
     back_to_studio: 'Studio de capture',
+    filters_title: 'Filtres',
     filter_label: 'Mouvement',
     filter_all_labels: 'Tous les mouvements',
     filter_device: 'Équipement',

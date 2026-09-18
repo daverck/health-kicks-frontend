@@ -545,4 +545,36 @@ describe('StudioHistoryComponent', () => {
     expect(compiled.textContent).toContain('test_movement');
     expect(compiled.textContent).not.toContain('studio.labels.test_movement');
   });
+
+  it('should render mobile session cards and allow inspecting a session from mobile view', () => {
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const mobileCard = compiled.querySelector('[data-testid="mobile-session-card-sess-001"]') as HTMLElement;
+    expect(mobileCard).toBeTruthy();
+
+    const mobileInspectBtn = compiled.querySelector('#inspect-mobile-btn-sess-001') as HTMLButtonElement;
+    expect(mobileInspectBtn).toBeTruthy();
+
+    spyOn(component, 'openInspection').and.callThrough();
+    mobileInspectBtn.click();
+    fixture.detectChanges();
+
+    expect(component.openInspection).toHaveBeenCalledWith(mockStudioSessionSummaries[0]);
+    expect(component.inspectingSession()?.id).toBe('sess-001');
+  });
+
+  it('should toggle mobile filters panel', () => {
+    fixture.detectChanges();
+
+    expect(component.showMobileFilters()).toBeFalse();
+    const toggleBtn = fixture.nativeElement.querySelector('#toggle-mobile-filters-btn') as HTMLButtonElement;
+    expect(toggleBtn).toBeTruthy();
+
+    toggleBtn.click();
+    fixture.detectChanges();
+
+    expect(component.showMobileFilters()).toBeTrue();
+    expect(fixture.nativeElement.querySelector('#mobile-filter-validated')).toBeTruthy();
+  });
 });

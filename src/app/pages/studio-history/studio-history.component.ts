@@ -70,6 +70,7 @@ export class StudioHistoryComponent implements OnInit {
   readonly endDate = signal<string>('');
   readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
   readonly devices = signal<DeviceResponse[]>([]);
+  readonly showMobileFilters = signal<boolean>(false);
 
   // RBAC & Computeds
   readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
@@ -199,6 +200,10 @@ export class StudioHistoryComponent implements OnInit {
         );
       },
     });
+  }
+
+  toggleMobileFilters(): void {
+    this.showMobileFilters.update((v) => !v);
   }
 
   onFilterChange(): void {
