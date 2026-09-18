@@ -15,10 +15,19 @@ import {
   PREDEFINED_LABELS,
   SELECTED_DEVICE_STORAGE_KEY,
   StudioActivityCode,
+  STANDARD_STUDIO_LABELS,
+  STANDARD_STUDIO_LABEL_IDS,
+  isStandardStudioLabel,
 } from '../../models/studio.model';
 
 export type { PredefinedLabel, StudioActivityCode };
-export { PREDEFINED_LABELS, SELECTED_DEVICE_STORAGE_KEY };
+export {
+  PREDEFINED_LABELS,
+  SELECTED_DEVICE_STORAGE_KEY,
+  STANDARD_STUDIO_LABELS,
+  STANDARD_STUDIO_LABEL_IDS,
+  isStandardStudioLabel,
+};
 
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -85,13 +94,18 @@ export class StudioComponent implements OnInit, OnDestroy {
     return custom.length > 0 ? custom : this.selectedLabel();
   });
 
+  getLabelDisplayName(label: string): string {
+    if (!label) return '';
+    if (isStandardStudioLabel(label)) {
+      const key = `studio.labels.${label}`;
+      const translated = this.translation.translate(key);
+      return translated !== key ? translated : label;
+    }
+    return label;
+  }
+
   readonly displayLabel = computed(() => {
-    const custom = this.customLabel().trim();
-    if (custom) return custom;
-    const id = this.selectedLabel();
-    const key = `studio.labels.${id}`;
-    const translated = this.translation.translate(key);
-    return translated !== key ? translated : id;
+    return this.getLabelDisplayName(this.effectiveLabel());
   });
 
   // Session data

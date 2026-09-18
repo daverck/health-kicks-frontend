@@ -23,7 +23,7 @@ import {
 import { ImuReading } from '../../models/telemetry.models';
 import { ImuChartComponent } from '../../shared/components/imu-chart/imu-chart.component';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { PREDEFINED_LABELS, PredefinedLabel } from '../studio/studio.component';
+import { PREDEFINED_LABELS, PredefinedLabel, isStandardStudioLabel } from '../studio/studio.component';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
@@ -431,6 +431,16 @@ export class StudioHistoryComponent implements OnInit {
       return 'bg-amber-100 text-amber-800 border-amber-200';
     }
     return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+  }
+
+  getLabelDisplayName(label: string): string {
+    if (!label) return '';
+    if (isStandardStudioLabel(label)) {
+      const key = `studio.labels.${label}`;
+      const translated = this.translation.translate(key);
+      return translated !== key ? translated : label;
+    }
+    return label;
   }
 
   getLabelIcon(labelId: string): string {

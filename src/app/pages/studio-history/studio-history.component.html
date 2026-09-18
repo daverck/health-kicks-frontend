@@ -241,7 +241,7 @@
                     [ngClass]="getLabelBadgeClass(s.label)"
                   >
                     <span>{{ getLabelIcon(s.label) }}</span>
-                    <span>{{ 'studio.labels.' + s.label | translate }}</span>
+                    <span>{{ getLabelDisplayName(s.label) }}</span>
                   </span>
                 </td>
 
@@ -367,7 +367,7 @@
               [ngClass]="getLabelBadgeClass(session.label)"
             >
               <span>{{ getLabelIcon(session.label) }}</span>
-              <span>{{ 'studio.labels.' + session.label | translate }}</span>
+              <span>{{ getLabelDisplayName(session.label) }}</span>
             </span>
 
             <!-- Validation Status Badge in Drawer Header -->

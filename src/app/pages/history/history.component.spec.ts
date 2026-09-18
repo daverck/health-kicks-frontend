@@ -144,6 +144,9 @@ describe('HistoryComponent', () => {
     expect(component.getActivityBadgeClass('walk')).toContain('bg-emerald-100');
     expect(component.getActivityBadgeClass('stairs')).toContain('bg-amber-100');
     expect(component.getActivityBadgeClass('other')).toContain('bg-blue-100');
+
+    expect(component.getActivityLabel('walk')).toBe('Marche');
+    expect(component.getActivityLabel('custom_activity')).toBe('custom_activity');
   });
 
   it('should handle pagination when goToPage is called', () => {

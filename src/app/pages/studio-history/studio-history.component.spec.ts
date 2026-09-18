@@ -512,4 +512,37 @@ describe('StudioHistoryComponent', () => {
       })
     );
   });
+
+  it('should format standard labels with translation and custom labels as raw strings without prefix', () => {
+    fixture.detectChanges();
+
+    // Standard labels
+    expect(component.getLabelDisplayName('walk')).toBe('Marche');
+    expect(component.getLabelDisplayName('run')).toBe('Course');
+    expect(component.getLabelDisplayName('idle')).toBe('Immobile / Repos');
+
+    // Custom labels
+    expect(component.getLabelDisplayName('test')).toBe('test');
+    expect(component.getLabelDisplayName('custom_sprint')).toBe('custom_sprint');
+    expect(component.getLabelDisplayName('')).toBe('');
+
+    // In rendered table
+    component.sessions.set([
+      {
+        id: 'sess-custom',
+        device_id: 'hk-esp32-001',
+        user_id: 1,
+        label: 'test_movement',
+        sample_count: 50,
+        duration_sec: 1.0,
+        created_at: '2026-09-18T10:00:00Z',
+        is_validated: false,
+      },
+    ]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.textContent).toContain('test_movement');
+    expect(compiled.textContent).not.toContain('studio.labels.test_movement');
+  });
 });

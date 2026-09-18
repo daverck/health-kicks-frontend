@@ -388,7 +388,7 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="inline-flex rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-bold text-primary-800">
-                {{ currentSession()?.label || displayLabel() }}
+                {{ getLabelDisplayName(currentSession()?.label || effectiveLabel()) }}
               </span>
               <span class="font-mono text-xs text-gray-500">
                 Session : {{ currentSession()?.session_id }}

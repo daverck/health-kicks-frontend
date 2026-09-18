@@ -90,3 +90,12 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
   },
 ];
 
+export const STANDARD_STUDIO_LABELS = PREDEFINED_LABELS;
+
+export const STANDARD_STUDIO_LABEL_IDS = new Set<string>(
+  PREDEFINED_LABELS.map((l) => l.id)
+);
+
+export function isStandardStudioLabel(labelId: string): boolean {
+  return STANDARD_STUDIO_LABEL_IDS.has(labelId);
+}

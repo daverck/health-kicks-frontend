@@ -4,7 +4,8 @@ import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, ActivityEvent, HapticLogItem } from '../../models/api.models';
 import { intensityToLevel } from '../../core/utils/haptic.utils';
-import { PREDEFINED_LABELS } from '../../models/studio.model';
+import { PREDEFINED_LABELS, isStandardStudioLabel } from '../../models/studio.model';
+import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
@@ -25,6 +26,7 @@ import { DateFilterComponent } from '../../shared/components/date-filter/date-fi
 export class HistoryComponent implements OnInit {
   private readonly deviceService = inject(DeviceService);
   private readonly toast = inject(ToastService);
+  private readonly translation = inject(TranslationService);
 
   readonly intensityToLevel = intensityToLevel;
   readonly predefinedLabels = PREDEFINED_LABELS;
@@ -172,6 +174,11 @@ export class HistoryComponent implements OnInit {
   }
 
   getActivityLabel(eventType: string): string {
+    if (isStandardStudioLabel(eventType)) {
+      const key = `studio.labels.${eventType}`;
+      const translated = this.translation.translate(key);
+      if (translated !== key) return translated;
+    }
     const found = this.predefinedLabels.find((l) => l.id === eventType);
     return found ? found.name : eventType;
   }
