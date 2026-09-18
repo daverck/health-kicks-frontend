@@ -326,20 +326,72 @@ describe('StudioHistoryComponent', () => {
     expect(component.inspectingSession()).toBeNull();
   });
 
-  it('should update session label and update session in local list', () => {
+  it('should update session label with predefined selection and update session in local list', () => {
     fixture.detectChanges();
 
     const targetSession = mockStudioSessionSummaries[0];
     component.openInspection(targetSession);
     fixture.detectChanges();
 
+    expect(component.labelEditMode()).toBe('predefined');
+    expect(component.editLabelValue()).toBe('walk');
+
     component.editLabelValue.set('run');
+    expect(component.canSaveLabel()).toBeTrue();
     component.updateLabel();
 
     expect(studioHistoryServiceSpy.updateSessionLabel).toHaveBeenCalledWith('sess-001', 'run');
     expect(toastSpy.success).toHaveBeenCalled();
     expect(component.inspectingSession()?.label).toBe('run');
     expect(component.sessions().find((s) => s.id === 'sess-001')?.label).toBe('run');
+  });
+
+  it('should switch to custom label mode, allow typing a new label, and update session', () => {
+    fixture.detectChanges();
+
+    studioHistoryServiceSpy.updateSessionLabel.and.returnValue(
+      of({ ...mockStudioSessionSummaries[0], label: 'sprint_libre' })
+    );
+
+    const targetSession = mockStudioSessionSummaries[0];
+    component.openInspection(targetSession);
+    fixture.detectChanges();
+
+    // Switch to custom mode
+    component.labelEditMode.set('custom');
+    expect(component.canSaveLabel()).toBeFalse(); // Empty custom label
+
+    // Enter a new label
+    component.customLabelValue.set('  sprint_libre  ');
+    expect(component.effectiveEditLabel()).toBe('sprint_libre');
+    expect(component.canSaveLabel()).toBeTrue();
+
+    component.updateLabel();
+
+    expect(studioHistoryServiceSpy.updateSessionLabel).toHaveBeenCalledWith('sess-001', 'sprint_libre');
+    expect(toastSpy.success).toHaveBeenCalled();
+    expect(component.inspectingSession()?.label).toBe('sprint_libre');
+  });
+
+  it('should auto-detect custom label when opening a session with non-predefined label', () => {
+    fixture.detectChanges();
+
+    const customSession = {
+      ...mockStudioSessionSummaries[0],
+      id: 'sess-custom',
+      label: 'danse_latine',
+    };
+
+    component.openInspection(customSession);
+    fixture.detectChanges();
+
+    expect(component.labelEditMode()).toBe('custom');
+    expect(component.customLabelValue()).toBe('danse_latine');
+    expect(component.canSaveLabel()).toBeFalse(); // Identical to current label
+
+    // Modify custom label
+    component.customLabelValue.set('danse_dynamique');
+    expect(component.canSaveLabel()).toBeTrue();
   });
 
   it('should delete session with confirmation, update list and close drawer', () => {

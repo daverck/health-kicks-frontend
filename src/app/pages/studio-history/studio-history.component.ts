@@ -115,10 +115,26 @@ export class StudioHistoryComponent implements OnInit {
   });
 
   // Curation State inside Drawer
-  readonly editLabelValue = signal<string>('');
+  readonly labelEditMode = signal<'predefined' | 'custom'>('predefined');
+  readonly editLabelValue = signal<string>('walk');
+  readonly customLabelValue = signal<string>('');
   readonly isUpdatingLabel = signal<boolean>(false);
   readonly isDeletingSession = signal<boolean>(false);
   readonly showDeleteConfirm = signal<boolean>(false);
+
+  readonly effectiveEditLabel = computed<string>(() => {
+    if (this.labelEditMode() === 'custom') {
+      return this.customLabelValue().trim().toLowerCase();
+    }
+    return this.editLabelValue();
+  });
+
+  readonly canSaveLabel = computed<boolean>(() => {
+    const session = this.inspectingSession();
+    if (!session) return false;
+    const target = this.effectiveEditLabel();
+    return Boolean(target) && target !== session.label;
+  });
 
   ngOnInit(): void {
     this.loadDevices();
@@ -241,7 +257,16 @@ export class StudioHistoryComponent implements OnInit {
 
   openInspection(session: StudioSessionSummary): void {
     this.inspectingSession.set(session);
-    this.editLabelValue.set(session.label);
+    const isPredefined = this.predefinedLabels.some((l) => l.id === session.label);
+    if (isPredefined) {
+      this.labelEditMode.set('predefined');
+      this.editLabelValue.set(session.label);
+      this.customLabelValue.set('');
+    } else {
+      this.labelEditMode.set('custom');
+      this.customLabelValue.set(session.label);
+      this.editLabelValue.set('walk');
+    }
     this.activeReadings.set([]);
     this.showDeleteConfirm.set(false);
     this.loadReadings(session.id);
@@ -301,7 +326,7 @@ export class StudioHistoryComponent implements OnInit {
 
   updateLabel(): void {
     const session = this.inspectingSession();
-    const newLabel = this.editLabelValue().trim();
+    const newLabel = this.effectiveEditLabel();
     if (!session || !newLabel || newLabel === session.label) {
       return;
     }

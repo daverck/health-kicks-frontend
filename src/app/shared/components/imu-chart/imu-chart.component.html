@@ -7,7 +7,7 @@
   } @else {
     <!-- Acceleration Card -->
     <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div class="mb-3 flex items-center justify-between">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-red-100 text-sm font-bold text-red-700">
             A
@@ -19,6 +19,95 @@
         </div>
         <span class="text-xs font-mono text-gray-400">{{ readings.length }} points</span>
       </div>
+
+      <!-- Axis Selection Toolbar (Acceleration) -->
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-2 text-xs">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="font-medium text-gray-500 mr-1">Axes :</span>
+
+          <!-- AX Toggle -->
+          <button
+            type="button"
+            (click)="toggleAccelAxis('ax')"
+            [attr.aria-pressed]="showAx()"
+            data-testid="toggle-axis-ax"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showAx()
+              ? 'border-red-300 bg-red-50 text-red-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showAx() ? 'bg-red-500' : 'bg-gray-300'"></span>
+            <span>AX</span>
+          </button>
+
+          <!-- AY Toggle -->
+          <button
+            type="button"
+            (click)="toggleAccelAxis('ay')"
+            [attr.aria-pressed]="showAy()"
+            data-testid="toggle-axis-ay"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showAy()
+              ? 'border-emerald-300 bg-emerald-50 text-emerald-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showAy() ? 'bg-emerald-500' : 'bg-gray-300'"></span>
+            <span>AY</span>
+          </button>
+
+          <!-- AZ Toggle -->
+          <button
+            type="button"
+            (click)="toggleAccelAxis('az')"
+            [attr.aria-pressed]="showAz()"
+            data-testid="toggle-axis-az"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showAz()
+              ? 'border-blue-300 bg-blue-50 text-blue-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showAz() ? 'bg-blue-500' : 'bg-gray-300'"></span>
+            <span>AZ</span>
+          </button>
+
+          <!-- Magnitude Toggle -->
+          <button
+            type="button"
+            (click)="toggleAccelAxis('mag')"
+            [attr.aria-pressed]="showMag()"
+            data-testid="toggle-axis-mag"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showMag()
+              ? 'border-purple-300 bg-purple-50 text-purple-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showMag() ? 'bg-purple-500' : 'bg-gray-300'"></span>
+            <span>Magnitude</span>
+          </button>
+        </div>
+
+        <!-- Quick Actions (All / None) -->
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            (click)="setAllAccel(true)"
+            data-testid="accel-select-all"
+            class="rounded-md px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
+          >
+            Tous
+          </button>
+          <span class="text-gray-300">|</span>
+          <button
+            type="button"
+            (click)="setAllAccel(false)"
+            data-testid="accel-select-none"
+            class="rounded-md px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
+          >
+            Aucun
+          </button>
+        </div>
+      </div>
+
       <div class="relative h-64 w-full">
         <canvas #accelCanvas></canvas>
       </div>
@@ -26,7 +115,7 @@
 
     <!-- Gyroscope Card -->
     <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <div class="mb-3 flex items-center justify-between">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-100 text-sm font-bold text-amber-700">
             G
@@ -38,6 +127,80 @@
         </div>
         <span class="text-xs font-mono text-gray-400">{{ readings.length }} points</span>
       </div>
+
+      <!-- Axis Selection Toolbar (Gyroscope) -->
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2 border-y border-gray-100 py-2 text-xs">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="font-medium text-gray-500 mr-1">Axes :</span>
+
+          <!-- GX Toggle -->
+          <button
+            type="button"
+            (click)="toggleGyroAxis('gx')"
+            [attr.aria-pressed]="showGx()"
+            data-testid="toggle-axis-gx"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showGx()
+              ? 'border-amber-300 bg-amber-50 text-amber-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showGx() ? 'bg-amber-500' : 'bg-gray-300'"></span>
+            <span>GX</span>
+          </button>
+
+          <!-- GY Toggle -->
+          <button
+            type="button"
+            (click)="toggleGyroAxis('gy')"
+            [attr.aria-pressed]="showGy()"
+            data-testid="toggle-axis-gy"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showGy()
+              ? 'border-cyan-300 bg-cyan-50 text-cyan-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showGy() ? 'bg-cyan-500' : 'bg-gray-300'"></span>
+            <span>GY</span>
+          </button>
+
+          <!-- GZ Toggle -->
+          <button
+            type="button"
+            (click)="toggleGyroAxis('gz')"
+            [attr.aria-pressed]="showGz()"
+            data-testid="toggle-axis-gz"
+            class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-semibold transition active:scale-95"
+            [ngClass]="showGz()
+              ? 'border-pink-300 bg-pink-50 text-pink-700 shadow-2xs'
+              : 'border-gray-200 bg-gray-50 text-gray-400 opacity-60 line-through'"
+          >
+            <span class="h-2 w-2 rounded-full" [ngClass]="showGz() ? 'bg-pink-500' : 'bg-gray-300'"></span>
+            <span>GZ</span>
+          </button>
+        </div>
+
+        <!-- Quick Actions (All / None) -->
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            (click)="setAllGyro(true)"
+            data-testid="gyro-select-all"
+            class="rounded-md px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
+          >
+            Tous
+          </button>
+          <span class="text-gray-300">|</span>
+          <button
+            type="button"
+            (click)="setAllGyro(false)"
+            data-testid="gyro-select-none"
+            class="rounded-md px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
+          >
+            Aucun
+          </button>
+        </div>
+      </div>
+
       <div class="relative h-64 w-full">
         <canvas #gyroCanvas></canvas>
       </div>
