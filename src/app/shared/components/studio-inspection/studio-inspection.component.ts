@@ -202,15 +202,17 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     const current = this.session();
     if (!current) return;
 
+    // Immediately dismiss confirmation banner and notify parent component
+    this.showDeleteConfirm.set(false);
+    this.sessionDeleted.emit(current.id);
+
     this.isDeletingSession.set(true);
     this.studioHistoryService.deleteSession(current.id).subscribe({
       next: () => {
         this.isDeletingSession.set(false);
-        this.showDeleteConfirm.set(false);
         this.toast.info(
           this.translation.translate('studio_history.session_deleted')
         );
-        this.sessionDeleted.emit(current.id);
       },
       error: (err) => {
         this.isDeletingSession.set(false);

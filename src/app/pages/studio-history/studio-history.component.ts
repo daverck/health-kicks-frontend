@@ -290,23 +290,23 @@ export class StudioHistoryComponent implements OnInit {
   }
 
   executeDeleteSession(sessionId: string): void {
+    // Immediately dismiss confirmation popup and remove from list
+    this.sessionToDelete.set(null);
+    this.sessions.update((items) => items.filter((it) => it.id !== sessionId));
+    this.total.update((t) => Math.max(0, t - 1));
+
+    // Close inspection drawer if the deleted session was open
+    if (this.inspectingSession()?.id === sessionId) {
+      this.closeInspection();
+    }
+
     this.isDeletingSession.set(true);
     this.studioHistoryService.deleteSession(sessionId).subscribe({
       next: () => {
         this.isDeletingSession.set(false);
-        this.sessionToDelete.set(null);
         this.toast.info(
           this.translation.translate('studio_history.session_deleted')
         );
-
-        // Remove from list
-        this.sessions.update((items) => items.filter((it) => it.id !== sessionId));
-        this.total.update((t) => Math.max(0, t - 1));
-
-        // Close inspection drawer if the deleted session was open
-        if (this.inspectingSession()?.id === sessionId) {
-          this.closeInspection();
-        }
 
         // Reload current page if list became empty and page > 1
         if (this.sessions().length === 0 && this.page() > 1) {
@@ -319,6 +319,8 @@ export class StudioHistoryComponent implements OnInit {
         this.toast.error(
           err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
         );
+        // Reload sessions to restore list if server returned an error
+        this.loadSessions();
       },
     });
   }

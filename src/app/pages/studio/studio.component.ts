@@ -422,22 +422,23 @@ export class StudioComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Immediately dismiss confirmation prompt and reset state to idle
+    this.showDeleteConfirm.set(false);
+    this.resetToIdle();
+
     this.isDeleting.set(true);
     this.studioHistoryService.deleteSession(session.session_id).subscribe({
       next: () => {
         this.isDeleting.set(false);
-        this.showDeleteConfirm.set(false);
         this.toast.info(this.translation.translate('studio.reject_success'));
-        this.resetToIdle();
         this.loadStats();
       },
       error: (err) => {
         this.isDeleting.set(false);
-        this.showDeleteConfirm.set(false);
         this.toast.error(
           err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
         );
-        this.resetToIdle();
+        this.loadStats();
       },
     });
   }
