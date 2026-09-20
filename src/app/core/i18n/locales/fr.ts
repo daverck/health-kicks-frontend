@@ -386,5 +386,8 @@ export const fr = {
     link_copied: 'Lien copié dans le presse-papiers !',
     session_not_found: 'Session introuvable',
     session_not_found_desc: 'La session demandée n’existe pas ou a été supprimée.',
+    export_json: 'Exporter JSON',
+    export_success: 'Enregistrement exporté en JSON avec succès.',
+    export_no_data: 'Aucune trame IMU disponible pour l’export.',
   },
 };

@@ -413,19 +413,22 @@ describe('StudioComponent', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
+    const exportBtn = compiled.querySelector('#export-session-btn');
     const rejectBtn = compiled.querySelector('#reject-session-btn');
     const validateBtn = compiled.querySelector('#validate-session-btn');
 
+    expect(exportBtn).toBeTruthy();
     expect(rejectBtn).toBeTruthy();
     expect(validateBtn).toBeTruthy();
 
-    // Verify there are exactly 2 action buttons in the inspecting header actions
+    // Verify action buttons in the inspecting header actions
     const inspectActions = compiled.querySelector('#inspect-actions');
     expect(inspectActions).toBeTruthy();
     const actionButtons = inspectActions!.querySelectorAll('button');
-    expect(actionButtons.length).toBe(2);
-    expect(actionButtons[0].id).toBe('reject-session-btn');
-    expect(actionButtons[1].id).toBe('validate-session-btn');
+    expect(actionButtons.length).toBe(3);
+    expect(actionButtons[0].id).toBe('export-session-btn');
+    expect(actionButtons[1].id).toBe('reject-session-btn');
+    expect(actionButtons[2].id).toBe('validate-session-btn');
   });
   it('should show error when starting session without selected device', () => {
     fixture.detectChanges();
@@ -533,6 +536,31 @@ describe('StudioComponent', () => {
 
     expect(studioServiceSpy.getStudioStats).toHaveBeenCalledWith('hk-device-0002');
     expect(component.selectedDeviceId()).toBe('hk-device-0002');
+  });
+
+  it('should export recording as JSON during inspection', () => {
+    fixture.detectChanges();
+    component.currentSession.set(mockStudioStartResponse);
+    component.readings.set(mockImuReadings);
+    component.state.set('inspecting');
+
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:mock');
+    spyOn(URL, 'revokeObjectURL').and.stub();
+
+    component.exportJson();
+
+    expect(URL.createObjectURL).toHaveBeenCalled();
+    expect(toastSpy.success).toHaveBeenCalled();
+  });
+
+  it('should show info toast when trying to export with no readings', () => {
+    fixture.detectChanges();
+    component.currentSession.set(mockStudioStartResponse);
+    component.readings.set([]);
+
+    component.exportJson();
+
+    expect(toastSpy.info).toHaveBeenCalled();
   });
 });
 

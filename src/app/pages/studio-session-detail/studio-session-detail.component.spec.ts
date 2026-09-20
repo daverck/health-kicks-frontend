@@ -89,3 +89,4 @@ describe('StudioSessionDetailComponent', () => {
     expect(component.session()?.is_validated).toBeTrue();
   });
 });
+

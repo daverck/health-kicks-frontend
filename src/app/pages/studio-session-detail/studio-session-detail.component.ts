@@ -81,3 +81,4 @@ export class StudioSessionDetailComponent implements OnInit {
     this.router.navigate(['/dashboard/studio/history']);
   }
 }
+

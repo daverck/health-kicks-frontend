@@ -400,8 +400,20 @@
             </p>
           </div>
 
-          <!-- Mandatory Binary Actions: Reject vs Validate -->
+          <!-- Mandatory Binary Actions: Reject vs Validate + Export -->
           <div id="inspect-actions" class="flex flex-wrap items-center gap-3">
+            <button
+              id="export-session-btn"
+              type="button"
+              (click)="exportJson()"
+              [disabled]="readings().length === 0"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              [title]="'studio_history.export_json' | translate"
+              data-testid="export-session-btn"
+            >
+              <span>📥</span> {{ 'studio_history.export_json' | translate }}
+            </button>
+
             <button
               id="reject-session-btn"
               type="button"

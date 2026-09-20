@@ -170,4 +170,34 @@ describe('StudioInspectionComponent', () => {
     expect(component.linkCopied()).toBeTrue();
     expect(mockToastService.success).toHaveBeenCalled();
   }));
+
+  it('should trigger JSON export and show toast notification', () => {
+    fixture.componentRef.setInput('session', mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    spyOn(URL, 'createObjectURL').and.returnValue('blob:mock');
+    spyOn(URL, 'revokeObjectURL').and.stub();
+
+    component.exportJson();
+
+    expect(URL.createObjectURL).toHaveBeenCalled();
+    expect(mockToastService.success).toHaveBeenCalled();
+  });
+
+  it('should show warning if exporting with no telemetry readings', () => {
+    mockStudioHistoryService.getSessionReadings.and.returnValue(of({
+      device_id: 'hk-dev-1',
+      session_id: 'sess-001',
+      sample_count: 0,
+      readings: [],
+    }));
+
+    fixture.componentRef.setInput('session', mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    component.activeReadings.set([]);
+    component.exportJson();
+
+    expect(mockToastService.info).toHaveBeenCalled();
+  });
 });

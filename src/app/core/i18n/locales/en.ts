@@ -407,5 +407,8 @@ export const en = {
     link_copied: 'Link copied to clipboard!',
     session_not_found: 'Session not found',
     session_not_found_desc: 'The requested session does not exist or has been deleted.',
+    export_json: 'Export JSON',
+    export_success: 'Recording exported as JSON successfully.',
+    export_no_data: 'No IMU readings available for export.',
   },
 };

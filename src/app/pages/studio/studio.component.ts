@@ -33,6 +33,8 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../core/services/translation.service';
 import { StudioHistoryService } from '../../core/services/studio-history.service';
+import { StudioSessionSummary } from '../../models/studio-history.model';
+import { exportSessionToJson } from '../../core/utils/export.utils';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 
@@ -445,6 +447,30 @@ export class StudioComponent implements OnInit, OnDestroy {
 
   cancelRejectPrompt(): void {
     this.showDeleteConfirm.set(false);
+  }
+
+  exportJson(): void {
+    const session = this.currentSession();
+    const readings = this.readings();
+    if (readings.length === 0) {
+      this.toast.info(this.translation.translate('studio_history.export_no_data'));
+      return;
+    }
+    const sessionSummary: StudioSessionSummary | null = session
+      ? {
+          id: session.session_id,
+          device_id: session.device_id,
+          user_id: 0,
+          label: session.label || this.effectiveLabel(),
+          sample_count: readings.length,
+          duration_sec: session.duration_sec,
+          created_at: new Date().toISOString(),
+          is_validated: false,
+        }
+      : null;
+
+    exportSessionToJson(sessionSummary, readings);
+    this.toast.success(this.translation.translate('studio_history.export_success'));
   }
 
   resetToIdle(): void {

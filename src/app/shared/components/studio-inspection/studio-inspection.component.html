@@ -68,6 +68,20 @@
           </span>
         </button>
 
+        <!-- Export JSON Button -->
+        <button
+          type="button"
+          (click)="exportJson()"
+          [disabled]="isLoadingReadings()"
+          class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          [title]="'studio_history.export_json' | translate"
+          [attr.aria-label]="'studio_history.export_json' | translate"
+          data-testid="export-json-btn"
+        >
+          <span>📥</span>
+          <span class="hidden sm:inline">{{ 'studio_history.export_json' | translate }}</span>
+        </button>
+
         @if (!isStandalone()) {
           <!-- Open in Full Page Link -->
           <a
@@ -377,3 +391,4 @@
     </div>
   </div>
 }
+

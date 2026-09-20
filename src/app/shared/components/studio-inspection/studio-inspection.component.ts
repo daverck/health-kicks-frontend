@@ -21,6 +21,7 @@ import { ImuReading } from '../../../models/telemetry.models';
 import { ImuChartComponent } from '../imu-chart/imu-chart.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { PREDEFINED_LABELS, PredefinedLabel, isStandardStudioLabel } from '../../../models/studio.model';
+import { exportSessionToJson } from '../../../core/utils/export.utils';
 
 @Component({
   selector: 'app-studio-inspection',
@@ -225,6 +226,18 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     }
   }
 
+  exportJson(): void {
+    const s = this.session();
+    if (!s) return;
+    const readings = this.activeReadings();
+    if (readings.length === 0 && !this.isLoadingReadings()) {
+      this.toast.info(this.translation.translate('studio_history.export_no_data'));
+      return;
+    }
+    exportSessionToJson(s, readings);
+    this.toast.success(this.translation.translate('studio_history.export_success'));
+  }
+
   getLabelBadgeClass(label: string): string {
     if (label === 'idle') {
       return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
@@ -256,3 +269,4 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     return found ? found.icon : '🏷️';
   }
 }
+
