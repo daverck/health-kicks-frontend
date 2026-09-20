@@ -57,13 +57,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         isApiRequest &&
         !isAuthBypassRequest
       ) {
-        // En mode mock, ne pas éjecter l'utilisateur ni boucler sur le refresh token
+        // In mock mode, do not eject the user or loop on token refresh
         if (environment.mockAuth) {
-          console.warn('[MockAuth] Rejet 401 sur requête API avec faux token :', req.url);
+          console.warn('[MockAuth] 401 rejection on API request with mock token:', req.url);
           return throwError(() => error);
         }
 
-        // Cas 1 : Aucune procédure de refresh en cours
+        // Case 1: No refresh procedure currently in progress
         if (!isRefreshing) {
           isRefreshing = true;
           refreshTokenSubject.next(null);
@@ -83,7 +83,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             })
           );
         } else {
-          // Cas 2 : Une procédure de refresh est déjà en cours -> mise en file d'attente
+          // Case 2: A refresh procedure is already in progress -> queue request
           return refreshTokenSubject.pipe(
             filter((newToken): newToken is string => newToken !== null),
             take(1),

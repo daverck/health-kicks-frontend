@@ -97,7 +97,7 @@ export class DashboardComponent implements OnInit {
         this.loadRecentHapticLogs();
       },
       error: (err) => {
-        // Aucun fallback mock : l'erreur est remontée à l'UI.
+        // No mock fallback: error is propagated to the UI.
         this.devices.set([]);
         this.selectedDevice.set(null);
         this.loadingDevices.set(false);

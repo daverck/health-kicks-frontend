@@ -59,7 +59,7 @@ describe('MockAuthService', () => {
       done();
     });
 
-    // Vérifie qu'aucun appel HTTP n'a été émis vers le backend
+    // Verify that no HTTP call was made to the backend
     httpTesting.expectNone(() => true);
   });
 

@@ -5,8 +5,8 @@ import { TokenResponse, UserResponse } from '../../models/api.models';
 import { AuthService, OAuthProvider } from './auth.service';
 
 /**
- * Service d'authentification mocké pour le développement local et les tests.
- * Permet de naviguer directement dans le Dashboard et le Studio sans dépendre d'un serveur SSO/Keycloak.
+ * Mock authentication service for local development and testing.
+ * Allows direct navigation across Dashboard and Studio without requiring a live SSO/Keycloak server.
  */
 @Injectable()
 export class MockAuthService extends AuthService {
@@ -32,7 +32,7 @@ export class MockAuthService extends AuthService {
 
   constructor() {
     super();
-    // Initialise immédiatement la session avec l'utilisateur et le token mockés
+    // Immediately initialize session with mocked user and token
     this.userSignal.set(this.mockUser);
     this.tokenSignal.set(this.mockToken);
     this.setSession(this.mockToken, this.mockUser);
@@ -82,7 +82,7 @@ export class MockAuthService extends AuthService {
   }
 
   override logout(redirectTo = '/'): void {
-    // Réinitialise la session mais la réarme immédiatement avec les mocks
+    // Reset session but immediately re-arm with mocks
     super.clearSession();
     this.setSession(this.mockToken, this.mockUser);
     this.router.navigate([redirectTo]);

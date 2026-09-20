@@ -23,7 +23,7 @@ export class DevicesComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal(false);
 
-  // Modal "Ajouter un équipement"
+  // "Add Device" Modal
   readonly showAddModal = signal(false);
   readonly submitting = signal(false);
   readonly addError = signal<string | null>(null);
@@ -33,7 +33,7 @@ export class DevicesComponent implements OnInit {
     name: [''],
   });
 
-  // Modal "Dissocier un équipement"
+  // "Unlink Device" Modal
   readonly deviceToUnbind = signal<DeviceResponse | null>(null);
   readonly unbinding = signal(false);
 
