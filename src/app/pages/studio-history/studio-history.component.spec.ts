@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import { signal } from '@angular/core';
 import { StudioHistoryComponent } from './studio-history.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -367,6 +367,55 @@ describe('StudioHistoryComponent', () => {
     expect(component.sessions().some((s) => s.id === 'sess-002')).toBeFalse();
     expect(component.total()).toBe(2);
     expect(studioHistoryServiceSpy.getSessionReadings).not.toHaveBeenCalled();
+  });
+
+  it('should allow confirming multiple deletions in parallel without modal confirm button being disabled', () => {
+    // Return a delayed observable for the first deletion to simulate in-flight request
+    const pendingSubject = new Subject<void>();
+    studioHistoryServiceSpy.deleteSession.and.callFake((id: string) => {
+      if (id === 'sess-001') {
+        return pendingSubject.asObservable();
+      }
+      return of(undefined);
+    });
+
+    fixture.detectChanges();
+
+    // 1. Trigger deletion for first session (sess-001)
+    component.promptDeleteSession(mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const confirmBtn1 = compiled.querySelector('[data-testid="confirm-modal-delete-btn"]') as HTMLButtonElement;
+    expect(confirmBtn1.disabled).toBeFalse();
+
+    confirmBtn1.click();
+    fixture.detectChanges();
+
+    expect(component.sessionToDelete()).toBeNull();
+    expect(component.isDeletingSession()).toBeTrue();
+    expect(component.sessions().some((s) => s.id === 'sess-001')).toBeFalse();
+
+    // 2. Immediately trigger deletion for second session (sess-002) while sess-001 is still in flight
+    component.promptDeleteSession(mockStudioSessionSummaries[1]);
+    fixture.detectChanges();
+
+    const confirmBtn2 = compiled.querySelector('[data-testid="confirm-modal-delete-btn"]') as HTMLButtonElement;
+    expect(confirmBtn2).toBeTruthy();
+    expect(confirmBtn2.disabled).toBeFalse();
+
+    confirmBtn2.click();
+    fixture.detectChanges();
+
+    expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-002');
+    expect(component.sessions().some((s) => s.id === 'sess-002')).toBeFalse();
+
+    // Complete first deletion
+    pendingSubject.next();
+    pendingSubject.complete();
+    fixture.detectChanges();
+
+    expect(component.isDeletingSession()).toBeFalse();
   });
 
   it('should cancel direct list deletion when cancel button or escape key is pressed', () => {

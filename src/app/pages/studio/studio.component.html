@@ -479,7 +479,6 @@
           <button
             type="button"
             (click)="cancelRejectPrompt()"
-            [disabled]="isDeleting()"
             class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition"
           >
             {{ 'common.cancel' | translate }}
@@ -488,14 +487,9 @@
             id="confirm-reject-btn"
             type="button"
             (click)="confirmRejectSession()"
-            [disabled]="isDeleting()"
             class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 transition disabled:opacity-50"
           >
-            @if (isDeleting()) {
-              <span class="animate-spin">⏳</span> {{ 'common.loading' | translate }}
-            } @else {
-              <span>🗑️</span> {{ 'common.delete' | translate }}
-            }
+            <span>🗑️</span> {{ 'common.delete' | translate }}
           </button>
         </div>
       </div>

@@ -112,6 +112,7 @@ export class StudioHistoryComponent implements OnInit {
 
   // Direct List Deletion State
   readonly isDeletingSession = signal<boolean>(false);
+  readonly deletingSessionIds = signal<Set<string>>(new Set());
   readonly sessionToDelete = signal<StudioSessionSummary | null>(null);
 
   ngOnInit(): void {
@@ -300,10 +301,21 @@ export class StudioHistoryComponent implements OnInit {
       this.closeInspection();
     }
 
+    this.deletingSessionIds.update((set) => {
+      const next = new Set(set);
+      next.add(sessionId);
+      return next;
+    });
     this.isDeletingSession.set(true);
+
     this.studioHistoryService.deleteSession(sessionId).subscribe({
       next: () => {
-        this.isDeletingSession.set(false);
+        this.deletingSessionIds.update((set) => {
+          const next = new Set(set);
+          next.delete(sessionId);
+          this.isDeletingSession.set(next.size > 0);
+          return next;
+        });
         this.toast.info(
           this.translation.translate('studio_history.session_deleted')
         );
@@ -315,7 +327,12 @@ export class StudioHistoryComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.isDeletingSession.set(false);
+        this.deletingSessionIds.update((set) => {
+          const next = new Set(set);
+          next.delete(sessionId);
+          this.isDeletingSession.set(next.size > 0);
+          return next;
+        });
         this.toast.error(
           err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
         );

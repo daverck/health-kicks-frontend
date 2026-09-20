@@ -647,13 +647,9 @@
             id="confirm-modal-delete-btn"
             type="button"
             (click)="executeDeleteSession(session.id)"
-            [disabled]="isDeletingSession()"
             data-testid="confirm-modal-delete-btn"
             class="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-red-700 transition active:scale-95 disabled:opacity-50"
           >
-            @if (isDeletingSession()) {
-              <span class="animate-spin">⏳</span>
-            }
             {{ 'studio_history.delete_session' | translate }}
           </button>
         </div>
