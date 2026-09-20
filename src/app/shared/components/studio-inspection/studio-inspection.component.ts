@@ -26,6 +26,15 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
 @Component({
   selector: 'app-studio-inspection',
   standalone: true,
+  host: {
+    '[class.flex]': '!isStandalone()',
+    '[class.flex-col]': '!isStandalone()',
+    '[class.flex-1]': '!isStandalone()',
+    '[class.min-h-0]': '!isStandalone()',
+    '[class.h-full]': '!isStandalone()',
+    '[class.overflow-hidden]': '!isStandalone()',
+    '[class.block]': 'isStandalone()',
+  },
   imports: [
     CommonModule,
     FormsModule,

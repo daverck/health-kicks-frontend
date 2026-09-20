@@ -582,12 +582,13 @@
     <!-- Drawer Panel -->
     <aside
       id="inspection-drawer"
-      class="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-white shadow-2xl transition-transform duration-200"
+      class="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-white shadow-2xl transition-transform duration-200 overflow-hidden"
       role="dialog"
       aria-modal="true"
       [attr.aria-label]="'studio_history.drawer_title' | translate"
     >
       <app-studio-inspection
+        class="flex flex-col flex-1 min-h-0 h-full overflow-hidden"
         [session]="session"
         [hasPrevious]="hasPreviousSession()"
         [hasNext]="hasNextSession()"
