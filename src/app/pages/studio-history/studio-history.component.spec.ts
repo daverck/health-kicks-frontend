@@ -174,24 +174,24 @@ describe('StudioHistoryComponent', () => {
     component.openInspection(mockStudioSessionSummaries[1]);
     fixture.detectChanges();
 
-    const drawerPendingBadge = compiled.querySelector('[data-testid="drawer-badge-pending"]');
+    const drawerPendingBadge = compiled.querySelector('[data-testid="inspection-badge-pending"]');
     expect(drawerPendingBadge).toBeTruthy();
 
     const drawerConfirmBtn = compiled.querySelector('#drawer-confirm-btn');
     expect(drawerConfirmBtn).toBeTruthy();
   });
 
-  it('should confirm session from drawer and update its validation status', () => {
+  it('should update session and list when confirmed from inspection child component', () => {
     fixture.detectChanges();
 
     component.openInspection(mockStudioSessionSummaries[1]);
     fixture.detectChanges();
 
-    component.confirmSessionFromDrawer('sess-002');
+    const confirmedSession = { ...mockStudioSessionSummaries[1], is_validated: true };
+    component.onSessionConfirmedFromInspection(confirmedSession);
 
-    expect(studioHistoryServiceSpy.confirmSession).toHaveBeenCalledWith('sess-002');
-    expect(toastSpy.success).toHaveBeenCalledWith('Session validée avec succès !');
     expect(component.inspectingSession()?.is_validated).toBeTrue();
+    expect(component.sessions().find((s) => s.id === 'sess-002')?.is_validated).toBeTrue();
   });
 
   it('should reset filters including status and reload sessions', () => {
@@ -247,7 +247,7 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
-  it('should open inspection drawer, fetch telemetry readings and pass to ImuChartComponent', () => {
+  it('should open inspection drawer and render inspection component with active session', () => {
     fixture.detectChanges();
 
     const targetSession = mockStudioSessionSummaries[0];
@@ -255,15 +255,13 @@ describe('StudioHistoryComponent', () => {
     fixture.detectChanges();
 
     expect(component.inspectingSession()).toEqual(targetSession);
-    expect(studioHistoryServiceSpy.getSessionReadings).toHaveBeenCalledWith('sess-001');
-    expect(component.activeReadings()).toEqual(mockStudioSessionReadingsResponse.readings);
 
     const compiled = fixture.nativeElement as HTMLElement;
     const drawer = compiled.querySelector('#inspection-drawer');
     expect(drawer).toBeTruthy();
 
-    const chart = compiled.querySelector('app-imu-chart');
-    expect(chart).toBeTruthy();
+    const inspectionComponent = compiled.querySelector('app-studio-inspection');
+    expect(inspectionComponent).toBeTruthy();
 
     // Close drawer
     component.closeInspection();
@@ -283,38 +281,26 @@ describe('StudioHistoryComponent', () => {
     expect(component.hasPreviousSession()).toBeFalse();
     expect(component.hasNextSession()).toBeTrue();
 
-    const compiled = fixture.nativeElement as HTMLElement;
-    const prevBtn: HTMLButtonElement | null = compiled.querySelector('[data-testid="prev-session-btn"]');
-    const nextBtn: HTMLButtonElement | null = compiled.querySelector('[data-testid="next-session-btn"]');
-
-    expect(prevBtn).toBeTruthy();
-    expect(nextBtn).toBeTruthy();
-    expect(prevBtn?.disabled).toBeTrue();
-    expect(nextBtn?.disabled).toBeFalse();
-
-    // Click Next -> should inspect sess-002
-    nextBtn?.click();
+    // Next session
+    component.goToNextSession();
     fixture.detectChanges();
 
     expect(component.inspectingSession()?.id).toBe('sess-002');
     expect(component.currentSessionIndex()).toBe(1);
     expect(component.hasPreviousSession()).toBeTrue();
     expect(component.hasNextSession()).toBeTrue();
-    expect(prevBtn?.disabled).toBeFalse();
-    expect(nextBtn?.disabled).toBeFalse();
 
-    // Click Next again -> should inspect sess-003
-    nextBtn?.click();
+    // Next session again
+    component.goToNextSession();
     fixture.detectChanges();
 
     expect(component.inspectingSession()?.id).toBe('sess-003');
     expect(component.currentSessionIndex()).toBe(2);
     expect(component.hasPreviousSession()).toBeTrue();
     expect(component.hasNextSession()).toBeFalse();
-    expect(nextBtn?.disabled).toBeTrue();
 
-    // Click Prev -> should navigate back to sess-002
-    prevBtn?.click();
+    // Previous session
+    component.goToPreviousSession();
     fixture.detectChanges();
 
     expect(component.inspectingSession()?.id).toBe('sess-002');
@@ -326,89 +312,29 @@ describe('StudioHistoryComponent', () => {
     expect(component.inspectingSession()).toBeNull();
   });
 
-  it('should update session label with predefined selection and update session in local list', () => {
+  it('should update session and list when label is updated from inspection child component', () => {
     fixture.detectChanges();
 
     const targetSession = mockStudioSessionSummaries[0];
     component.openInspection(targetSession);
     fixture.detectChanges();
 
-    expect(component.labelEditMode()).toBe('predefined');
-    expect(component.editLabelValue()).toBe('walk');
+    const updatedSession = { ...targetSession, label: 'run' };
+    component.onSessionUpdatedFromInspection(updatedSession);
 
-    component.editLabelValue.set('run');
-    expect(component.canSaveLabel()).toBeTrue();
-    component.updateLabel();
-
-    expect(studioHistoryServiceSpy.updateSessionLabel).toHaveBeenCalledWith('sess-001', 'run');
-    expect(toastSpy.success).toHaveBeenCalled();
     expect(component.inspectingSession()?.label).toBe('run');
     expect(component.sessions().find((s) => s.id === 'sess-001')?.label).toBe('run');
   });
 
-  it('should switch to custom label mode, allow typing a new label, and update session', () => {
-    fixture.detectChanges();
-
-    studioHistoryServiceSpy.updateSessionLabel.and.returnValue(
-      of({ ...mockStudioSessionSummaries[0], label: 'sprint_libre' })
-    );
-
-    const targetSession = mockStudioSessionSummaries[0];
-    component.openInspection(targetSession);
-    fixture.detectChanges();
-
-    // Switch to custom mode
-    component.labelEditMode.set('custom');
-    expect(component.canSaveLabel()).toBeFalse(); // Empty custom label
-
-    // Enter a new label
-    component.customLabelValue.set('  sprint_libre  ');
-    expect(component.effectiveEditLabel()).toBe('sprint_libre');
-    expect(component.canSaveLabel()).toBeTrue();
-
-    component.updateLabel();
-
-    expect(studioHistoryServiceSpy.updateSessionLabel).toHaveBeenCalledWith('sess-001', 'sprint_libre');
-    expect(toastSpy.success).toHaveBeenCalled();
-    expect(component.inspectingSession()?.label).toBe('sprint_libre');
-  });
-
-  it('should auto-detect custom label when opening a session with non-predefined label', () => {
-    fixture.detectChanges();
-
-    const customSession = {
-      ...mockStudioSessionSummaries[0],
-      id: 'sess-custom',
-      label: 'danse_latine',
-    };
-
-    component.openInspection(customSession);
-    fixture.detectChanges();
-
-    expect(component.labelEditMode()).toBe('custom');
-    expect(component.customLabelValue()).toBe('danse_latine');
-    expect(component.canSaveLabel()).toBeFalse(); // Identical to current label
-
-    // Modify custom label
-    component.customLabelValue.set('danse_dynamique');
-    expect(component.canSaveLabel()).toBeTrue();
-  });
-
-  it('should delete session with confirmation, update list and close drawer', () => {
+  it('should delete session from inspection child component, update list and close drawer', () => {
     fixture.detectChanges();
 
     const targetSession = mockStudioSessionSummaries[0];
     component.openInspection(targetSession);
     fixture.detectChanges();
 
-    expect(component.showDeleteConfirm()).toBeFalse();
-    component.confirmDelete();
-    expect(component.showDeleteConfirm()).toBeTrue();
+    component.onSessionDeletedFromInspection('sess-001');
 
-    component.deleteSession();
-
-    expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-001');
-    expect(toastSpy.info).toHaveBeenCalled();
     expect(component.inspectingSession()).toBeNull();
     expect(component.sessions().some((s) => s.id === 'sess-001')).toBeFalse();
     expect(component.total()).toBe(2);
@@ -474,17 +400,6 @@ describe('StudioHistoryComponent', () => {
 
     expect(component.isLoading()).toBeFalse();
     expect(component.errorMessage()).toBe('Erreur base de données');
-  });
-
-  it('should handle telemetry loading error in drawer gracefully', () => {
-    studioHistoryServiceSpy.getSessionReadings.and.returnValue(
-      throwError(() => ({ status: 404, error: { detail: 'Trames introuvables sur DynamoDB' } }))
-    );
-
-    component.openInspection(mockStudioSessionSummaries[0]);
-
-    expect(component.isLoadingReadings()).toBeFalse();
-    expect(component.readingsError()).toBe('Trames introuvables sur DynamoDB');
   });
 
   it('should style idle sessions with slate badge and allow filtering by idle', () => {

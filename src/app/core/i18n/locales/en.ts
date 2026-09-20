@@ -401,5 +401,11 @@ export const en = {
     delete_session: 'Delete Session',
     delete_confirm: 'Are you sure you want to permanently delete this session and its DynamoDB readings?',
     session_deleted: 'Session deleted successfully.',
+    back_to_history: 'Back to History',
+    open_full_page: 'Open in full page',
+    copy_link: 'Copy link',
+    link_copied: 'Link copied to clipboard!',
+    session_not_found: 'Session not found',
+    session_not_found_desc: 'The requested session does not exist or has been deleted.',
   },
 };

@@ -20,14 +20,13 @@ import {
   StudioSessionSummary,
   StudioHistoryFilterParams,
 } from '../../models/studio-history.model';
-import { ImuReading } from '../../models/telemetry.models';
-import { ImuChartComponent } from '../../shared/components/imu-chart/imu-chart.component';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { PREDEFINED_LABELS, PredefinedLabel, isStandardStudioLabel } from '../studio/studio.component';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
 import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
+import { StudioInspectionComponent } from '../../shared/components/studio-inspection/studio-inspection.component';
 
 @Component({
   selector: 'app-studio-history',
@@ -37,10 +36,10 @@ import { DateFilterComponent } from '../../shared/components/date-filter/date-fi
     FormsModule,
     RouterLink,
     TranslatePipe,
-    ImuChartComponent,
     DeviceSelectComponent,
     ActivitySelectComponent,
     DateFilterComponent,
+    StudioInspectionComponent,
   ],
   templateUrl: './studio-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -94,10 +93,6 @@ export class StudioHistoryComponent implements OnInit {
 
   // Inspection Drawer State
   readonly inspectingSession = signal<StudioSessionSummary | null>(null);
-  readonly activeReadings = signal<ImuReading[]>([]);
-  readonly isLoadingReadings = signal<boolean>(false);
-  readonly isValidatingSession = signal<boolean>(false);
-  readonly readingsError = signal<string | null>(null);
 
   readonly currentSessionIndex = computed<number>(() => {
     const current = this.inspectingSession();
@@ -115,28 +110,9 @@ export class StudioHistoryComponent implements OnInit {
     return idx >= 0 && idx < list.length - 1;
   });
 
-  // Curation State inside Drawer
-  readonly labelEditMode = signal<'predefined' | 'custom'>('predefined');
-  readonly editLabelValue = signal<string>('walk');
-  readonly customLabelValue = signal<string>('');
-  readonly isUpdatingLabel = signal<boolean>(false);
+  // Direct List Deletion State
   readonly isDeletingSession = signal<boolean>(false);
-  readonly showDeleteConfirm = signal<boolean>(false);
   readonly sessionToDelete = signal<StudioSessionSummary | null>(null);
-
-  readonly effectiveEditLabel = computed<string>(() => {
-    if (this.labelEditMode() === 'custom') {
-      return this.customLabelValue().trim().toLowerCase();
-    }
-    return this.editLabelValue();
-  });
-
-  readonly canSaveLabel = computed<boolean>(() => {
-    const session = this.inspectingSession();
-    if (!session) return false;
-    const target = this.effectiveEditLabel();
-    return Boolean(target) && target !== session.label;
-  });
 
   ngOnInit(): void {
     this.loadDevices();
@@ -222,29 +198,6 @@ export class StudioHistoryComponent implements OnInit {
     this.loadSessions();
   }
 
-  confirmSessionFromDrawer(sessionId: string): void {
-    this.isValidatingSession.set(true);
-    this.studioHistoryService.confirmSession(sessionId).subscribe({
-      next: () => {
-        this.isValidatingSession.set(false);
-        this.toast.success(this.translation.translate('studio_history.session_confirmed_success'));
-        this.sessions.update((list) =>
-          list.map((s) => (s.id === sessionId ? { ...s, is_validated: true } : s))
-        );
-        const current = this.inspectingSession();
-        if (current && current.id === sessionId) {
-          this.inspectingSession.set({ ...current, is_validated: true });
-        }
-      },
-      error: (err) => {
-        this.isValidatingSession.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la validation de la session.'
-        );
-      },
-    });
-  }
-
   goToPage(p: number): void {
     if (p < 1 || p > this.totalPages() || p === this.page()) {
       return;
@@ -259,30 +212,14 @@ export class StudioHistoryComponent implements OnInit {
     this.loadSessions();
   }
 
-  // --- Inspection & Telemetry Visualisation ---
+  // --- Inspection Drawer Controls ---
 
   openInspection(session: StudioSessionSummary): void {
     this.inspectingSession.set(session);
-    const isPredefined = this.predefinedLabels.some((l) => l.id === session.label);
-    if (isPredefined) {
-      this.labelEditMode.set('predefined');
-      this.editLabelValue.set(session.label);
-      this.customLabelValue.set('');
-    } else {
-      this.labelEditMode.set('custom');
-      this.customLabelValue.set(session.label);
-      this.editLabelValue.set('walk');
-    }
-    this.activeReadings.set([]);
-    this.showDeleteConfirm.set(false);
-    this.loadReadings(session.id);
   }
 
   closeInspection(): void {
     this.inspectingSession.set(null);
-    this.activeReadings.set([]);
-    this.readingsError.set(null);
-    this.showDeleteConfirm.set(false);
   }
 
   goToPreviousSession(): void {
@@ -302,6 +239,34 @@ export class StudioHistoryComponent implements OnInit {
     }
   }
 
+  onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
+    this.inspectingSession.set(updated);
+    this.sessions.update((items) =>
+      items.map((it) => (it.id === updated.id ? updated : it))
+    );
+  }
+
+  onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
+    this.inspectingSession.set(confirmed);
+    this.sessions.update((items) =>
+      items.map((it) => (it.id === confirmed.id ? confirmed : it))
+    );
+  }
+
+  onSessionDeletedFromInspection(sessionId: string): void {
+    this.sessions.update((items) => items.filter((it) => it.id !== sessionId));
+    this.total.update((t) => Math.max(0, t - 1));
+
+    if (this.inspectingSession()?.id === sessionId) {
+      this.closeInspection();
+    }
+
+    if (this.sessions().length === 0 && this.page() > 1) {
+      this.page.update((p) => p - 1);
+      this.loadSessions();
+    }
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     if (this.sessionToDelete()) {
@@ -311,26 +276,7 @@ export class StudioHistoryComponent implements OnInit {
     }
   }
 
-  loadReadings(sessionId: string): void {
-    this.isLoadingReadings.set(true);
-    this.readingsError.set(null);
-
-    this.studioHistoryService.getSessionReadings(sessionId).subscribe({
-      next: (res) => {
-        this.activeReadings.set(res.readings ?? []);
-        this.isLoadingReadings.set(false);
-      },
-      error: (err) => {
-        this.isLoadingReadings.set(false);
-        this.readingsError.set(
-          err?.error?.detail ??
-            'Impossible de récupérer les trames IMU de cette session.'
-        );
-      },
-    });
-  }
-
-  // --- Curation & Deletion Actions ---
+  // --- Direct List Deletion Actions ---
 
   promptDeleteSession(session: StudioSessionSummary, event?: Event): void {
     if (event) {
@@ -349,7 +295,6 @@ export class StudioHistoryComponent implements OnInit {
       next: () => {
         this.isDeletingSession.set(false);
         this.sessionToDelete.set(null);
-        this.showDeleteConfirm.set(false);
         this.toast.info(
           this.translation.translate('studio_history.session_deleted')
         );
@@ -376,50 +321,6 @@ export class StudioHistoryComponent implements OnInit {
         );
       },
     });
-  }
-
-  updateLabel(): void {
-    const session = this.inspectingSession();
-    const newLabel = this.effectiveEditLabel();
-    if (!session || !newLabel || newLabel === session.label) {
-      return;
-    }
-
-    this.isUpdatingLabel.set(true);
-    this.studioHistoryService.updateSessionLabel(session.id, newLabel).subscribe({
-      next: (updated) => {
-        this.isUpdatingLabel.set(false);
-        this.toast.success(
-          this.translation.translate('studio_history.label_updated')
-        );
-
-        // Update local session
-        this.inspectingSession.set({ ...session, label: updated.label });
-        this.sessions.update((items) =>
-          items.map((it) => (it.id === session.id ? { ...it, label: updated.label } : it))
-        );
-      },
-      error: (err) => {
-        this.isUpdatingLabel.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la mise à jour du label.'
-        );
-      },
-    });
-  }
-
-  confirmDelete(): void {
-    this.showDeleteConfirm.set(true);
-  }
-
-  cancelDelete(): void {
-    this.showDeleteConfirm.set(false);
-  }
-
-  deleteSession(): void {
-    const session = this.inspectingSession();
-    if (!session) return;
-    this.executeDeleteSession(session.id);
   }
 
   getLabelBadgeClass(label: string): string {

@@ -61,6 +61,14 @@ export class StudioHistoryService {
   }
 
   /**
+   * Retrieves metadata details for a specific studio session from Aurora PostgreSQL.
+   * GET /api/v1/studio/sessions/{sessionId}
+   */
+  getSession(sessionId: string): Observable<StudioSessionSummary> {
+    return this.http.get<StudioSessionSummary>(`${this.base}/${sessionId}`);
+  }
+
+  /**
    * Confirms / validates a studio recording session.
    * PATCH /api/v1/studio/sessions/{sessionId}/confirm
    */

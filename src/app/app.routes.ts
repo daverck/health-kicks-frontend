@@ -25,6 +25,8 @@ export const routes: Routes = [
       { path: 'history', loadComponent: () => import('./pages/history/history.component').then((m) => m.HistoryComponent) },
       { path: 'studio', loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
       { path: 'studio/history', loadComponent: () => import('./pages/studio-history/studio-history.component').then((m) => m.StudioHistoryComponent) },
+      { path: 'studio/history/:id', loadComponent: () => import('./pages/studio-session-detail/studio-session-detail.component').then((m) => m.StudioSessionDetailComponent) },
+      { path: 'studio/sessions/:id', redirectTo: 'studio/history/:id', pathMatch: 'full' },
       { path: 'studio-history', redirectTo: 'studio/history', pathMatch: 'full' },
     ],
   },

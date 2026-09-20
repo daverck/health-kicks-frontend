@@ -89,6 +89,16 @@ describe('StudioHistoryService', () => {
     req.flush(mockStudioSessionReadingsResponse);
   });
 
+  it('should get a single session summary by session id', () => {
+    service.getSession('sess-001').subscribe((res) => {
+      expect(res).toEqual(mockStudioSessionSummaries[0]);
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}/sess-001`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockStudioSessionSummaries[0]);
+  });
+
   it('should update session label', () => {
     const updated = { ...mockStudioSessionSummaries[0], label: 'run' };
 

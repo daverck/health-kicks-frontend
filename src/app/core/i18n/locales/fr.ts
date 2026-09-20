@@ -380,5 +380,11 @@ export const fr = {
     delete_session: 'Supprimer la session',
     delete_confirm: 'Êtes-vous sûr de vouloir supprimer définitivement cette session et ses points DynamoDB ?',
     session_deleted: 'Session supprimée avec succès.',
+    back_to_history: 'Retour à l’historique',
+    open_full_page: 'Ouvrir en pleine page',
+    copy_link: 'Copier le lien',
+    link_copied: 'Lien copié dans le presse-papiers !',
+    session_not_found: 'Session introuvable',
+    session_not_found_desc: 'La session demandée n’existe pas ou a été supprimée.',
   },
 };
