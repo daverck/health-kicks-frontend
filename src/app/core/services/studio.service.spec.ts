@@ -91,5 +91,16 @@ describe('StudioService', () => {
     expect(req.request.method).toBe('GET');
     req.flush(mockStudioDatasetStats);
   });
+
+  it('should get global studio dataset statistics across all captures when deviceId is omitted', () => {
+    service.getStudioStats().subscribe((res) => {
+      expect(res).toEqual(mockStudioDatasetStats);
+      expect(res.total_sessions).toBe(mockStudioDatasetStats.total_sessions);
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/studio/stats`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockStudioDatasetStats);
+  });
 });
 

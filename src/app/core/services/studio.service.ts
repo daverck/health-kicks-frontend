@@ -49,13 +49,15 @@ export class StudioService {
   }
 
   /**
-   * Retrieves dataset summary statistics for a device.
+   * Retrieves dataset summary statistics for a specific device, or across all devices/captures if deviceId is omitted.
    * GET /api/v1/devices/{device_id}/studio/stats
+   * GET /api/v1/studio/stats
    */
-  getStudioStats(deviceId: string): Observable<StudioDatasetStats> {
-    return this.http.get<StudioDatasetStats>(
-      `${this.base}/devices/${deviceId}/studio/stats`
-    );
+  getStudioStats(deviceId?: string): Observable<StudioDatasetStats> {
+    const url = deviceId
+      ? `${this.base}/devices/${deviceId}/studio/stats`
+      : `${this.base}/studio/stats`;
+    return this.http.get<StudioDatasetStats>(url);
   }
 }
 

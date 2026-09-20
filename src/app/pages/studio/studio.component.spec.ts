@@ -562,6 +562,19 @@ describe('StudioComponent', () => {
 
     expect(toastSpy.info).toHaveBeenCalled();
   });
+
+  it('should load global dataset stats even when no device is connected or online', () => {
+    deviceServiceSpy.listDevices.and.returnValue(of([])); // No devices
+    studioServiceSpy.getStudioStats.calls.reset();
+
+    fixture = TestBed.createComponent(StudioComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(component.selectedDeviceId()).toBe('');
+    expect(studioServiceSpy.getStudioStats).toHaveBeenCalledWith(undefined);
+    expect(component.datasetStats().total_sessions).toBe(mockStudioDatasetStats.total_sessions);
+  });
 });
 
 

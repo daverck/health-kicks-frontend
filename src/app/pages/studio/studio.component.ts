@@ -136,13 +136,9 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   loadStats(): void {
-    const deviceId = this.selectedDeviceId();
-    if (!deviceId) {
-      this.datasetStats.set({ total_sessions: 0, by_label: {} });
-      return;
-    }
     this.isLoadingStats.set(true);
-    this.studioService.getStudioStats(deviceId).subscribe({
+    const deviceId = this.selectedDeviceId();
+    this.studioService.getStudioStats(deviceId || undefined).subscribe({
       next: (stats) => {
         this.datasetStats.set(stats);
         this.isLoadingStats.set(false);
@@ -162,6 +158,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   private fetchingTimeout?: ReturnType<typeof setTimeout>;
 
   ngOnInit(): void {
+    this.loadStats();
     this.loadDevices();
   }
 
