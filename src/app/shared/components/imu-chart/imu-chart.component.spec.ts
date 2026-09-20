@@ -59,7 +59,7 @@ describe('ImuChartComponent', () => {
     expect(component.showAx()).toBeTrue();
     expect(component.showAy()).toBeTrue();
     expect(component.showAz()).toBeTrue();
-    expect(component.showMag()).toBeTrue();
+    expect(component.showMag()).toBeFalse();
 
     // Toggle AX
     component.toggleAccelAxis('ax');
@@ -73,9 +73,9 @@ describe('ImuChartComponent', () => {
     component.toggleAccelAxis('az');
     expect(component.showAz()).toBeFalse();
 
-    // Toggle Mag
+    // Toggle Mag (was false, should become true)
     component.toggleAccelAxis('mag');
-    expect(component.showMag()).toBeFalse();
+    expect(component.showMag()).toBeTrue();
 
     // Re-enable AX
     component.toggleAccelAxis('ax');

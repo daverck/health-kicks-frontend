@@ -55,7 +55,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   readonly showAx = signal<boolean>(true);
   readonly showAy = signal<boolean>(true);
   readonly showAz = signal<boolean>(true);
-  readonly showMag = signal<boolean>(true);
+  readonly showMag = signal<boolean>(false);
 
   // Axis visibility signals (Gyroscope)
   readonly showGx = signal<boolean>(true);
