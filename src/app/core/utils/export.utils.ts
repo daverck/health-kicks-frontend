@@ -67,3 +67,4 @@ export function exportSessionToJson(
 
   downloadJsonFile(payload, filename);
 }
+

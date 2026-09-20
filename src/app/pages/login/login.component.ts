@@ -3,11 +3,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink, TranslatePipe],
+  imports: [RouterLink, TranslatePipe, LanguageSelectorComponent],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {

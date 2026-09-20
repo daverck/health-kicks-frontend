@@ -77,5 +77,13 @@ describe('LoginComponent', () => {
     expect(errorDiv.textContent).toContain('Erreur de connexion OAuth');
   });
 
+  it('should render header with back to home link and language selector', () => {
+    const backLink = fixture.nativeElement.querySelector('[data-testid="login-back-home"]');
+    expect(backLink).toBeTruthy();
+    expect(backLink.getAttribute('href')).toBe('/');
+
+    const langSelector = fixture.nativeElement.querySelector('app-language-selector');
+    expect(langSelector).toBeTruthy();
+  });
 });
 
