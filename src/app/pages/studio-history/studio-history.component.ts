@@ -1,13 +1,15 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   HostListener,
   inject,
   signal,
   computed,
+  effect,
   ChangeDetectionStrategy,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -44,7 +46,8 @@ import { StudioInspectionComponent } from '../../shared/components/studio-inspec
   templateUrl: './studio-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StudioHistoryComponent implements OnInit {
+export class StudioHistoryComponent implements OnInit, OnDestroy {
+  private readonly document = inject(DOCUMENT);
   readonly auth = inject(AuthService);
   private readonly studioHistoryService = inject(StudioHistoryService);
   private readonly deviceService = inject(DeviceService);
@@ -115,9 +118,24 @@ export class StudioHistoryComponent implements OnInit {
   readonly deletingSessionIds = signal<Set<string>>(new Set());
   readonly sessionToDelete = signal<StudioSessionSummary | null>(null);
 
+  constructor() {
+    effect(() => {
+      const isDrawerOpen = this.inspectingSession() !== null;
+      if (isDrawerOpen) {
+        this.document.body.classList.add('overflow-hidden');
+      } else {
+        this.document.body.classList.remove('overflow-hidden');
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.loadDevices();
     this.loadSessions();
+  }
+
+  ngOnDestroy(): void {
+    this.document.body.classList.remove('overflow-hidden');
   }
 
   loadDevices(): void {

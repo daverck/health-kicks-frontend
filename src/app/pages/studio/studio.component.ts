@@ -399,7 +399,7 @@ export class StudioComponent implements OnInit, OnDestroy {
         this.toast.success(this.translation.translate('studio.confirm_success'));
         this.resetToIdle();
         this.loadStats();
-        this.router.navigate(['/dashboard/studio/history']);
+        this.router.navigate(['/dashboard/studio']);
       },
       error: (err) => {
         this.isValidating.set(false);

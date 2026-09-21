@@ -541,4 +541,30 @@ describe('StudioHistoryComponent', () => {
     expect(component.showMobileFilters()).toBeTrue();
     expect(fixture.nativeElement.querySelector('#mobile-filter-validated')).toBeTruthy();
   });
+
+  it('should add overflow-hidden to document.body when drawer is open and remove it when closed or destroyed', () => {
+    fixture.detectChanges();
+
+    expect(document.body.classList.contains('overflow-hidden')).toBeFalse();
+
+    // Open drawer
+    component.openInspection(mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    expect(document.body.classList.contains('overflow-hidden')).toBeTrue();
+
+    // Close drawer
+    component.closeInspection();
+    fixture.detectChanges();
+
+    expect(document.body.classList.contains('overflow-hidden')).toBeFalse();
+
+    // Reopen and destroy fixture
+    component.openInspection(mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+    expect(document.body.classList.contains('overflow-hidden')).toBeTrue();
+
+    fixture.destroy();
+    expect(document.body.classList.contains('overflow-hidden')).toBeFalse();
+  });
 });

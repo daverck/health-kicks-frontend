@@ -372,7 +372,7 @@ describe('StudioComponent', () => {
     expect(studioHistoryServiceSpy.confirmSession).toHaveBeenCalledWith('sess-abc-12345');
     expect(toastSpy.success).toHaveBeenCalledWith('Session IMU validée et enregistrée avec succès !');
     expect(component.state()).toBe('idle');
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard/studio/history']);
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard/studio']);
   });
 
   it('should prompt confirmation when rejectSession is called and delete upon confirmation', () => {
