@@ -575,6 +575,23 @@ describe('StudioComponent', () => {
     expect(studioServiceSpy.getStudioStats).toHaveBeenCalledWith(undefined);
     expect(component.datasetStats().total_sessions).toBe(mockStudioDatasetStats.total_sessions);
   });
+
+  it('should display experimental hint and badge when a custom activity is entered', () => {
+    fixture.detectChanges();
+    component.customLabel.set('karate_kick');
+    fixture.detectChanges();
+
+    expect(component.effectiveLabel()).toBe('karate_kick');
+    expect(component.isCustomStudioLabel(component.effectiveLabel())).toBeTrue();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const hint = compiled.querySelector('[data-testid="custom-label-experimental-hint"]');
+    expect(hint).toBeTruthy();
+
+    const badge = compiled.querySelector('[data-testid="studio-experimental-badge"]');
+    expect(badge).toBeTruthy();
+    expect(badge?.textContent).toContain('🧪');
+  });
 });
 
 

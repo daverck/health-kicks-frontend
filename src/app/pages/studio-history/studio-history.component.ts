@@ -22,8 +22,15 @@ import {
   StudioSessionSummary,
   StudioHistoryFilterParams,
 } from '../../models/studio-history.model';
+import {
+  PREDEFINED_LABELS,
+  PredefinedLabel,
+  isStandardStudioLabel,
+  isCustomStudioLabel,
+  CUSTOM_LABEL_ICON,
+  CUSTOM_LABEL_BADGE_CLASS,
+} from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { PREDEFINED_LABELS, PredefinedLabel, isStandardStudioLabel } from '../studio/studio.component';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
@@ -55,6 +62,9 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly translation = inject(TranslationService);
 
   readonly predefinedLabels: PredefinedLabel[] = PREDEFINED_LABELS;
+  readonly isStandardStudioLabel = isStandardStudioLabel;
+  readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   // Pagination & List State
   readonly sessions = signal<StudioSessionSummary[]>([]);
@@ -361,6 +371,9 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   getLabelBadgeClass(label: string): string {
+    if (!isStandardStudioLabel(label)) {
+      return CUSTOM_LABEL_BADGE_CLASS;
+    }
     if (label === 'idle') {
       return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
     }
@@ -388,6 +401,6 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   getLabelIcon(labelId: string): string {
     const found = this.predefinedLabels.find((l) => l.id === labelId);
-    return found ? found.icon : '🏷️';
+    return found ? found.icon : CUSTOM_LABEL_ICON;
   }
 }

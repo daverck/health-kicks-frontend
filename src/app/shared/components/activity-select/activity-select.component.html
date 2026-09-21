@@ -38,8 +38,13 @@
       <!-- Custom label value or placeholder -->
       <div class="flex items-center gap-2 truncate">
         @if (selectedActivity()) {
-          <span class="text-sm">🏷️</span>
-          <span class="font-medium text-gray-900 truncate">{{ selectedActivity() }}</span>
+          <span class="text-sm">{{ isCustomStudioLabel(selectedActivity()) ? customLabelIcon : '🏷️' }}</span>
+          <span class="font-medium text-gray-900 truncate" [class.text-purple-700]="isCustomStudioLabel(selectedActivity())">{{ selectedActivity() }}</span>
+          @if (isCustomStudioLabel(selectedActivity())) {
+            <span class="inline-flex items-center rounded-sm bg-purple-100 px-1.5 py-0.2 text-[10px] font-semibold text-purple-700">
+              {{ 'history.label_experimental' | translate }}
+            </span>
+          }
         } @else {
           <span class="text-gray-400 truncate">
             {{ placeholder() || ('studio_history.filter_all_labels' | translate) }}

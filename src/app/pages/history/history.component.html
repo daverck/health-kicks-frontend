@@ -156,13 +156,19 @@
                       [class.bg-emerald-500]="event.event_type === 'walk' || event.event_type === 'run'"
                       [class.bg-slate-400]="event.event_type === 'idle'"
                       [class.bg-amber-500]="event.event_type === 'stairs' || event.event_type === 'stumble_recover'"
-                      [class.bg-primary-500]="!isFall(event.event_type) && event.event_type !== 'walk' && event.event_type !== 'run' && event.event_type !== 'idle' && event.event_type !== 'stairs' && event.event_type !== 'stumble_recover'"></span>
-                <div class="flex items-center gap-2">
+                      [class.bg-purple-500]="isCustomStudioLabel(event.event_type)"
+                      [class.bg-indigo-500]="isStandardStudioLabel(event.event_type) && !isFall(event.event_type) && event.event_type !== 'walk' && event.event_type !== 'run' && event.event_type !== 'idle' && event.event_type !== 'stairs' && event.event_type !== 'stumble_recover'"></span>
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border"
                         [ngClass]="getActivityBadgeClass(event.event_type)">
                     <span>{{ getActivityIcon(event.event_type) }}</span>
                     <span>{{ getActivityLabel(event.event_type) }}</span>
                   </span>
+                  @if (isCustomStudioLabel(event.event_type)) {
+                    <span class="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800" data-testid="timeline-custom-badge">
+                      <span>🧪</span> {{ 'history.label_experimental' | translate }}
+                    </span>
+                  }
                   @if (event.confidence_score != null) {
                     <span class="text-xs font-semibold text-gray-600">
                       {{ (event.confidence_score * 100).toFixed(0) }} %
@@ -249,11 +255,18 @@
                 <tr class="hover:bg-gray-50">
                   <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ event.timestamp_utc | date:'medium' }}</td>
                   <td class="px-4 py-3">
-                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border"
-                          [ngClass]="getActivityBadgeClass(event.event_type)">
-                      <span>{{ getActivityIcon(event.event_type) }}</span>
-                      <span>{{ getActivityLabel(event.event_type) }}</span>
-                    </span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border"
+                            [ngClass]="getActivityBadgeClass(event.event_type)">
+                        <span>{{ getActivityIcon(event.event_type) }}</span>
+                        <span>{{ getActivityLabel(event.event_type) }}</span>
+                      </span>
+                      @if (isCustomStudioLabel(event.event_type)) {
+                        <span class="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800" data-testid="table-custom-badge">
+                          <span>🧪</span> {{ 'history.label_experimental' | translate }}
+                        </span>
+                      }
+                    </div>
                   </td>
                   <td class="px-4 py-3 text-gray-600 font-medium">
                     @if (event.confidence_score != null) { {{ (event.confidence_score * 100).toFixed(0) }} % } @else { — }

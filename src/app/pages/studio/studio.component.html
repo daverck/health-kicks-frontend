@@ -240,6 +240,12 @@
               </button>
             }
           </div>
+          @if (customLabel()) {
+            <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-purple-700 dark:text-purple-300" data-testid="custom-label-experimental-hint">
+              <span>🧪</span>
+              <span>{{ 'studio.custom_label_experimental_hint' | translate }}</span>
+            </p>
+          }
         </div>
       </div>
 
@@ -251,20 +257,30 @@
         </p>
         <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-primary-700">
           <span>{{ 'studio.selected_label' | translate:{ label: displayLabel() } }}</span>
-          <span
-            class="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold"
-            [class.bg-emerald-100]="getCountForLabel(effectiveLabel()) >= targetPerClass"
-            [class.text-emerald-800]="getCountForLabel(effectiveLabel()) >= targetPerClass"
-            [class.border-emerald-200]="getCountForLabel(effectiveLabel()) >= targetPerClass"
-            [class.bg-amber-100]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
-            [class.text-amber-800]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
-            [class.border-amber-200]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
-            [class.bg-gray-100]="getCountForLabel(effectiveLabel()) === 0"
-            [class.text-gray-600]="getCountForLabel(effectiveLabel()) === 0"
-            [class.border-gray-200]="getCountForLabel(effectiveLabel()) === 0"
-          >
-            {{ getCountForLabel(effectiveLabel()) }} / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
-          </span>
+          @if (isCustomStudioLabel(effectiveLabel())) {
+            <span
+              class="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-[11px] font-bold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800"
+              data-testid="studio-experimental-badge"
+            >
+              <span>🧪</span>
+              <span>{{ 'studio.label_experimental_badge' | translate }}</span>
+            </span>
+          } @else {
+            <span
+              class="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-bold"
+              [class.bg-emerald-100]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+              [class.text-emerald-800]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+              [class.border-emerald-200]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+              [class.bg-amber-100]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
+              [class.text-amber-800]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
+              [class.border-amber-200]="getCountForLabel(effectiveLabel()) > 0 && getCountForLabel(effectiveLabel()) < targetPerClass"
+              [class.bg-gray-100]="getCountForLabel(effectiveLabel()) === 0"
+              [class.text-gray-600]="getCountForLabel(effectiveLabel()) === 0"
+              [class.border-gray-200]="getCountForLabel(effectiveLabel()) === 0"
+            >
+              {{ getCountForLabel(effectiveLabel()) }} / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
+            </span>
+          }
         </div>
 
         <button

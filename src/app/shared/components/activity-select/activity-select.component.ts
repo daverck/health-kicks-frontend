@@ -11,7 +11,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PredefinedLabel, PREDEFINED_LABELS } from '../../../models/studio.model';
+import {
+  PredefinedLabel,
+  PREDEFINED_LABELS,
+  isStandardStudioLabel,
+  isCustomStudioLabel,
+  CUSTOM_LABEL_ICON,
+} from '../../../models/studio.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
@@ -22,6 +28,10 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 })
 export class ActivitySelectComponent {
   private readonly elementRef = inject(ElementRef);
+
+  readonly isStandardStudioLabel = isStandardStudioLabel;
+  readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   // Inputs & Two-way model
   readonly selectedActivity = model<string>('');

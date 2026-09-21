@@ -20,7 +20,14 @@ import { StudioSessionSummary } from '../../../models/studio-history.model';
 import { ImuReading } from '../../../models/telemetry.models';
 import { ImuChartComponent } from '../imu-chart/imu-chart.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
-import { PREDEFINED_LABELS, PredefinedLabel, isStandardStudioLabel } from '../../../models/studio.model';
+import {
+  PREDEFINED_LABELS,
+  PredefinedLabel,
+  isStandardStudioLabel,
+  isCustomStudioLabel,
+  CUSTOM_LABEL_ICON,
+  CUSTOM_LABEL_BADGE_CLASS,
+} from '../../../models/studio.model';
 import { exportSessionToJson } from '../../../core/utils/export.utils';
 
 @Component({
@@ -51,6 +58,9 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly translation = inject(TranslationService);
 
   readonly predefinedLabels: PredefinedLabel[] = PREDEFINED_LABELS;
+  readonly isStandardStudioLabel = isStandardStudioLabel;
+  readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   // Inputs
   readonly session = input<StudioSessionSummary | null>(null);
@@ -250,6 +260,9 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   }
 
   getLabelBadgeClass(label: string): string {
+    if (!isStandardStudioLabel(label)) {
+      return CUSTOM_LABEL_BADGE_CLASS;
+    }
     if (label === 'idle') {
       return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
     }
@@ -277,7 +290,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
 
   getLabelIcon(labelId: string): string {
     const found = this.predefinedLabels.find((l) => l.id === labelId);
-    return found ? found.icon : '🏷️';
+    return found ? found.icon : CUSTOM_LABEL_ICON;
   }
 }
 

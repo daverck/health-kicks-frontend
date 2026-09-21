@@ -99,3 +99,12 @@ export const STANDARD_STUDIO_LABEL_IDS = new Set<string>(
 export function isStandardStudioLabel(labelId: string): boolean {
   return STANDARD_STUDIO_LABEL_IDS.has(labelId);
 }
+
+export function isCustomStudioLabel(labelId: string): boolean {
+  return Boolean(labelId) && !STANDARD_STUDIO_LABEL_IDS.has(labelId);
+}
+
+export const CUSTOM_LABEL_ICON = '🧪';
+
+export const CUSTOM_LABEL_BADGE_CLASS =
+  'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800';

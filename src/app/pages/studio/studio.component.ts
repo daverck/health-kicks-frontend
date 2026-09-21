@@ -18,6 +18,9 @@ import {
   STANDARD_STUDIO_LABELS,
   STANDARD_STUDIO_LABEL_IDS,
   isStandardStudioLabel,
+  isCustomStudioLabel,
+  CUSTOM_LABEL_ICON,
+  CUSTOM_LABEL_BADGE_CLASS,
 } from '../../models/studio.model';
 
 export type { PredefinedLabel, StudioActivityCode };
@@ -27,6 +30,9 @@ export {
   STANDARD_STUDIO_LABELS,
   STANDARD_STUDIO_LABEL_IDS,
   isStandardStudioLabel,
+  isCustomStudioLabel,
+  CUSTOM_LABEL_ICON,
+  CUSTOM_LABEL_BADGE_CLASS,
 };
 
 import { Router, RouterLink } from '@angular/router';
@@ -50,9 +56,12 @@ export class StudioComponent implements OnInit, OnDestroy {
   private readonly studioHistoryService = inject(StudioHistoryService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
-  private readonly translation = inject(TranslationService);
+  readonly translation = inject(TranslationService);
 
   readonly predefinedLabels = PREDEFINED_LABELS;
+  readonly isStandardStudioLabel = isStandardStudioLabel;
+  readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   // Devices state
   readonly devices = signal<DeviceResponse[]>([]);

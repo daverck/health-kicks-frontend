@@ -4,7 +4,13 @@ import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, ActivityEvent, HapticLogItem } from '../../models/api.models';
 import { intensityToLevel } from '../../core/utils/haptic.utils';
-import { PREDEFINED_LABELS, isStandardStudioLabel } from '../../models/studio.model';
+import {
+  PREDEFINED_LABELS,
+  isStandardStudioLabel,
+  isCustomStudioLabel,
+  CUSTOM_LABEL_ICON,
+  CUSTOM_LABEL_BADGE_CLASS,
+} from '../../models/studio.model';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
@@ -30,6 +36,9 @@ export class HistoryComponent implements OnInit {
 
   readonly intensityToLevel = intensityToLevel;
   readonly predefinedLabels = PREDEFINED_LABELS;
+  readonly isStandardStudioLabel = isStandardStudioLabel;
+  readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');
@@ -152,12 +161,15 @@ export class HistoryComponent implements OnInit {
     const found = this.predefinedLabels.find((l) => l.id === eventType);
     if (found) return found.icon;
     if (this.isFall(eventType)) return '🚨';
-    return '🏷️';
+    return CUSTOM_LABEL_ICON;
   }
 
   getActivityBadgeClass(eventType: string): string {
     if (this.isFall(eventType)) {
       return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300';
+    }
+    if (!isStandardStudioLabel(eventType)) {
+      return CUSTOM_LABEL_BADGE_CLASS;
     }
     switch (eventType) {
       case 'idle':
@@ -169,7 +181,7 @@ export class HistoryComponent implements OnInit {
       case 'stumble_recover':
         return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300';
       default:
-        return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300';
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300';
     }
   }
 

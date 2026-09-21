@@ -38,6 +38,16 @@
             <span>{{ getLabelDisplayName(s.label) }}</span>
           </span>
 
+          @if (isCustomStudioLabel(s.label)) {
+            <span
+              class="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800"
+              data-testid="inspection-badge-custom"
+            >
+              <span>🧪</span>
+              <span>{{ 'studio_history.label_custom_tag' | translate }}</span>
+            </span>
+          }
+
           <!-- Validation Status Badge -->
           @if (s.is_validated) {
             <span
@@ -349,6 +359,16 @@
               {{ 'studio_history.save_label' | translate }}
             </button>
           </div>
+
+          @if (isCustomStudioLabel(s.label)) {
+            <div class="rounded-lg border border-purple-200 bg-purple-50/70 p-2.5 text-xs text-purple-800 flex items-start gap-2 dark:bg-purple-950/30 dark:border-purple-800 dark:text-purple-300" data-testid="inspection-custom-note">
+              <span class="text-sm">🧪</span>
+              <div>
+                <span class="font-semibold">{{ 'studio_history.label_custom_tag' | translate }} :</span>
+                <span> {{ 'studio_history.custom_label_experimental_note' | translate }}</span>
+              </div>
+            </div>
+          }
 
           @if (labelEditMode() === 'custom') {
             <p class="text-[11px] text-gray-500">

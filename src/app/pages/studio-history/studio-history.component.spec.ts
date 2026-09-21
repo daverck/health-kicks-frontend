@@ -567,4 +567,35 @@ describe('StudioHistoryComponent', () => {
     fixture.destroy();
     expect(document.body.classList.contains('overflow-hidden')).toBeFalse();
   });
+
+  it('should render experimental tag for custom sessions in mobile cards and desktop table', () => {
+    const customSession = {
+      ...mockStudioSessionSummaries[0],
+      id: 'sess-custom-99',
+      label: 'breakdance',
+    };
+    studioHistoryServiceSpy.getSessions.and.returnValue(of({
+      items: [customSession],
+      total: 1,
+      page: 1,
+      size: 20,
+      pages: 1,
+    }));
+
+    component.loadSessions();
+    fixture.detectChanges();
+
+    expect(component.isCustomStudioLabel('breakdance')).toBeTrue();
+    expect(component.getLabelIcon('breakdance')).toBe('🧪');
+    expect(component.getLabelBadgeClass('breakdance')).toContain('purple');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const mobileCustomBadge = compiled.querySelector('[data-testid="mobile-card-custom-badge"]');
+    expect(mobileCustomBadge).toBeTruthy();
+    expect(mobileCustomBadge?.textContent).toContain('🧪');
+
+    const tableCustomBadge = compiled.querySelector('[data-testid="table-row-custom-badge"]');
+    expect(tableCustomBadge).toBeTruthy();
+    expect(tableCustomBadge?.textContent).toContain('🧪');
+  });
 });

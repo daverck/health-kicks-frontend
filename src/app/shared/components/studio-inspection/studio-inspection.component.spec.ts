@@ -200,4 +200,27 @@ describe('StudioInspectionComponent', () => {
 
     expect(mockToastService.info).toHaveBeenCalled();
   });
+
+  it('should render experimental tag and purple styling for custom activity session', () => {
+    const customSession = {
+      ...mockStudioSessionSummaries[0],
+      id: 'sess-custom-001',
+      label: 'moonwalk',
+    };
+
+    fixture.componentRef.setInput('session', customSession);
+    fixture.detectChanges();
+
+    expect(component.isCustomStudioLabel('moonwalk')).toBeTrue();
+    expect(component.getLabelIcon('moonwalk')).toBe('🧪');
+    expect(component.getLabelBadgeClass('moonwalk')).toContain('purple');
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const customBadge = compiled.querySelector('[data-testid="inspection-badge-custom"]');
+    expect(customBadge).toBeTruthy();
+    expect(customBadge?.textContent).toContain('🧪');
+
+    const customNote = compiled.querySelector('[data-testid="inspection-custom-note"]');
+    expect(customNote).toBeTruthy();
+  });
 });

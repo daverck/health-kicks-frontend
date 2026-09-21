@@ -138,12 +138,13 @@ describe('HistoryComponent', () => {
     expect(component.getActivityIcon('idle')).toBe('⏸️');
     expect(component.getActivityIcon('fall_forward')).toBe('⤵️');
     expect(component.getActivityIcon('unknown_fall')).toBe('🚨');
+    expect(component.getActivityIcon('custom_activity')).toBe('🧪');
 
     expect(component.getActivityBadgeClass('fall_forward')).toContain('bg-red-100');
     expect(component.getActivityBadgeClass('idle')).toContain('bg-slate-100');
     expect(component.getActivityBadgeClass('walk')).toContain('bg-emerald-100');
     expect(component.getActivityBadgeClass('stairs')).toContain('bg-amber-100');
-    expect(component.getActivityBadgeClass('other')).toContain('bg-blue-100');
+    expect(component.getActivityBadgeClass('other')).toContain('bg-purple-100');
 
     expect(component.getActivityLabel('walk')).toBe('Marche');
     expect(component.getActivityLabel('custom_activity')).toBe('custom_activity');
