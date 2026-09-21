@@ -176,6 +176,41 @@ describe('ImuChartComponent', () => {
     expect(component.showMag()).toBeFalse();
   });
 
+  it('should toggle ISB biomechanical standard guide panel', () => {
+    component.readings = mockImuReadings;
+    fixture.detectChanges();
+    component.ngOnChanges({
+      readings: new SimpleChange(null, mockImuReadings, true),
+    });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const toggleBtn = compiled.querySelector('[data-testid="toggle-isb-guide-btn"]') as HTMLButtonElement;
+    expect(toggleBtn).toBeTruthy();
+
+    // Initially closed
+    expect(component.showIsbGuide()).toBeFalse();
+    expect(compiled.querySelector('[data-testid="isb-guide-panel"]')).toBeNull();
+
+    // Toggle open
+    toggleBtn.click();
+    fixture.detectChanges();
+
+    expect(component.showIsbGuide()).toBeTrue();
+    const panel = compiled.querySelector('[data-testid="isb-guide-panel"]');
+    expect(panel).toBeTruthy();
+    expect(panel?.textContent).toContain('Cavanagh');
+    expect(panel?.textContent).toContain('Antéro-postérieur');
+    expect(panel?.textContent).toContain('Médio-latéral');
+    expect(panel?.textContent).toContain('Longitudinal / Vertical');
+
+    // Toggle close
+    toggleBtn.click();
+    fixture.detectChanges();
+    expect(component.showIsbGuide()).toBeFalse();
+    expect(compiled.querySelector('[data-testid="isb-guide-panel"]')).toBeNull();
+  });
+
   it('should properly clean up Chart instances on ngOnDestroy', () => {
     component.readings = mockImuReadings;
     fixture.detectChanges();

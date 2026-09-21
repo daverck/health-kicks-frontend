@@ -23,6 +23,7 @@ import {
   ChartConfiguration,
 } from 'chart.js';
 import { ImuReading } from '../../../models/telemetry.models';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 // Register required Chart.js modules tree-shakably
 Chart.register(
@@ -38,7 +39,7 @@ Chart.register(
 @Component({
   selector: 'app-imu-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './imu-chart.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -51,6 +52,9 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   private chartAccel: Chart | null = null;
   private chartGyro: Chart | null = null;
 
+  // Biomechanical ISB Guide visibility
+  readonly showIsbGuide = signal<boolean>(false);
+
   // Axis visibility signals (Acceleration)
   readonly showAx = signal<boolean>(true);
   readonly showAy = signal<boolean>(true);
@@ -61,6 +65,10 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   readonly showGx = signal<boolean>(true);
   readonly showGy = signal<boolean>(true);
   readonly showGz = signal<boolean>(true);
+
+  toggleIsbGuide(): void {
+    this.showIsbGuide.update((v) => !v);
+  }
 
   toggleAccelAxis(axis: 'ax' | 'ay' | 'az' | 'mag'): void {
     let nextVal = true;
