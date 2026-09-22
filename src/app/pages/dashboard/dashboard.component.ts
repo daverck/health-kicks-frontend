@@ -8,11 +8,12 @@ import { DeviceResponse, HapticLogItem, HapticTriggerResponse } from '../../mode
 import { intensityToLevel, levelToIntensity } from '../../core/utils/haptic.utils';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { StepsHistoryComponent } from './components/steps-history/steps-history.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterLink, TranslatePipe, StepsHistoryComponent],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit {
