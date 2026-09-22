@@ -10,7 +10,7 @@
 
       <!-- Navigation -->
       <nav class="space-y-1 p-4">
-        @for (link of links; track link.path) {
+        @for (link of visibleLinks(); track link.path) {
           <a
             [routerLink]="link.path"
             routerLinkActive="bg-primary-50 text-primary-700 font-semibold"
@@ -111,7 +111,7 @@
 
         <!-- Mobile Navigation links with full labels -->
         <nav class="space-y-1 overflow-y-auto p-4">
-          @for (link of links; track link.path) {
+          @for (link of visibleLinks(); track link.path) {
             <a
               [routerLink]="link.path"
               routerLinkActive="bg-primary-50 text-primary-700 font-semibold"

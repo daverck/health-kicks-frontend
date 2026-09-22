@@ -3,13 +3,14 @@ import { DashboardLayoutComponent } from './dashboard-layout.component';
 import { AuthService } from '../../core/services/auth.service';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { UserResponse } from '../../models/api.models';
 
 describe('DashboardLayoutComponent', () => {
   let component: DashboardLayoutComponent;
   let fixture: ComponentFixture<DashboardLayoutComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let userSignal: WritableSignal<UserResponse | null>;
 
   const mockUser: UserResponse = {
     id: 1,
@@ -19,9 +20,27 @@ describe('DashboardLayoutComponent', () => {
     is_active: true,
   };
 
+  const mockClinician: UserResponse = {
+    id: 2,
+    email: 'clinician@test.com',
+    name: 'Dr. House',
+    role: 'clinician',
+    is_active: true,
+  };
+
+  const mockAdmin: UserResponse = {
+    id: 3,
+    email: 'admin@test.com',
+    name: 'Admin Boss',
+    role: 'admin',
+    is_active: true,
+  };
+
   beforeEach(async () => {
+    userSignal = signal<UserResponse | null>(mockUser);
     authServiceSpy = jasmine.createSpyObj('AuthService', ['loadMe', 'logout'], {
-      user: signal<UserResponse | null>(mockUser),
+      user: userSignal,
+      currentUser: userSignal,
     });
     authServiceSpy.loadMe.and.returnValue(of(mockUser));
 
@@ -96,7 +115,7 @@ describe('DashboardLayoutComponent', () => {
     expect(closeBtn).toBeTruthy();
 
     const mobileLinks = fixture.nativeElement.querySelectorAll('aside[role="dialog"] nav a');
-    expect(mobileLinks.length).toBe(component.links.length);
+    expect(mobileLinks.length).toBe(component.visibleLinks().length);
 
     closeBtn?.click();
     fixture.detectChanges();
@@ -125,9 +144,42 @@ describe('DashboardLayoutComponent', () => {
     expect(component.isMobileMenuOpen()).toBeFalse();
   });
 
-  it('should render all dashboard navigation links', () => {
-    const links = fixture.nativeElement.querySelectorAll('aside nav a');
-    expect(links.length).toBe(component.links.length);
+  it('should filter out studio links when user role is regular "user"', () => {
+    userSignal.set(mockUser);
+    fixture.detectChanges();
+
+    expect(component.isClinicianOrAdmin()).toBeFalse();
+    expect(component.visibleLinks().some(l => l.path.startsWith('/dashboard/studio'))).toBeFalse();
+    expect(component.visibleLinks().length).toBe(4);
+
+    const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
+    expect(desktopLinks.length).toBe(4);
+  });
+
+  it('should show studio links when user role is "clinician"', () => {
+    userSignal.set(mockClinician);
+    fixture.detectChanges();
+
+    expect(component.isClinicianOrAdmin()).toBeTrue();
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio')).toBeTrue();
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/history')).toBeTrue();
+    expect(component.visibleLinks().length).toBe(6);
+
+    const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
+    expect(desktopLinks.length).toBe(6);
+  });
+
+  it('should show studio links when user role is "admin"', () => {
+    userSignal.set(mockAdmin);
+    fixture.detectChanges();
+
+    expect(component.isClinicianOrAdmin()).toBeTrue();
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio')).toBeTrue();
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/history')).toBeTrue();
+    expect(component.visibleLinks().length).toBe(6);
+
+    const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
+    expect(desktopLinks.length).toBe(6);
   });
 
   it('should compute avatar initial correctly', () => {

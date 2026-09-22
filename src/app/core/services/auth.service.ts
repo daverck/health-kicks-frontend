@@ -22,6 +22,7 @@ export class AuthService {
   );
 
   readonly user = this.userSignal.asReadonly();
+  readonly currentUser = this.user;
   readonly token = this.tokenSignal.asReadonly();
   readonly isAuthenticated = computed(() => {
     const t = this.tokenSignal();

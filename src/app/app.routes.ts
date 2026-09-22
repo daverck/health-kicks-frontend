@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { clinicianOrAdminGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent) },
@@ -24,9 +25,9 @@ export const routes: Routes = [
       { path: 'devices', loadComponent: () => import('./pages/devices/devices.component').then((m) => m.DevicesComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent) },
       { path: 'history', loadComponent: () => import('./pages/history/history.component').then((m) => m.HistoryComponent) },
-      { path: 'studio', loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
-      { path: 'studio/history', loadComponent: () => import('./pages/studio-history/studio-history.component').then((m) => m.StudioHistoryComponent) },
-      { path: 'studio/history/:id', loadComponent: () => import('./pages/studio-session-detail/studio-session-detail.component').then((m) => m.StudioSessionDetailComponent) },
+      { path: 'studio', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
+      { path: 'studio/history', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-history/studio-history.component').then((m) => m.StudioHistoryComponent) },
+      { path: 'studio/history/:id', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-session-detail/studio-session-detail.component').then((m) => m.StudioSessionDetailComponent) },
       { path: 'studio/sessions/:id', redirectTo: 'studio/history/:id', pathMatch: 'full' },
       { path: 'studio-history', redirectTo: 'studio/history', pathMatch: 'full' },
     ],

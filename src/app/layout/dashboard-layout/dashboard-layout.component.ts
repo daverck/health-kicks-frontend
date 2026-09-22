@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { UserResponse } from '../../models/api.models';
@@ -33,6 +33,15 @@ export class DashboardLayoutComponent implements OnInit {
     { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬' },
     { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊' },
   ];
+
+  readonly isClinicianOrAdmin = computed(() => {
+    const role = (this.auth.currentUser ? this.auth.currentUser() : this.auth.user())?.role;
+    return role === 'admin' || role === 'clinician';
+  });
+
+  readonly visibleLinks = computed(() =>
+    this.links.filter((l) => !l.path.startsWith('/dashboard/studio') || this.isClinicianOrAdmin())
+  );
 
   constructor() {
     this.router.events
