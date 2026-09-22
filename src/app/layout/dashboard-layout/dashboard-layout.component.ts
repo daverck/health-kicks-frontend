@@ -26,6 +26,7 @@ export class DashboardLayoutComponent implements OnInit {
   readonly isMobileMenuOpen = signal(false);
 
   readonly links = [
+    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: '🚶‍♂️' },
     { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳' },
     { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
     { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓' },

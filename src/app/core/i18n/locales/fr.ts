@@ -39,6 +39,7 @@ export const fr = {
   nav: {
     menu: 'Menu',
     dashboard: 'Tableau de bord',
+    steps: 'Podomètre & Pas',
     vibrations: 'Vibrations manuelles',
     devices: 'Équipements',
     history: 'Historique',
@@ -53,6 +54,16 @@ export const fr = {
     login: 'Connexion',
     register: 'Créer un compte',
     member_space: 'Espace Membre',
+  },
+  steps_page: {
+    title: 'Historique du Podomètre & Activités',
+    subtitle: 'Consultez le nombre de pas quotidiens ventilés par marche, course et escaliers ainsi que la cadence moyenne.',
+    select_device_help: 'Sélectionnez une chaussure connectée pour afficher son historique de pas.',
+    no_devices: 'Aucune chaussure connectée trouvée pour votre compte.',
+    pair_device_link: 'Associer une chaussure',
+    loading_devices: 'Chargement des équipements…',
+    load_error_title: 'Erreur lors du chargement des équipements',
+    load_error_desc: 'Impossible de récupérer la liste de vos chaussures.',
   },
   home: {
     badge: 'Des « kicks » (chaussures) qui veillent sur votre santé',

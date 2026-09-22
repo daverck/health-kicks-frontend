@@ -193,11 +193,6 @@
     }
   </section>
 
-  <!-- Daily Steps History -->
-  @if (selectedDevice(); as device) {
-    <app-steps-history [deviceId]="device.device_id" />
-  }
-
   <!-- Haptic trigger -->
   <section class="card" *ngIf="selectedDevice() as device">
     <div class="flex items-center justify-between">

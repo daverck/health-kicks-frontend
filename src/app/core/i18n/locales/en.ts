@@ -39,6 +39,7 @@ export const en = {
   nav: {
     menu: 'Menu',
     dashboard: 'Dashboard',
+    steps: 'Pedometer & Steps',
     vibrations: 'Manual Vibrations',
     devices: 'Devices',
     history: 'History',
@@ -53,6 +54,16 @@ export const en = {
     login: 'Sign In',
     register: 'Create Account',
     member_space: 'Member Area',
+  },
+  steps_page: {
+    title: 'Pedometer & Activity History',
+    subtitle: 'View your daily step counts broken down by walking, running, and stairs along with average cadence.',
+    select_device_help: 'Select a connected footwear to view its step history.',
+    no_devices: 'No connected footwear found for your account.',
+    pair_device_link: 'Pair a Footwear',
+    loading_devices: 'Loading devices…',
+    load_error_title: 'Error loading devices',
+    load_error_desc: 'Unable to retrieve your list of footwear devices.',
   },
   home: {
     badge: 'Smart Connected Clip for Fall Prevention',

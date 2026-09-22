@@ -9,14 +9,12 @@ import {
   mockHapticLogPage,
   mockHapticResponse,
 } from '../../../testing/mocks/device.mock';
-import { StepsService } from '../../core/services/steps.service';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   let deviceServiceSpy: jasmine.SpyObj<DeviceService>;
   let toastServiceSpy: jasmine.SpyObj<ToastService>;
-  let stepsServiceSpy: jasmine.SpyObj<StepsService>;
 
   beforeEach(async () => {
     deviceServiceSpy = jasmine.createSpyObj('DeviceService', [
@@ -25,10 +23,6 @@ describe('DashboardComponent', () => {
       'getHapticHistory',
     ]);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error']);
-    stepsServiceSpy = jasmine.createSpyObj('StepsService', ['getStepsHistory']);
-    stepsServiceSpy.getStepsHistory.and.returnValue(
-      of({ device_id: 'hk-device-0001', from_date: '2026-09-01', to_date: '2026-09-22', history: [] })
-    );
 
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
     deviceServiceSpy.getHapticHistory.and.returnValue(of(mockHapticLogPage));
@@ -40,7 +34,6 @@ describe('DashboardComponent', () => {
         provideRouter([]),
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: ToastService, useValue: toastServiceSpy },
-        { provide: StepsService, useValue: stepsServiceSpy },
       ],
     }).compileComponents();
 

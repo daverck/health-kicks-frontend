@@ -20,6 +20,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'devices', pathMatch: 'full' },
       { path: 'vibrations', loadComponent: () => import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent) },
+      { path: 'steps', loadComponent: () => import('./pages/steps/steps.component').then((m) => m.StepsComponent) },
       { path: 'devices', loadComponent: () => import('./pages/devices/devices.component').then((m) => m.DevicesComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent) },
       { path: 'history', loadComponent: () => import('./pages/history/history.component').then((m) => m.HistoryComponent) },
