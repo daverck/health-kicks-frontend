@@ -106,7 +106,7 @@ describe('HomeComponent', () => {
     expect(ctaSection?.textContent).not.toContain('Déjà un compte ? Se connecter');
   });
 
-  it('should highlight the shoe-clip concept and roadmap features', () => {
+  it('should highlight the shoe-clip concept, active pedometer, and roadmap features', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     // Concept section
@@ -115,11 +115,12 @@ describe('HomeComponent', () => {
     expect(concept?.textContent).toContain('Économique & Léger');
     expect(concept?.textContent).toContain('Discret & Bienveillant');
 
-    // Features section with roadmap items
+    // Features section with active and roadmap items
     const features = compiled.querySelector('#features');
     expect(features?.textContent).toContain('Détection de chute en temps réel');
     expect(features?.textContent).toContain('Stimulation haptique à distance');
-    expect(features?.textContent).toContain('Comptage des pas');
+    expect(features?.textContent).toContain('Podomètre biomécanique & Cadence');
+    expect(features?.textContent).toContain('Disponible · Edge AI');
     expect(features?.textContent).toContain('Rappel anti-inactivité prolongée');
     expect(features?.textContent).toContain('Bientôt disponible');
   });
@@ -144,7 +145,8 @@ describe('HomeComponent', () => {
 
     // Default simulation is walk
     expect(component.activeSimulation()).toBe('walk');
-    expect(compiled.textContent).toContain('rythme et équilibre stables');
+    expect(compiled.textContent).toContain('6 420 pas');
+    expect(compiled.textContent).toContain('114 SPM');
 
     // Switch to fall simulation
     component.setSimulation('fall');
