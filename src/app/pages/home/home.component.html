@@ -84,146 +84,217 @@
         </div>
       </div>
 
-      <!-- Illustration : Realistic Shoe & Chunky Bluetooth IoT Clip with Live Animations -->
+      <!-- Hero Visuals Container with 3-in-1 Switcher -->
       <div class="flex items-center justify-center">
         <div class="relative w-full max-w-lg">
           <!-- Background ambient glow -->
           <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary-200/60 via-indigo-100/50 to-primary-100/30 blur-2xl opacity-70"></div>
           
           <div class="relative rounded-3xl border border-gray-100 bg-white/95 p-4 sm:p-5 shadow-2xl backdrop-blur">
-            <!-- Image Container with Overlays -->
-            <div class="relative overflow-hidden rounded-2xl bg-gray-900 aspect-[4/3] group">
-              <!-- Real Product Image (Photo of shoe with vintage bluetooth IoT clip) -->
-              <img
-                src="/images/shoe-clip-device.jpg"
-                alt="Health Kicks - Clip IoT fixé sur les lacets de la chaussure"
-                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="eager"
-                fetchpriority="high"
-                width="640"
-                height="480"
-              />
+            <!-- 3-way Visual Switcher Tabs -->
+            <div class="mb-4 flex items-center justify-center p-1 rounded-xl bg-gray-100/80 border border-gray-200/60 text-xs font-semibold text-gray-700">
+              <button
+                type="button"
+                (click)="setHeroVisual('shoe')"
+                class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
+                [class]="heroVisualMode() === 'shoe' ? 'bg-white text-primary-700 shadow-sm font-bold' : 'hover:text-gray-900'"
+              >
+                <span>👟</span>
+                <span>{{ 'home.hero_view_shoe' | translate }}</span>
+              </button>
+              <button
+                type="button"
+                (click)="setHeroVisual('web')"
+                class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
+                [class]="heroVisualMode() === 'web' ? 'bg-white text-primary-700 shadow-sm font-bold' : 'hover:text-gray-900'"
+              >
+                <span>💻</span>
+                <span>{{ 'home.hero_view_web' | translate }}</span>
+              </button>
+              <button
+                type="button"
+                (click)="setHeroVisual('mobile')"
+                class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
+                [class]="heroVisualMode() === 'mobile' ? 'bg-white text-primary-700 shadow-sm font-bold' : 'hover:text-gray-900'"
+              >
+                <span>📱</span>
+                <span>{{ 'home.hero_view_mobile' | translate }}</span>
+              </button>
+            </div>
 
-              <!-- Dark gradient vignette overlay at top/bottom for contrast -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none"></div>
+            <!-- View 1: Shoe Clip Interactive Simulator -->
+            @if (heroVisualMode() === 'shoe') {
+              <div class="relative overflow-hidden rounded-2xl bg-gray-900 aspect-[4/3] group">
+                <img
+                  src="/images/shoe-clip-device.jpg"
+                  alt="Health Kicks - Clip IoT fixé sur les lacets de la chaussure"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="eager"
+                  fetchpriority="high"
+                  width="640"
+                  height="480"
+                />
 
-              <!-- Top Live Status Badge -->
-              <div class="absolute top-3 left-3 flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-xs font-semibold text-white shadow">
-                <span class="relative flex h-2.5 w-2.5">
-                  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                </span>
-                <span>{{ 'home.sim_live_badge' | translate }}</span>
-              </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none"></div>
 
-              <!-- Fall Alert Pulse Animation (When fall mode is active) -->
-              @if (activeSimulation() === 'fall') {
-                <div class="absolute inset-0 bg-red-600/30 border-4 border-red-500 rounded-2xl animate-pulse pointer-events-none"></div>
-              }
-
-              <!-- Concentric Haptic Vibration Waves (When haptic mode is active) -->
-              @if (activeSimulation() === 'haptic') {
-                <div class="absolute top-[42%] left-[45%] -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
-                  <span class="absolute h-24 w-24 rounded-full border-2 border-primary-400/80 animate-ping"></span>
-                  <span class="absolute h-36 w-36 rounded-full border-2 border-indigo-400/60 animate-ping delay-150"></span>
-                  <span class="absolute h-48 w-48 rounded-full border border-primary-300/40 animate-ping delay-300"></span>
+                <div class="absolute top-3 left-3 flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 text-xs font-semibold text-white shadow">
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                  </span>
+                  <span>{{ 'home.sim_live_badge' | translate }}</span>
                 </div>
-              }
 
-              <!-- Bottom Overlay Caption: Dynamic Live Status -->
-              <div class="absolute bottom-3 inset-x-3 rounded-xl bg-black/70 backdrop-blur-md px-3.5 py-2.5 border border-white/15 text-white shadow">
-                @switch (activeSimulation()) {
-                  @case ('walk') {
-                    <div class="flex items-center justify-between gap-2 text-xs">
-                      <span class="flex items-center gap-2 text-emerald-300 font-semibold truncate">
-                        <span>🚶‍♂️</span>
-                        <span class="truncate">{{ 'home.sim_status_walk' | translate }}</span>
-                      </span>
-                      <div class="flex items-center gap-1.5 shrink-0">
-                        <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-200 font-semibold">114 SPM</span>
-                        <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-200">54 Hz</span>
-                      </div>
-                    </div>
-                  }
-                  @case ('fall') {
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="flex items-center gap-2 text-red-300 font-bold animate-pulse">
-                        <span>💥</span>
-                        <span>{{ 'home.sim_status_fall' | translate }}</span>
-                      </span>
-                      <span class="rounded bg-red-500/30 px-2 py-0.5 text-[10px] font-mono text-red-200 font-bold">ALERTE</span>
-                    </div>
-                  }
-                  @case ('haptic') {
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="flex items-center gap-2 text-primary-300 font-semibold">
-                        <span>📳</span>
-                        <span>{{ 'home.sim_status_haptic' | translate }}</span>
-                      </span>
-                      <span class="rounded bg-primary-500/30 px-2 py-0.5 text-[10px] font-mono text-primary-200">250 ms</span>
-                    </div>
-                  }
-                  @case ('idle') {
-                    <div class="flex items-center justify-between text-xs">
-                      <span class="flex items-center gap-2 text-amber-300 font-semibold">
-                        <span>💤</span>
-                        <span>{{ 'home.sim_status_idle' | translate }}</span>
-                      </span>
-                      <span class="rounded bg-amber-500/30 px-2 py-0.5 text-[10px] font-mono text-amber-200">Roadmap</span>
-                    </div>
-                  }
+                @if (activeSimulation() === 'fall') {
+                  <div class="absolute inset-0 bg-red-600/30 border-4 border-red-500 rounded-2xl animate-pulse pointer-events-none"></div>
                 }
+
+                @if (activeSimulation() === 'haptic') {
+                  <div class="absolute top-[42%] left-[45%] -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
+                    <span class="absolute h-24 w-24 rounded-full border-2 border-primary-400/80 animate-ping"></span>
+                    <span class="absolute h-36 w-36 rounded-full border-2 border-indigo-400/60 animate-ping delay-150"></span>
+                    <span class="absolute h-48 w-48 rounded-full border border-primary-300/40 animate-ping delay-300"></span>
+                  </div>
+                }
+
+                <div class="absolute bottom-3 inset-x-3 rounded-xl bg-black/70 backdrop-blur-md px-3.5 py-2.5 border border-white/15 text-white shadow">
+                  @switch (activeSimulation()) {
+                    @case ('walk') {
+                      <div class="flex items-center justify-between gap-2 text-xs">
+                        <span class="flex items-center gap-2 text-emerald-300 font-semibold truncate">
+                          <span>🚶‍♂️</span>
+                          <span class="truncate">{{ 'home.sim_status_walk' | translate }}</span>
+                        </span>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-200 font-semibold">114 SPM</span>
+                          <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-200">54 Hz</span>
+                        </div>
+                      </div>
+                    }
+                    @case ('fall') {
+                      <div class="flex items-center justify-between text-xs">
+                        <span class="flex items-center gap-2 text-red-300 font-bold animate-pulse">
+                          <span>💥</span>
+                          <span>{{ 'home.sim_status_fall' | translate }}</span>
+                        </span>
+                        <span class="rounded bg-red-500/30 px-2 py-0.5 text-[10px] font-mono text-red-200 font-bold">ALERTE</span>
+                      </div>
+                    }
+                    @case ('haptic') {
+                      <div class="flex items-center justify-between text-xs">
+                        <span class="flex items-center gap-2 text-primary-300 font-semibold">
+                          <span>📳</span>
+                          <span>{{ 'home.sim_status_haptic' | translate }}</span>
+                        </span>
+                        <span class="rounded bg-primary-500/30 px-2 py-0.5 text-[10px] font-mono text-primary-200">250 ms</span>
+                      </div>
+                    }
+                    @case ('idle') {
+                      <div class="flex items-center justify-between text-xs">
+                        <span class="flex items-center gap-2 text-amber-300 font-semibold">
+                          <span>💤</span>
+                          <span>{{ 'home.sim_status_idle' | translate }}</span>
+                        </span>
+                        <span class="rounded bg-amber-500/30 px-2 py-0.5 text-[10px] font-mono text-amber-200">Roadmap</span>
+                      </div>
+                    }
+                  }
+                </div>
               </div>
-            </div>
 
-            <!-- Interactive Simulation Buttons -->
-            <div class="mt-3.5">
-              <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                <span>Tester le comportement du boîtier clipsé :</span>
-                <span class="text-primary-600 font-normal lowercase">interactif</span>
+              <!-- Interactive Simulation Buttons -->
+              <div class="mt-3.5">
+                <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                  <span>Tester le comportement du boîtier clipsé :</span>
+                  <span class="text-primary-600 font-normal lowercase">interactif</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <button
+                    type="button"
+                    (click)="setSimulation('walk')"
+                    class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
+                    [class]="activeSimulation() === 'walk' ? 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    <span>🚶‍♂️</span>
+                    <span>{{ 'home.sim_btn_walk' | translate }}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="setSimulation('fall')"
+                    class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
+                    [class]="activeSimulation() === 'fall' ? 'bg-red-100 text-red-800 font-bold border border-red-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    <span>💥</span>
+                    <span>{{ 'home.sim_btn_fall' | translate }}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="setSimulation('haptic')"
+                    class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
+                    [class]="activeSimulation() === 'haptic' ? 'bg-primary-100 text-primary-800 font-bold border border-primary-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    <span>📳</span>
+                    <span>{{ 'home.sim_btn_haptic' | translate }}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="setSimulation('idle')"
+                    class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
+                    [class]="activeSimulation() === 'idle' ? 'bg-amber-100 text-amber-800 font-bold border border-amber-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                  >
+                    <span>💤</span>
+                    <span>{{ 'home.sim_btn_idle' | translate }}</span>
+                  </button>
+                </div>
               </div>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                <button
-                  type="button"
-                  (click)="setSimulation('walk')"
-                  class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
-                  [class]="activeSimulation() === 'walk' ? 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                >
-                  <span>🚶‍♂️</span>
-                  <span>{{ 'home.sim_btn_walk' | translate }}</span>
-                </button>
+            }
 
-                <button
-                  type="button"
-                  (click)="setSimulation('fall')"
-                  class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
-                  [class]="activeSimulation() === 'fall' ? 'bg-red-100 text-red-800 font-bold border border-red-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                >
-                  <span>💥</span>
-                  <span>{{ 'home.sim_btn_fall' | translate }}</span>
-                </button>
-
-                <button
-                  type="button"
-                  (click)="setSimulation('haptic')"
-                  class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
-                  [class]="activeSimulation() === 'haptic' ? 'bg-primary-100 text-primary-800 font-bold border border-primary-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                >
-                  <span>📳</span>
-                  <span>{{ 'home.sim_btn_haptic' | translate }}</span>
-                </button>
-
-                <button
-                  type="button"
-                  (click)="setSimulation('idle')"
-                  class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
-                  [class]="activeSimulation() === 'idle' ? 'bg-amber-100 text-amber-800 font-bold border border-amber-300 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-                >
-                  <span>💤</span>
-                  <span>{{ 'home.sim_btn_idle' | translate }}</span>
-                </button>
+            <!-- View 2: Web Platform Mockup -->
+            @if (heroVisualMode() === 'web') {
+              <div class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-900 shadow-lg">
+                <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900 px-3 py-2 text-xs text-gray-400 font-mono">
+                  <div class="flex items-center gap-1.5">
+                    <span class="h-2.5 w-2.5 rounded-full bg-red-500/80 inline-block"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-amber-500/80 inline-block"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-emerald-500/80 inline-block"></span>
+                  </div>
+                  <span class="text-[11px] truncate text-gray-400">app.healthkicks.io/studio</span>
+                  <span class="text-[10px] text-emerald-400 font-sans">En direct</span>
+                </div>
+                <div class="relative bg-gray-950 aspect-[4/3] overflow-hidden">
+                  <img
+                    src="/images/screenshots/web-studio-telemetry.jpg"
+                    alt="HealthKicks Web Studio"
+                    class="h-full w-full object-cover object-top"
+                  />
+                  <div class="absolute bottom-2 inset-x-2 rounded-lg bg-black/75 backdrop-blur-md px-3 py-1.5 text-white text-xs flex items-center justify-between border border-white/10">
+                    <span class="font-semibold">{{ 'home.showcase_web_1_title' | translate }}</span>
+                    <a href="#showcase" (click)="setAppTab('web')" class="text-primary-300 hover:underline text-[11px]">Explorer →</a>
+                  </div>
+                </div>
               </div>
-            </div>
+            }
+
+            <!-- View 3: Mobile App Mockup -->
+            @if (heroVisualMode() === 'mobile') {
+              <div class="overflow-hidden rounded-2xl border border-gray-800 bg-gray-950 p-2 shadow-lg">
+                <div class="mx-auto mb-1.5 h-3 w-16 rounded-full bg-black border border-gray-800"></div>
+                <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-black">
+                  <img
+                    src="/images/screenshots/mobile-dashboard.jpg"
+                    alt="HealthKicks Mobile Companion"
+                    class="h-full w-full object-cover object-top"
+                  />
+                  <div class="absolute bottom-2 inset-x-2 rounded-lg bg-black/75 backdrop-blur-md px-3 py-1.5 text-white text-xs flex items-center justify-between border border-white/10">
+                    <span class="font-semibold">{{ 'home.showcase_mobile_1_title' | translate }}</span>
+                    <a href="#showcase" (click)="setAppTab('mobile')" class="text-primary-300 hover:underline text-[11px]">Explorer →</a>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -359,12 +430,13 @@
     </div>
   </section>
 
-  <!-- ===== Product Showcase Section ===== -->
-  <section id="showcase" class="border-y border-gray-100 bg-gradient-to-b from-gray-50/70 via-white to-gray-50/40 py-20">
+  <!-- ===== Dedicated Showcase Section ===== -->
+  <section id="showcase" class="border-t border-gray-100 bg-gradient-to-b from-gray-50/80 via-white to-gray-50/40 py-20">
     <div class="mx-auto max-w-6xl px-4">
+      <!-- Section Header -->
       <div class="mx-auto max-w-3xl text-center">
-        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800 border border-primary-200/50">
-          ● {{ 'home.showcase_badge' | translate }}
+        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800">
+          {{ 'home.showcase_badge' | translate }}
         </span>
         <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
           {{ 'home.showcase_title' | translate }}
@@ -372,57 +444,52 @@
         <p class="mt-4 text-base text-gray-600 md:text-lg">
           {{ 'home.showcase_subtitle' | translate }}
         </p>
-      </div>
-
-      <!-- App Platform Switcher Tabs -->
-      <div class="mt-10 flex justify-center">
-        <div class="inline-flex rounded-2xl bg-gray-100 p-1.5 shadow-inner">
+        
+        <!-- Segmented Tab Switcher (Web vs Mobile) -->
+        <div class="mt-8 inline-flex rounded-2xl bg-gray-200/80 p-1.5 shadow-inner">
           <button
             type="button"
             (click)="setAppTab('web')"
-            class="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-sm font-semibold transition cursor-pointer"
-            [class]="activeAppTab() === 'web' ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+            class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer"
+            [class]="activeAppTab() === 'web' ? 'bg-white text-primary-700 shadow-md' : 'text-gray-600 hover:text-gray-900'"
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span>{{ 'home.showcase_tab_web' | translate }}</span>
+            {{ 'home.showcase_tab_web' | translate }}
           </button>
           <button
             type="button"
             (click)="setAppTab('mobile')"
-            class="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-sm font-semibold transition cursor-pointer"
-            [class]="activeAppTab() === 'mobile' ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+            class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer"
+            [class]="activeAppTab() === 'mobile' ? 'bg-white text-primary-700 shadow-md' : 'text-gray-600 hover:text-gray-900'"
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span>{{ 'home.showcase_tab_mobile' | translate }}</span>
+            {{ 'home.showcase_tab_mobile' | translate }}
           </button>
         </div>
       </div>
 
-      <!-- Tab Content: Web Dashboard Showcase -->
-      @if (activeAppTab() === 'web') {
-        <div class="mt-12 grid items-center gap-8 lg:grid-cols-12">
-          <!-- Web Screenshot Display in Desktop Frame -->
-          <div class="lg:col-span-8">
-            <div class="relative overflow-hidden rounded-2xl border border-gray-200/80 bg-gray-900 shadow-2xl">
-              <!-- Window Chrome Header -->
-              <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/95 px-4 py-3">
+      <!-- Main Showcase Stage -->
+      <div class="mt-12">
+        @if (activeAppTab() === 'web') {
+          <!-- Desktop Platform View -->
+          <div class="mx-auto max-w-5xl">
+            <!-- Browser Mockup Window -->
+            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-900 shadow-2xl">
+              <!-- Browser Header Bar -->
+              <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/90 px-4 py-3 backdrop-blur">
                 <div class="flex items-center gap-2">
-                  <span class="h-3 w-3 rounded-full bg-red-500/90 inline-block"></span>
-                  <span class="h-3 w-3 rounded-full bg-amber-500/90 inline-block"></span>
-                  <span class="h-3 w-3 rounded-full bg-emerald-500/90 inline-block"></span>
-                  <span class="ml-2 text-xs font-mono text-gray-400">app.healthkicks.io</span>
+                  <span class="h-3 w-3 rounded-full bg-red-500/80 inline-block"></span>
+                  <span class="h-3 w-3 rounded-full bg-amber-500/80 inline-block"></span>
+                  <span class="h-3 w-3 rounded-full bg-emerald-500/80 inline-block"></span>
                 </div>
-                <span class="rounded-md bg-gray-800 px-2 py-0.5 text-[10px] font-semibold text-primary-400">
+                <div class="flex items-center gap-2 rounded-lg bg-gray-800/80 px-4 py-1 text-xs text-gray-400 font-mono max-w-sm w-full justify-center">
+                  <span class="text-emerald-400">🔒</span>
+                  <span class="truncate">https://app.healthkicks.io/studio</span>
+                </div>
+                <div class="text-xs text-gray-500 font-semibold">
                   {{ webScreenshots[selectedWebScreenshot()].tag }}
-                </span>
+                </div>
               </div>
-
-              <!-- Main Image Preview -->
-              <div class="relative aspect-[16/10] w-full bg-gray-950">
+              <!-- Screenshot Image -->
+              <div class="relative bg-gray-950 aspect-[16/10] sm:aspect-[16/9] overflow-hidden">
                 <img
                   [src]="webScreenshots[selectedWebScreenshot()].imageSrc"
                   [alt]="webScreenshots[selectedWebScreenshot()].titleKey | translate"
@@ -431,105 +498,100 @@
                 />
               </div>
             </div>
-          </div>
 
-          <!-- Web Interactive Screen Selectors -->
-          <div class="flex flex-col gap-3.5 lg:col-span-4">
-            @for (item of webScreenshots; track item.imageSrc; let i = $index) {
-              <button
-                type="button"
-                (click)="selectWebScreenshot(i)"
-                class="group flex flex-col items-start rounded-2xl border p-4 text-left transition cursor-pointer"
-                [class]="selectedWebScreenshot() === i ? 'border-primary-500 bg-white shadow-md ring-2 ring-primary-500/20' : 'border-gray-200/80 bg-white/70 hover:bg-white hover:border-gray-300'"
-              >
-                <div class="flex w-full items-center justify-between">
-                  <span class="rounded-md px-2 py-0.5 text-[11px] font-bold"
-                    [class]="selectedWebScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-600'"
-                  >
-                    0{{ i + 1 }} · {{ item.tag }}
-                  </span>
-                  @if (selectedWebScreenshot() === i) {
-                    <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
-                  }
+            <!-- Interactive Web Thumbnail Cards Grid -->
+            <div class="mt-8 grid gap-4 md:grid-cols-3">
+              @for (item of webScreenshots; track item.titleKey; let i = $index) {
+                <button
+                  type="button"
+                  (click)="selectWebScreenshot(i)"
+                  class="group relative text-left rounded-2xl p-5 border transition-all cursor-pointer"
+                  [class]="selectedWebScreenshot() === i ? 'border-primary-500 bg-primary-50/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <span
+                      class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+                      [class]="selectedWebScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700'"
+                    >
+                      {{ item.tag }}
+                    </span>
+                    <span
+                      class="text-xs font-mono font-semibold"
+                      [class]="selectedWebScreenshot() === i ? 'text-primary-600' : 'text-gray-400'"
+                    >
+                      0{{ i + 1 }}
+                    </span>
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base group-hover:text-primary-600 transition">
+                    {{ item.titleKey | translate }}
+                  </h3>
+                  <p class="mt-1.5 text-xs leading-relaxed text-gray-600">
+                    {{ item.descKey | translate }}
+                  </p>
+                </button>
+              }
+            </div>
+          </div>
+        } @else {
+          <!-- Mobile Companion App View -->
+          <div class="mx-auto max-w-4xl">
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-10">
+              <!-- Phone Mockup Frame -->
+              <div class="relative w-full max-w-[290px] sm:max-w-[320px] shrink-0">
+                <div class="relative rounded-[42px] border-[10px] border-gray-900 bg-gray-900 p-2 shadow-2xl ring-1 ring-gray-800">
+                  <!-- Dynamic Island / Speaker Notch -->
+                  <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex h-4 w-24 items-center justify-center rounded-full bg-black">
+                    <div class="h-2 w-2 rounded-full bg-gray-900 mr-2"></div>
+                    <div class="h-2 w-2 rounded-full bg-indigo-950"></div>
+                  </div>
+                  <!-- Screen Container -->
+                  <div class="overflow-hidden rounded-[32px] bg-black aspect-[9/18]">
+                    <img
+                      [src]="mobileScreenshots[selectedMobileScreenshot()].imageSrc"
+                      [alt]="mobileScreenshots[selectedMobileScreenshot()].titleKey | translate"
+                      class="h-full w-full object-cover object-top transition-all duration-300"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
-                <h3 class="mt-2.5 text-sm font-bold text-gray-900 group-hover:text-primary-700">
-                  {{ item.titleKey | translate }}
-                </h3>
-                <p class="mt-1 text-xs leading-relaxed text-gray-500">
-                  {{ item.descKey | translate }}
-                </p>
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      <!-- Tab Content: Mobile Companion App Showcase -->
-      @if (activeAppTab() === 'mobile') {
-        <div class="mt-12 grid items-center justify-center gap-10 md:grid-cols-2 lg:grid-cols-12">
-          <!-- Realistic Smartphone Device Frame -->
-          <div class="flex justify-center lg:col-span-5">
-            <div class="relative w-full max-w-[290px] rounded-[2.5rem] border-[6px] border-gray-900 bg-gray-900 p-2 shadow-2xl ring-1 ring-gray-900/10">
-              <!-- Top Camera Notch / Dynamic Island -->
-              <div class="absolute top-4 left-1/2 -translate-x-1/2 h-4 w-20 rounded-full bg-black/90 z-20"></div>
-
-              <!-- Screen Display -->
-              <div class="relative aspect-[9/19.5] w-full overflow-hidden rounded-[2rem] bg-gray-950">
-                <img
-                  [src]="mobileScreenshots[selectedMobileScreenshot()].imageSrc"
-                  [alt]="mobileScreenshots[selectedMobileScreenshot()].titleKey | translate"
-                  class="h-full w-full object-cover object-top transition-all duration-300"
-                  loading="lazy"
-                />
               </div>
 
-              <!-- Bottom Indicator Bar -->
-              <div class="absolute bottom-3.5 left-1/2 -translate-x-1/2 h-1 w-24 rounded-full bg-gray-600 z-20"></div>
-            </div>
-          </div>
-
-          <!-- Mobile Interactive Screen Selectors -->
-          <div class="flex flex-col gap-4 lg:col-span-7">
-            <div class="mb-2">
-              <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                <span>📱</span> Application Flutter Android & iOS
-              </span>
-              <h3 class="mt-2 text-xl font-bold text-gray-900">
-                Passerelle Bluetooth & Monitoring Personnel
-              </h3>
-              <p class="mt-1 text-sm text-gray-600">
-                L’application mobile synchronise en continu les signaux IMU des chaussures avec le Cloud via BLE et MQTT.
-              </p>
-            </div>
-
-            @for (item of mobileScreenshots; track item.imageSrc; let i = $index) {
-              <button
-                type="button"
-                (click)="selectMobileScreenshot(i)"
-                class="group flex flex-col items-start rounded-2xl border p-4 text-left transition cursor-pointer"
-                [class]="selectedMobileScreenshot() === i ? 'border-primary-500 bg-white shadow-md ring-2 ring-primary-500/20' : 'border-gray-200/80 bg-white/70 hover:bg-white hover:border-gray-300'"
-              >
-                <div class="flex w-full items-center justify-between">
-                  <span class="rounded-md px-2 py-0.5 text-[11px] font-bold"
-                    [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-600'"
+              <!-- Interactive Mobile Feature Selector List -->
+              <div class="flex-1 space-y-4 w-full">
+                @for (item of mobileScreenshots; track item.titleKey; let i = $index) {
+                  <button
+                    type="button"
+                    (click)="selectMobileScreenshot(i)"
+                    class="w-full text-left rounded-2xl p-5 border transition-all cursor-pointer block"
+                    [class]="selectedMobileScreenshot() === i ? 'border-primary-500 bg-primary-50/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'"
                   >
-                    0{{ i + 1 }} · {{ item.tag }}
-                  </span>
-                  @if (selectedMobileScreenshot() === i) {
-                    <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
-                  }
-                </div>
-                <h4 class="mt-2 text-sm font-bold text-gray-900 group-hover:text-primary-700">
-                  {{ item.titleKey | translate }}
-                </h4>
-                <p class="mt-1 text-xs leading-relaxed text-gray-500">
-                  {{ item.descKey | translate }}
-                </p>
-              </button>
-            }
+                    <div class="flex items-center justify-between mb-2">
+                      <span
+                        class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+                        [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700'"
+                      >
+                        📱 {{ item.tag }}
+                      </span>
+                      <span
+                        class="text-xs font-mono font-semibold"
+                        [class]="selectedMobileScreenshot() === i ? 'text-primary-600' : 'text-gray-400'"
+                      >
+                        0{{ i + 1 }}
+                      </span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 text-base">
+                      {{ item.titleKey | translate }}
+                    </h3>
+                    <p class="mt-1.5 text-xs sm:text-sm leading-relaxed text-gray-600">
+                      {{ item.descKey | translate }}
+                    </p>
+                  </button>
+                }
+              </div>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
   </section>
 

@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
 
 export type SimulationMode = 'walk' | 'fall' | 'haptic' | 'idle';
+export type HeroVisualMode = 'shoe' | 'web' | 'mobile';
 
 export interface ScreenshotItem {
   titleKey: string;
@@ -30,6 +31,7 @@ export class HomeComponent {
   readonly currentYear = new Date().getFullYear();
 
   readonly activeSimulation = signal<SimulationMode>('walk');
+  readonly heroVisualMode = signal<HeroVisualMode>('shoe');
 
   // Showcase interactive state
   readonly activeAppTab = signal<'web' | 'mobile'>('web');
@@ -87,6 +89,10 @@ export class HomeComponent {
 
   setSimulation(mode: SimulationMode): void {
     this.activeSimulation.set(mode);
+  }
+
+  setHeroVisual(mode: HeroVisualMode): void {
+    this.heroVisualMode.set(mode);
   }
 
   setAppTab(tab: 'web' | 'mobile'): void {
