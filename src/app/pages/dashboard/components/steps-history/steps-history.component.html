@@ -153,28 +153,28 @@
                     <div
                       class="bg-blue-500 h-full"
                       [style.width.%]="getActivityPercent(day, 'walk')"
-                      title="Marche: {{ day.by_activity['walk'] ?? 0 }}"
+                      title="Marche: {{ day.by_activity['walk'] }}"
                     ></div>
                   }
                   @if (getActivityPercent(day, 'run') > 0) {
                     <div
                       class="bg-orange-500 h-full"
                       [style.width.%]="getActivityPercent(day, 'run')"
-                      title="Course: {{ day.by_activity['run'] ?? 0 }}"
+                      title="Course: {{ day.by_activity['run'] }}"
                     ></div>
                   }
                   @if (getActivityPercent(day, 'stairs') > 0) {
                     <div
                       class="bg-teal-500 h-full"
                       [style.width.%]="getActivityPercent(day, 'stairs')"
-                      title="Escaliers: {{ day.by_activity['stairs'] ?? 0 }}"
+                      title="Escaliers: {{ day.by_activity['stairs'] }}"
                     ></div>
                   }
                   @if (getActivityPercent(day, 'unclassified') > 0) {
                     <div
                       class="bg-slate-400 h-full"
                       [style.width.%]="getActivityPercent(day, 'unclassified')"
-                      title="Autre: {{ day.by_activity['unclassified'] ?? 0 }}"
+                      title="Autre: {{ day.by_activity['unclassified'] }}"
                     ></div>
                   }
                 </div>
