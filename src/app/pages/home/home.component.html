@@ -15,6 +15,7 @@
       >
         <a href="#concept" class="hover:text-primary-600 transition">{{ 'nav.concept' | translate }}</a>
         <a href="#features" class="hover:text-primary-600 transition">{{ 'nav.features' | translate }}</a>
+        <a href="#showcase" class="hover:text-primary-600 transition">{{ 'nav.showcase' | translate }}</a>
         <a href="#how" class="hover:text-primary-600 transition">{{ 'nav.how_it_works' | translate }}</a>
       </div>
       <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -355,6 +356,180 @@
           <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_inactivity_desc' | translate }}</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ===== Product Showcase Section ===== -->
+  <section id="showcase" class="border-y border-gray-100 bg-gradient-to-b from-gray-50/70 via-white to-gray-50/40 py-20">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800 border border-primary-200/50">
+          ● {{ 'home.showcase_badge' | translate }}
+        </span>
+        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+          {{ 'home.showcase_title' | translate }}
+        </h2>
+        <p class="mt-4 text-base text-gray-600 md:text-lg">
+          {{ 'home.showcase_subtitle' | translate }}
+        </p>
+      </div>
+
+      <!-- App Platform Switcher Tabs -->
+      <div class="mt-10 flex justify-center">
+        <div class="inline-flex rounded-2xl bg-gray-100 p-1.5 shadow-inner">
+          <button
+            type="button"
+            (click)="setAppTab('web')"
+            class="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-sm font-semibold transition cursor-pointer"
+            [class]="activeAppTab() === 'web' ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span>{{ 'home.showcase_tab_web' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            (click)="setAppTab('mobile')"
+            class="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-sm font-semibold transition cursor-pointer"
+            [class]="activeAppTab() === 'mobile' ? 'bg-white text-primary-700 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <span>{{ 'home.showcase_tab_mobile' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content: Web Dashboard Showcase -->
+      @if (activeAppTab() === 'web') {
+        <div class="mt-12 grid items-center gap-8 lg:grid-cols-12">
+          <!-- Web Screenshot Display in Desktop Frame -->
+          <div class="lg:col-span-8">
+            <div class="relative overflow-hidden rounded-2xl border border-gray-200/80 bg-gray-900 shadow-2xl">
+              <!-- Window Chrome Header -->
+              <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/95 px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <span class="h-3 w-3 rounded-full bg-red-500/90 inline-block"></span>
+                  <span class="h-3 w-3 rounded-full bg-amber-500/90 inline-block"></span>
+                  <span class="h-3 w-3 rounded-full bg-emerald-500/90 inline-block"></span>
+                  <span class="ml-2 text-xs font-mono text-gray-400">app.healthkicks.io</span>
+                </div>
+                <span class="rounded-md bg-gray-800 px-2 py-0.5 text-[10px] font-semibold text-primary-400">
+                  {{ webScreenshots[selectedWebScreenshot()].tag }}
+                </span>
+              </div>
+
+              <!-- Main Image Preview -->
+              <div class="relative aspect-[16/10] w-full bg-gray-950">
+                <img
+                  [src]="webScreenshots[selectedWebScreenshot()].imageSrc"
+                  [alt]="webScreenshots[selectedWebScreenshot()].titleKey | translate"
+                  class="h-full w-full object-cover object-top transition-all duration-300"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Web Interactive Screen Selectors -->
+          <div class="flex flex-col gap-3.5 lg:col-span-4">
+            @for (item of webScreenshots; track item.imageSrc; let i = $index) {
+              <button
+                type="button"
+                (click)="selectWebScreenshot(i)"
+                class="group flex flex-col items-start rounded-2xl border p-4 text-left transition cursor-pointer"
+                [class]="selectedWebScreenshot() === i ? 'border-primary-500 bg-white shadow-md ring-2 ring-primary-500/20' : 'border-gray-200/80 bg-white/70 hover:bg-white hover:border-gray-300'"
+              >
+                <div class="flex w-full items-center justify-between">
+                  <span class="rounded-md px-2 py-0.5 text-[11px] font-bold"
+                    [class]="selectedWebScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-600'"
+                  >
+                    0{{ i + 1 }} · {{ item.tag }}
+                  </span>
+                  @if (selectedWebScreenshot() === i) {
+                    <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
+                  }
+                </div>
+                <h3 class="mt-2.5 text-sm font-bold text-gray-900 group-hover:text-primary-700">
+                  {{ item.titleKey | translate }}
+                </h3>
+                <p class="mt-1 text-xs leading-relaxed text-gray-500">
+                  {{ item.descKey | translate }}
+                </p>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Tab Content: Mobile Companion App Showcase -->
+      @if (activeAppTab() === 'mobile') {
+        <div class="mt-12 grid items-center justify-center gap-10 md:grid-cols-2 lg:grid-cols-12">
+          <!-- Realistic Smartphone Device Frame -->
+          <div class="flex justify-center lg:col-span-5">
+            <div class="relative w-full max-w-[290px] rounded-[2.5rem] border-[6px] border-gray-900 bg-gray-900 p-2 shadow-2xl ring-1 ring-gray-900/10">
+              <!-- Top Camera Notch / Dynamic Island -->
+              <div class="absolute top-4 left-1/2 -translate-x-1/2 h-4 w-20 rounded-full bg-black/90 z-20"></div>
+
+              <!-- Screen Display -->
+              <div class="relative aspect-[9/19.5] w-full overflow-hidden rounded-[2rem] bg-gray-950">
+                <img
+                  [src]="mobileScreenshots[selectedMobileScreenshot()].imageSrc"
+                  [alt]="mobileScreenshots[selectedMobileScreenshot()].titleKey | translate"
+                  class="h-full w-full object-cover object-top transition-all duration-300"
+                  loading="lazy"
+                />
+              </div>
+
+              <!-- Bottom Indicator Bar -->
+              <div class="absolute bottom-3.5 left-1/2 -translate-x-1/2 h-1 w-24 rounded-full bg-gray-600 z-20"></div>
+            </div>
+          </div>
+
+          <!-- Mobile Interactive Screen Selectors -->
+          <div class="flex flex-col gap-4 lg:col-span-7">
+            <div class="mb-2">
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                <span>📱</span> Application Flutter Android & iOS
+              </span>
+              <h3 class="mt-2 text-xl font-bold text-gray-900">
+                Passerelle Bluetooth & Monitoring Personnel
+              </h3>
+              <p class="mt-1 text-sm text-gray-600">
+                L’application mobile synchronise en continu les signaux IMU des chaussures avec le Cloud via BLE et MQTT.
+              </p>
+            </div>
+
+            @for (item of mobileScreenshots; track item.imageSrc; let i = $index) {
+              <button
+                type="button"
+                (click)="selectMobileScreenshot(i)"
+                class="group flex flex-col items-start rounded-2xl border p-4 text-left transition cursor-pointer"
+                [class]="selectedMobileScreenshot() === i ? 'border-primary-500 bg-white shadow-md ring-2 ring-primary-500/20' : 'border-gray-200/80 bg-white/70 hover:bg-white hover:border-gray-300'"
+              >
+                <div class="flex w-full items-center justify-between">
+                  <span class="rounded-md px-2 py-0.5 text-[11px] font-bold"
+                    [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-600'"
+                  >
+                    0{{ i + 1 }} · {{ item.tag }}
+                  </span>
+                  @if (selectedMobileScreenshot() === i) {
+                    <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
+                  }
+                </div>
+                <h4 class="mt-2 text-sm font-bold text-gray-900 group-hover:text-primary-700">
+                  {{ item.titleKey | translate }}
+                </h4>
+                <p class="mt-1 text-xs leading-relaxed text-gray-500">
+                  {{ item.descKey | translate }}
+                </p>
+              </button>
+            }
+          </div>
+        </div>
+      }
     </div>
   </section>
 

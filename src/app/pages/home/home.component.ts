@@ -7,6 +7,13 @@ import { TranslationService } from '../../core/services/translation.service';
 
 export type SimulationMode = 'walk' | 'fall' | 'haptic' | 'idle';
 
+export interface ScreenshotItem {
+  titleKey: string;
+  descKey: string;
+  imageSrc: string;
+  tag: string;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -24,6 +31,53 @@ export class HomeComponent {
 
   readonly activeSimulation = signal<SimulationMode>('walk');
 
+  // Showcase interactive state
+  readonly activeAppTab = signal<'web' | 'mobile'>('web');
+  readonly selectedWebScreenshot = signal(0);
+  readonly selectedMobileScreenshot = signal(0);
+
+  readonly webScreenshots: ScreenshotItem[] = [
+    {
+      titleKey: 'home.showcase_web_1_title',
+      descKey: 'home.showcase_web_1_desc',
+      imageSrc: '/images/screenshots/web-studio-telemetry.jpg',
+      tag: 'Studio IMU',
+    },
+    {
+      titleKey: 'home.showcase_web_2_title',
+      descKey: 'home.showcase_web_2_desc',
+      imageSrc: '/images/screenshots/web-steps-history.jpg',
+      tag: 'Podomètre',
+    },
+    {
+      titleKey: 'home.showcase_web_3_title',
+      descKey: 'home.showcase_web_3_desc',
+      imageSrc: '/images/screenshots/web-activity-history.jpg',
+      tag: 'Détections',
+    },
+  ];
+
+  readonly mobileScreenshots: ScreenshotItem[] = [
+    {
+      titleKey: 'home.showcase_mobile_1_title',
+      descKey: 'home.showcase_mobile_1_desc',
+      imageSrc: '/images/screenshots/mobile-dashboard.jpg',
+      tag: 'Dashboard',
+    },
+    {
+      titleKey: 'home.showcase_mobile_2_title',
+      descKey: 'home.showcase_mobile_2_desc',
+      imageSrc: '/images/screenshots/mobile-steps-history.jpg',
+      tag: 'Historique',
+    },
+    {
+      titleKey: 'home.showcase_mobile_3_title',
+      descKey: 'home.showcase_mobile_3_desc',
+      imageSrc: '/images/screenshots/mobile-event-logs.jpg',
+      tag: 'Logs BLE',
+    },
+  ];
+
   readonly steps = [
     { titleKey: 'home.how_step_1_title', descKey: 'home.how_step_1_desc' },
     { titleKey: 'home.how_step_2_title', descKey: 'home.how_step_2_desc' },
@@ -33,5 +87,17 @@ export class HomeComponent {
 
   setSimulation(mode: SimulationMode): void {
     this.activeSimulation.set(mode);
+  }
+
+  setAppTab(tab: 'web' | 'mobile'): void {
+    this.activeAppTab.set(tab);
+  }
+
+  selectWebScreenshot(index: number): void {
+    this.selectedWebScreenshot.set(index);
+  }
+
+  selectMobileScreenshot(index: number): void {
+    this.selectedMobileScreenshot.set(index);
   }
 }

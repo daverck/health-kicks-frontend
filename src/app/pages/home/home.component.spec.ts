@@ -76,7 +76,8 @@ describe('HomeComponent', () => {
     expect(heroRegister?.textContent?.trim()).toContain('Commencer gratuitement');
 
     // Bottom CTA has register button and subtle login link
-    const ctaSection = compiled.querySelectorAll('section')[4];
+    const allSections = compiled.querySelectorAll('section');
+    const ctaSection = allSections[allSections.length - 1];
     expect(ctaSection?.textContent).toContain('Commencer gratuitement');
     expect(ctaSection?.textContent).toContain('Déjà un compte ? Se connecter');
   });
@@ -101,7 +102,8 @@ describe('HomeComponent', () => {
     expect(heroDashboard?.textContent?.trim()).toContain('Accéder à mon espace');
 
     // Bottom CTA has single dashboard button and no login link
-    const ctaSection = compiled.querySelectorAll('section')[4];
+    const allSections = compiled.querySelectorAll('section');
+    const ctaSection = allSections[allSections.length - 1];
     expect(ctaSection?.textContent).toContain('Accéder à mon espace');
     expect(ctaSection?.textContent).not.toContain('Déjà un compte ? Se connecter');
   });
@@ -162,5 +164,37 @@ describe('HomeComponent', () => {
     component.setSimulation('idle');
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Station assise prolongée');
+  });
+
+  it('should render the showcase section with web tab by default and allow switching tabs and screenshots', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const showcase = compiled.querySelector('#showcase');
+    expect(showcase).toBeTruthy();
+    expect(showcase?.textContent).toContain('Découvrez nos applications en action');
+
+    // Default tab is Web
+    expect(component.activeAppTab()).toBe('web');
+    expect(component.selectedWebScreenshot()).toBe(0);
+    const webImg = compiled.querySelector('#showcase img') as HTMLImageElement;
+    expect(webImg.src).toContain('/images/screenshots/web-studio-telemetry.jpg');
+
+    // Switch web screenshot
+    component.selectWebScreenshot(1);
+    fixture.detectChanges();
+    const webImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
+    expect(webImg2.src).toContain('/images/screenshots/web-steps-history.jpg');
+
+    // Switch to Mobile tab
+    component.setAppTab('mobile');
+    fixture.detectChanges();
+    expect(component.activeAppTab()).toBe('mobile');
+    const mobileImg = compiled.querySelector('#showcase img') as HTMLImageElement;
+    expect(mobileImg.src).toContain('/images/screenshots/mobile-dashboard.jpg');
+
+    // Switch mobile screenshot
+    component.selectMobileScreenshot(2);
+    fixture.detectChanges();
+    const mobileImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
+    expect(mobileImg2.src).toContain('/images/screenshots/mobile-event-logs.jpg');
   });
 });
