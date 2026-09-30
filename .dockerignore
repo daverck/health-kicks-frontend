@@ -3,7 +3,10 @@ dist
 .angular
 .git
 .github
+.agents
+.vscode
+.idea
 *.log
-README.md
 Dockerfile
 .dockerignore
+README.md
