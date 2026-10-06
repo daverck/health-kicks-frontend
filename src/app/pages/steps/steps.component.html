@@ -56,9 +56,28 @@
     }
   </section>
 
-  <!-- Steps History Section -->
+  <!-- Interactive Steps Dashboard: Heatmap & Hourly Chart -->
   @if (selectedDeviceId()) {
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Activity Calendar Heatmap -->
+      <div class="lg:col-span-1">
+        <app-activity-calendar
+          [deviceId]="selectedDeviceId()"
+          [selectedDate]="selectedDate()"
+          (dateSelected)="onDateSelected($event)"
+        />
+      </div>
+
+      <!-- Hourly Steps Chart -->
+      <div class="lg:col-span-2">
+        <app-hourly-steps-chart
+          [deviceId]="selectedDeviceId()"
+          [date]="selectedDate()"
+        />
+      </div>
+    </div>
+
+    <!-- Historical Table & Aggregations -->
     <app-steps-history [deviceId]="selectedDeviceId()" />
   }
 </div>
-

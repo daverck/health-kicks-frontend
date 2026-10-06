@@ -17,3 +17,14 @@ export interface DailyStepsHistoryResponse {
   history: DailyStepsSummary[];
 }
 
+export interface HourlyStepItem {
+  hour: number;
+  total_steps: number;
+  by_activity: Record<string, number>;
+}
+
+export interface HourlyStepsResponse {
+  device_id: string;
+  date: string;
+  hourly_data: HourlyStepItem[];
+}

@@ -24,6 +24,9 @@ export const mockBoundDevice: DeviceResponse = {
   last_seen_utc: null,
   created_at: '2026-09-03T09:00:00Z',
   bound_at_utc: '2026-09-03T10:15:30Z',
+  is_online: false,
+  firmware_version: 'v1.2.0-esp32s3',
+  last_calibration_time: '2026-09-03T09:30:00Z',
 };
 
 export const mockDevices: DeviceResponse[] = [
@@ -35,6 +38,9 @@ export const mockDevices: DeviceResponse[] = [
     last_seen_utc: '2026-09-01T12:00:00Z',
     created_at: '2025-11-02T09:00:00Z',
     bound_at_utc: '2025-11-02T09:30:00Z',
+    is_online: true,
+    firmware_version: 'v1.2.0-esp32s3',
+    last_calibration_time: '2026-09-01T11:45:00Z',
   },
   {
     id: 2,
@@ -44,6 +50,9 @@ export const mockDevices: DeviceResponse[] = [
     last_seen_utc: '2026-08-30T14:12:00Z',
     created_at: '2025-12-15T11:30:00Z',
     bound_at_utc: '2025-12-15T11:45:00Z',
+    is_online: false,
+    firmware_version: 'v1.2.0-esp32s3',
+    last_calibration_time: null,
   },
 ];
 

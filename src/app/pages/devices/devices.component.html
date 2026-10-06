@@ -68,15 +68,15 @@
         <div class="flex items-center justify-between gap-2">
           <span
             class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium"
-            [ngClass]="device.status === 'online'
+            [ngClass]="(device.status === 'online' || device.is_online)
               ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
               : 'border-gray-200 bg-gray-100 text-gray-600'"
           >
             <span
               class="h-1.5 w-1.5 rounded-full"
-              [ngClass]="device.status === 'online' ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'"
+              [ngClass]="(device.status === 'online' || device.is_online) ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'"
             ></span>
-            {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
+            {{ (device.status === 'online' || device.is_online) ? ('common.online' | translate) : ('common.offline' | translate) }}
           </span>
 
           <span class="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs font-semibold text-gray-700">
@@ -101,10 +101,26 @@
           <div class="flex items-center justify-between">
             <span class="text-gray-400">{{ 'devices.last_seen_col' | translate }} :</span>
             <span class="font-medium text-gray-700">
-              @if (device.last_seen_utc) {
-                {{ device.last_seen_utc | date:'dd/MM/yyyy HH:mm' }}
+              @if (device.last_seen_utc || device.last_seen) {
+                {{ (device.last_seen_utc || device.last_seen) | date:'dd/MM/yyyy HH:mm' }}
               } @else {
-                <span class="italic text-gray-400">Jamais connecté</span>
+                <span class="italic text-gray-400">{{ 'devices.never_connected' | translate }}</span>
+              }
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-400">{{ 'devices.firmware_col' | translate }} :</span>
+            <span class="font-mono text-[11px] font-semibold text-gray-700">
+              {{ device.firmware_version || 'v1.2.0-esp32s3' }}
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-400">{{ 'devices.calibration_col' | translate }} :</span>
+            <span class="font-medium text-gray-700">
+              @if (device.last_calibration_time) {
+                {{ device.last_calibration_time | date:'short' }}
+              } @else {
+                <span class="italic text-gray-400">{{ 'devices.uncalibrated' | translate }}</span>
               }
             </span>
           </div>

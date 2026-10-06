@@ -17,7 +17,11 @@ describe('StepsComponent', () => {
   beforeEach(async () => {
     deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['listDevices']);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['error', 'success']);
-    stepsServiceSpy = jasmine.createSpyObj('StepsService', ['getStepsHistory']);
+    stepsServiceSpy = jasmine.createSpyObj('StepsService', [
+      'getStepsHistory',
+      'getHourlySteps',
+      'getMonthlyStepsSummary',
+    ]);
 
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
     stepsServiceSpy.getStepsHistory.and.returnValue(
@@ -28,6 +32,14 @@ describe('StepsComponent', () => {
         history: [],
       })
     );
+    stepsServiceSpy.getHourlySteps.and.returnValue(
+      of({
+        device_id: 'hk-device-0001',
+        date: new Date().toISOString().slice(0, 10),
+        hourly_data: [],
+      })
+    );
+    stepsServiceSpy.getMonthlyStepsSummary.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [StepsComponent],
@@ -58,6 +70,12 @@ describe('StepsComponent', () => {
 
     const historyComponent = fixture.nativeElement.querySelector('app-steps-history');
     expect(historyComponent).toBeTruthy();
+
+    const chartComponent = fixture.nativeElement.querySelector('app-hourly-steps-chart');
+    expect(chartComponent).toBeTruthy();
+
+    const calendarComponent = fixture.nativeElement.querySelector('app-activity-calendar');
+    expect(calendarComponent).toBeTruthy();
   });
 
   it('should switch selected device on onDeviceSelected()', () => {
@@ -65,6 +83,13 @@ describe('StepsComponent', () => {
 
     component.onDeviceSelected('hk-device-0002');
     expect(component.selectedDeviceId()).toBe('hk-device-0002');
+  });
+
+  it('should switch selected date on onDateSelected()', () => {
+    fixture.detectChanges();
+
+    component.onDateSelected('2026-10-15');
+    expect(component.selectedDate()).toBe('2026-10-15');
   });
 
   it('should handle error when loading devices fails', () => {
@@ -96,4 +121,3 @@ describe('StepsComponent', () => {
     expect(emptyState).toBeTruthy();
   });
 });
-

@@ -56,6 +56,10 @@ export interface DeviceResponse {
   last_seen_utc?: string | null;
   created_at: string;
   bound_at_utc?: string | null;
+  is_online?: boolean;
+  last_seen?: string | null;
+  firmware_version?: string | null;
+  last_calibration_time?: string | null;
 }
 
 export interface HapticTrigger {
