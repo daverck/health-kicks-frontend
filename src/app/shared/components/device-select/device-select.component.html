@@ -49,7 +49,7 @@
             <span class="font-semibold text-gray-900 truncate">
               {{ device.name || device.device_id }}
             </span>
-            <span class="font-mono text-gray-400 ml-1.5" [class.text-[10px]="size() === 'sm'" [class.text-xs]="size() === 'md'">
+            <span class="font-mono text-gray-400 ml-1.5" [ngClass]="size() === 'sm' ? 'text-[10px]' : 'text-xs'">
               ({{ device.device_id }})
             </span>
           </div>
@@ -115,7 +115,7 @@
     <div
       class="absolute left-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
       [class.w-full]="fullWidth()"
-      [class.min-w-[280px]="!fullWidth()"
+      [class.min-w-72]="!fullWidth()"
       data-testid="device-select-dropdown"
     >
       <!-- Search bar -->
