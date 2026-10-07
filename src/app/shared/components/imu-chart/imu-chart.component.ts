@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   Input,
+  output,
   OnChanges,
   AfterViewInit,
   OnDestroy,
@@ -45,6 +46,8 @@ Chart.register(
 })
 export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() readings: ImuReading[] = [];
+  @Input() playbackTimeSec: number | null = null;
+  readonly timeSelected = output<number>();
 
   @ViewChild('accelCanvas') private accelCanvasRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('gyroCanvas') private gyroCanvasRef?: ElementRef<HTMLCanvasElement>;
@@ -159,6 +162,17 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['readings']) {
       this.renderCharts();
+    } else if (changes['playbackTimeSec']) {
+      this.updateCursor();
+    }
+  }
+
+  private updateCursor(): void {
+    if (this.chartAccel) {
+      this.chartAccel.update('none');
+    }
+    if (this.chartGyro) {
+      this.chartGyro.update('none');
     }
   }
 
@@ -214,6 +228,37 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
       dataGz.push({ x: tOffset, y: r.gz });
     }
 
+    // Custom plugin drawing dynamic vertical playback cursor
+    const cursorPlugin = {
+      id: 'playbackCursor',
+      afterDraw: (chart: Chart) => {
+        if (this.playbackTimeSec === null || this.playbackTimeSec === undefined) return;
+        const xScale = chart.scales['x'];
+        const yScale = chart.scales['y'];
+        if (!xScale || !yScale) return;
+
+        const xPixel = xScale.getPixelForValue(this.playbackTimeSec);
+        if (xPixel < xScale.left || xPixel > xScale.right) return;
+
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(xPixel, yScale.top);
+        ctx.lineTo(xPixel, yScale.bottom);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#0284c7'; // Primary blue
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+
+        // Top marker pin
+        ctx.beginPath();
+        ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
+        ctx.fillStyle = '#0284c7';
+        ctx.fill();
+        ctx.restore();
+      },
+    };
+
     // Common options for crisp, performant timeseries rendering
     const commonOptions = {
       responsive: true,
@@ -231,6 +276,17 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
       interaction: {
         mode: 'index' as const,
         intersect: false,
+      },
+      onClick: (event: any, elements: any, chart: Chart) => {
+        const xScale = chart.scales['x'];
+        if (!xScale) return;
+        const canvasRect = chart.canvas.getBoundingClientRect();
+        const clientX = event.native ? event.native.clientX : event.x;
+        const xPos = clientX - canvasRect.left;
+        const xVal = xScale.getValueForPixel(xPos);
+        if (xVal !== undefined && xVal !== null) {
+          this.timeSelected.emit(Math.max(0, xVal));
+        }
       },
       plugins: {
         legend: {
@@ -335,6 +391,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
           },
         },
       },
+      plugins: [cursorPlugin],
     };
 
     // 2. Gyroscope Chart (rad/s)
@@ -379,6 +436,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
           },
         },
       },
+      plugins: [cursorPlugin],
     };
 
     this.chartAccel = new Chart(this.accelCanvasRef.nativeElement, accelConfig);

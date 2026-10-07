@@ -223,4 +223,10 @@ describe('StudioInspectionComponent', () => {
     const customNote = compiled.querySelector('[data-testid="inspection-custom-note"]');
     expect(customNote).toBeTruthy();
   });
+
+  it('should update replayPlaybackTime when onReplayTimeSelected is called', () => {
+    expect(component.replayPlaybackTime()).toBe(0);
+    component.onReplayTimeSelected(1.25);
+    expect(component.replayPlaybackTime()).toBe(1.25);
+  });
 });

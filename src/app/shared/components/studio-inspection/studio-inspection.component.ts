@@ -19,6 +19,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { StudioSessionSummary } from '../../../models/studio-history.model';
 import { ImuReading } from '../../../models/telemetry.models';
 import { ImuChartComponent } from '../imu-chart/imu-chart.component';
+import { Shoe3dViewerComponent } from '../shoe-3d-viewer/shoe-3d-viewer.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   PREDEFINED_LABELS,
@@ -48,6 +49,7 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
     RouterLink,
     TranslatePipe,
     ImuChartComponent,
+    Shoe3dViewerComponent,
   ],
   templateUrl: './studio-inspection.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -82,6 +84,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly isLoadingReadings = signal<boolean>(false);
   readonly isValidatingSession = signal<boolean>(false);
   readonly readingsError = signal<string | null>(null);
+  readonly replayPlaybackTime = signal<number>(0);
 
   // Curation State
   readonly labelEditMode = signal<'predefined' | 'custom'>('predefined');
@@ -105,6 +108,10 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     const target = this.effectiveEditLabel();
     return Boolean(target) && target !== currentSession.label;
   });
+
+  onReplayTimeSelected(timeSec: number): void {
+    this.replayPlaybackTime.set(timeSec);
+  }
 
   ngOnInit(): void {
     const current = this.session();
@@ -131,6 +138,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
       this.editLabelValue.set('walk');
     }
     this.activeReadings.set([]);
+    this.replayPlaybackTime.set(0);
     this.showDeleteConfirm.set(false);
     this.linkCopied.set(false);
     this.loadReadings(session.id);

@@ -437,6 +437,8 @@ export const en = {
     retry: 'Retry',
     drawer_title: 'Capture Inspection',
     drawer_subtitle: 'High-frequency IMU telemetry frames (DynamoDB)',
+    replay_3d_title: '3D Footwear Attitude Visualization',
+    replay_3d_subtitle: 'Kinematic replay driven by Madgwick AHRS quaternions (Heel strike, Pronation, Supination).',
     loading_readings: 'Fetching high-frequency telemetry readings…',
     error_readings: 'Failed to retrieve telemetry frames for this session.',
     samples_count: '{count} IMU samples',

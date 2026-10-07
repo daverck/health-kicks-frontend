@@ -416,6 +416,8 @@ export const fr = {
     retry: 'Réessayer',
     drawer_title: 'Inspection de la capture',
     drawer_subtitle: 'Trames IMU haute fréquence (DynamoDB)',
+    replay_3d_title: 'Visualisation 3D de la chaussure',
+    replay_3d_subtitle: 'Replay cinématique animé par quaternions Madgwick (Heel strike, Pronation, Supination).',
     loading_readings: 'Récupération des trames haute fréquence…',
     error_readings: 'Impossible de récupérer les trames IMU de cette session.',
     samples_count: '{count} points IMU',

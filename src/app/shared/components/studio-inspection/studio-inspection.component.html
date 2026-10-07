@@ -224,9 +224,22 @@
             </button>
           </div>
         } @else {
+          <!-- 3D Shoe Visualizer & Biomechanical Replay -->
+          <div class="mb-4">
+            <app-shoe-3d-viewer
+              [readings]="activeReadings()"
+              [externalTimeSec]="replayPlaybackTime()"
+              (timeSelected)="onReplayTimeSelected($event)"
+            />
+          </div>
+
           <!-- IMU Chart Component -->
           <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs">
-            <app-imu-chart [readings]="activeReadings()" />
+            <app-imu-chart
+              [readings]="activeReadings()"
+              [playbackTimeSec]="replayPlaybackTime()"
+              (timeSelected)="onReplayTimeSelected($event)"
+            />
           </div>
         }
       </div>
