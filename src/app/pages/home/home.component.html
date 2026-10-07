@@ -1,31 +1,32 @@
-<div class="min-h-screen bg-white text-gray-900">
+<div class="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
   <!-- ===== Navbar ===== -->
   <header
-    class="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur"
+    class="sticky top-0 z-40 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur"
   >
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-3 sm:py-4">
       <a routerLink="/" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
-        <span class="text-base sm:text-lg font-bold tracking-tight whitespace-nowrap"
+        <span class="text-base sm:text-lg font-bold tracking-tight whitespace-nowrap text-gray-900 dark:text-white"
           >Health<span class="text-primary-600">Kicks</span></span
         >
       </a>
       <div
-        class="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex"
+        class="hidden items-center gap-6 text-sm font-medium text-gray-600 dark:text-gray-300 md:flex"
       >
-        <a href="#concept" class="hover:text-primary-600 transition">{{ 'nav.concept' | translate }}</a>
-        <a href="#features" class="hover:text-primary-600 transition">{{ 'nav.features' | translate }}</a>
-        <a href="#showcase" class="hover:text-primary-600 transition">{{ 'nav.showcase' | translate }}</a>
-        <a href="#how" class="hover:text-primary-600 transition">{{ 'nav.how_it_works' | translate }}</a>
+        <a href="#concept" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.concept' | translate }}</a>
+        <a href="#features" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.features' | translate }}</a>
+        <a href="#showcase" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.showcase' | translate }}</a>
+        <a href="#how" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.how_it_works' | translate }}</a>
       </div>
       <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <app-language-selector />
+        <app-theme-toggle />
         @if (isAuthenticated()) {
           <a routerLink="/dashboard" class="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap">{{ 'nav.member_space' | translate }}</a>
         } @else {
           <a
             routerLink="/login"
-            class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-primary-600 transition px-1.5 sm:px-2 py-1 whitespace-nowrap"
+            class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition px-1.5 sm:px-2 py-1 whitespace-nowrap"
             >{{ 'nav.login' | translate }}</a
           >
           <a routerLink="/register" class="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap">{{ 'nav.register' | translate }}</a>
@@ -36,24 +37,24 @@
 
   <!-- ===== Hero ===== -->
   <section
-    class="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white"
+    class="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white dark:from-gray-900/60 dark:via-gray-950 dark:to-gray-950"
   >
     <div
       class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:py-24 md:grid-cols-2"
     >
       <div>
         <span
-          class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-700 border border-primary-200/50"
+          class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50"
         >
           ● {{ 'home.badge' | translate }}
         </span>
         <h1
-          class="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-6xl"
+          class="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
         >
           {{ 'home.hero_title_1' | translate }}
           <span class="text-primary-600 block sm:inline"> {{ 'home.hero_title_2' | translate }}</span>
         </h1>
-        <p class="mt-5 text-base md:text-lg leading-relaxed text-gray-600">
+        <p class="mt-5 text-base md:text-lg leading-relaxed text-gray-600 dark:text-gray-300">
           {{ 'home.hero_subtitle' | translate }}
         </p>
 
@@ -90,14 +91,14 @@
           <!-- Background ambient glow -->
           <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary-200/60 via-indigo-100/50 to-primary-100/30 blur-2xl opacity-70"></div>
           
-          <div class="relative rounded-3xl border border-gray-100 bg-white/95 p-4 sm:p-5 shadow-2xl backdrop-blur">
+          <div class="relative rounded-3xl border border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 p-4 sm:p-5 shadow-2xl backdrop-blur">
             <!-- 3-way Visual Switcher Tabs -->
-            <div class="mb-4 flex items-center justify-center p-1 rounded-xl bg-gray-100/80 border border-gray-200/60 text-xs font-semibold text-gray-700">
+            <div class="mb-4 flex items-center justify-center p-1 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 border border-gray-200/60 dark:border-gray-700/60 text-xs font-semibold text-gray-700 dark:text-gray-300">
               <button
                 type="button"
                 (click)="setHeroVisual('shoe')"
                 class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
-                [class]="heroVisualMode() === 'shoe' ? 'bg-white text-primary-700 shadow-sm font-bold' : 'hover:text-gray-900'"
+                [class]="heroVisualMode() === 'shoe' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-sm font-bold' : 'hover:text-gray-900 dark:hover:text-white'"
               >
                 <span>👟</span>
                 <span>{{ 'home.hero_view_shoe' | translate }}</span>
@@ -106,7 +107,7 @@
                 type="button"
                 (click)="setHeroVisual('web')"
                 class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
-                [class]="heroVisualMode() === 'web' ? 'bg-white text-primary-700 shadow-sm font-bold' : 'hover:text-gray-900'"
+                [class]="heroVisualMode() === 'web' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-sm font-bold' : 'hover:text-gray-900 dark:hover:text-white'"
               >
                 <span>💻</span>
                 <span>{{ 'home.hero_view_web' | translate }}</span>
@@ -115,7 +116,7 @@
                 type="button"
                 (click)="setHeroVisual('mobile')"
                 class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
-                [class]="heroVisualMode() === 'mobile' ? 'bg-white text-primary-700 shadow-sm font-bold' : 'hover:text-gray-900'"
+                [class]="heroVisualMode() === 'mobile' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-sm font-bold' : 'hover:text-gray-900 dark:hover:text-white'"
               >
                 <span>📱</span>
                 <span>{{ 'home.hero_view_mobile' | translate }}</span>
@@ -302,52 +303,52 @@
   </section>
 
   <!-- ===== Concept Section ===== -->
-  <section id="concept" class="border-y border-gray-100 bg-gray-50/60 py-20">
+  <section id="concept" class="border-y border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/60 py-20">
     <div class="mx-auto max-w-6xl px-4">
       <div class="mx-auto max-w-3xl text-center">
-        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800">
+        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-800 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50">
           {{ 'home.concept_badge' | translate }}
         </span>
-        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
           {{ 'home.concept_title' | translate }}
         </h2>
-        <p class="mt-4 text-base text-gray-600 md:text-lg">
+        <p class="mt-4 text-base text-gray-600 dark:text-gray-300 md:text-lg">
           {{ 'home.concept_subtitle' | translate }}
         </p>
       </div>
 
       <div class="mt-12 grid gap-6 md:grid-cols-3">
         <!-- Card 1: Clip universel sur lacets -->
-        <div class="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:shadow-md">
-          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+        <div class="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-7 shadow-sm transition hover:shadow-md">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/60 text-primary-600 dark:text-primary-300">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.concept_card_1_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.concept_card_1_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.concept_card_1_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.concept_card_1_desc' | translate }}</p>
         </div>
 
         <!-- Card 2: Économique & Léger -->
-        <div class="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:shadow-md">
-          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+        <div class="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-7 shadow-sm transition hover:shadow-md">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.concept_card_2_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.concept_card_2_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.concept_card_2_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.concept_card_2_desc' | translate }}</p>
         </div>
 
         <!-- Card 3: Discret & Bienveillant -->
-        <div class="rounded-2xl border border-gray-100 bg-white p-7 shadow-sm transition hover:shadow-md">
-          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
+        <div class="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-7 shadow-sm transition hover:shadow-md">
+          <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-600 dark:text-indigo-300">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.concept_card_3_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.concept_card_3_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.concept_card_3_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.concept_card_3_desc' | translate }}</p>
         </div>
       </div>
     </div>
@@ -356,102 +357,102 @@
   <!-- ===== Features ===== -->
   <section id="features" class="mx-auto max-w-6xl px-4 py-20">
     <div class="mx-auto max-w-3xl text-center">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
         {{ 'home.features_title' | translate }}
       </h2>
-      <p class="mt-4 text-base text-gray-600 md:text-lg">
+      <p class="mt-4 text-base text-gray-600 dark:text-gray-300 md:text-lg">
         {{ 'home.features_subtitle' | translate }}
       </p>
     </div>
 
     <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Fall Detection -->
-      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:shadow-md">
+      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
         <div>
-          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 text-red-600">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_fall_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_fall_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_fall_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_fall_desc' | translate }}</p>
         </div>
       </div>
 
       <!-- Haptic Feedback -->
-      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition hover:shadow-md">
+      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
         <div>
-          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-950/60 text-primary-600 dark:text-primary-400">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_haptic_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_haptic_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_haptic_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_haptic_desc' | translate }}</p>
         </div>
       </div>
 
       <!-- Step Counting (Biomechanical Pedometer & Cadence - Active Feature) -->
-      <div class="relative flex flex-col justify-between rounded-2xl border border-emerald-200/80 bg-gradient-to-b from-white to-emerald-50/20 p-6 shadow-sm transition hover:shadow-md">
+      <div class="relative flex flex-col justify-between rounded-2xl border border-emerald-200/80 dark:border-emerald-800/60 bg-gradient-to-b from-white to-emerald-50/20 dark:from-gray-900 dark:to-emerald-950/20 p-6 shadow-sm transition hover:shadow-md">
         <div class="absolute -top-3 right-4">
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 shadow-sm border border-emerald-200">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 shadow-sm border border-emerald-200 dark:border-emerald-800/80">
             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
             {{ 'home.feature_steps_badge' | translate }}
           </span>
         </div>
         <div>
-          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_steps_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_steps_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_steps_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_steps_desc' | translate }}</p>
         </div>
       </div>
 
       <!-- Inactivity Reminder (Roadmap) -->
-      <div class="relative flex flex-col justify-between rounded-2xl border border-primary-200/70 bg-gradient-to-b from-white to-primary-50/20 p-6 shadow-sm transition hover:shadow-md">
+      <div class="relative flex flex-col justify-between rounded-2xl border border-primary-200/70 dark:border-purple-800/60 bg-gradient-to-b from-white to-primary-50/20 dark:from-gray-900 dark:to-purple-950/20 p-6 shadow-sm transition hover:shadow-md">
         <div class="absolute -top-3 right-4">
-          <span class="inline-flex items-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-800 shadow-sm border border-primary-200">
+          <span class="inline-flex items-center rounded-full bg-primary-100 dark:bg-purple-950/80 px-2.5 py-0.5 text-xs font-semibold text-primary-800 dark:text-purple-300 shadow-sm border border-primary-200 dark:border-purple-800/80">
             {{ 'home.feature_inactivity_badge' | translate }}
           </span>
         </div>
         <div>
-          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-700">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900">{{ 'home.feature_inactivity_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ 'home.feature_inactivity_desc' | translate }}</p>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_inactivity_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_inactivity_desc' | translate }}</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===== Dedicated Showcase Section ===== -->
-  <section id="showcase" class="border-t border-gray-100 bg-gradient-to-b from-gray-50/80 via-white to-gray-50/40 py-20">
+  <section id="showcase" class="border-t border-gray-100 dark:border-gray-800 bg-gradient-to-b from-gray-50/80 via-white to-gray-50/40 dark:from-gray-900/80 dark:via-gray-950 dark:to-gray-900/40 py-20">
     <div class="mx-auto max-w-6xl px-4">
       <!-- Section Header -->
       <div class="mx-auto max-w-3xl text-center">
-        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 px-3.5 py-1 text-xs font-semibold text-primary-800">
+        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-800 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50">
           {{ 'home.showcase_badge' | translate }}
         </span>
-        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
           {{ 'home.showcase_title' | translate }}
         </h2>
-        <p class="mt-4 text-base text-gray-600 md:text-lg">
+        <p class="mt-4 text-base text-gray-600 dark:text-gray-300 md:text-lg">
           {{ 'home.showcase_subtitle' | translate }}
         </p>
         
         <!-- Segmented Tab Switcher (Web vs Mobile) -->
-        <div class="mt-8 inline-flex rounded-2xl bg-gray-200/80 p-1.5 shadow-inner">
+        <div class="mt-8 inline-flex rounded-2xl bg-gray-200/80 dark:bg-gray-800 p-1.5 shadow-inner">
           <button
             type="button"
             (click)="setAppTab('web')"
             class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer"
-            [class]="activeAppTab() === 'web' ? 'bg-white text-primary-700 shadow-md' : 'text-gray-600 hover:text-gray-900'"
+            [class]="activeAppTab() === 'web' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
           >
             {{ 'home.showcase_tab_web' | translate }}
           </button>
@@ -459,7 +460,7 @@
             type="button"
             (click)="setAppTab('mobile')"
             class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer"
-            [class]="activeAppTab() === 'mobile' ? 'bg-white text-primary-700 shadow-md' : 'text-gray-600 hover:text-gray-900'"
+            [class]="activeAppTab() === 'mobile' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
           >
             {{ 'home.showcase_tab_mobile' | translate }}
           </button>
@@ -472,7 +473,7 @@
           <!-- Desktop Platform View -->
           <div class="mx-auto max-w-5xl">
             <!-- Browser Mockup Window -->
-            <div class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-900 shadow-2xl">
+            <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-900 shadow-2xl">
               <!-- Browser Header Bar -->
               <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/90 px-4 py-3 backdrop-blur">
                 <div class="flex items-center gap-2">
@@ -506,26 +507,26 @@
                   type="button"
                   (click)="selectWebScreenshot(i)"
                   class="group relative text-left rounded-2xl p-5 border transition-all cursor-pointer"
-                  [class]="selectedWebScreenshot() === i ? 'border-primary-500 bg-primary-50/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'"
+                  [class]="selectedWebScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
                 >
                   <div class="flex items-center justify-between mb-2">
                     <span
                       class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
-                      [class]="selectedWebScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700'"
+                      [class]="selectedWebScreenshot() === i ? 'bg-primary-100 dark:bg-primary-900/60 text-primary-800 dark:text-primary-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
                     >
                       {{ item.tag }}
                     </span>
                     <span
                       class="text-xs font-mono font-semibold"
-                      [class]="selectedWebScreenshot() === i ? 'text-primary-600' : 'text-gray-400'"
+                      [class]="selectedWebScreenshot() === i ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'"
                     >
                       0{{ i + 1 }}
                     </span>
                   </div>
-                  <h3 class="font-bold text-gray-900 text-base group-hover:text-primary-600 transition">
+                  <h3 class="font-bold text-gray-900 dark:text-white text-base group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">
                     {{ item.titleKey | translate }}
                   </h3>
-                  <p class="mt-1.5 text-xs leading-relaxed text-gray-600">
+                  <p class="mt-1.5 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
                     {{ item.descKey | translate }}
                   </p>
                 </button>
@@ -563,26 +564,26 @@
                     type="button"
                     (click)="selectMobileScreenshot(i)"
                     class="w-full text-left rounded-2xl p-5 border transition-all cursor-pointer block"
-                    [class]="selectedMobileScreenshot() === i ? 'border-primary-500 bg-primary-50/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'"
+                    [class]="selectedMobileScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
                   >
                     <div class="flex items-center justify-between mb-2">
                       <span
                         class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
-                        [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 text-primary-800' : 'bg-gray-100 text-gray-700'"
+                        [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 dark:bg-primary-900/60 text-primary-800 dark:text-primary-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
                       >
                         📱 {{ item.tag }}
                       </span>
                       <span
                         class="text-xs font-mono font-semibold"
-                        [class]="selectedMobileScreenshot() === i ? 'text-primary-600' : 'text-gray-400'"
+                        [class]="selectedMobileScreenshot() === i ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'"
                       >
                         0{{ i + 1 }}
                       </span>
                     </div>
-                    <h3 class="font-bold text-gray-900 text-base">
+                    <h3 class="font-bold text-gray-900 dark:text-white text-base">
                       {{ item.titleKey | translate }}
                     </h3>
-                    <p class="mt-1.5 text-xs sm:text-sm leading-relaxed text-gray-600">
+                    <p class="mt-1.5 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                       {{ item.descKey | translate }}
                     </p>
                   </button>
@@ -596,20 +597,20 @@
   </section>
 
   <!-- ===== How it works ===== -->
-  <section id="how" class="bg-gray-50/70 py-20 border-t border-gray-100">
+  <section id="how" class="bg-gray-50/70 dark:bg-gray-900/50 py-20 border-t border-gray-100 dark:border-gray-800">
     <div class="mx-auto max-w-6xl px-4">
-      <h2 class="text-center text-3xl font-extrabold tracking-tight text-gray-900 md:text-4xl">
+      <h2 class="text-center text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
         {{ 'home.how_title' | translate }}
       </h2>
       <div class="mt-12 grid gap-6 md:grid-cols-4">
         @for (step of steps; track step.titleKey; let i = $index) {
-          <div class="relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div class="relative rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
             <span
               class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white shadow-sm"
               >{{ i + 1 }}</span
             >
-            <h3 class="font-bold text-gray-900">{{ step.titleKey | translate }}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-gray-600">{{ step.descKey | translate }}</p>
+            <h3 class="font-bold text-gray-900 dark:text-white">{{ step.titleKey | translate }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ step.descKey | translate }}</p>
           </div>
         }
       </div>
@@ -654,7 +655,7 @@
   </section>
 
   <footer
-    class="border-t border-gray-100 py-8 text-center text-sm text-gray-500"
+    class="border-t border-gray-100 dark:border-gray-800 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
   >
     © {{ currentYear }} Health Kicks — {{ 'home.footer_rights' | translate }}
   </footer>

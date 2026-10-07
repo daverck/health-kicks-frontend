@@ -12,6 +12,8 @@ import {
   output,
   signal,
   computed,
+  effect,
+  inject,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -24,6 +26,7 @@ import {
 } from '../../../core/utils/madgwick.utils';
 import { ImuReading } from '../../../models/telemetry.models';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-shoe-3d-viewer',
@@ -83,8 +86,14 @@ export class Shoe3dViewerComponent
   private prevPointerX = 0;
   private prevPointerY = 0;
   private cameraSpherical = { radius: 3.8, theta: Math.PI / 4, phi: Math.PI / 3 };
+  private readonly theme = inject(ThemeService);
 
-  constructor(private readonly ngZone: NgZone) {}
+  constructor(private readonly ngZone: NgZone) {
+    effect(() => {
+      const dark = this.theme.isDark();
+      this.updateThemeColors(dark);
+    });
+  }
 
   ngOnInit(): void {
     this.processReadings();
@@ -152,8 +161,9 @@ export class Shoe3dViewerComponent
     const height = container.clientHeight || 280;
 
     try {
+      const isDark = this.theme.isDark();
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0xf8fafc); // Light slate background
+      this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
 
       // Camera
       this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
@@ -187,12 +197,12 @@ export class Shoe3dViewerComponent
       this.scene.add(dirLight);
 
       // Floor Grid and Shadow Receiver
-      this.gridHelper = new THREE.GridHelper(5, 10, 0x0284c7, 0xe2e8f0);
+      this.gridHelper = new THREE.GridHelper(5, 10, isDark ? 0x38bdf8 : 0x0284c7, isDark ? 0x334155 : 0xe2e8f0);
       this.gridHelper.position.y = -0.01;
       this.scene.add(this.gridHelper);
 
       const floorGeo = new THREE.PlaneGeometry(8, 8);
-      const floorMat = new THREE.ShadowMaterial({ opacity: 0.15 });
+      const floorMat = new THREE.ShadowMaterial({ opacity: isDark ? 0.35 : 0.15 });
       const floor = new THREE.Mesh(floorGeo, floorMat);
       floor.rotation.x = -Math.PI / 2;
       floor.position.y = -0.02;
@@ -211,6 +221,22 @@ export class Shoe3dViewerComponent
     } catch (err) {
       console.error('WebGL initialization error:', err);
       this.hasWebGlError.set(true);
+    }
+  }
+
+  private updateThemeColors(isDark: boolean): void {
+    if (!this.scene) return;
+    this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
+    if (this.gridHelper) {
+      this.scene.remove(this.gridHelper);
+      this.gridHelper.geometry.dispose();
+      (this.gridHelper.material as THREE.Material).dispose();
+      this.gridHelper = new THREE.GridHelper(5, 10, isDark ? 0x38bdf8 : 0x0284c7, isDark ? 0x334155 : 0xe2e8f0);
+      this.gridHelper.position.y = -0.01;
+      this.scene.add(this.gridHelper);
+    }
+    if (this.renderer && this.camera) {
+      this.renderer.render(this.scene, this.camera);
     }
   }
 

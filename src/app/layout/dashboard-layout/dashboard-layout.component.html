@@ -1,20 +1,20 @@
-<div class="flex min-h-screen bg-gray-50">
+<div class="flex min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
   <!-- Desktop Sidebar -->
-  <aside class="hidden w-64 shrink-0 border-r border-gray-200 bg-white md:sticky md:top-0 md:flex md:h-screen md:flex-col md:justify-between">
+  <aside class="hidden w-64 shrink-0 border-r border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-800 md:sticky md:top-0 md:flex md:h-screen md:flex-col md:justify-between">
     <div class="flex min-h-0 flex-col overflow-y-auto">
       <!-- Logo -->
-      <div class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-100 px-6">
+      <div class="flex h-16 shrink-0 items-center gap-2 border-b border-gray-100 dark:border-gray-800 px-6">
         <img src="/favicon.svg" alt="HealthKicks Logo" class="h-9 w-9 object-contain" />
         <span class="font-bold">Health<span class="text-primary-600">Kicks</span></span>
       </div>
 
       <!-- Navigation -->
-      <nav class="space-y-1 p-4">
+      <nav class="space-y-1 p-4" aria-label="Navigation principale">
         @for (link of visibleLinks(); track link.path) {
           <a
             [routerLink]="link.path"
-            routerLinkActive="bg-primary-50 text-primary-700 font-semibold"
-            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
+            routerLinkActive="bg-primary-50 text-primary-700 font-semibold dark:bg-primary-950/60 dark:text-primary-400"
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white transition"
           >
             <span>{{ link.icon }}</span> {{ link.labelKey | translate }}
           </a>
@@ -22,33 +22,34 @@
       </nav>
     </div>
 
-    <!-- Bottom: User profile + Language + Logout -->
-    <div class="shrink-0 border-t border-gray-100">
-      <!-- Language selector -->
-      <div class="border-b border-gray-100 px-4 py-3 flex justify-center">
-        <app-language-selector align="center" />
+    <!-- Bottom: User profile + Language/Theme + Logout -->
+    <div class="shrink-0 border-t border-gray-100 dark:border-gray-800">
+      <!-- Language and Theme selector -->
+      <div class="border-b border-gray-100 dark:border-gray-800 px-4 py-3 flex items-center justify-between gap-2">
+        <app-language-selector align="left" />
+        <app-theme-toggle />
       </div>
 
       <!-- User profile link -->
       @if (auth.user(); as user) {
         <a
           routerLink="/dashboard/profile"
-          class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition group"
+          class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/80 transition group"
           data-testid="sidebar-profile-link"
         >
-          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700 group-hover:bg-primary-200 transition">
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/60 text-sm font-bold text-primary-700 dark:text-primary-300 group-hover:bg-primary-200 transition">
             {{ avatarInitial(user) }}
           </div>
           <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-gray-900">{{ user.name || user.email }}</p>
-            <p class="truncate text-xs text-gray-500">{{ user.role }}</p>
+            <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ user.name || user.email }}</p>
+            <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ user.role }}</p>
           </div>
         </a>
       }
 
       <!-- Logout -->
       <div class="p-4 pt-2">
-        <button (click)="logout()" data-testid="sidebar-logout" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition">
+        <button (click)="logout()" data-testid="sidebar-logout" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition">
           <span>⎋</span> {{ 'nav.logout' | translate }}
         </button>
       </div>
@@ -66,22 +67,22 @@
 
     <!-- Mobile Drawer -->
     <aside
-      class="fixed inset-y-0 start-0 z-50 flex w-72 flex-col justify-between bg-white shadow-2xl md:hidden"
+      class="fixed inset-y-0 start-0 z-50 flex w-72 flex-col justify-between bg-white dark:bg-gray-900 shadow-2xl md:hidden"
       role="dialog"
       aria-modal="true"
       [attr.aria-label]="'nav.menu' | translate"
     >
       <div class="flex flex-col min-h-0 overflow-y-auto">
         <!-- Header with Logo & Close button -->
-        <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 px-6">
+        <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6">
           <div class="flex items-center gap-2">
             <img src="/favicon.svg" alt="HealthKicks Logo" class="h-9 w-9 object-contain" />
-            <span class="font-bold">Health<span class="text-primary-600">Kicks</span></span>
+            <span class="font-bold text-gray-900 dark:text-white">Health<span class="text-primary-600">Kicks</span></span>
           </div>
           <button
             type="button"
             (click)="closeMobileMenu()"
-            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition"
+            class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition"
             [attr.aria-label]="'common.close' | translate"
             data-testid="mobile-menu-close"
           >
@@ -96,27 +97,27 @@
           <a
             routerLink="/dashboard/profile"
             (click)="closeMobileMenu()"
-            class="flex items-center gap-3 border-b border-gray-100 bg-gray-50/70 p-4 hover:bg-gray-100 transition"
+            class="flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/50 p-4 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
             data-testid="mobile-profile-link"
           >
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/60 text-sm font-bold text-primary-700 dark:text-primary-300">
               {{ avatarInitial(user) }}
             </div>
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-semibold text-gray-900">{{ user.name || user.email }}</p>
-              <p class="truncate text-xs text-gray-500">{{ user.role }}</p>
+              <p class="truncate text-sm font-semibold text-gray-900 dark:text-white">{{ user.name || user.email }}</p>
+              <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ user.role }}</p>
             </div>
           </a>
         }
 
         <!-- Mobile Navigation links with full labels -->
-        <nav class="space-y-1 overflow-y-auto p-4">
+        <nav class="space-y-1 overflow-y-auto p-4" aria-label="Navigation mobile">
           @for (link of visibleLinks(); track link.path) {
             <a
               [routerLink]="link.path"
-              routerLinkActive="bg-primary-50 text-primary-700 font-semibold"
+              routerLinkActive="bg-primary-50 text-primary-700 font-semibold dark:bg-primary-950/60 dark:text-primary-400"
               (click)="closeMobileMenu()"
-              class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition"
+              class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white transition"
             >
               <span class="text-lg">{{ link.icon }}</span>
               <span>{{ link.labelKey | translate }}</span>
@@ -125,15 +126,16 @@
         </nav>
       </div>
 
-      <!-- Drawer Bottom: Language + Déconnexion -->
-      <div class="shrink-0 border-t border-gray-100">
-        <div class="border-b border-gray-100 px-4 py-3 flex justify-center">
-          <app-language-selector align="center" />
+      <!-- Drawer Bottom: Language + Theme + Déconnexion -->
+      <div class="shrink-0 border-t border-gray-100 dark:border-gray-800">
+        <div class="border-b border-gray-100 dark:border-gray-800 px-4 py-3 flex items-center justify-between gap-2">
+          <app-language-selector align="left" />
+          <app-theme-toggle />
         </div>
         <div class="p-4">
           <button
             (click)="logout()"
-            class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition"
+            class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
             data-testid="mobile-drawer-logout"
           >
             <span class="text-lg">⎋</span>
@@ -147,12 +149,12 @@
   <!-- Main Content Wrapper — no topbar on desktop -->
   <div class="flex min-w-0 flex-1 flex-col">
     <!-- Mobile-only topbar: Hamburger + Logo -->
-    <header class="sticky top-0 z-10 flex h-16 items-center border-b border-gray-200 bg-white/95 backdrop-blur px-4 md:hidden">
+    <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur px-4 md:hidden">
       <div class="flex items-center gap-2">
         <button
           type="button"
           (click)="toggleMobileMenu()"
-          class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
+          class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition"
           [attr.aria-label]="'nav.menu' | translate"
           [attr.aria-expanded]="isMobileMenuOpen()"
           data-testid="mobile-menu-toggle"
@@ -162,11 +164,14 @@
           </svg>
         </button>
         <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 object-contain" />
-        <span class="font-bold text-sm">Health<span class="text-primary-600">Kicks</span></span>
+        <span class="font-bold text-sm text-gray-900 dark:text-white">Health<span class="text-primary-600">Kicks</span></span>
+      </div>
+      <div>
+        <app-theme-toggle />
       </div>
     </header>
 
-    <main class="flex-1 p-4 md:p-8">
+    <main id="main-content" tabindex="-1" class="flex-1 p-4 md:p-8">
       <router-outlet />
     </main>
   </div>

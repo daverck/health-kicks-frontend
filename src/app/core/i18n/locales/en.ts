@@ -22,6 +22,10 @@ export const en = {
     yes: 'Yes',
     no: 'No',
   },
+  theme_light: 'Light',
+  theme_dark: 'Dark',
+  theme_system: 'System',
+  theme_toggle_label: 'Toggle theme',
   date_filter: {
     all_dates: 'All dates',
     today: 'Today',

@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
 
@@ -18,7 +19,7 @@ export interface ScreenshotItem {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, LanguageSelectorComponent],
+  imports: [RouterLink, TranslatePipe, LanguageSelectorComponent, ThemeToggleComponent],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {

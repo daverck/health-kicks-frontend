@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -16,6 +17,7 @@ import { LanguageSelectorComponent } from '../../shared/components/language-sele
     RouterLinkActive,
     TranslatePipe,
     LanguageSelectorComponent,
+    ThemeToggleComponent,
   ],
   templateUrl: './dashboard-layout.component.html',
 })
