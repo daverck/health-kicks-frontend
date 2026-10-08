@@ -126,7 +126,10 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly fetchingError = signal<boolean>(false);
   readonly isDeleting = signal<boolean>(false);
   readonly isValidating = signal<boolean>(false);
+  readonly isRefreshingReadings = signal<boolean>(false);
   readonly showDeleteConfirm = signal<boolean>(false);
+  private lastReadingCount = 0;
+  private stableCountRounds = 0;
 
   // Dataset statistics & balance guidance
   readonly targetPerClass = 25;
@@ -277,7 +280,7 @@ export class StudioComponent implements OnInit, OnDestroy {
 
     this.clearAllTimers();
     this.state.set('countdown');
-    this.countdownRemainingMs.set(1500);
+    this.countdownRemainingMs.set(3000);
     this.recordingProgressPercent.set(0);
     this.fetchingError.set(false);
     this.readings.set([]);
@@ -306,11 +309,11 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 2. Step: Countdown (~1.5s for 3 haptic pulses)
+   * 2. Step: Countdown (3.0s for 3 physical haptic pulses on ESP32)
    */
   private runCountdown(): void {
     const startTime = Date.now();
-    const duration = 1500;
+    const duration = 3000;
 
     const tick = () => {
       const elapsed = Date.now() - startTime;
@@ -348,12 +351,14 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 4. Step: Fetching telemetry from API with polling retry (800ms interval)
+   * 4. Step: Fetching telemetry from API with multi-batch polling retry (800ms interval)
    */
   runFetching(): void {
     this.state.set('fetching');
     this.fetchingAttempt.set(0);
     this.fetchingError.set(false);
+    this.lastReadingCount = 0;
+    this.stableCountRounds = 0;
     this.pollReadings();
   }
 
@@ -367,26 +372,78 @@ export class StudioComponent implements OnInit, OnDestroy {
 
     const currentAttempt = this.fetchingAttempt() + 1;
     this.fetchingAttempt.set(currentAttempt);
+    const maxAttempts = 12;
 
     this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
       next: (res) => {
-        if (res.readings && res.readings.length > 0) {
+        const count = res.readings?.length ?? 0;
+        if (count > 0) {
           this.readings.set(res.readings);
-          this.state.set('inspecting');
-          this.toast.success(`Télémétrie récupérée (${res.readings.length} points IMU enregistrés) !`);
-        } else if (currentAttempt < 8) {
-          // Retry after 800ms
+
+          const isComplete = count >= 80;
+          if (count === this.lastReadingCount) {
+            this.stableCountRounds++;
+          } else {
+            this.lastReadingCount = count;
+            this.stableCountRounds = 0;
+          }
+
+          // Ingestion Lambda writes to DynamoDB in 25-item chunks (batch_writer).
+          // If count is a multiple of 25 (<80), remaining chunks are still in flight.
+          const isIncompleteBatch = count % 25 === 0 && count < 80;
+
+          if (isComplete || (!isIncompleteBatch && count > 0) || this.stableCountRounds >= 2 || currentAttempt >= maxAttempts) {
+            this.state.set('inspecting');
+            this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
+            return;
+          }
+        }
+
+        if (currentAttempt < maxAttempts) {
           this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
+        } else if (this.readings().length > 0) {
+          this.state.set('inspecting');
+          this.toast.info(`Télémétrie récupérée (${this.readings().length} points IMU enregistrés).`);
         } else {
           this.fetchingError.set(true);
         }
       },
       error: () => {
-        if (currentAttempt < 8) {
+        if (currentAttempt < maxAttempts) {
           this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
+        } else if (this.readings().length > 0) {
+          this.state.set('inspecting');
         } else {
           this.fetchingError.set(true);
         }
+      },
+    });
+  }
+
+  /**
+   * Refreshes telemetry readings for the current session on demand.
+   */
+  refreshCurrentReadings(): void {
+    const session = this.currentSession();
+    const deviceId = this.selectedDeviceId();
+    if (!session || !deviceId || this.isRefreshingReadings()) {
+      return;
+    }
+
+    this.isRefreshingReadings.set(true);
+    this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
+      next: (res) => {
+        this.isRefreshingReadings.set(false);
+        if (res.readings && res.readings.length > 0) {
+          this.readings.set(res.readings);
+          this.toast.success(`Télémétrie actualisée (${res.readings.length} points IMU).`);
+        } else {
+          this.toast.info('Aucun point supplémentaire trouvé.');
+        }
+      },
+      error: () => {
+        this.isRefreshingReadings.set(false);
+        this.toast.error('Erreur lors du rafraîchissement des trames.');
       },
     });
   }

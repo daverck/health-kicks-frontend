@@ -324,8 +324,8 @@ describe('StudioComponent', () => {
     });
     expect(component.state()).toBe('countdown');
 
-    // Fast-forward countdown duration (1500 ms)
-    tick(1500);
+    // Fast-forward countdown duration (3000 ms)
+    tick(3000);
     expect(component.state()).toBe('recording');
 
     // Fast-forward recording duration (5000 ms)
@@ -591,6 +591,23 @@ describe('StudioComponent', () => {
     const badge = compiled.querySelector('[data-testid="studio-experimental-badge"]');
     expect(badge).toBeTruthy();
     expect(badge?.textContent).toContain('🧪');
+  });
+
+  it('should refresh readings on demand via refreshCurrentReadings() and update readings signal', () => {
+    fixture.detectChanges();
+    component.selectedDeviceId.set('hk-device-0001');
+    component.currentSession.set(mockStudioStartResponse);
+    component.state.set('inspecting');
+    component.readings.set([]);
+
+    studioServiceSpy.getSessionReadings.and.returnValue(of(mockStudioSessionReadingsResponse));
+
+    component.refreshCurrentReadings();
+
+    expect(studioServiceSpy.getSessionReadings).toHaveBeenCalledWith('hk-device-0001', 'sess-abc-12345');
+    expect(component.readings()).toEqual(mockImuReadings);
+    expect(toastSpy.success).toHaveBeenCalledWith(jasmine.stringMatching(/Télémétrie actualisée/));
+    expect(component.isRefreshingReadings()).toBeFalse();
   });
 });
 

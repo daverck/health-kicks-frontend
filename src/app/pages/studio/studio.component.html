@@ -410,9 +410,24 @@
                 Session : {{ currentSession()?.session_id }}
               </span>
             </div>
-            <p class="mt-1 text-xs text-gray-500">
-              {{ 'history.device' | translate }} : <strong class="text-gray-700">{{ selectedDeviceId() }}</strong> ·
-              {{ 'studio.points_recorded' | translate:{ count: readings().length } }}
+            <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+              <span>{{ 'history.device' | translate }} : <strong class="text-gray-700">{{ selectedDeviceId() }}</strong> ·
+              {{ 'studio.points_recorded' | translate:{ count: readings().length } }}</span>
+              <button
+                id="refresh-readings-btn"
+                type="button"
+                (click)="refreshCurrentReadings()"
+                [disabled]="isRefreshingReadings()"
+                class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40"
+                title="Rafraîchir les trames télémétriques"
+              >
+                @if (isRefreshingReadings()) {
+                  <span class="animate-spin">🔄</span>
+                } @else {
+                  <span>🔄</span>
+                }
+                <span>{{ 'common.refresh' | translate }}</span>
+              </button>
             </p>
           </div>
 
