@@ -181,7 +181,7 @@ export function classifyGaitPhase(
  */
 export function computeOrientationTrajectory(
   readings: ImuReading[],
-  beta = 0.2
+  beta = 0.05
 ): OrientationFrame[] {
   if (!readings || readings.length === 0) return [];
 
@@ -191,9 +191,14 @@ export function computeOrientationTrajectory(
 
   // Let filter converge on initial accelerometer direction (gravity vector)
   const r0 = readings[0];
-  for (let i = 0; i < 25; i++) {
-    filter.update(r0.ax, r0.ay, r0.az, 0, 0, 0, 0.02);
+  const a0Mag = Math.sqrt(r0.ax * r0.ax + r0.ay * r0.ay + r0.az * r0.az);
+  if (a0Mag > 0.1) {
+    for (let i = 0; i < 30; i++) {
+      filter.update(r0.ax, r0.ay, r0.az, 0, 0, 0, 0.02);
+    }
   }
+
+  const toRad = Math.PI / 180;
 
   for (let i = 0; i < readings.length; i++) {
     const r = readings[i];
@@ -208,21 +213,24 @@ export function computeOrientationTrajectory(
       }
     }
 
-    // Auto-detect deg/s vs rad/s
-    let gx = r.gx;
-    let gy = r.gy;
-    let gz = r.gz;
-    if (Math.abs(gx) > 15 || Math.abs(gy) > 15 || Math.abs(gz) > 15) {
-      const toRad = Math.PI / 180;
-      gx *= toRad;
-      gy *= toRad;
-      gz *= toRad;
-    }
+    // Readings from MPU-6050 are in deg/s; Madgwick expects rad/s
+    const gx = r.gx * toRad;
+    const gy = r.gy * toRad;
+    const gz = r.gz * toRad;
 
-    const q = filter.update(r.ax, r.ay, r.az, gx, gy, gz, dt);
-    const euler = quaternionToEulerDeg(q);
     const accelMag = Math.sqrt(r.ax * r.ax + r.ay * r.ay + r.az * r.az);
     const gyroMag = Math.sqrt(gx * gx + gy * gy + gz * gz);
+
+    // Dynamic gravity gating: only apply accelerometer correction when close to 1.0g
+    // During impact shocks or high dynamics (> 1.25g or < 0.75g), rely purely on gyro integration
+    // to prevent violent orientation flips
+    const isStationaryOrSteady = Math.abs(accelMag - 1.0) < 0.25;
+    const ax = isStationaryOrSteady ? r.ax : 0;
+    const ay = isStationaryOrSteady ? r.ay : 0;
+    const az = isStationaryOrSteady ? r.az : 0;
+
+    const q = filter.update(ax, ay, az, gx, gy, gz, dt);
+    const euler = quaternionToEulerDeg(q);
     const gaitPhase = classifyGaitPhase(euler.pitch, accelMag, gyroMag);
 
     trajectory.push({

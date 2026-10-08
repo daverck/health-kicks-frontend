@@ -441,6 +441,8 @@ export const en = {
     retry: 'Retry',
     drawer_title: 'Capture Inspection',
     drawer_subtitle: 'High-frequency IMU telemetry frames (DynamoDB)',
+    show_3d_viewer: 'Show 3D Shoe Visualization',
+    hide_3d_viewer: 'Hide 3D Shoe Visualization',
     replay_3d_title: '3D Footwear Attitude Visualization',
     replay_3d_subtitle: 'Kinematic replay driven by Madgwick AHRS quaternions (Heel strike, Pronation, Supination).',
     loading_readings: 'Fetching high-frequency telemetry readings…',

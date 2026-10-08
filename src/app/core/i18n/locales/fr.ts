@@ -420,6 +420,8 @@ export const fr = {
     retry: 'Réessayer',
     drawer_title: 'Inspection de la capture',
     drawer_subtitle: 'Trames IMU haute fréquence (DynamoDB)',
+    show_3d_viewer: 'Afficher la visualisation 3D de la chaussure',
+    hide_3d_viewer: 'Masquer la visualisation 3D de la chaussure',
     replay_3d_title: 'Visualisation 3D de la chaussure',
     replay_3d_subtitle: 'Replay cinématique animé par quaternions Madgwick (Heel strike, Pronation, Supination).',
     loading_readings: 'Récupération des trames haute fréquence…',

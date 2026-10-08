@@ -229,4 +229,26 @@ describe('StudioInspectionComponent', () => {
     component.onReplayTimeSelected(1.25);
     expect(component.replayPlaybackTime()).toBe(1.25);
   });
+
+  it('should toggle 3D shoe viewer on button click', () => {
+    fixture.componentRef.setInput('session', mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    expect(component.show3dViewer()).toBeFalse();
+    let compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-shoe-3d-viewer')).toBeNull();
+
+    component.toggle3dViewer();
+    fixture.detectChanges();
+
+    expect(component.show3dViewer()).toBeTrue();
+    compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-shoe-3d-viewer')).not.toBeNull();
+
+    component.toggle3dViewer();
+    fixture.detectChanges();
+
+    expect(component.show3dViewer()).toBeFalse();
+    expect(compiled.querySelector('app-shoe-3d-viewer')).toBeNull();
+  });
 });

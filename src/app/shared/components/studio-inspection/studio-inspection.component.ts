@@ -85,6 +85,11 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly isValidatingSession = signal<boolean>(false);
   readonly readingsError = signal<string | null>(null);
   readonly replayPlaybackTime = signal<number>(0);
+  readonly show3dViewer = signal<boolean>(false);
+
+  toggle3dViewer(): void {
+    this.show3dViewer.update((v) => !v);
+  }
 
   // Curation State
   readonly labelEditMode = signal<'predefined' | 'custom'>('predefined');
@@ -139,6 +144,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     }
     this.activeReadings.set([]);
     this.replayPlaybackTime.set(0);
+    this.show3dViewer.set(false);
     this.showDeleteConfirm.set(false);
     this.linkCopied.set(false);
     this.loadReadings(session.id);

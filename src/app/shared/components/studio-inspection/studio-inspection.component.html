@@ -224,13 +224,28 @@
             </button>
           </div>
         } @else {
-          <!-- 3D Shoe Visualizer & Biomechanical Replay -->
+          <!-- 3D Shoe Visualizer & Biomechanical Replay (On-Demand) -->
           <div class="mb-4">
-            <app-shoe-3d-viewer
-              [readings]="activeReadings()"
-              [externalTimeSec]="replayPlaybackTime()"
-              (timeSelected)="onReplayTimeSelected($event)"
-            />
+            <div class="flex items-center justify-between mb-2">
+              <button
+                type="button"
+                (click)="toggle3dViewer()"
+                class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                data-testid="toggle-3d-viewer-btn"
+              >
+                <span>👟</span>
+                <span>{{ (show3dViewer() ? 'studio_history.hide_3d_viewer' : 'studio_history.show_3d_viewer') | translate }}</span>
+                <span class="text-[10px] text-gray-400">WebGL / Three.js</span>
+              </button>
+            </div>
+
+            @if (show3dViewer()) {
+              <app-shoe-3d-viewer
+                [readings]="activeReadings()"
+                [externalTimeSec]="replayPlaybackTime()"
+                (timeSelected)="onReplayTimeSelected($event)"
+              />
+            }
           </div>
 
           <!-- IMU Chart Component -->
