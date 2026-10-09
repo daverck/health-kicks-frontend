@@ -19,6 +19,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {
   computeOrientationTrajectory,
   OrientationFrame,
@@ -237,6 +238,9 @@ export class Shoe3dViewerComponent
     this.renderScene();
   }
 
+  private cachedSneakerMesh: THREE.Group | null = null;
+  readonly isModelLoading = signal(false);
+
   setModel(model: 'sneaker' | 'insole'): void {
     if (this.selectedModel() === model) return;
     this.selectedModel.set(model);
@@ -256,14 +260,99 @@ export class Shoe3dViewerComponent
       }
     }
 
-    // Add selected model mesh
-    const modelMesh =
-      this.selectedModel() === 'insole'
-        ? this.buildProceduralInsoleMesh()
-        : this.buildProceduralShoe();
-    this.shoeGroup.add(modelMesh);
+    if (this.selectedModel() === 'insole') {
+      const modelMesh = this.buildProceduralInsoleMesh();
+      this.shoeGroup.add(modelMesh);
+      this.attachAxesHelper();
+      this.renderScene();
+    } else {
+      this.loadSneakerModel();
+    }
+  }
 
-    // Build and attach ISB 3D axes helper to rotate dynamically with the shoe
+  private loadSneakerModel(): void {
+    if (!this.shoeGroup) return;
+
+    if (this.cachedSneakerMesh) {
+      const clone = this.cachedSneakerMesh.clone(true);
+      this.shoeGroup.add(clone);
+      this.attachAxesHelper();
+      this.renderScene();
+      return;
+    }
+
+    // Add clean procedural fallback while GLB is being loaded or if offline/test
+    const fallback = this.buildProceduralShoe();
+    fallback.name = 'sneaker-fallback';
+    this.shoeGroup.add(fallback);
+    this.attachAxesHelper();
+    this.renderScene();
+
+    try {
+      const loader = new GLTFLoader();
+      this.isModelLoading.set(true);
+      loader.load(
+        '/models/blue_sneaker.glb',
+        (gltf) => {
+          this.isModelLoading.set(false);
+          if (!this.shoeGroup || this.selectedModel() !== 'sneaker') return;
+
+          // Remove the fallback
+          const fb = this.shoeGroup.getObjectByName('sneaker-fallback');
+          if (fb) {
+            this.shoeGroup.remove(fb);
+          }
+
+          const model = gltf.scene;
+
+          // Compute raw bounding box and dimensions
+          const bbox = new THREE.Box3().setFromObject(model);
+          const size = bbox.getSize(new THREE.Vector3());
+          const center = bbox.getCenter(new THREE.Vector3());
+
+          // Target length along Z = 2.0 (matching ISB foot coordinate system)
+          const targetLength = 2.0;
+          const scale = size.z > 0 ? targetLength / size.z : 0.068;
+          model.scale.set(scale, scale, scale);
+
+          // Center on X, sole flat at ground Y=0, pivot near subtalar joint
+          model.position.x = -center.x * scale;
+          model.position.y = -bbox.min.y * scale;
+          model.position.z = -center.z * scale + 0.15;
+
+          // Enable shadows
+          model.traverse((child) => {
+            if ((child as THREE.Mesh).isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          const container = new THREE.Group();
+          container.add(model);
+          this.cachedSneakerMesh = container;
+
+          this.shoeGroup.add(container.clone(true));
+          this.attachAxesHelper();
+          this.renderScene();
+        },
+        undefined,
+        (err) => {
+          console.warn('Could not load /models/blue_sneaker.glb, keeping fallback:', err);
+          this.isModelLoading.set(false);
+        }
+      );
+    } catch (e) {
+      console.warn('GLTFLoader error, keeping fallback:', e);
+      this.isModelLoading.set(false);
+    }
+  }
+
+  private attachAxesHelper(): void {
+    if (!this.shoeGroup) return;
+    if (this.axesGroup) {
+      this.shoeGroup.remove(this.axesGroup);
+    }
     this.axesGroup = this.buildAxesHelper();
     this.axesGroup.visible = this.showAxes();
     this.shoeGroup.add(this.axesGroup);
@@ -385,19 +474,6 @@ export class Shoe3dViewerComponent
     collar.position.set(0, 0.52, -0.28);
     collar.scale.set(1.0, 1.0, 1.3);
     root.add(collar);
-
-    // 8. HealthKicks Smart IMU Sensor Clip (Mounted on lateral heel collar)
-    const clipGeo = new THREE.BoxGeometry(0.12, 0.22, 0.24);
-    const clip = new THREE.Mesh(clipGeo, clipMat);
-    clip.position.set(0.36, 0.42, -0.32);
-    clip.castShadow = true;
-    root.add(clip);
-
-    // IMU Status Indicator LED
-    const ledGeo = new THREE.SphereGeometry(0.022, 8, 8);
-    const led = new THREE.Mesh(ledGeo, ledMat);
-    led.position.set(0.425, 0.46, -0.32);
-    root.add(led);
 
     return root;
   }
