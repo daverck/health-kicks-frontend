@@ -109,4 +109,20 @@ describe('Shoe3dViewerComponent', () => {
     component.toggleLoop();
     expect(component.isLooping()).toBeTrue();
   });
+
+  it('should toggle ISB axes visibility', () => {
+    expect(component.showAxes()).toBeTrue();
+    component.toggleAxes();
+    expect(component.showAxes()).toBeFalse();
+    component.toggleAxes();
+    expect(component.showAxes()).toBeTrue();
+  });
+
+  it('should switch between sneaker and insole 3D models', () => {
+    expect(component.selectedModel()).toBe('sneaker');
+    component.setModel('insole');
+    expect(component.selectedModel()).toBe('insole');
+    component.setModel('sneaker');
+    expect(component.selectedModel()).toBe('sneaker');
+  });
 });

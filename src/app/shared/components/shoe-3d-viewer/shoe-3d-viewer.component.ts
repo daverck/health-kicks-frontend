@@ -61,6 +61,8 @@ export class Shoe3dViewerComponent
   readonly liveGaitPhase = signal<GaitPhase>('neutral');
   readonly liveAccelMag = signal<number>(1.0);
   readonly hasWebGlError = signal<boolean>(false);
+  readonly showAxes = signal<boolean>(true);
+  readonly selectedModel = signal<'sneaker' | 'insole'>('sneaker');
 
   // Playback speeds
   readonly speedOptions: number[] = [0.25, 0.5, 1.0, 2.0];
@@ -70,6 +72,7 @@ export class Shoe3dViewerComponent
   private camera: THREE.PerspectiveCamera | null = null;
   private renderer: THREE.WebGLRenderer | null = null;
   private shoeGroup: THREE.Group | null = null;
+  private axesGroup: THREE.Group | null = null;
   private gridHelper: THREE.GridHelper | null = null;
   private animationFrameId: number | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -146,8 +149,9 @@ export class Shoe3dViewerComponent
 
     if (this.trajectory.length > 0) {
       // Establish zero-reference orientation from initial static frames
+      // Sensor ISB Frame -> Three.js Space: X_3 <- q_y, Y_3 <- q_z, Z_3 <- q_x
       const q0 = this.trajectory[0].q;
-      const initialQuat = new THREE.Quaternion(q0.x, q0.z, -q0.y, q0.w).normalize();
+      const initialQuat = new THREE.Quaternion(q0.y, q0.z, q0.x, q0.w).normalize();
       this.baseInverseQuat = initialQuat.clone().invert();
     }
     this.updateShoePose(0);
@@ -209,8 +213,9 @@ export class Shoe3dViewerComponent
       floor.receiveShadow = true;
       this.scene.add(floor);
 
-      // Build Procedural 3D Athletic Shoe Model
-      this.shoeGroup = this.buildProceduralShoe();
+      // Build Procedural 3D Athletic Shoe Model & ISB Axes Helper
+      this.shoeGroup = new THREE.Group();
+      this.rebuildModel();
       this.scene.add(this.shoeGroup);
 
       // Setup Mouse/Touch Orbit Controls
@@ -222,6 +227,46 @@ export class Shoe3dViewerComponent
       console.error('WebGL initialization error:', err);
       this.hasWebGlError.set(true);
     }
+  }
+
+  toggleAxes(): void {
+    this.showAxes.update((v) => !v);
+    if (this.axesGroup) {
+      this.axesGroup.visible = this.showAxes();
+    }
+    this.renderScene();
+  }
+
+  setModel(model: 'sneaker' | 'insole'): void {
+    if (this.selectedModel() === model) return;
+    this.selectedModel.set(model);
+    this.rebuildModel();
+    this.renderScene();
+  }
+
+  private rebuildModel(): void {
+    if (!this.shoeGroup) return;
+
+    // Clear existing children
+    while (this.shoeGroup.children.length > 0) {
+      const child = this.shoeGroup.children[0];
+      this.shoeGroup.remove(child);
+      if ((child as THREE.Mesh).geometry) {
+        (child as THREE.Mesh).geometry.dispose();
+      }
+    }
+
+    // Add selected model mesh
+    const modelMesh =
+      this.selectedModel() === 'insole'
+        ? this.buildProceduralInsoleMesh()
+        : this.buildProceduralShoe();
+    this.shoeGroup.add(modelMesh);
+
+    // Build and attach ISB 3D axes helper to rotate dynamically with the shoe
+    this.axesGroup = this.buildAxesHelper();
+    this.axesGroup.visible = this.showAxes();
+    this.shoeGroup.add(this.axesGroup);
   }
 
   private updateThemeColors(isDark: boolean): void {
@@ -355,6 +400,229 @@ export class Shoe3dViewerComponent
     root.add(led);
 
     return root;
+  }
+
+  /**
+   * Constructs an anatomical orthotic insole (semelle biomécanique clinique)
+   * with arch contour, heel cup, and distinct color-coded FSR pressure sensor pads.
+   */
+  private buildProceduralInsoleMesh(): THREE.Group {
+    const root = new THREE.Group();
+
+    const baseMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a, // Deep slate core
+      roughness: 0.8,
+    });
+    const topCoverMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b, // Technical EVA cushion
+      roughness: 0.6,
+    });
+    const archMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7, // Dynamic arch bridge
+      roughness: 0.4,
+    });
+    const heelSensorMat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4, // Cyan heel strike sensor
+      roughness: 0.2,
+      emissive: 0x06b6d4,
+      emissiveIntensity: 0.35,
+    });
+    const meta1SensorMat = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b, // Amber 1st metatarsal sensor
+      roughness: 0.2,
+      emissive: 0xf59e0b,
+      emissiveIntensity: 0.35,
+    });
+    const meta5SensorMat = new THREE.MeshStandardMaterial({
+      color: 0x10b981, // Emerald 5th metatarsal sensor
+      roughness: 0.2,
+      emissive: 0x10b981,
+      emissiveIntensity: 0.35,
+    });
+    const toeSensorMat = new THREE.MeshStandardMaterial({
+      color: 0x8b5cf6, // Purple big toe sensor
+      roughness: 0.2,
+      emissive: 0x8b5cf6,
+      emissiveIntensity: 0.35,
+    });
+    const clipMat = new THREE.MeshStandardMaterial({
+      color: 0x1e1e24,
+      metalness: 0.7,
+      roughness: 0.3,
+    });
+    const ledMat = new THREE.MeshBasicMaterial({
+      color: 0x10b981, // Glowing emerald LED
+    });
+
+    // 1. Base Insole Plates (Anatomical footprint)
+    const heelPlateGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.05, 24);
+    const heelPlate = new THREE.Mesh(heelPlateGeo, baseMat);
+    heelPlate.position.set(0, 0.025, -0.45);
+    heelPlate.scale.set(0.95, 1, 1.1);
+    heelPlate.castShadow = true;
+    heelPlate.receiveShadow = true;
+    root.add(heelPlate);
+
+    const midfootPlateGeo = new THREE.BoxGeometry(0.56, 0.05, 0.7);
+    const midfootPlate = new THREE.Mesh(midfootPlateGeo, baseMat);
+    midfootPlate.position.set(0, 0.025, 0.0);
+    midfootPlate.castShadow = true;
+    root.add(midfootPlate);
+
+    const forefootPlateGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.05, 24);
+    const forefootPlate = new THREE.Mesh(forefootPlateGeo, baseMat);
+    forefootPlate.position.set(0, 0.025, 0.55);
+    forefootPlate.scale.set(0.98, 1, 1.25);
+    forefootPlate.castShadow = true;
+    root.add(forefootPlate);
+
+    // 2. Medial Arch Support Contour
+    const archGeo = new THREE.CylinderGeometry(0.12, 0.16, 0.45, 16);
+    archGeo.rotateZ(Math.PI / 2);
+    const arch = new THREE.Mesh(archGeo, archMat);
+    arch.position.set(-0.22, 0.06, 0.02);
+    arch.scale.set(1.1, 0.6, 1.3);
+    arch.castShadow = true;
+    root.add(arch);
+
+    // 3. Deep Heel Cup Contours
+    const heelRimGeo = new THREE.TorusGeometry(0.3, 0.04, 12, 24, Math.PI);
+    heelRimGeo.rotateX(Math.PI / 2);
+    heelRimGeo.rotateZ(Math.PI / 2);
+    const heelRim = new THREE.Mesh(heelRimGeo, topCoverMat);
+    heelRim.position.set(0, 0.06, -0.48);
+    heelRim.scale.set(0.92, 1, 1.15);
+    root.add(heelRim);
+
+    // 4. Clinical FSR Pressure Sensor Pads
+    const heelSensorGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.015, 20);
+    const heelSensor = new THREE.Mesh(heelSensorGeo, heelSensorMat);
+    heelSensor.position.set(0, 0.055, -0.42);
+    root.add(heelSensor);
+
+    const meta1SensorGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.015, 18);
+    const meta1Sensor = new THREE.Mesh(meta1SensorGeo, meta1SensorMat);
+    meta1Sensor.position.set(-0.16, 0.055, 0.45);
+    root.add(meta1Sensor);
+
+    const meta5SensorGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.015, 18);
+    const meta5Sensor = new THREE.Mesh(meta5SensorGeo, meta5SensorMat);
+    meta5Sensor.position.set(0.18, 0.055, 0.42);
+    root.add(meta5Sensor);
+
+    const toeSensorGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.015, 18);
+    const toeSensor = new THREE.Mesh(toeSensorGeo, toeSensorMat);
+    toeSensor.position.set(-0.12, 0.055, 0.78);
+    root.add(toeSensor);
+
+    // 5. Lateral Electronics Clip with Status LED
+    const clipGeo = new THREE.BoxGeometry(0.12, 0.16, 0.22);
+    const clip = new THREE.Mesh(clipGeo, clipMat);
+    clip.position.set(0.32, 0.08, -0.25);
+    clip.castShadow = true;
+    root.add(clip);
+
+    const ledGeo = new THREE.SphereGeometry(0.02, 8, 8);
+    const led = new THREE.Mesh(ledGeo, ledMat);
+    led.position.set(0.385, 0.12, -0.25);
+    root.add(led);
+
+    return root;
+  }
+
+  /**
+   * Constructs the 3D ISB coordinate axes helper matching ISB Biomechanical Standard colors:
+   * - X (Antéro-postérieur / Avant): Rouge (0xef4444) along Three.js +Z
+   * - Y (Médio-latéral / Droite): Vert émeraude (0x10b981) along Three.js +X
+   * - Z (Longitudinal / Vertical / Haut): Bleu (0x3b82f6) along Three.js +Y
+   */
+  private buildAxesHelper(): THREE.Group {
+    const axes = new THREE.Group();
+    axes.name = 'isb-axes';
+    axes.position.set(0, 0.45, 0);
+
+    const axisLength = 0.8;
+    const shaftRadius = 0.018;
+    const coneHeight = 0.16;
+    const coneRadius = 0.055;
+
+    // Center pivot sphere
+    const centerSphereGeo = new THREE.SphereGeometry(0.04, 12, 12);
+    const centerMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+    const centerSphere = new THREE.Mesh(centerSphereGeo, centerMat);
+    axes.add(centerSphere);
+
+    // --- 1. X Axis (Antéro-postérieur / Avant) -> along +Z (Red 0xef4444) ---
+    const xMat = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      emissive: 0xef4444,
+      emissiveIntensity: 0.3,
+      roughness: 0.3,
+    });
+    const xShaftGeo = new THREE.CylinderGeometry(shaftRadius, shaftRadius, axisLength, 12);
+    xShaftGeo.rotateX(Math.PI / 2);
+    const xShaft = new THREE.Mesh(xShaftGeo, xMat);
+    xShaft.position.set(0, 0, axisLength / 2);
+    axes.add(xShaft);
+
+    const xConeGeo = new THREE.ConeGeometry(coneRadius, coneHeight, 16);
+    xConeGeo.rotateX(Math.PI / 2);
+    const xCone = new THREE.Mesh(xConeGeo, xMat);
+    xCone.position.set(0, 0, axisLength + coneHeight / 2);
+    axes.add(xCone);
+
+    const xTipGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    const xTip = new THREE.Mesh(xTipGeo, xMat);
+    xTip.position.set(0, 0, axisLength + coneHeight);
+    axes.add(xTip);
+
+    // --- 2. Y Axis (Médio-latéral / Droite) -> along +X (Emerald 0x10b981) ---
+    const yMat = new THREE.MeshStandardMaterial({
+      color: 0x10b981,
+      emissive: 0x10b981,
+      emissiveIntensity: 0.3,
+      roughness: 0.3,
+    });
+    const yShaftGeo = new THREE.CylinderGeometry(shaftRadius, shaftRadius, axisLength, 12);
+    yShaftGeo.rotateZ(-Math.PI / 2);
+    const yShaft = new THREE.Mesh(yShaftGeo, yMat);
+    yShaft.position.set(axisLength / 2, 0, 0);
+    axes.add(yShaft);
+
+    const yConeGeo = new THREE.ConeGeometry(coneRadius, coneHeight, 16);
+    yConeGeo.rotateZ(-Math.PI / 2);
+    const yCone = new THREE.Mesh(yConeGeo, yMat);
+    yCone.position.set(axisLength + coneHeight / 2, 0, 0);
+    axes.add(yCone);
+
+    const yTipGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    const yTip = new THREE.Mesh(yTipGeo, yMat);
+    yTip.position.set(axisLength + coneHeight, 0, 0);
+    axes.add(yTip);
+
+    // --- 3. Z Axis (Longitudinal / Vertical / Haut) -> along +Y (Blue 0x3b82f6) ---
+    const zMat = new THREE.MeshStandardMaterial({
+      color: 0x3b82f6,
+      emissive: 0x3b82f6,
+      emissiveIntensity: 0.3,
+      roughness: 0.3,
+    });
+    const zShaftGeo = new THREE.CylinderGeometry(shaftRadius, shaftRadius, axisLength, 12);
+    const zShaft = new THREE.Mesh(zShaftGeo, zMat);
+    zShaft.position.set(0, axisLength / 2, 0);
+    axes.add(zShaft);
+
+    const zConeGeo = new THREE.ConeGeometry(coneRadius, coneHeight, 16);
+    const zCone = new THREE.Mesh(zConeGeo, zMat);
+    zCone.position.set(0, axisLength + coneHeight / 2, 0);
+    axes.add(zCone);
+
+    const zTipGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    const zTip = new THREE.Mesh(zTipGeo, zMat);
+    zTip.position.set(0, axisLength + coneHeight, 0);
+    axes.add(zTip);
+
+    return axes;
   }
 
   // --- Orbit & Interaction Handlers ---
@@ -587,10 +855,14 @@ export class Shoe3dViewerComponent
     if (!frame) return;
 
     // Convert raw frame quaternion to Three.js orientation space
+    // Sensor ISB Frame -> Three.js Cyclic Permutation:
+    // Three.js X (Right)   <- Sensor Y (Medio-lateral)
+    // Three.js Y (Up)      <- Sensor Z (Vertical / Longitudinal)
+    // Three.js Z (Forward) <- Sensor X (Antéro-postérieur)
     const qRaw = new THREE.Quaternion(
-      frame.q.x,
+      frame.q.y,
       frame.q.z,
-      -frame.q.y,
+      frame.q.x,
       frame.q.w
     ).normalize();
 
