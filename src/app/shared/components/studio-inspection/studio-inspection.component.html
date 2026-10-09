@@ -224,18 +224,26 @@
             </button>
           </div>
         } @else {
-          <!-- 3D Shoe Visualizer & Biomechanical Replay (On-Demand) -->
-          <div class="mb-4">
-            <div class="flex items-center justify-between mb-2">
+          <!-- IMU Chart Component (includes discreet ISB guide at the bottom) -->
+          <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs">
+            <app-imu-chart
+              [readings]="activeReadings()"
+              [playbackTimeSec]="replayPlaybackTime()"
+              (timeSelected)="onReplayTimeSelected($event)"
+            />
+          </div>
+
+          <!-- 3D Shoe Visualizer & Biomechanical Replay (On-Demand, Centered, after charts & ISB) -->
+          <div class="mt-4">
+            <div class="flex justify-center mb-3">
               <button
                 type="button"
                 (click)="toggle3dViewer()"
-                class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="inline-flex items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-50 hover:border-gray-400 transition active:scale-95 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
                 data-testid="toggle-3d-viewer-btn"
               >
-                <span>👟</span>
+                <span class="text-xl sm:text-2xl">👟</span>
                 <span>{{ (show3dViewer() ? 'studio_history.hide_3d_viewer' : 'studio_history.show_3d_viewer') | translate }}</span>
-                <span class="text-[10px] text-gray-400">WebGL / Three.js</span>
               </button>
             </div>
 
@@ -246,15 +254,6 @@
                 (timeSelected)="onReplayTimeSelected($event)"
               />
             }
-          </div>
-
-          <!-- IMU Chart Component -->
-          <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs">
-            <app-imu-chart
-              [readings]="activeReadings()"
-              [playbackTimeSec]="replayPlaybackTime()"
-              (timeSelected)="onReplayTimeSelected($event)"
-            />
           </div>
         }
       </div>

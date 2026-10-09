@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-5xl space-y-6">
+<div class="mx-auto max-w-7xl w-full space-y-6">
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
@@ -163,7 +163,7 @@
         </div>
 
         <!-- Touch Grid with Label Count Badges -->
-        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
           @for (label of predefinedLabels; track label.id) {
             <button
               type="button"
@@ -478,6 +478,27 @@
 
       <!-- IMU Charts Component -->
       <app-imu-chart [readings]="readings()" />
+
+      @if (readings().length > 0) {
+        <!-- 3D Shoe Visualizer Section on demand -->
+        <div class="flex justify-center mb-3">
+          <button
+            type="button"
+            (click)="toggle3dViewer()"
+            class="inline-flex items-center gap-2.5 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-50 hover:border-gray-400 transition active:scale-95 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
+            data-testid="toggle-3d-viewer-btn"
+          >
+            <span class="text-xl sm:text-2xl">👟</span>
+            <span>{{ (show3dViewer() ? 'studio_history.hide_3d_viewer' : 'studio_history.show_3d_viewer') | translate }}</span>
+          </button>
+        </div>
+
+        @if (show3dViewer()) {
+          <div class="mb-4">
+            <app-shoe-3d-viewer [readings]="readings()" />
+          </div>
+        }
+      }
 
       <!-- Bottom Guidance Bar -->
       <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">

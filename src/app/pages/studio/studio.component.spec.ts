@@ -324,8 +324,8 @@ describe('StudioComponent', () => {
     });
     expect(component.state()).toBe('countdown');
 
-    // Fast-forward countdown duration (3000 ms)
-    tick(3000);
+    // Fast-forward countdown duration (3300 ms with safety margin)
+    tick(3300);
     expect(component.state()).toBe('recording');
 
     // Fast-forward recording duration (5000 ms)

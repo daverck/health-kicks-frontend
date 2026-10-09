@@ -191,36 +191,6 @@
         }
       </div>
 
-      <!-- Device hardware health summary chip -->
-      @if (selectedDevice(); as device) {
-        <div class="mt-4 flex flex-wrap items-center gap-3 sm:gap-6 rounded-xl border border-gray-100 bg-gray-50/70 p-3.5 text-xs text-gray-600">
-          <div class="flex items-center gap-2">
-            <span
-              class="h-2 w-2 rounded-full"
-              [class.bg-emerald-500]="device.status === 'online' || device.is_online"
-              [class.bg-gray-400]="device.status !== 'online' && !device.is_online"
-            ></span>
-            <span class="font-semibold text-gray-900">{{ device.name || device.device_id }}</span>
-            <span class="font-mono text-[11px] text-gray-400">({{ device.device_id }})</span>
-          </div>
-          <div class="hidden sm:block h-4 w-px bg-gray-200"></div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-gray-400">{{ 'devices.firmware_col' | translate }} :</span>
-            <span class="font-mono font-semibold text-gray-700">{{ device.firmware_version || 'v1.2.0-esp32s3' }}</span>
-          </div>
-          <div class="hidden sm:block h-4 w-px bg-gray-200"></div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-gray-400">{{ 'devices.calibration_col' | translate }} :</span>
-            <span class="font-medium text-gray-700">
-              @if (device.last_calibration_time) {
-                {{ device.last_calibration_time | date:'short' }}
-              } @else {
-                <span class="italic text-gray-400">{{ 'devices.uncalibrated' | translate }}</span>
-              }
-            </span>
-          </div>
-        </div>
-      }
     }
   </section>
 

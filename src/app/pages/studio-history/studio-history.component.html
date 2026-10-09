@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-7xl space-y-6">
+<div class="w-full space-y-6">
   <!-- Page Header -->
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
@@ -298,21 +298,21 @@
         <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider font-semibold">
           <!-- Row 1: Column Titles -->
           <tr>
-            <th scope="col" class="px-4 py-3 min-w-[140px]">{{ 'studio_history.col_datetime' | translate }}</th>
-            <th scope="col" class="px-4 py-3 min-w-[110px]">{{ 'studio_history.col_status' | translate }}</th>
-            <th scope="col" class="px-4 py-3 min-w-[210px]">{{ 'studio_history.col_device' | translate }}</th>
-            <th scope="col" class="px-4 py-3 min-w-[190px]">{{ 'studio_history.col_label' | translate }}</th>
-            <th scope="col" class="px-4 py-3 min-w-[100px]">{{ 'studio_history.col_samples' | translate }}</th>
-            <th scope="col" class="px-4 py-3 min-w-[100px]">{{ 'studio_history.col_duration' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[120px]">{{ 'studio_history.col_datetime' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[95px]">{{ 'studio_history.col_status' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[130px]">{{ 'studio_history.col_device' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[130px]">{{ 'studio_history.col_label' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[65px]">{{ 'studio_history.col_samples' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[60px]">{{ 'studio_history.col_duration' | translate }}</th>
             @if (isAdmin()) {
-              <th scope="col" class="px-4 py-3 author-col min-w-[140px]">{{ 'studio_history.col_author' | translate }}</th>
+              <th scope="col" class="px-2.5 py-2.5 author-col min-w-[110px]">{{ 'studio_history.col_author' | translate }}</th>
             }
-            <th scope="col" class="px-4 py-3 text-right min-w-[110px]">{{ 'studio_history.col_actions' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 text-right min-w-[85px]">{{ 'studio_history.col_actions' | translate }}</th>
           </tr>
           <!-- Row 2: Filters directly above corresponding columns -->
           <tr class="border-t border-gray-200 bg-gray-50/70 font-normal normal-case">
             <!-- Datetime: Date Filter -->
-            <th scope="col" class="px-4 py-2">
+            <th scope="col" class="px-2 py-1.5">
               <app-date-filter
                 triggerId="filter-date"
                 [(startDate)]="startDate"
@@ -324,7 +324,7 @@
             </th>
 
             <!-- Status Filter -->
-            <th scope="col" class="px-4 py-2">
+            <th scope="col" class="px-2 py-1.5">
               <select
                 id="filter-validated"
                 [ngModel]="selectedValidated()"
@@ -339,7 +339,7 @@
             </th>
 
             <!-- Device Filter -->
-            <th scope="col" class="px-4 py-2">
+            <th scope="col" class="px-2 py-1.5">
               <app-device-select
                 triggerId="filter-device"
                 [devices]="devices()"
@@ -352,7 +352,7 @@
             </th>
 
             <!-- Label Filter -->
-            <th scope="col" class="px-4 py-2">
+            <th scope="col" class="px-2 py-1.5">
               <app-activity-select
                 triggerId="filter-label"
                 [(selectedActivity)]="selectedLabel"
@@ -363,14 +363,14 @@
             </th>
 
             <!-- Samples: no filter -->
-            <th scope="col" class="px-4 py-2"></th>
+            <th scope="col" class="px-2 py-1.5"></th>
 
             <!-- Duration: no filter -->
-            <th scope="col" class="px-4 py-2"></th>
+            <th scope="col" class="px-2 py-1.5"></th>
 
             <!-- Author: Admin user ID filter -->
             @if (isAdmin()) {
-              <th scope="col" class="px-4 py-2 author-col">
+              <th scope="col" class="px-2 py-1.5 author-col">
                 <input
                   id="filter-user-id"
                   type="number"
@@ -383,7 +383,7 @@
             }
 
             <!-- Actions: header reset button if active -->
-            <th scope="col" class="px-4 py-2 text-right">
+            <th scope="col" class="px-2 py-1.5 text-right">
               @if (hasActiveFilters()) {
                 <button
                   id="reset-filters-header-btn"
@@ -442,12 +442,12 @@
                 [class.bg-primary-50]="inspectingSession()?.id === s.id"
               >
                 <!-- Datetime -->
-                <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-900">
+                <td class="whitespace-nowrap px-2.5 py-2.5 font-medium text-gray-900">
                   {{ s.created_at | date:'dd/MM/yyyy HH:mm' }}
                 </td>
 
                 <!-- Status Badge -->
-                <td class="whitespace-nowrap px-4 py-3">
+                <td class="whitespace-nowrap px-2.5 py-2.5">
                   @if (s.is_validated) {
                     <span
                       class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700"
@@ -468,12 +468,12 @@
                 </td>
 
                 <!-- Device ID -->
-                <td class="whitespace-nowrap px-4 py-3 font-mono text-gray-600">
+                <td class="whitespace-nowrap px-2.5 py-2.5 font-mono text-gray-600">
                   {{ s.device_id }}
                 </td>
 
                 <!-- Movement Label -->
-                <td class="whitespace-nowrap px-4 py-3">
+                <td class="whitespace-nowrap px-2.5 py-2.5">
                   <div class="flex items-center gap-1.5">
                     <span
                       class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-semibold shadow-2xs"
@@ -497,24 +497,24 @@
                 </td>
 
                 <!-- Sample count -->
-                <td class="whitespace-nowrap px-4 py-3 text-gray-700">
+                <td class="whitespace-nowrap px-2.5 py-2.5 text-gray-700">
                   <span class="font-semibold">{{ s.sample_count }}</span> pts
                 </td>
 
                 <!-- Duration -->
-                <td class="whitespace-nowrap px-4 py-3 text-gray-600">
+                <td class="whitespace-nowrap px-2.5 py-2.5 text-gray-600">
                   {{ s.duration_sec }}s
                 </td>
 
                 <!-- Author (Admin only) -->
                 @if (isAdmin()) {
-                  <td class="whitespace-nowrap px-4 py-3 text-gray-700 author-cell">
+                  <td class="whitespace-nowrap px-2.5 py-2.5 text-gray-700 author-cell">
                     {{ s.user_email || ('User #' + s.user_id) }}
                   </td>
                 }
 
                 <!-- Actions -->
-                <td class="whitespace-nowrap px-4 py-3 text-right">
+                <td class="whitespace-nowrap px-2.5 py-2.5 text-right">
                   <div class="inline-flex items-center gap-1.5 justify-end">
                     <button
                       [id]="'inspect-btn-' + s.id"

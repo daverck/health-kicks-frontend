@@ -43,11 +43,20 @@ import { StudioSessionSummary } from '../../models/studio-history.model';
 import { exportSessionToJson } from '../../core/utils/export.utils';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
+import { Shoe3dViewerComponent } from '../../shared/components/shoe-3d-viewer/shoe-3d-viewer.component';
 
 @Component({
   selector: 'app-studio',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ImuChartComponent, TranslatePipe, DeviceSelectComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    ImuChartComponent,
+    TranslatePipe,
+    DeviceSelectComponent,
+    Shoe3dViewerComponent,
+  ],
   templateUrl: './studio.component.html',
 })
 export class StudioComponent implements OnInit, OnDestroy {
@@ -128,8 +137,13 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly isValidating = signal<boolean>(false);
   readonly isRefreshingReadings = signal<boolean>(false);
   readonly showDeleteConfirm = signal<boolean>(false);
+  readonly show3dViewer = signal<boolean>(false);
   private lastReadingCount = 0;
   private stableCountRounds = 0;
+
+  toggle3dViewer(): void {
+    this.show3dViewer.update((open) => !open);
+  }
 
   // Dataset statistics & balance guidance
   readonly targetPerClass = 25;
@@ -280,10 +294,11 @@ export class StudioComponent implements OnInit, OnDestroy {
 
     this.clearAllTimers();
     this.state.set('countdown');
-    this.countdownRemainingMs.set(3000);
+    this.countdownRemainingMs.set(3300);
     this.recordingProgressPercent.set(0);
     this.fetchingError.set(false);
     this.readings.set([]);
+    this.show3dViewer.set(false);
 
     this.studioService.startStudioSession(deviceId, {
       label,
@@ -309,11 +324,11 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 2. Step: Countdown (3.0s for 3 physical haptic pulses on ESP32)
+   * 2. Step: Countdown (3.3s with safety margin for 3 physical haptic pulses on ESP32)
    */
   private runCountdown(): void {
     const startTime = Date.now();
-    const duration = 3000;
+    const duration = 3300;
 
     const tick = () => {
       const elapsed = Date.now() - startTime;
@@ -331,7 +346,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * 3. Step: Recording (5.0s progress bar)
+   * 3. Step: Recording (5.0s progress bar + 500ms cloud ingestion margin)
    */
   private runRecording(): void {
     this.state.set('recording');
@@ -380,7 +395,15 @@ export class StudioComponent implements OnInit, OnDestroy {
         if (count > 0) {
           this.readings.set(res.readings);
 
-          const isComplete = count >= 80;
+          // Nominal complete 5-second capture yields 95 ± 1 samples (19 Hz).
+          // Stop polling immediately as soon as nominal count is reached.
+          const isNominalComplete = count >= 94;
+          if (isNominalComplete) {
+            this.state.set('inspecting');
+            this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
+            return;
+          }
+
           if (count === this.lastReadingCount) {
             this.stableCountRounds++;
           } else {
@@ -389,10 +412,14 @@ export class StudioComponent implements OnInit, OnDestroy {
           }
 
           // Ingestion Lambda writes to DynamoDB in 25-item chunks (batch_writer).
-          // If count is a multiple of 25 (<80), remaining chunks are still in flight.
-          const isIncompleteBatch = count % 25 === 0 && count < 80;
+          // If count is a multiple of 25 (<94), remaining chunks are still in flight.
+          const isIncompleteBatch = count % 25 === 0;
 
-          if (isComplete || (!isIncompleteBatch && count > 0) || this.stableCountRounds >= 2 || currentAttempt >= maxAttempts) {
+          if (
+            (!isIncompleteBatch && count > 0) ||
+            this.stableCountRounds >= 3 ||
+            currentAttempt >= maxAttempts
+          ) {
             this.state.set('inspecting');
             this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
             return;
