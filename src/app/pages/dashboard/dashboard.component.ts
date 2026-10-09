@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
-import { DeviceResponse, HapticLogItem, HapticTriggerResponse } from '../../models/api.models';
-import { intensityToLevel, levelToIntensity } from '../../core/utils/haptic.utils';
+import { DeviceResponse, HapticTriggerResponse } from '../../models/api.models';
+import { levelToIntensity } from '../../core/utils/haptic.utils';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
@@ -58,13 +58,9 @@ export class DashboardComponent implements OnInit {
   readonly triggering = signal(false);
   readonly vibrating = signal(false);
 
-  readonly intensityToLevel = intensityToLevel;
-
   setVibrationLevel(level: number): void {
     this.vibrationLevel.set(Math.max(1, Math.min(10, Math.round(level))));
   }
-
-  readonly recentHapticLogs = signal<HapticLogItem[]>([]);
 
   ngOnInit(): void {
     this.loadDevices();
@@ -75,7 +71,6 @@ export class DashboardComponent implements OnInit {
         const found = this.devices().find((d) => d.device_id === deviceId);
         if (found && this.selectedDevice()?.device_id !== found.device_id) {
           this.selectedDevice.set(found);
-          this.loadRecentHapticLogs();
         }
       }
     });
@@ -94,7 +89,6 @@ export class DashboardComponent implements OnInit {
           this.selectedDevice.set(devices[0]);
         }
         this.loadingDevices.set(false);
-        this.loadRecentHapticLogs();
       },
       error: (err) => {
         // No mock fallback: error is propagated to the UI.
@@ -119,7 +113,6 @@ export class DashboardComponent implements OnInit {
       queryParams: { deviceId: device.device_id },
       queryParamsHandling: 'merge',
     });
-    this.loadRecentHapticLogs();
   }
 
   triggerHaptic(): void {
@@ -136,7 +129,6 @@ export class DashboardComponent implements OnInit {
         this.vibrating.set(true);
         setTimeout(() => this.vibrating.set(false), 1200);
         this.toast.success(`Vibration envoyée à ${device.name || device.device_id} !`);
-        this.loadRecentHapticLogs();
       },
       error: (err) => {
         this.triggering.set(false);
@@ -146,15 +138,6 @@ export class DashboardComponent implements OnInit {
             : (err?.error?.detail ?? 'Échec du déclenchement de la vibration.')
         );
       },
-    });
-  }
-
-  loadRecentHapticLogs(): void {
-    const device = this.selectedDevice();
-    if (!device) return;
-    this.deviceService.getHapticHistory(device.device_id, 1, 5).subscribe({
-      next: (page) => this.recentHapticLogs.set(page?.items ?? []),
-      error: () => this.recentHapticLogs.set([]),
     });
   }
 }
