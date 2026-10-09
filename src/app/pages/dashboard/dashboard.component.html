@@ -39,7 +39,7 @@
       </div>
     } @else {
       <!-- Single Searchable Select with Integrated Autocomplete Filter -->
-      <div class="relative mt-4">
+      <div class="relative mt-4 max-w-md">
         <!-- Select Trigger Button -->
         <button
           id="device-select-trigger"
@@ -199,13 +199,6 @@
     <div class="flex items-center justify-between">
       <h2 class="text-lg font-semibold">Contrôle haptique — <span class="font-mono text-sm text-gray-500">{{
           device.device_id }}</span></h2>
-      <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
-        [class.bg-green-100]="device.status === 'online'" [class.text-green-700]="device.status === 'online'"
-        [class.bg-gray-100]="device.status !== 'online'" [class.text-gray-600]="device.status !== 'online'">
-        <span class="h-2 w-2 rounded-full" [class.bg-green-500]="device.status === 'online'"
-          [class.bg-gray-400]="device.status !== 'online'"></span>
-        {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
-      </span>
     </div>
 
     <div class="mt-6 grid gap-6 md:grid-cols-2">
