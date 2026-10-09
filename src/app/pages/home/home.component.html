@@ -46,16 +46,15 @@
         <span
           class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50"
         >
-          ● {{ 'home.badge' | translate }}
+          ● {{ 'home.concept_badge' | translate }}
         </span>
         <h1
           class="mt-5 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
         >
-          {{ 'home.hero_title_1' | translate }}
-          <span class="text-primary-600 block sm:inline"> {{ 'home.hero_title_2' | translate }}</span>
+          {{ 'home.concept_title' | translate }}
         </h1>
         <p class="mt-5 text-base md:text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-          {{ 'home.hero_subtitle' | translate }}
+          {{ 'home.concept_subtitle' | translate }}
         </p>
 
         <!-- Wordplay note : kicks = chaussures (only in non-English locales) -->
@@ -302,22 +301,10 @@
     </div>
   </section>
 
-  <!-- ===== Concept Section ===== -->
-  <section id="concept" class="border-y border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/60 py-20">
+  <!-- ===== Concept Cards ===== -->
+  <section id="concept" class="border-y border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-900/60 py-12 md:py-16">
     <div class="mx-auto max-w-6xl px-4">
-      <div class="mx-auto max-w-3xl text-center">
-        <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-800 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50">
-          {{ 'home.concept_badge' | translate }}
-        </span>
-        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
-          {{ 'home.concept_title' | translate }}
-        </h2>
-        <p class="mt-4 text-base text-gray-600 dark:text-gray-300 md:text-lg">
-          {{ 'home.concept_subtitle' | translate }}
-        </p>
-      </div>
-
-      <div class="mt-12 grid gap-6 md:grid-cols-3">
+      <div class="grid gap-6 md:grid-cols-3">
         <!-- Card 1: Sport & Analyse de foulée -->
         <div class="rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-7 shadow-sm transition hover:shadow-md">
           <div class="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-300">
@@ -366,19 +353,6 @@
     </div>
 
     <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- Fall Detection -->
-      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
-        <div>
-          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_fall_title' | translate }}</h3>
-          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_fall_desc' | translate }}</p>
-        </div>
-      </div>
-
       <!-- Step Counting (Biomechanical Pedometer & Cadence) -->
       <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
         <div>
@@ -402,6 +376,19 @@
           </div>
           <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_inactivity_title' | translate }}</h3>
           <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_inactivity_desc' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Fall Detection -->
+      <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
+        <div>
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_fall_title' | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_fall_desc' | translate }}</p>
         </div>
       </div>
     </div>
