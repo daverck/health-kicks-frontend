@@ -49,12 +49,12 @@ describe('HomeComponent', () => {
   it('should translate navbar and hero content when language changes', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Connexion');
-    expect(compiled.textContent).toContain('Sport & Analyse de foulée');
+    expect(compiled.textContent).toContain('Podomètre');
 
     translationService.setLanguage('en');
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Sign In');
-    expect(compiled.textContent).toContain('Sports & Stride Analytics');
+    expect(compiled.textContent).toContain('Pedometer');
   });
 
   it('should render unauthenticated CTAs when user is not logged in', () => {
@@ -70,7 +70,7 @@ describe('HomeComponent', () => {
     expect(navRegister).toBeTruthy();
     expect(navDashboard).toBeNull();
 
-    // Hero has register primary CTA and concept anchor
+    // Hero has register primary CTA and features anchor
     const heroCtas = compiled.querySelectorAll('section a');
     const heroRegister = compiled.querySelector('section a[routerlink="/register"]');
     expect(heroRegister?.textContent?.trim()).toContain('Commencer gratuitement');
@@ -108,19 +108,18 @@ describe('HomeComponent', () => {
     expect(ctaSection?.textContent).not.toContain('Déjà un compte ? Se connecter');
   });
 
-  it('should highlight the sports concept, active pedometer, and available features', () => {
+  it('should highlight the active pedometer, fall detection, and inactivity reminder', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
-    // Concept section
+    // Concept section is removed
     const concept = compiled.querySelector('#concept');
-    expect(concept?.textContent).toContain('Sport & Analyse de foulée');
-    expect(concept?.textContent).toContain('Bienveillant');
-    expect(concept?.textContent).toContain('Économique');
+    expect(concept).toBeNull();
 
     // Features section with active items
     const features = compiled.querySelector('#features');
     expect(features?.textContent).toContain('Détection de chute en temps réel');
-    expect(features?.textContent).toContain('Podomètre biomécanique & Cadence');
+    expect(features?.textContent).toContain('Podomètre');
+    expect(features?.textContent).toContain('temps de contact au sol (expérimental)');
     expect(features?.textContent).toContain('Rappel anti-inactivité prolongée');
     expect(features?.textContent).not.toContain('Stimulation haptique à distance');
     expect(features?.textContent).not.toContain('Disponible · Edge AI');
