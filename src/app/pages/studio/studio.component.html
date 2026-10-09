@@ -18,74 +18,76 @@
   </div>
 
   <!-- Device Selection Bar -->
-  <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-      <div class="flex flex-wrap items-center gap-3">
-        <label for="device-select-btn" class="text-sm font-medium text-gray-700">{{ 'studio.target_device' | translate }}</label>
-        @if (devicesLoading()) {
-          <span class="text-sm text-gray-500">{{ 'studio.searching_devices' | translate }}</span>
-        } @else if (devices().length === 0) {
-          <span class="text-sm font-semibold text-amber-600">{{ 'studio.no_paired_devices' | translate }}</span>
-        } @else if (onlineDevices().length === 0) {
-          <div class="flex items-center gap-2 text-sm text-amber-700">
-            <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
-            <span class="font-medium">{{ 'studio.no_online_devices' | translate }}</span>
-            <span class="text-xs text-gray-500">{{ 'studio.turn_on_insoles' | translate }}</span>
-          </div>
-        } @else {
-          <!-- Single Searchable Select with Integrated Autocomplete Filter -->
-          <div
-            class="relative"
-            [attr.title]="state() !== 'idle' ? ('studio.locked_tooltip' | translate) : null"
-          >
-            <app-device-select
-              triggerId="device-select-btn"
-              [devices]="devices()"
-              [(selectedDeviceId)]="selectedDeviceId"
-              (deviceIdChange)="onDeviceSelect($event)"
-              [onlyOnline]="true"
-              [disabled]="state() !== 'idle'"
-              size="sm"
-            />
-          </div>
-        }
-      </div>
-
-      <!-- Current Step Badge -->
-      <div class="flex items-center gap-2">
-        <span class="text-xs uppercase tracking-wider text-gray-400">{{ 'studio.status_label' | translate }}</span>
-        <span
-          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
-          [class.bg-green-100]="state() === 'idle'"
-          [class.text-green-800]="state() === 'idle'"
-          [class.bg-amber-100]="state() === 'countdown'"
-          [class.text-amber-800]="state() === 'countdown'"
-          [class.bg-blue-100]="state() === 'recording'"
-          [class.text-blue-800]="state() === 'recording'"
-          [class.bg-purple-100]="state() === 'fetching'"
-          [class.text-purple-800]="state() === 'fetching'"
-          [class.bg-emerald-100]="state() === 'inspecting'"
-          [class.text-emerald-800]="state() === 'inspecting'"
-        >
-          <span
-            class="h-2 w-2 rounded-full"
-            [class.bg-green-500]="state() === 'idle'"
-            [class.bg-amber-500]="state() === 'countdown'"
-            [class.bg-blue-500]="state() === 'recording'"
-            [class.bg-purple-500]="state() === 'fetching'"
-            [class.bg-emerald-500]="state() === 'inspecting'"
-          ></span>
-          @switch (state()) {
-            @case ('idle') { {{ 'studio.step_idle' | translate }} }
-            @case ('countdown') { {{ 'studio.step_countdown' | translate }} }
-            @case ('recording') { {{ 'studio.step_recording' | translate }} }
-            @case ('fetching') { {{ 'studio.step_fetching' | translate }} }
-            @case ('inspecting') { {{ 'studio.step_inspecting' | translate }} }
+  @if (state() !== 'inspecting') {
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <label for="device-select-btn" class="text-sm font-medium text-gray-700">{{ 'studio.target_device' | translate }}</label>
+          @if (devicesLoading()) {
+            <span class="text-sm text-gray-500">{{ 'studio.searching_devices' | translate }}</span>
+          } @else if (devices().length === 0) {
+            <span class="text-sm font-semibold text-amber-600">{{ 'studio.no_paired_devices' | translate }}</span>
+          } @else if (onlineDevices().length === 0) {
+            <div class="flex items-center gap-2 text-sm text-amber-700">
+              <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
+              <span class="font-medium">{{ 'studio.no_online_devices' | translate }}</span>
+              <span class="text-xs text-gray-500">{{ 'studio.turn_on_insoles' | translate }}</span>
+            </div>
+          } @else {
+            <!-- Single Searchable Select with Integrated Autocomplete Filter -->
+            <div
+              class="relative"
+              [attr.title]="state() !== 'idle' ? ('studio.locked_tooltip' | translate) : null"
+            >
+              <app-device-select
+                triggerId="device-select-btn"
+                [devices]="devices()"
+                [(selectedDeviceId)]="selectedDeviceId"
+                (deviceIdChange)="onDeviceSelect($event)"
+                [onlyOnline]="true"
+                [disabled]="state() !== 'idle'"
+                size="sm"
+              />
+            </div>
           }
-        </span>
+        </div>
+
+        <!-- Current Step Badge -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs uppercase tracking-wider text-gray-400">{{ 'studio.status_label' | translate }}</span>
+          <span
+            class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+            [class.bg-green-100]="state() === 'idle'"
+            [class.text-green-800]="state() === 'idle'"
+            [class.bg-amber-100]="state() === 'countdown'"
+            [class.text-amber-800]="state() === 'countdown'"
+            [class.bg-blue-100]="state() === 'recording'"
+            [class.text-blue-800]="state() === 'recording'"
+            [class.bg-purple-100]="state() === 'fetching'"
+            [class.text-purple-800]="state() === 'fetching'"
+            [class.bg-emerald-100]="state() === 'inspecting'"
+            [class.text-emerald-800]="state() === 'inspecting'"
+          >
+            <span
+              class="h-2 w-2 rounded-full"
+              [class.bg-green-500]="state() === 'idle'"
+              [class.bg-amber-500]="state() === 'countdown'"
+              [class.bg-blue-500]="state() === 'recording'"
+              [class.bg-purple-500]="state() === 'fetching'"
+              [class.bg-emerald-500]="state() === 'inspecting'"
+            ></span>
+            @switch (state()) {
+              @case ('idle') { {{ 'studio.step_idle' | translate }} }
+              @case ('countdown') { {{ 'studio.step_countdown' | translate }} }
+              @case ('recording') { {{ 'studio.step_recording' | translate }} }
+              @case ('fetching') { {{ 'studio.step_fetching' | translate }} }
+              @case ('inspecting') { {{ 'studio.step_inspecting' | translate }} }
+            }
+          </span>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- STEP 1: IDLE - Movement Label Choice & Launch -->
   @if (state() === 'idle') {
@@ -476,6 +478,14 @@
         </div>
       </div>
 
+      <!-- Inspection Guidance Notice (Placed right after actions header, before charts) -->
+      <div class="rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/70 dark:bg-blue-950/20 p-3.5 text-center shadow-2xs">
+        <p class="text-xs text-blue-900 dark:text-blue-200 flex items-center justify-center gap-2">
+          <span>💡</span>
+          <span>{{ 'studio.inspect_guidance' | translate }}</span>
+        </p>
+      </div>
+
       <!-- IMU Charts Component -->
       <app-imu-chart [readings]="readings()" />
 
@@ -499,13 +509,6 @@
           </div>
         }
       }
-
-      <!-- Bottom Guidance Bar -->
-      <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-        <p class="text-xs text-gray-600">
-          {{ 'studio.inspect_guidance' | translate }}
-        </p>
-      </div>
     </div>
   }
 

@@ -420,6 +420,7 @@ describe('StudioComponent', () => {
     expect(exportBtn).toBeTruthy();
     expect(rejectBtn).toBeTruthy();
     expect(validateBtn).toBeTruthy();
+    expect(compiled.querySelector('#device-select-btn')).toBeNull();
 
     // Verify action buttons in the inspecting header actions
     const inspectActions = compiled.querySelector('#inspect-actions');
