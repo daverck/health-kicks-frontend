@@ -470,7 +470,7 @@ describe('StudioComponent', () => {
     expect(component.classesReachingTarget()).toBe(2);
   });
 
-  it('should render dataset summary banner, label badges and exact count chips in UI', () => {
+  it('should render dataset summary banner and exact count chips in UI', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -478,27 +478,19 @@ describe('StudioComponent', () => {
     expect(summaryBanner).toBeTruthy();
     expect(summaryBanner?.textContent).toContain('80');
 
-    const badges = compiled.querySelectorAll('.label-badge');
-    expect(badges.length).toBe(component.predefinedLabels.length);
-
-    // First label is 'walk' with count 28 (>= 25, green styling with checkmark and exact count / 25)
-    expect(badges[0].textContent).toContain('28');
-    expect(badges[0].textContent).toContain('/ 25');
-    expect(badges[0].textContent).toContain('✓');
-    expect(badges[0].classList.contains('bg-emerald-100')).toBeTrue();
-
-    // Second label is 'idle' with count 0 (< 25, neutral styling)
-    expect(badges[1].textContent).toContain('0');
-    expect(badges[1].textContent).toContain('/ 25');
-    expect(badges[1].classList.contains('bg-gray-100')).toBeTrue();
-
     // Verify exact count chip inside the card
     const exactCountChips = compiled.querySelectorAll('.label-exact-count');
     expect(exactCountChips.length).toBe(component.predefinedLabels.length);
+
+    // First label is 'walk' with count 28 (>= 25, green styling with exact count / 25)
     expect(exactCountChips[0].textContent).toContain('28');
     expect(exactCountChips[0].textContent).toContain('/ 25');
+    expect(exactCountChips[0].classList.contains('bg-emerald-50')).toBeTrue();
+
+    // Second label is 'idle' with count 0 (< 25, neutral styling)
     expect(exactCountChips[1].textContent).toContain('0');
     expect(exactCountChips[1].textContent).toContain('/ 25');
+    expect(exactCountChips[1].classList.contains('bg-gray-50')).toBeTrue();
   });
 
   it('should refresh dataset stats when validating a session', () => {

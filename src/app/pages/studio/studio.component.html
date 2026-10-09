@@ -142,22 +142,6 @@
               [class.bg-white]="selectedLabel() !== label.id || customLabel()"
               [class.text-gray-700]="selectedLabel() !== label.id || customLabel()"
             >
-              <!-- Discrete count badge on top right -->
-              <span
-                class="label-badge absolute right-2 top-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold shadow-xs transition"
-                [class.bg-emerald-100]="getCountForLabel(label.id) >= targetPerClass"
-                [class.text-emerald-800]="getCountForLabel(label.id) >= targetPerClass"
-                [class.bg-amber-100]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
-                [class.text-amber-800]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
-                [class.bg-gray-100]="getCountForLabel(label.id) === 0"
-                [class.text-gray-500]="getCountForLabel(label.id) === 0"
-                [title]="'studio.sessions_count_badge' | translate:{ count: getCountForLabel(label.id) }"
-              >
-                @if (getCountForLabel(label.id) >= targetPerClass) {
-                  <span>✓</span>
-                }
-                {{ getCountForLabel(label.id) }} / {{ targetPerClass }}
-              </span>
 
               <div
                 class="mt-1 flex h-12 w-12 items-center justify-center rounded-2xl transition duration-200"
