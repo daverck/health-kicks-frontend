@@ -49,12 +49,12 @@ describe('HomeComponent', () => {
   it('should translate navbar and hero content when language changes', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.textContent).toContain('Connexion');
-    expect(compiled.textContent).toContain('Clip universel sur lacets');
+    expect(compiled.textContent).toContain('Sport & Analyse de foulée');
 
     translationService.setLanguage('en');
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Sign In');
-    expect(compiled.textContent).toContain('Universal Shoelace Clip');
+    expect(compiled.textContent).toContain('Sports & Stride Analytics');
   });
 
   it('should render unauthenticated CTAs when user is not logged in', () => {
@@ -108,23 +108,23 @@ describe('HomeComponent', () => {
     expect(ctaSection?.textContent).not.toContain('Déjà un compte ? Se connecter');
   });
 
-  it('should highlight the shoe-clip concept, active pedometer, and roadmap features', () => {
+  it('should highlight the sports concept, active pedometer, and available features', () => {
     const compiled = fixture.nativeElement as HTMLElement;
 
     // Concept section
     const concept = compiled.querySelector('#concept');
-    expect(concept?.textContent).toContain('Clip universel sur lacets');
-    expect(concept?.textContent).toContain('Économique & Léger');
-    expect(concept?.textContent).toContain('Discret & Bienveillant');
+    expect(concept?.textContent).toContain('Sport & Analyse de foulée');
+    expect(concept?.textContent).toContain('Bienveillant');
+    expect(concept?.textContent).toContain('Économique');
 
-    // Features section with active and roadmap items
+    // Features section with active items
     const features = compiled.querySelector('#features');
     expect(features?.textContent).toContain('Détection de chute en temps réel');
-    expect(features?.textContent).toContain('Stimulation haptique à distance');
     expect(features?.textContent).toContain('Podomètre biomécanique & Cadence');
-    expect(features?.textContent).toContain('Disponible · Edge AI');
     expect(features?.textContent).toContain('Rappel anti-inactivité prolongée');
-    expect(features?.textContent).toContain('Bientôt disponible');
+    expect(features?.textContent).not.toContain('Stimulation haptique à distance');
+    expect(features?.textContent).not.toContain('Disponible · Edge AI');
+    expect(features?.textContent).not.toContain('Bientôt disponible');
   });
 
   it('should display the wordplay note in French and hide it in English', () => {
