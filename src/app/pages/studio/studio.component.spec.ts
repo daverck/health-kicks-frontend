@@ -213,7 +213,7 @@ describe('StudioComponent', () => {
     expect(component.isDeviceDropdownOpen()).toBeFalse();
   });
 
-  it('should render a single searchable device select button and apply green styling to "Prêt" badge in idle state', () => {
+  it('should render a single searchable device select button without obsolete status badge', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
@@ -224,14 +224,11 @@ describe('StudioComponent', () => {
     const nativeSelect = compiled.querySelector('#device-select');
     expect(nativeSelect).toBeNull();
 
-    // Verify "Prêt" badge is green
-    const statusBadge = compiled.querySelector('.rounded-full.font-bold');
-    expect(statusBadge?.classList.contains('bg-green-100')).toBeTrue();
-    expect(statusBadge?.classList.contains('text-green-800')).toBeTrue();
-
-    // Verify dot is green
-    const statusDot = statusBadge?.querySelector('span');
-    expect(statusDot?.classList.contains('bg-green-500')).toBeTrue();
+    // Verify redundant status badge in target device bar has been removed
+    const statusLabel = Array.from(compiled.querySelectorAll('span')).find(
+      (el) => el.textContent?.includes('studio.status_label') || el.textContent?.includes('Statut :'),
+    );
+    expect(statusLabel).toBeUndefined();
   });
 
   it('should compute effectiveLabel accurately with predefined and custom labels', () => {
