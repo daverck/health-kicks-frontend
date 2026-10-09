@@ -96,7 +96,7 @@ export const fr = {
     mockup_vibration: 'Vibration envoyée · 250 ms',
     mockup_clip: 'Fixation lacets universelle',
     wordplay_badge: 'Le saviez-vous ?',
-    wordplay_text: '« Kicks » est le terme familier désignant les baskets et chaussures. Health Kicks donne une voix et une intelligence bienveillante à vos chaussures du quotidien.',
+    wordplay_text: '« Kicks » est le terme familier désignant les baskets et chaussures. Health Kicks donne une intelligence bienveillante à vos chaussures du quotidien.',
     sim_live_badge: 'Capteur clipsé · En direct',
     sim_btn_walk: 'Marche',
     sim_btn_fall: 'Alerte chute',
