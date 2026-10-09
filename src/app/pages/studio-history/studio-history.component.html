@@ -590,12 +590,13 @@
       </div>
     </div>
   }
+</div>
 
   <!-- INSPECTION DRAWER (Slide-over panel) -->
   @if (inspectingSession(); as session) {
     <!-- Backdrop -->
     <div
-      class="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity"
+      class="fixed inset-0 !m-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity"
       (click)="closeInspection()"
       aria-hidden="true"
     ></div>
@@ -603,7 +604,7 @@
     <!-- Drawer Panel -->
     <aside
       id="inspection-drawer"
-      class="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col bg-white shadow-2xl transition-transform duration-200 overflow-hidden"
+      class="fixed inset-y-0 right-0 !m-0 z-50 flex w-full max-w-2xl flex-col bg-white shadow-2xl transition-transform duration-200 overflow-hidden"
       role="dialog"
       aria-modal="true"
       [attr.aria-label]="'studio_history.drawer_title' | translate"
@@ -628,10 +629,12 @@
   @if (sessionToDelete(); as session) {
     <!-- Backdrop -->
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs transition-opacity"
+      id="delete-session-modal"
+      class="fixed inset-0 !m-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity"
       (click)="cancelPromptDelete()"
       role="dialog"
       aria-modal="true"
+      aria-labelledby="delete-session-title"
     >
       <div
         class="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl space-y-4"
@@ -677,4 +680,3 @@
       </div>
     </div>
   }
-</div>

@@ -179,12 +179,13 @@
     </button>
   </div>
   }
+</div>
 
   <!-- ======================================================== -->
   <!-- MODAL : ASSOCIER UN ÉQUIPEMENT                          -->
   <!-- ======================================================== -->
   @if (showAddModal()) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+  <div class="fixed inset-0 !m-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
     <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl transition-all">
       <!-- Modal Header -->
       <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -291,7 +292,7 @@
   <!-- MODAL : CONFIRMATION DISSOCIATION                       -->
   <!-- ======================================================== -->
   @if (deviceToUnbind(); as device) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+  <div class="fixed inset-0 !m-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
     <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
       <div class="flex items-start gap-4">
         <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
@@ -336,4 +337,3 @@
     </div>
   </div>
   }
-</div>
