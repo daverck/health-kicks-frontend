@@ -7,6 +7,9 @@ export type StudioActivityCode =
   | 'walk'
   | 'run'
   | 'stairs'
+  | 'stairs_up'
+  | 'stairs_down'
+  | 'jump'
   | 'stumble_recover'
   | 'fall_forward'
   | 'fall_backward'
@@ -50,8 +53,29 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
     id: 'stairs',
     name: 'Escaliers',
     icon: '🪜',
-    description: 'Montée ou descente de marches',
+    description: 'Montée ou descente générale de marches',
     badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+  },
+  {
+    id: 'stairs_up',
+    name: 'Escaliers (Montée)',
+    icon: '↗️',
+    description: 'Montée continue de marches d’escalier',
+    badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+  },
+  {
+    id: 'stairs_down',
+    name: 'Escaliers (Descente)',
+    icon: '↘️',
+    description: 'Descente continue de marches d’escalier',
+    badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+  },
+  {
+    id: 'jump',
+    name: 'Saut',
+    icon: '🦘',
+    description: 'Impulsion verticale avec atterrissage dynamique',
+    badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
   },
   {
     id: 'stumble_recover',

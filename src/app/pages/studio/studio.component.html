@@ -195,7 +195,19 @@
                 {{ getCountForLabel(label.id) }} / {{ targetPerClass }}
               </span>
 
-              <span class="text-3xl mt-1">{{ label.icon }}</span>
+              <div
+                class="mt-1 flex h-12 w-12 items-center justify-center rounded-2xl transition duration-200"
+                [class.bg-primary-100]="selectedLabel() === label.id && !customLabel()"
+                [class.text-primary-700]="selectedLabel() === label.id && !customLabel()"
+                [class.bg-gray-100]="selectedLabel() !== label.id || customLabel()"
+                [class.text-gray-600]="selectedLabel() !== label.id || customLabel()"
+                [class.dark:bg-primary-950/60]="selectedLabel() === label.id && !customLabel()"
+                [class.dark:text-primary-300]="selectedLabel() === label.id && !customLabel()"
+                [class.dark:bg-gray-800]="selectedLabel() !== label.id || customLabel()"
+                [class.dark:text-gray-300]="selectedLabel() !== label.id || customLabel()"
+              >
+                <app-activity-icon [activityId]="label.id" [size]="28" />
+              </div>
               <span class="mt-2 text-sm font-semibold">{{ 'studio.labels.' + label.id | translate }}</span>
               <span class="mt-0.5 text-[11px] text-gray-400">{{ 'studio.labels.' + label.id + '_desc' | translate }}</span>
 
@@ -327,7 +339,7 @@
   @if (state() === 'recording') {
     <div class="flex flex-col items-center justify-center rounded-2xl border border-blue-200 bg-blue-50/70 p-12 text-center shadow-sm">
       <div class="relative flex h-24 w-24 items-center justify-center rounded-full bg-blue-100 ring-8 ring-blue-200/50">
-        <span class="text-4xl animate-bounce">🏃</span>
+        <app-activity-icon [activityId]="effectiveLabel()" [size]="44" className="text-blue-600 animate-bounce" />
       </div>
       <h2 class="mt-6 text-2xl font-extrabold text-blue-900">{{ 'studio.recording_title' | translate }}</h2>
       <p class="mt-2 max-w-md text-sm text-blue-800">

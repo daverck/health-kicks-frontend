@@ -9,10 +9,10 @@ import {
 } from './studio.model';
 
 describe('Studio Model Definitions', () => {
-  it('should define exactly 9 standard studio labels', () => {
-    expect(PREDEFINED_LABELS.length).toBe(9);
-    expect(STANDARD_STUDIO_LABELS.length).toBe(9);
-    expect(STANDARD_STUDIO_LABEL_IDS.size).toBe(9);
+  it('should define exactly 12 standard studio labels', () => {
+    expect(PREDEFINED_LABELS.length).toBe(12);
+    expect(STANDARD_STUDIO_LABELS.length).toBe(12);
+    expect(STANDARD_STUDIO_LABEL_IDS.size).toBe(12);
   });
 
   it('should identify standard labels accurately', () => {
@@ -21,6 +21,9 @@ describe('Studio Model Definitions', () => {
       'idle',
       'run',
       'stairs',
+      'stairs_up',
+      'stairs_down',
+      'jump',
       'stumble_recover',
       'fall_forward',
       'fall_backward',
@@ -35,7 +38,7 @@ describe('Studio Model Definitions', () => {
   });
 
   it('should identify custom/experimental labels accurately', () => {
-    const customKeys = ['jump', 'sprint', 'dance', 'squat', 'custom_motion', 'limping'];
+    const customKeys = ['sprint', 'dance', 'squat', 'custom_motion', 'limping'];
 
     for (const key of customKeys) {
       expect(isStandardStudioLabel(key)).toBeFalse();
