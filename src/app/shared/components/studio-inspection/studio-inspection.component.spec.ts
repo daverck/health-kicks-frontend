@@ -84,7 +84,7 @@ describe('StudioInspectionComponent', () => {
   });
 
   it('should update label and emit sessionUpdated', () => {
-    fixture.componentRef.setInput('session', mockStudioSessionSummaries[0]);
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
     fixture.detectChanges();
 
     component.labelEditMode.set('predefined');
@@ -101,7 +101,7 @@ describe('StudioInspectionComponent', () => {
   });
 
   it('should support custom label editing', () => {
-    fixture.componentRef.setInput('session', mockStudioSessionSummaries[0]);
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
     fixture.detectChanges();
 
     component.labelEditMode.set('custom');
@@ -206,6 +206,7 @@ describe('StudioInspectionComponent', () => {
       ...mockStudioSessionSummaries[0],
       id: 'sess-custom-001',
       label: 'moonwalk',
+      is_validated: false,
     };
 
     fixture.componentRef.setInput('session', customSession);
@@ -250,5 +251,37 @@ describe('StudioInspectionComponent', () => {
 
     expect(component.show3dViewer()).toBeFalse();
     expect(compiled.querySelector('app-shoe-3d-viewer')).toBeNull();
+  });
+
+  it('should prevent label editing and display locked banner when session is validated', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
+    fixture.detectChanges();
+
+    component.labelEditMode.set('predefined');
+    component.editLabelValue.set('run');
+
+    expect(component.canSaveLabel()).toBeFalse();
+
+    component.updateLabel();
+    expect(mockStudioHistoryService.updateSessionLabel).not.toHaveBeenCalled();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const lockedBanner = compiled.querySelector('[data-testid="label-locked-banner"]');
+    expect(lockedBanner).toBeTruthy();
+
+    const updateBtn = compiled.querySelector('#update-label-btn');
+    expect(updateBtn).toBeNull();
+  });
+
+  it('should allow label editing and hide locked banner when session is unvalidated', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const lockedBanner = compiled.querySelector('[data-testid="label-locked-banner"]');
+    expect(lockedBanner).toBeNull();
+
+    const updateBtn = compiled.querySelector('#update-label-btn');
+    expect(updateBtn).toBeTruthy();
   });
 });

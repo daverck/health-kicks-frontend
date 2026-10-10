@@ -450,6 +450,8 @@ export const fr = {
     label_standard_tag: 'Modèle ML',
     save_label: 'Mettre à jour',
     label_updated: 'Label de la session mis à jour avec succès.',
+    label_locked_title: 'Label validé & verrouillé',
+    label_locked_desc: 'Cette session est validée. Son label d\'activité ne peut plus être modifié.',
     delete_session: 'Supprimer la session',
     delete_confirm: 'Êtes-vous sûr de vouloir supprimer définitivement cette session et ses points DynamoDB ?',
     session_deleted: 'Session supprimée avec succès.',

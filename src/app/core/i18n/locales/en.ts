@@ -471,6 +471,8 @@ export const en = {
     label_standard_tag: 'ML Model',
     save_label: 'Update Label',
     label_updated: 'Session label updated successfully.',
+    label_locked_title: 'Label Validated & Locked',
+    label_locked_desc: 'This session is validated. Its activity label can no longer be modified.',
     delete_session: 'Delete Session',
     delete_confirm: 'Are you sure you want to permanently delete this session and its DynamoDB readings?',
     session_deleted: 'Session deleted successfully.',

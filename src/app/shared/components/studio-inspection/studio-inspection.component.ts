@@ -109,7 +109,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
 
   readonly canSaveLabel = computed<boolean>(() => {
     const currentSession = this.session();
-    if (!currentSession) return false;
+    if (!currentSession || currentSession.is_validated) return false;
     const target = this.effectiveEditLabel();
     return Boolean(target) && target !== currentSession.label;
   });
@@ -192,7 +192,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   updateLabel(): void {
     const current = this.session();
     const newLabel = this.effectiveEditLabel();
-    if (!current || !newLabel || newLabel === current.label) {
+    if (!current || current.is_validated || !newLabel || newLabel === current.label) {
       return;
     }
 
