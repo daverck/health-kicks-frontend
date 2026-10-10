@@ -148,4 +148,18 @@ describe('Shoe3dViewerComponent', () => {
     fixture.detectChanges();
     expect(compiled.querySelector('[data-testid="hud-accel-legend"]')).toBeNull();
   });
+
+  it('should render replay controller bar and play button outside the canvas viewport', () => {
+    fixture.componentRef.setInput('readings', mockReadings);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const playBtn = compiled.querySelector('[data-testid="replay-play-btn"]') as HTMLButtonElement;
+    expect(playBtn).toBeTruthy();
+    expect(playBtn.textContent).toContain('Lecture');
+
+    const canvasViewport = compiled.querySelector('.relative.w-full.h-72');
+    expect(canvasViewport).toBeTruthy();
+    expect(canvasViewport?.contains(playBtn)).toBeFalse();
+  });
 });
