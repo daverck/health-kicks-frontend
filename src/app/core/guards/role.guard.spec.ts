@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { signal } from '@angular/core';
+import { of, throwError, firstValueFrom, Observable } from 'rxjs';
 import { clinicianOrAdminGuard } from './role.guard';
 import { AuthService } from '../services/auth.service';
 import { UserResponse } from '../../models/api.models';
@@ -10,6 +11,7 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
     isAuthenticated: jasmine.Spy;
     currentUser: ReturnType<typeof signal<UserResponse | null>>;
     user: ReturnType<typeof signal<UserResponse | null>>;
+    loadMe: jasmine.Spy;
   };
   let router: Router;
 
@@ -40,6 +42,7 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
       isAuthenticated: jasmine.createSpy('isAuthenticated'),
       currentUser: userSignal,
       user: userSignal,
+      loadMe: jasmine.createSpy('loadMe').and.returnValue(of(mockClinician)),
     };
 
     TestBed.configureTestingModule({
@@ -105,6 +108,55 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
     const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
     expect(result).not.toBeTrue();
     expect(router.createUrlTree).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('should call loadMe when authenticated but currentUser is not yet loaded, and allow clinician', async () => {
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+    authServiceSpy.currentUser.set(null);
+    authServiceSpy.loadMe.and.returnValue(of(mockClinician));
+
+    const dummyRoute = {} as ActivatedRouteSnapshot;
+    const dummyState = { url: '/dashboard/studio/history/session-123' } as RouterStateSnapshot;
+
+    const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
+    expect(authServiceSpy.loadMe).toHaveBeenCalled();
+
+    const allowed = await firstValueFrom(result as Observable<boolean | UrlTree>);
+    expect(allowed).toBeTrue();
+  });
+
+  it('should call loadMe when authenticated but currentUser is not yet loaded, and redirect regular user to /dashboard', async () => {
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+    authServiceSpy.currentUser.set(null);
+    authServiceSpy.loadMe.and.returnValue(of(mockUser));
+
+    const dummyRoute = {} as ActivatedRouteSnapshot;
+    const dummyState = { url: '/dashboard/studio/history/session-123' } as RouterStateSnapshot;
+
+    const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
+    expect(authServiceSpy.loadMe).toHaveBeenCalled();
+
+    const tree = await firstValueFrom(result as Observable<boolean | UrlTree>);
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/dashboard']);
+    expect(tree).toEqual(jasmine.objectContaining({ commands: ['/dashboard'] }));
+  });
+
+  it('should call loadMe and redirect to /login if loadMe fails with 401/error', async () => {
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+    authServiceSpy.currentUser.set(null);
+    authServiceSpy.loadMe.and.returnValue(throwError(() => new Error('Session expired')));
+
+    const dummyRoute = {} as ActivatedRouteSnapshot;
+    const dummyState = { url: '/dashboard/studio/history/session-123' } as RouterStateSnapshot;
+
+    const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
+    expect(authServiceSpy.loadMe).toHaveBeenCalled();
+
+    const tree = await firstValueFrom(result as Observable<boolean | UrlTree>);
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/login'], {
+      queryParams: { returnUrl: '/dashboard/studio/history/session-123' },
+    });
+    expect(tree).toEqual(jasmine.objectContaining({ commands: ['/login'] }));
   });
 });
 

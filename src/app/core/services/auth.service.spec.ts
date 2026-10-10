@@ -336,18 +336,43 @@ describe('AuthService', () => {
       });
     });
 
-    it('should remove both access_token and refresh_token on clearSession()', () => {
+    it('should remove access_token, refresh_token and hk_user on clearSession()', () => {
       localStorage.setItem('access_token', 'at');
       localStorage.setItem('refresh_token', 'rt');
       localStorage.setItem('hk_access_token', 'at');
+      localStorage.setItem('hk_user', JSON.stringify(mockUser));
 
       service.clearSession();
 
       expect(localStorage.getItem('access_token')).toBeNull();
       expect(localStorage.getItem('refresh_token')).toBeNull();
       expect(localStorage.getItem('hk_access_token')).toBeNull();
+      expect(localStorage.getItem('hk_user')).toBeNull();
       expect(service.token()).toBeNull();
       expect(service.user()).toBeNull();
+    });
+
+    it('should restore user profile from localStorage hk_user on initialization', () => {
+      localStorage.setItem('hk_user', JSON.stringify(mockUser));
+      localStorage.setItem('hk_access_token', 'sample-token');
+
+      const newService = TestBed.runInInjectionContext(() => new AuthService());
+      expect(newService.user()).toEqual(mockUser);
+      expect(newService.isAuthenticated()).toBeTrue();
+    });
+
+    it('should decode user role from JWT token when hk_user is absent', () => {
+      // Craft a minimal valid JWT payload: {"sub":"42","email":"doc@hk.local","role":"clinician"}
+      const payloadBase64 = btoa(JSON.stringify({ sub: '42', email: 'doc@hk.local', role: 'clinician' }));
+      const jwtToken = `header.${payloadBase64}.signature`;
+      localStorage.setItem('hk_access_token', jwtToken);
+
+      const newService = TestBed.runInInjectionContext(() => new AuthService());
+      expect(newService.user()).toEqual(jasmine.objectContaining({
+        id: 42,
+        email: 'doc@hk.local',
+        role: 'clinician',
+      }));
     });
   });
 });

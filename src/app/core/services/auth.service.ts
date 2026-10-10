@@ -10,13 +10,14 @@ export type OAuthProvider = 'google' | 'azure';
 
 export const ACCESS_TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
+export const USER_KEY = 'hk_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   protected readonly router = inject(Router);
 
-  protected readonly userSignal = signal<UserResponse | null>(null);
+  protected readonly userSignal = signal<UserResponse | null>(this.getStoredUser());
   protected readonly tokenSignal = signal<string | null>(
     localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token')
   );
@@ -121,10 +122,59 @@ export class AuthService {
   validateAzureState(state: string | null) { return this.validateOAuthState('azure', state); }
   handleAzureCallback(code: string, state: string) { return this.handleOAuthCallback('azure', code, state); }
 
+  private getStoredUser(): UserResponse | null {
+    try {
+      const raw = localStorage.getItem(USER_KEY);
+      if (raw) {
+        return JSON.parse(raw);
+      }
+    } catch {
+      // Ignore JSON parse error
+    }
+    return this.getUserFromToken();
+  }
+
+  private getUserFromToken(): UserResponse | null {
+    try {
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token');
+      if (!token) return null;
+      const parts = token.split('.');
+      if (parts.length < 2) return null;
+      let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4 !== 0) {
+        base64 += '=';
+      }
+      const jsonStr = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const payload = JSON.parse(jsonStr);
+      if (payload && payload.role && payload.sub) {
+        return {
+          id: Number(payload.sub),
+          email: payload.email || '',
+          name: payload.name || null,
+          role: payload.role,
+          is_active: true,
+        };
+      }
+    } catch {
+      // Ignore token parse error
+    }
+    return null;
+  }
+
   /** Fetch the current user profile (GET /auth/me). */
   loadMe(): Observable<UserResponse> {
     return this.http.get<UserResponse>(`${this.base}/auth/me`).pipe(
-      tap((user) => this.userSignal.set(user))
+      tap((user) => {
+        this.userSignal.set(user);
+        try {
+          localStorage.setItem(USER_KEY, JSON.stringify(user));
+        } catch (_) {}
+      })
     );
   }
 
@@ -141,6 +191,21 @@ export class AuthService {
       this.tokenSignal.set(tokenOrResponse);
       if (user !== undefined) {
         this.userSignal.set(user);
+        if (user) {
+          try {
+            localStorage.setItem(USER_KEY, JSON.stringify(user));
+          } catch (_) {}
+        } else {
+          localStorage.removeItem(USER_KEY);
+        }
+      } else {
+        const u = this.getUserFromToken();
+        if (u) {
+          this.userSignal.set(u);
+          try {
+            localStorage.setItem(USER_KEY, JSON.stringify(u));
+          } catch (_) {}
+        }
       }
     } else {
       const { access_token, refresh_token, user: u } = tokenOrResponse;
@@ -152,6 +217,17 @@ export class AuthService {
       }
       if (u !== undefined && u !== null) {
         this.userSignal.set(u);
+        try {
+          localStorage.setItem(USER_KEY, JSON.stringify(u));
+        } catch (_) {}
+      } else {
+        const tokenUser = this.getUserFromToken();
+        if (tokenUser) {
+          this.userSignal.set(tokenUser);
+          try {
+            localStorage.setItem(USER_KEY, JSON.stringify(tokenUser));
+          } catch (_) {}
+        }
       }
     }
   }
@@ -166,6 +242,7 @@ export class AuthService {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem('hk_access_token');
+    localStorage.removeItem(USER_KEY);
     this.tokenSignal.set(null);
     this.userSignal.set(null);
   }
