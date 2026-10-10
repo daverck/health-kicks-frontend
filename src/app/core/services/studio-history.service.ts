@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   PaginatedSessionsResponse,
   StudioSessionSummary,
+  StudioAuthorSummary,
   StudioHistoryFilterParams,
   StudioSessionUpdatePayload,
 } from '../../models/studio-history.model';
@@ -29,14 +30,29 @@ export class StudioHistoryService {
       if (params.size !== undefined && params.size !== null) {
         httpParams = httpParams.set('size', params.size.toString());
       }
-      if (params.label && params.label.trim()) {
-        httpParams = httpParams.set('label', params.label.trim());
+      if (params.label) {
+        const val = Array.isArray(params.label)
+          ? params.label.filter((l) => l && l !== 'all').join(',')
+          : params.label.trim();
+        if (val && val !== 'all') {
+          httpParams = httpParams.set('label', val);
+        }
       }
-      if (params.device_id && params.device_id.trim()) {
-        httpParams = httpParams.set('device_id', params.device_id.trim());
+      if (params.device_id) {
+        const val = Array.isArray(params.device_id)
+          ? params.device_id.filter((d) => d && d !== 'all').join(',')
+          : params.device_id.trim();
+        if (val && val !== 'all') {
+          httpParams = httpParams.set('device_id', val);
+        }
       }
       if (params.user_id !== undefined && params.user_id !== null) {
-        httpParams = httpParams.set('user_id', params.user_id.toString());
+        const val = Array.isArray(params.user_id)
+          ? params.user_id.map(String).filter((u) => u && u !== 'all').join(',')
+          : String(params.user_id).trim();
+        if (val && val !== 'all') {
+          httpParams = httpParams.set('user_id', val);
+        }
       }
       if (params.start_date && params.start_date.trim()) {
         httpParams = httpParams.set('start_date', params.start_date.trim());
@@ -50,6 +66,14 @@ export class StudioHistoryService {
     }
 
     return this.http.get<PaginatedSessionsResponse>(this.base, { params: httpParams });
+  }
+
+  /**
+   * Retrieves authors who have recorded studio sessions.
+   * GET /api/v1/studio/sessions/authors
+   */
+  getAuthors(): Observable<StudioAuthorSummary[]> {
+    return this.http.get<StudioAuthorSummary[]>(`${this.base}/authors`);
   }
 
   /**

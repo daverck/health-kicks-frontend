@@ -20,6 +20,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { DeviceResponse } from '../../models/api.models';
 import {
   StudioSessionSummary,
+  StudioAuthorSummary,
   StudioHistoryFilterParams,
 } from '../../models/studio-history.model';
 import {
@@ -34,6 +35,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
+import { AuthorSelectComponent } from '../../shared/components/author-select/author-select.component';
 import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
 import { StudioInspectionComponent } from '../../shared/components/studio-inspection/studio-inspection.component';
 
@@ -47,6 +49,7 @@ import { StudioInspectionComponent } from '../../shared/components/studio-inspec
     TranslatePipe,
     DeviceSelectComponent,
     ActivitySelectComponent,
+    AuthorSelectComponent,
     DateFilterComponent,
     StudioInspectionComponent,
   ],
@@ -76,8 +79,12 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   // Filters State
   readonly selectedLabel = signal<string>('');
+  readonly selectedLabels = signal<string[]>([]);
   readonly selectedDeviceId = signal<string>('');
+  readonly selectedDeviceIds = signal<string[]>([]);
   readonly filterUserId = signal<string>('');
+  readonly selectedUserIds = signal<number[]>([]);
+  readonly authors = signal<StudioAuthorSummary[]>([]);
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
   readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
@@ -95,8 +102,11 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   readonly hasActiveFilters = computed(() => {
     return (
+      this.selectedLabels().length > 0 ||
       Boolean(this.selectedLabel()) ||
+      this.selectedDeviceIds().length > 0 ||
       Boolean(this.selectedDeviceId()) ||
+      this.selectedUserIds().length > 0 ||
       Boolean(this.filterUserId()) ||
       Boolean(this.startDate()) ||
       Boolean(this.endDate()) ||
@@ -141,6 +151,9 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDevices();
+    if (this.isAdmin()) {
+      this.loadAuthors();
+    }
     this.loadSessions();
   }
 
@@ -155,6 +168,13 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadAuthors(): void {
+    this.studioHistoryService.getAuthors().subscribe({
+      next: (authors) => this.authors.set(authors),
+      error: () => {},
+    });
+  }
+
   loadSessions(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
@@ -164,18 +184,26 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       size: this.size(),
     };
 
-    if (this.selectedLabel()) {
+    if (this.selectedLabels().length > 0) {
+      params.label = this.selectedLabels();
+    } else if (this.selectedLabel()) {
       params.label = this.selectedLabel();
     }
-    if (this.selectedDeviceId()) {
+
+    if (this.selectedDeviceIds().length > 0) {
+      params.device_id = this.selectedDeviceIds();
+    } else if (this.selectedDeviceId()) {
       params.device_id = this.selectedDeviceId();
     }
-    if (this.isAdmin() && this.filterUserId().trim()) {
-      const parsed = parseInt(this.filterUserId().trim(), 10);
-      if (!isNaN(parsed)) {
-        params.user_id = parsed;
+
+    if (this.isAdmin()) {
+      if (this.selectedUserIds().length > 0) {
+        params.user_id = this.selectedUserIds();
+      } else if (this.filterUserId().trim()) {
+        params.user_id = this.filterUserId().trim();
       }
     }
+
     if (this.startDate()) {
       params.start_date = this.startDate();
     }
@@ -216,9 +244,30 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.loadSessions();
   }
 
+  onLabelsChange(labels: string[]): void {
+    this.selectedLabels.set(labels);
+    this.selectedLabel.set(labels.join(','));
+    this.onFilterChange();
+  }
+
+  onDeviceIdsChange(deviceIds: string[]): void {
+    this.selectedDeviceIds.set(deviceIds);
+    this.selectedDeviceId.set(deviceIds.join(','));
+    this.onFilterChange();
+  }
+
+  onUserIdsChange(userIds: number[]): void {
+    this.selectedUserIds.set(userIds);
+    this.filterUserId.set(userIds.join(','));
+    this.onFilterChange();
+  }
+
   resetFilters(): void {
+    this.selectedLabels.set([]);
     this.selectedLabel.set('');
+    this.selectedDeviceIds.set([]);
     this.selectedDeviceId.set('');
+    this.selectedUserIds.set([]);
     this.filterUserId.set('');
     this.startDate.set('');
     this.endDate.set('');

@@ -62,7 +62,7 @@ describe('ActivitySelectComponent', () => {
   it('should render trigger button with All option selected by default', () => {
     const trigger = fixture.nativeElement.querySelector('[data-testid="activity-select-trigger"]');
     expect(trigger).toBeTruthy();
-    expect(trigger.textContent).toContain('Tous les mouvements');
+    expect(trigger.textContent).toContain('Tous les types d’activités');
   });
 
   it('should open and close dropdown on trigger click', () => {
@@ -196,7 +196,7 @@ describe('ActivitySelectComponent', () => {
     it('should show all activities selected when selectedActivities is empty', () => {
       expect(component.isAllSelected()).toBeTrue();
       const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="activity-select-trigger"]');
-      expect(trigger.textContent).toMatch(/Tous les mouvements/);
+      expect(trigger.textContent).toMatch(/Tous les types d[’']activités/);
     });
 
     it('should toggle activities on and off, updating selectedActivities and emitting activitiesChange', () => {

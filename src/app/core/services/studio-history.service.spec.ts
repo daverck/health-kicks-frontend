@@ -112,6 +112,40 @@ describe('StudioHistoryService', () => {
     req.flush(updated);
   });
 
+  it('should get sessions with array filter params', () => {
+    service
+      .getSessions({
+        label: ['walk', 'run'],
+        device_id: ['HK-1', 'HK-2'],
+        user_id: [1, 2],
+      })
+      .subscribe((res) => {
+        expect(res).toEqual(mockPaginatedSessionsResponse);
+      });
+
+    const req = httpMock.expectOne((r) => r.url === baseUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('label')).toBe('walk,run');
+    expect(req.request.params.get('device_id')).toBe('HK-1,HK-2');
+    expect(req.request.params.get('user_id')).toBe('1,2');
+    req.flush(mockPaginatedSessionsResponse);
+  });
+
+  it('should get authors via GET /api/v1/studio/sessions/authors', () => {
+    const mockAuthors = [
+      { id: 1, email: 'dr.smith@example.com', name: 'Dr. Smith' },
+      { id: 2, email: 'dr.jones@example.com', name: 'Dr. Jones' },
+    ];
+
+    service.getAuthors().subscribe((res) => {
+      expect(res).toEqual(mockAuthors);
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}/authors`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockAuthors);
+  });
+
   it('should delete session and handle 204 No Content', () => {
     service.deleteSession('sess-001').subscribe((res) => {
       expect(res).toBeNull();

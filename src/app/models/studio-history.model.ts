@@ -21,6 +21,12 @@ export interface PaginatedSessionsResponse {
   size: number;
 }
 
+export interface StudioAuthorSummary {
+  id: number;
+  email: string;
+  name?: string | null;
+}
+
 export interface StudioSessionUpdatePayload {
   label: string;
 }
@@ -28,10 +34,11 @@ export interface StudioSessionUpdatePayload {
 export interface StudioHistoryFilterParams {
   page?: number;
   size?: number;
-  label?: string;
-  device_id?: string;
-  user_id?: number;
+  label?: string | string[];
+  device_id?: string | string[];
+  user_id?: number | string | (number | string)[];
   start_date?: string;
   end_date?: string;
   is_validated?: boolean;
 }
+

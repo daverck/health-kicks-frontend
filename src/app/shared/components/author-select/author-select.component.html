@@ -1,0 +1,211 @@
+<div class="relative inline-block" [class.w-full]="fullWidth()" [class.block]="fullWidth()">
+  <!-- Select Trigger Button -->
+  <button
+    [id]="triggerId()"
+    type="button"
+    (click)="toggleDropdown()"
+    [disabled]="disabled()"
+    class="flex items-center justify-between gap-2 border border-gray-300 bg-white text-left shadow-2xs transition hover:border-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed"
+    [class]="triggerSizeClasses()"
+    [class.w-full]="fullWidth()"
+    [class.min-w-44]="!fullWidth()"
+    [attr.aria-expanded]="isOpen()"
+    aria-haspopup="listbox"
+    data-testid="author-select-trigger"
+  >
+    @if (isAllSelected()) {
+      <div class="flex items-center gap-1.5 truncate">
+        <span class="text-xs">👥</span>
+        <span class="font-medium text-gray-900 truncate">
+          {{ allLabel() || ('studio_history.filter_all_authors' | translate) }}
+        </span>
+      </div>
+      <svg
+        class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+        [class.rotate-180]="isOpen()"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    } @else if (multiple()) {
+      <div class="flex items-center gap-1.5 truncate">
+        <span class="text-xs">👥</span>
+        <span class="font-semibold text-gray-900 truncate">
+          {{ selectedCount() }} {{ 'studio_history.authors_selected' | translate }}
+        </span>
+      </div>
+      <svg
+        class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+        [class.rotate-180]="isOpen()"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    } @else {
+      @if (currentAuthor(); as author) {
+        <div class="flex items-center gap-1.5 truncate">
+          <span class="text-xs">👤</span>
+          <span class="font-semibold text-gray-900 truncate">
+            {{ author.name || author.email }}
+          </span>
+        </div>
+        <svg
+          class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+          [class.rotate-180]="isOpen()"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      } @else {
+        <span class="text-gray-400 truncate">
+          {{ placeholder() || ('studio_history.filter_author' | translate) }}
+        </span>
+        <svg
+          class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+          [class.rotate-180]="isOpen()"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      }
+    }
+  </button>
+
+  <!-- Dropdown Menu with Search & Filter -->
+  @if (isOpen()) {
+    <!-- Backdrop to close on click outside -->
+    <div class="fixed inset-0 z-20" (click)="closeDropdown()" aria-hidden="true"></div>
+
+    <div
+      class="absolute left-0 top-full z-30 mt-1.5 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5"
+      [class.w-full]="fullWidth()"
+      [class.min-w-64]="!fullWidth()"
+      data-testid="author-select-dropdown"
+    >
+      <!-- Search bar -->
+      <div class="border-b border-gray-100 p-2 bg-gray-50/75">
+        <div class="relative flex items-center">
+          <span class="pointer-events-none absolute left-3 text-xs text-gray-400">🔍</span>
+          <input
+            id="author-search-field"
+            type="text"
+            [placeholder]="'studio_history.search_author_placeholder' | translate"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            class="w-full rounded-lg border border-gray-200 bg-white pl-8 pr-8 py-1.5 text-xs text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            autofocus
+          />
+          @if (searchQuery()) {
+            <button
+              type="button"
+              (click)="searchQuery.set('')"
+              class="absolute right-2 text-xs text-gray-400 hover:text-gray-600 p-1"
+              [attr.aria-label]="'common.delete' | translate"
+            >
+              ✕
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- List of Authors -->
+      <div class="max-h-60 overflow-y-auto p-1.5 space-y-0.5">
+        <!-- Optional "All authors" item -->
+        @if (allowAll()) {
+          <button
+            type="button"
+            (click)="selectAll()"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+            [class.bg-primary-50]="isAllSelected()"
+            [class.text-primary-900]="isAllSelected()"
+            data-testid="author-option-all"
+          >
+            <div class="flex items-center gap-2 truncate pr-2">
+              @if (multiple()) {
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                />
+              }
+              <span class="text-sm">👥</span>
+              <span class="font-medium text-gray-900 truncate">
+                {{ allLabel() || ('studio_history.filter_all_authors' | translate) }}
+              </span>
+            </div>
+            @if (!multiple() && isAllSelected()) {
+              <span class="text-primary-600 font-bold text-sm">✓</span>
+            }
+          </button>
+        }
+
+        @if (filteredAuthors().length === 0) {
+          <div class="p-4 text-center text-xs text-gray-500">
+            {{ 'studio_history.no_author_found' | translate }}
+          </div>
+        } @else {
+          @for (author of filteredAuthors(); track author.id) {
+            <button
+              type="button"
+              (click)="toggleAuthor(author)"
+              class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+              [class.bg-primary-50]="isAuthorSelected(author.id)"
+              [class.text-primary-900]="isAuthorSelected(author.id)"
+              [attr.data-testid]="'author-option-' + author.id"
+            >
+              <div class="flex items-center gap-2.5 truncate pr-2">
+                @if (multiple()) {
+                  <input
+                    type="checkbox"
+                    [checked]="isAuthorSelected(author.id)"
+                    class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                  />
+                }
+                <span class="text-xs">👤</span>
+                <div class="truncate">
+                  <span class="font-medium text-gray-900 truncate">
+                    {{ author.name || author.email }}
+                  </span>
+                  @if (author.name && author.email) {
+                    <span class="text-[10px] text-gray-400 ml-1.5 font-mono">
+                      ({{ author.email }})
+                    </span>
+                  }
+                </div>
+              </div>
+
+              @if (!multiple() && isAuthorSelected(author.id)) {
+                <span class="text-primary-600 font-bold text-sm">✓</span>
+              }
+            </button>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
+

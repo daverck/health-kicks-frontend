@@ -50,6 +50,7 @@ describe('StudioHistoryComponent', () => {
       'confirmSession',
       'updateSessionLabel',
       'deleteSession',
+      'getAuthors',
     ]);
     studioHistoryServiceSpy.getSessions.and.returnValue(of(mockPaginatedSessionsResponse));
     studioHistoryServiceSpy.getSessionReadings.and.returnValue(of(mockStudioSessionReadingsResponse));
@@ -60,6 +61,12 @@ describe('StudioHistoryComponent', () => {
       of({ ...mockStudioSessionSummaries[0], label: 'run' })
     );
     studioHistoryServiceSpy.deleteSession.and.returnValue(of(undefined));
+    studioHistoryServiceSpy.getAuthors.and.returnValue(
+      of([
+        { id: 1, email: 'admin@healthkicks.org', name: 'Admin Boss' },
+        { id: 2, email: 'clinician@healthkicks.org', name: 'Dr. Clinician' },
+      ])
+    );
 
     deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['listDevices']);
     deviceServiceSpy.listDevices.and.returnValue(of(mockDevices));
@@ -101,22 +108,25 @@ describe('StudioHistoryComponent', () => {
     expect(component.devices().length).toBe(2);
   });
 
-  it('should NOT display author column or user_id filter when role is regular user', () => {
+  it('should NOT display author column or author filter when role is regular user', () => {
     currentUserSignal.set(regularUser);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('#filter-user-id')).toBeNull();
+    expect(compiled.querySelector('#filter-author')).toBeNull();
     expect(compiled.querySelector('.author-col')).toBeNull();
     expect(compiled.querySelector('.author-cell')).toBeNull();
   });
 
-  it('should display author column and user_id filter when role is admin', () => {
+  it('should display author column and author filter when role is admin and load authors', () => {
     currentUserSignal.set(adminUser);
     fixture.detectChanges();
 
+    expect(studioHistoryServiceSpy.getAuthors).toHaveBeenCalled();
+    expect(component.authors().length).toBe(2);
+
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('#filter-user-id')).toBeTruthy();
+    expect(compiled.querySelector('#filter-author')).toBeTruthy();
     expect(compiled.querySelector('.author-col')).toBeTruthy();
     const authorCells = compiled.querySelectorAll('.author-cell');
     expect(authorCells.length).toBe(3);
@@ -140,10 +150,43 @@ describe('StudioHistoryComponent', () => {
       size: 20,
       label: 'fall_forward',
       device_id: 'hk-device-0001',
-      user_id: 2,
+      user_id: '2',
       start_date: '2026-09-01',
       end_date: '2026-09-10',
       is_validated: true,
+    });
+  });
+
+  it('should filter by multiple labels, devices, and authors via multi-select handlers', () => {
+    currentUserSignal.set(adminUser);
+    fixture.detectChanges();
+
+    component.onLabelsChange(['walk', 'run']);
+    expect(component.selectedLabels()).toEqual(['walk', 'run']);
+    expect(component.page()).toBe(1);
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      label: ['walk', 'run'],
+    });
+
+    component.onDeviceIdsChange(['HK-1', 'HK-2']);
+    expect(component.selectedDeviceIds()).toEqual(['HK-1', 'HK-2']);
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      label: ['walk', 'run'],
+      device_id: ['HK-1', 'HK-2'],
+    });
+
+    component.onUserIdsChange([1, 2]);
+    expect(component.selectedUserIds()).toEqual([1, 2]);
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      label: ['walk', 'run'],
+      device_id: ['HK-1', 'HK-2'],
+      user_id: [1, 2],
     });
   });
 

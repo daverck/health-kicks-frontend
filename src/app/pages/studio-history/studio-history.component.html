@@ -109,9 +109,11 @@
           <app-device-select
             triggerId="mobile-filter-device"
             [devices]="devices()"
-            [(selectedDeviceId)]="selectedDeviceId"
+            [multiple]="true"
+            [(selectedDeviceIds)]="selectedDeviceIds"
             [allowAll]="true"
-            (deviceIdChange)="onFilterChange()"
+            [allLabel]="'studio_history.filter_all_devices' | translate"
+            (deviceIdsChange)="onDeviceIdsChange($event)"
             size="sm"
             [fullWidth]="true"
           />
@@ -124,8 +126,10 @@
           </label>
           <app-activity-select
             triggerId="mobile-filter-label"
-            [(selectedActivity)]="selectedLabel"
-            (activityChange)="onFilterChange()"
+            [multiple]="true"
+            [(selectedActivities)]="selectedLabels"
+            (activitiesChange)="onLabelsChange($event)"
+            [allLabel]="'studio_history.filter_all_labels' | translate"
             size="sm"
             [fullWidth]="true"
           />
@@ -134,16 +138,16 @@
         @if (isAdmin()) {
           <!-- Author / User ID filter -->
           <div>
-            <label class="block text-[11px] font-medium text-gray-600 mb-1" for="mobile-filter-user-id">
+            <label class="block text-[11px] font-medium text-gray-600 mb-1" for="mobile-filter-author">
               {{ 'studio_history.col_author' | translate }}
             </label>
-            <input
-              id="mobile-filter-user-id"
-              type="number"
-              [placeholder]="'studio_history.filter_user_id_placeholder' | translate"
-              [ngModel]="filterUserId()"
-              (ngModelChange)="filterUserId.set($event); onFilterChange()"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-900 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            <app-author-select
+              triggerId="mobile-filter-author"
+              [authors]="authors()"
+              [(selectedUserIds)]="selectedUserIds"
+              (userIdsChange)="onUserIdsChange($event)"
+              size="sm"
+              [fullWidth]="true"
             />
           </div>
         }
@@ -343,9 +347,11 @@
               <app-device-select
                 triggerId="filter-device"
                 [devices]="devices()"
-                [(selectedDeviceId)]="selectedDeviceId"
+                [multiple]="true"
+                [(selectedDeviceIds)]="selectedDeviceIds"
                 [allowAll]="true"
-                (deviceIdChange)="onFilterChange()"
+                [allLabel]="'studio_history.filter_all_devices' | translate"
+                (deviceIdsChange)="onDeviceIdsChange($event)"
                 size="sm"
                 [fullWidth]="true"
               />
@@ -355,8 +361,10 @@
             <th scope="col" class="px-2 py-1.5">
               <app-activity-select
                 triggerId="filter-label"
-                [(selectedActivity)]="selectedLabel"
-                (activityChange)="onFilterChange()"
+                [multiple]="true"
+                [(selectedActivities)]="selectedLabels"
+                (activitiesChange)="onLabelsChange($event)"
+                [allLabel]="'studio_history.filter_all_labels' | translate"
                 size="sm"
                 [fullWidth]="true"
               />
@@ -368,16 +376,16 @@
             <!-- Duration: no filter -->
             <th scope="col" class="px-2 py-1.5"></th>
 
-            <!-- Author: Admin user ID filter -->
+            <!-- Author: Admin multi-select filter -->
             @if (isAdmin()) {
               <th scope="col" class="px-2 py-1.5 author-col">
-                <input
-                  id="filter-user-id"
-                  type="number"
-                  [placeholder]="'studio_history.filter_user_id_placeholder' | translate"
-                  [ngModel]="filterUserId()"
-                  (ngModelChange)="filterUserId.set($event); onFilterChange()"
-                  class="w-full rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                <app-author-select
+                  triggerId="filter-author"
+                  [authors]="authors()"
+                  [(selectedUserIds)]="selectedUserIds"
+                  (userIdsChange)="onUserIdsChange($event)"
+                  size="sm"
+                  [fullWidth]="true"
                 />
               </th>
             }
