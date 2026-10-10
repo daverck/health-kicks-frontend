@@ -33,6 +33,26 @@
           clip-rule="evenodd"
         />
       </svg>
+    } @else if (multiple()) {
+      <div class="flex items-center gap-2 truncate">
+        <span class="text-sm">👟</span>
+        <span class="font-semibold text-gray-900 truncate">
+          {{ selectedCount() }} {{ 'history.devices_selected' | translate }}
+        </span>
+      </div>
+      <svg
+        class="h-4 w-4 text-gray-400 flex-shrink-0 transition-transform duration-150"
+        [class.rotate-180]="isOpen()"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clip-rule="evenodd"
+        />
+      </svg>
     } @else {
       @if (currentDevice(); as device) {
         <div class="flex items-center gap-2.5 truncate">
@@ -157,12 +177,19 @@
             data-testid="device-option-all"
           >
             <div class="flex items-center gap-2 truncate pr-2">
+              @if (multiple()) {
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                />
+              }
               <span class="text-sm">👟</span>
               <span class="font-medium text-gray-900 truncate">
                 {{ allLabel() || ('studio_history.filter_all_devices' | translate) }}
               </span>
             </div>
-            @if (isAllSelected()) {
+            @if (!multiple() && isAllSelected()) {
               <span class="text-primary-600 font-bold text-sm">✓</span>
             }
           </button>
@@ -180,13 +207,20 @@
           @for (device of filteredDevices(); track device.device_id) {
             <button
               type="button"
-              (click)="selectDevice(device)"
+              (click)="toggleDevice(device)"
               class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
-              [class.bg-primary-50]="currentDevice()?.device_id === device.device_id"
-              [class.text-primary-900]="currentDevice()?.device_id === device.device_id"
+              [class.bg-primary-50]="multiple() ? isDeviceSelected(device.device_id) : (currentDevice()?.device_id === device.device_id)"
+              [class.text-primary-900]="multiple() ? isDeviceSelected(device.device_id) : (currentDevice()?.device_id === device.device_id)"
               [attr.data-testid]="'device-option-' + device.device_id"
             >
               <div class="flex items-center gap-2.5 truncate pr-2">
+                @if (multiple()) {
+                  <input
+                    type="checkbox"
+                    [checked]="isDeviceSelected(device.device_id)"
+                    class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                  />
+                }
                 <span
                   class="h-2 w-2 rounded-full flex-shrink-0"
                   [class.bg-emerald-500]="device.status === 'online'"
@@ -219,7 +253,7 @@
                   {{ device.status === 'online' ? ('common.online' | translate) : ('common.offline' | translate) }}
                 </span>
 
-                @if (currentDevice()?.device_id === device.device_id) {
+                @if (!multiple() && currentDevice()?.device_id === device.device_id) {
                   <span class="text-primary-600 font-bold text-sm">✓</span>
                 }
               </div>

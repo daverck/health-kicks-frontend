@@ -142,6 +142,30 @@ describe('DeviceService', () => {
     req.flush(mockActivityEventPage);
   });
 
+  it('should support array of device IDs and activity types in getActivityEvents', () => {
+    service
+      .getActivityEvents(['HK-1', 'HK-2'], 1, 20, ['walk', 'run'])
+      .subscribe();
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/HK-1,HK-2/events/activities?page=1&page_size=20&event_type=walk,run`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockActivityEventPage);
+  });
+
+  it('should use all when empty array or all is passed for device IDs and omit all from event types', () => {
+    service
+      .getActivityEvents([], 1, 20, ['all'])
+      .subscribe();
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/devices/all/events/activities?page=1&page_size=20`
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockActivityEventPage);
+  });
+
   it('should delegate getFallHistory to /devices/{id}/events/activities with event_type=falls', () => {
     service.getFallHistory('hk-device-0001', 1, 10).subscribe((page) => {
       expect(page).toEqual(mockActivityEventPage);

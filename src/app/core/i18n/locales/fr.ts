@@ -267,6 +267,10 @@ export const fr = {
     label_standard: 'Standard ML',
     filter_all: 'Toutes les activités',
     filter_falls: 'Chutes uniquement',
+    all_devices: 'Tous les équipements',
+    all_activities: 'Toutes les activités',
+    devices_selected: 'équipements sélectionnés',
+    activities_selected: 'activités sélectionnées',
   },
   studio: {
     title: 'Studio de Capture IMU',

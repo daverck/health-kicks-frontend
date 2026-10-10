@@ -9,6 +9,8 @@ import { PREDEFINED_LABELS, PredefinedLabel } from '../../../models/studio.model
   template: `
     <app-activity-select
       [(selectedActivity)]="selectedActivity"
+      [multiple]="multiple()"
+      [(selectedActivities)]="selectedActivities"
       [allowAll]="allowAll()"
       [allValue]="allValue()"
       [allLabel]="allLabel()"
@@ -19,11 +21,14 @@ import { PREDEFINED_LABELS, PredefinedLabel } from '../../../models/studio.model
       [size]="size()"
       [fullWidth]="fullWidth()"
       (activityChange)="lastActivityChange = $event"
+      (activitiesChange)="lastActivitiesChange = $event"
     />
   `,
 })
 class HostComponent {
   readonly selectedActivity = signal<string>('');
+  readonly multiple = signal<boolean>(false);
+  readonly selectedActivities = signal<string[]>([]);
   readonly allowAll = signal<boolean>(true);
   readonly allValue = signal<string>('');
   readonly allLabel = signal<string>('');
@@ -35,11 +40,13 @@ class HostComponent {
   readonly fullWidth = signal<boolean>(false);
 
   lastActivityChange: string | null = null;
+  lastActivitiesChange: string[] = [];
 }
 
 describe('ActivitySelectComponent', () => {
   let fixture: ComponentFixture<HostComponent>;
   let host: HostComponent;
+  let component: ActivitySelectComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -49,6 +56,7 @@ describe('ActivitySelectComponent', () => {
     fixture = TestBed.createComponent(HostComponent);
     host = fixture.componentInstance;
     fixture.detectChanges();
+    component = fixture.debugElement.children[0].componentInstance;
   });
 
   it('should render trigger button with All option selected by default', () => {
@@ -176,5 +184,100 @@ describe('ActivitySelectComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('[data-testid="activity-select-dropdown"]')).toBeNull();
+  });
+
+  describe('Multiple Selection Mode', () => {
+    beforeEach(() => {
+      host.multiple.set(true);
+      host.includeFalls.set(true);
+      fixture.detectChanges();
+    });
+
+    it('should show all activities selected when selectedActivities is empty', () => {
+      expect(component.isAllSelected()).toBeTrue();
+      const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="activity-select-trigger"]');
+      expect(trigger.textContent).toMatch(/Tous les mouvements/);
+    });
+
+    it('should toggle activities on and off, updating selectedActivities and emitting activitiesChange', () => {
+      const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="activity-select-trigger"]');
+      trigger.click();
+      fixture.detectChanges();
+
+      // Checkboxes should be present
+      const checkboxes = fixture.nativeElement.querySelectorAll('input[type="checkbox"]');
+      expect(checkboxes.length).toBeGreaterThan(0);
+
+      // Select walk
+      const walkOption: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="activity-option-walk"]');
+      expect(walkOption).toBeTruthy();
+      walkOption?.click();
+      fixture.detectChanges();
+
+      expect(host.selectedActivities()).toEqual(['walk']);
+      expect(host.lastActivitiesChange).toEqual(['walk']);
+      expect(component.isActivitySelected('walk')).toBeTrue();
+      expect(component.isActivitySelected('run')).toBeFalse();
+      expect(component.selectedCount()).toBe(1);
+
+      // Select run
+      const runOption: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="activity-option-run"]');
+      runOption?.click();
+      fixture.detectChanges();
+
+      expect(host.selectedActivities()).toEqual(['walk', 'run']);
+      expect(component.selectedCount()).toBe(2);
+
+      // Trigger should show count
+      expect(trigger.textContent).toContain('2');
+
+      // Unselect walk
+      walkOption?.click();
+      fixture.detectChanges();
+
+      expect(host.selectedActivities()).toEqual(['run']);
+      expect(component.selectedCount()).toBe(1);
+    });
+
+    it('should toggle falls correctly in multiple mode', () => {
+      const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="activity-select-trigger"]');
+      trigger.click();
+      fixture.detectChanges();
+
+      const fallsOption: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="activity-option-falls"]');
+      expect(fallsOption).toBeTruthy();
+      fallsOption?.click();
+      fixture.detectChanges();
+
+      expect(host.selectedActivities()).toEqual(['falls']);
+      expect(component.isFallsSelected()).toBeTrue();
+      expect(component.selectedCount()).toBe(1);
+
+      // Select walk alongside falls
+      const walkOption: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="activity-option-walk"]');
+      walkOption?.click();
+      fixture.detectChanges();
+
+      expect(host.selectedActivities()).toEqual(['falls', 'walk']);
+      expect(component.selectedCount()).toBe(2);
+    });
+
+    it('should reset to all when selectAll() is clicked in multiple mode', () => {
+      host.selectedActivities.set(['walk', 'run']);
+      fixture.detectChanges();
+      expect(component.isAllSelected()).toBeFalse();
+
+      const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="activity-select-trigger"]');
+      trigger.click();
+      fixture.detectChanges();
+
+      const allOption: HTMLButtonElement | null = fixture.nativeElement.querySelector('[data-testid="activity-option-all"]');
+      allOption?.click();
+      fixture.detectChanges();
+
+      expect(host.selectedActivities()).toEqual([]);
+      expect(host.lastActivitiesChange).toEqual([]);
+      expect(component.isAllSelected()).toBeTrue();
+    });
   });
 });

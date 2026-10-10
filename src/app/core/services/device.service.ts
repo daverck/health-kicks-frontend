@@ -67,12 +67,16 @@ export class DeviceService {
   }
 
   getHapticHistory(
-    deviceId: string,
+    deviceId: string | string[],
     page = 1,
     pageSize = 20,
     startDate?: string,
     endDate?: string
   ): Observable<HapticLogPage> {
+    const devParam = Array.isArray(deviceId)
+      ? (deviceId.length === 0 || deviceId.includes('all') ? 'all' : deviceId.join(','))
+      : (deviceId || 'all');
+
     const params: Record<string, string> = {
       page: String(page),
       page_size: String(pageSize),
@@ -80,35 +84,49 @@ export class DeviceService {
     if (startDate) params['start_date'] = startDate;
     if (endDate) params['end_date'] = endDate;
 
-    return this.http.get<HapticLogPage>(`${this.base}/devices/${deviceId}/haptic/history`, {
+    return this.http.get<HapticLogPage>(`${this.base}/devices/${devParam}/haptic/history`, {
       params,
     });
   }
 
   getActivityEvents(
-    deviceId: string,
+    deviceId: string | string[],
     page = 1,
     pageSize = 50,
-    eventType?: string,
+    eventType?: string | string[],
     startDate?: string,
     endDate?: string
   ): Observable<ActivityEventPage> {
+    const devParam = Array.isArray(deviceId)
+      ? (deviceId.length === 0 || deviceId.includes('all') ? 'all' : deviceId.join(','))
+      : (deviceId || 'all');
+
     const params: Record<string, string> = {
       page: String(page),
       page_size: String(pageSize),
     };
-    if (eventType && eventType !== 'all') {
-      params['event_type'] = eventType;
+
+    let typeParam = '';
+    if (Array.isArray(eventType)) {
+      if (eventType.length > 0 && !eventType.includes('all')) {
+        typeParam = eventType.join(',');
+      }
+    } else if (eventType && eventType !== 'all') {
+      typeParam = eventType;
+    }
+
+    if (typeParam) {
+      params['event_type'] = typeParam;
     }
     if (startDate) params['start_date'] = startDate;
     if (endDate) params['end_date'] = endDate;
 
-    return this.http.get<ActivityEventPage>(`${this.base}/devices/${deviceId}/events/activities`, {
+    return this.http.get<ActivityEventPage>(`${this.base}/devices/${devParam}/events/activities`, {
       params,
     });
   }
 
-  getFallHistory(deviceId: string, page = 1, pageSize = 50): Observable<ActivityEventPage> {
+  getFallHistory(deviceId: string | string[], page = 1, pageSize = 50): Observable<ActivityEventPage> {
     return this.getActivityEvents(deviceId, page, pageSize, 'falls');
   }
 

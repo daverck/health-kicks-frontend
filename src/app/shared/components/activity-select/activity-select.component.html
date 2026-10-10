@@ -20,6 +20,13 @@
           {{ allLabel() || ('studio_history.filter_all_labels' | translate) }}
         </span>
       </div>
+    } @else if (multiple()) {
+      <div class="flex items-center gap-2 truncate">
+        <span class="text-sm">🏃</span>
+        <span class="font-semibold text-gray-900 truncate">
+          {{ selectedCount() }} {{ 'history.activities_selected' | translate }}
+        </span>
+      </div>
     } @else if (isFallsSelected()) {
       <div class="flex items-center gap-2 truncate">
         <span class="text-sm">🚨</span>
@@ -119,12 +126,19 @@
             data-testid="activity-option-all"
           >
             <div class="flex items-center gap-2 truncate pr-2">
+              @if (multiple()) {
+                <input
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                />
+              }
               <span class="text-sm">🏃</span>
               <span class="font-medium text-gray-900 truncate">
                 {{ allLabel() || ('studio_history.filter_all_labels' | translate) }}
               </span>
             </div>
-            @if (isAllSelected()) {
+            @if (!multiple() && isAllSelected()) {
               <span class="text-primary-600 font-bold text-sm">✓</span>
             }
           </button>
@@ -134,19 +148,26 @@
         @if (includeFalls() && (!searchQuery() || 'chutes'.includes(searchQuery().toLowerCase()) || 'falls'.includes(searchQuery().toLowerCase()))) {
           <button
             type="button"
-            (click)="selectFalls()"
+            (click)="toggleFalls()"
             class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
             [class.bg-primary-50]="isFallsSelected()"
             [class.text-primary-900]="isFallsSelected()"
             data-testid="activity-option-falls"
           >
             <div class="flex items-center gap-2 truncate pr-2">
+              @if (multiple()) {
+                <input
+                  type="checkbox"
+                  [checked]="isFallsSelected()"
+                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                />
+              }
               <span class="text-sm">🚨</span>
               <span class="font-medium text-red-700 truncate">
                 {{ fallsLabel() || ('history.filter_falls' | translate) }}
               </span>
             </div>
-            @if (isFallsSelected()) {
+            @if (!multiple() && isFallsSelected()) {
               <span class="text-primary-600 font-bold text-sm">✓</span>
             }
           </button>
@@ -160,13 +181,20 @@
           @for (label of filteredLabels(); track label.id) {
             <button
               type="button"
-              (click)="selectLabel(label)"
+              (click)="toggleActivity(label)"
               class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
-              [class.bg-primary-50]="selectedActivity() === label.id"
-              [class.text-primary-900]="selectedActivity() === label.id"
+              [class.bg-primary-50]="multiple() ? isActivitySelected(label.id) : (selectedActivity() === label.id)"
+              [class.text-primary-900]="multiple() ? isActivitySelected(label.id) : (selectedActivity() === label.id)"
               [attr.data-testid]="'activity-option-' + label.id"
             >
               <div class="flex items-center gap-2.5 truncate pr-2">
+                @if (multiple()) {
+                  <input
+                    type="checkbox"
+                    [checked]="isActivitySelected(label.id)"
+                    class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                  />
+                }
                 <span class="text-sm flex-shrink-0">{{ label.icon }}</span>
                 <div class="truncate">
                   <span class="font-medium text-gray-900 truncate">
@@ -180,7 +208,7 @@
                 </div>
               </div>
 
-              @if (selectedActivity() === label.id) {
+              @if (!multiple() && selectedActivity() === label.id) {
                 <span class="text-primary-600 font-bold text-sm flex-shrink-0">✓</span>
               }
             </button>

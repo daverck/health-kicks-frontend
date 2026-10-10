@@ -38,6 +38,8 @@ const mockDevices: DeviceResponse[] = [
       [devices]="devices()"
       [(selectedDeviceId)]="selectedDeviceId"
       [(selectedDevice)]="selectedDevice"
+      [multiple]="multiple()"
+      [(selectedDeviceIds)]="selectedDeviceIds"
       [onlyOnline]="onlyOnline()"
       [allowAll]="allowAll()"
       [disabled]="disabled()"
@@ -45,6 +47,7 @@ const mockDevices: DeviceResponse[] = [
       [fullWidth]="fullWidth()"
       (deviceChange)="lastDeviceChange = $event"
       (deviceIdChange)="lastDeviceIdChange = $event"
+      (deviceIdsChange)="lastDeviceIdsChange = $event"
     />
   `,
 })
@@ -52,6 +55,8 @@ class HostComponent {
   readonly devices = signal<DeviceResponse[]>(mockDevices);
   readonly selectedDeviceId = signal<string>('');
   readonly selectedDevice = signal<DeviceResponse | null>(null);
+  readonly multiple = signal<boolean>(false);
+  readonly selectedDeviceIds = signal<string[]>([]);
   readonly onlyOnline = signal<boolean>(false);
   readonly allowAll = signal<boolean>(false);
   readonly disabled = signal<boolean>(false);
@@ -60,6 +65,7 @@ class HostComponent {
 
   lastDeviceChange: DeviceResponse | null = null;
   lastDeviceIdChange: string = '';
+  lastDeviceIdsChange: string[] = [];
 }
 
 describe('DeviceSelectComponent', () => {
@@ -274,6 +280,82 @@ describe('DeviceSelectComponent', () => {
     expect(trigger.classList.contains('py-1.5')).toBeTrue();
     expect(trigger.classList.contains('text-xs')).toBeTrue();
     expect(trigger.classList.contains('w-full')).toBeTrue();
+  });
+
+  describe('Multiple Selection Mode', () => {
+    beforeEach(() => {
+      host.multiple.set(true);
+      host.allowAll.set(true);
+      fixture.detectChanges();
+    });
+
+    it('should show all devices selected when selectedDeviceIds is empty', () => {
+      expect(component.isAllSelected()).toBeTrue();
+      const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
+      expect(trigger.textContent).toMatch(/Tous les (équipements|appareils)/);
+    });
+
+    it('should toggle devices on and off, updating selectedDeviceIds and emitting deviceIdsChange', () => {
+      component.toggleDropdown();
+      fixture.detectChanges();
+
+      // Checkbox inputs should be present
+      const checkboxes = fixture.nativeElement.querySelectorAll('input[type="checkbox"]');
+      expect(checkboxes.length).toBeGreaterThan(0);
+
+      // Select first device
+      const dev1Option: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="device-option-hk-dev-001"]'
+      );
+      dev1Option.click();
+      fixture.detectChanges();
+
+      expect(host.selectedDeviceIds()).toEqual(['hk-dev-001']);
+      expect(host.lastDeviceIdsChange).toEqual(['hk-dev-001']);
+      expect(component.isDeviceSelected('hk-dev-001')).toBeTrue();
+      expect(component.isDeviceSelected('hk-dev-002')).toBeFalse();
+      expect(component.selectedCount()).toBe(1);
+
+      // Select second device
+      const dev2Option: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="device-option-hk-dev-002"]'
+      );
+      dev2Option.click();
+      fixture.detectChanges();
+
+      expect(host.selectedDeviceIds()).toEqual(['hk-dev-001', 'hk-dev-002']);
+      expect(component.selectedCount()).toBe(2);
+
+      // Trigger text should indicate count
+      const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#device-select-trigger');
+      expect(trigger.textContent).toContain('2');
+
+      // Unselect first device
+      dev1Option.click();
+      fixture.detectChanges();
+
+      expect(host.selectedDeviceIds()).toEqual(['hk-dev-002']);
+      expect(component.selectedCount()).toBe(1);
+    });
+
+    it('should reset selection to all when selectAll() is clicked in multiple mode', () => {
+      host.selectedDeviceIds.set(['hk-dev-001', 'hk-dev-002']);
+      fixture.detectChanges();
+      expect(component.isAllSelected()).toBeFalse();
+
+      component.toggleDropdown();
+      fixture.detectChanges();
+
+      const allOption: HTMLButtonElement = fixture.nativeElement.querySelector(
+        '[data-testid="device-option-all"]'
+      );
+      allOption.click();
+      fixture.detectChanges();
+
+      expect(host.selectedDeviceIds()).toEqual([]);
+      expect(host.lastDeviceIdsChange).toEqual([]);
+      expect(component.isAllSelected()).toBeTrue();
+    });
   });
 });
 

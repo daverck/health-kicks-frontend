@@ -35,6 +35,8 @@ export class ActivitySelectComponent {
 
   // Inputs & Two-way model
   readonly selectedActivity = model<string>('');
+  readonly multiple = input<boolean>(false);
+  readonly selectedActivities = model<string[]>([]);
   readonly labels = input<PredefinedLabel[]>(PREDEFINED_LABELS);
 
   readonly allowAll = input<boolean>(true);
@@ -53,6 +55,7 @@ export class ActivitySelectComponent {
 
   // Outputs
   readonly activityChange = output<string>();
+  readonly activitiesChange = output<string[]>();
 
   // Internal state
   readonly isOpen = signal<boolean>(false);
@@ -60,6 +63,9 @@ export class ActivitySelectComponent {
 
   // Resolution of current selected state
   readonly isAllSelected = computed<boolean>(() => {
+    if (this.multiple()) {
+      return this.selectedActivities().length === 0 || this.selectedActivities().includes('all');
+    }
     if (!this.allowAll()) return false;
     const current = this.selectedActivity();
     const targetAll = this.allValue();
@@ -68,8 +74,22 @@ export class ActivitySelectComponent {
 
   readonly isFallsSelected = computed<boolean>(() => {
     if (!this.includeFalls()) return false;
+    if (this.multiple()) {
+      return this.selectedActivities().includes(this.fallsValue());
+    }
     return this.selectedActivity() === this.fallsValue();
   });
+
+  readonly selectedCount = computed<number>(() => {
+    if (!this.multiple()) {
+      return this.selectedActivity() && this.selectedActivity() !== 'all' ? 1 : 0;
+    }
+    return this.selectedActivities().filter((a) => a !== 'all').length;
+  });
+
+  isActivitySelected(id: string): boolean {
+    return this.selectedActivities().includes(id);
+  }
 
   readonly currentLabel = computed<PredefinedLabel | null>(() => {
     if (this.isAllSelected() || this.isFallsSelected()) return null;
@@ -111,6 +131,11 @@ export class ActivitySelectComponent {
   }
 
   selectAll(): void {
+    if (this.multiple()) {
+      this.selectedActivities.set([]);
+      this.activitiesChange.emit([]);
+      return;
+    }
     const val = this.allValue();
     this.selectedActivity.set(val);
     this.activityChange.emit(val);
@@ -124,10 +149,43 @@ export class ActivitySelectComponent {
     this.closeDropdown();
   }
 
+  toggleFalls(): void {
+    if (!this.multiple()) {
+      this.selectFalls();
+      return;
+    }
+    const fVal = this.fallsValue();
+    const current = this.selectedActivities().filter((a) => a !== 'all');
+    let updated: string[];
+    if (current.includes(fVal)) {
+      updated = current.filter((a) => a !== fVal);
+    } else {
+      updated = [...current, fVal];
+    }
+    this.selectedActivities.set(updated);
+    this.activitiesChange.emit(updated);
+  }
+
   selectLabel(label: PredefinedLabel): void {
     this.selectedActivity.set(label.id);
     this.activityChange.emit(label.id);
     this.closeDropdown();
+  }
+
+  toggleActivity(label: PredefinedLabel): void {
+    if (!this.multiple()) {
+      this.selectLabel(label);
+      return;
+    }
+    const current = this.selectedActivities().filter((a) => a !== 'all');
+    let updated: string[];
+    if (current.includes(label.id)) {
+      updated = current.filter((a) => a !== label.id);
+    } else {
+      updated = [...current, label.id];
+    }
+    this.selectedActivities.set(updated);
+    this.activitiesChange.emit(updated);
   }
 
   @HostListener('document:keydown.escape')

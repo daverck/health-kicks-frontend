@@ -42,11 +42,13 @@ export class HistoryComponent implements OnInit {
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');
+  readonly selectedDeviceIds = signal<string[]>([]);
   readonly activeTab = signal<'activities' | 'haptic'>('activities');
 
   // Activities history
   readonly events = signal<ActivityEvent[]>([]);
   readonly selectedEventType = signal<string>('all');
+  readonly selectedEventTypes = signal<string[]>([]);
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
   readonly page = signal(1);
@@ -83,6 +85,14 @@ export class HistoryComponent implements OnInit {
   onEventTypeChange(ev: Event | string): void {
     const value = typeof ev === 'string' ? ev : (ev.target as HTMLSelectElement).value;
     this.selectedEventType.set(value);
+    this.selectedEventTypes.set(value && value !== 'all' ? [value] : []);
+    this.page.set(1);
+    this.loadEvents();
+  }
+
+  onEventTypesChange(types: string[]): void {
+    this.selectedEventTypes.set(types);
+    this.selectedEventType.set(types.length === 0 ? 'all' : types.join(','));
     this.page.set(1);
     this.loadEvents();
   }
@@ -108,12 +118,14 @@ export class HistoryComponent implements OnInit {
         this.devicesError.set(false);
         if (devices.length > 0) {
           this.selectedDeviceId.set(devices[0].device_id);
+          this.selectedDeviceIds.set([devices[0].device_id]);
         }
         this.loadCurrentTab();
       },
       error: (err) => {
         this.devices.set([]);
         this.selectedDeviceId.set('');
+        this.selectedDeviceIds.set([]);
         this.devicesError.set(true);
         this.loading.set(false);
         this.toast.error(
@@ -127,6 +139,15 @@ export class HistoryComponent implements OnInit {
 
   onDeviceSelected(deviceId: string): void {
     this.selectedDeviceId.set(deviceId);
+    this.selectedDeviceIds.set(deviceId && deviceId !== 'all' ? [deviceId] : []);
+    this.page.set(1);
+    this.hapticPage.set(1);
+    this.loadCurrentTab();
+  }
+
+  onDeviceIdsChange(deviceIds: string[]): void {
+    this.selectedDeviceIds.set(deviceIds);
+    this.selectedDeviceId.set(deviceIds.length === 0 ? 'all' : deviceIds.join(','));
     this.page.set(1);
     this.hapticPage.set(1);
     this.loadCurrentTab();
@@ -204,20 +225,26 @@ export class HistoryComponent implements OnInit {
   }
 
   private loadEvents(): void {
-    const deviceId = this.selectedDeviceId();
-    if (!deviceId) {
+    const deviceParam = this.selectedDeviceIds().length > 0
+      ? this.selectedDeviceIds().join(',')
+      : (this.selectedDeviceId() || 'all');
+    if (this.devices().length === 0 && !this.selectedDeviceId()) {
       this.loading.set(false);
       return;
     }
     this.loading.set(true);
     this.eventsError.set(false);
 
+    const typeParam = this.selectedEventTypes().length > 0
+      ? this.selectedEventTypes().join(',')
+      : this.selectedEventType();
+
     this.deviceService
       .getActivityEvents(
-        deviceId,
+        deviceParam,
         this.page(),
         this.pageSize,
-        this.selectedEventType(),
+        typeParam,
         this.startDate(),
         this.endDate()
       )
@@ -244,8 +271,10 @@ export class HistoryComponent implements OnInit {
   }
 
   private loadHapticLogs(): void {
-    const deviceId = this.selectedDeviceId();
-    if (!deviceId) {
+    const deviceParam = this.selectedDeviceIds().length > 0
+      ? this.selectedDeviceIds().join(',')
+      : (this.selectedDeviceId() || 'all');
+    if (this.devices().length === 0 && !this.selectedDeviceId()) {
       this.loading.set(false);
       return;
     }
@@ -254,7 +283,7 @@ export class HistoryComponent implements OnInit {
 
     this.deviceService
       .getHapticHistory(
-        deviceId,
+        deviceParam,
         this.hapticPage(),
         this.pageSize,
         this.hapticStartDate(),

@@ -78,8 +78,11 @@
         <app-device-select
           triggerId="device-select-trigger-mobile"
           [devices]="devices()"
-          [(selectedDeviceId)]="selectedDeviceId"
-          (deviceIdChange)="onDeviceSelected($event)"
+          [multiple]="true"
+          [(selectedDeviceIds)]="selectedDeviceIds"
+          (deviceIdsChange)="onDeviceIdsChange($event)"
+          [allowAll]="true"
+          [allLabel]="'history.all_devices' | translate"
           size="sm"
           [fullWidth]="true"
         />
@@ -114,10 +117,11 @@
           <label class="text-xs font-medium text-gray-700 shrink-0" for="activity-select-trigger-mobile">{{ 'history.activity' | translate }} :</label>
           <app-activity-select
             triggerId="activity-select-trigger-mobile"
-            [(selectedActivity)]="selectedEventType"
-            (activityChange)="onEventTypeChange($event)"
+            [multiple]="true"
+            [(selectedActivities)]="selectedEventTypes"
+            (activitiesChange)="onEventTypesChange($event)"
             [includeFalls]="true"
-            allValue="all"
+            [allLabel]="'history.all_activities' | translate"
             size="sm"
             [fullWidth]="true"
           />
@@ -212,10 +216,11 @@
               <th scope="col" class="px-4 py-2 text-left">
                 <app-activity-select
                   triggerId="activity-select-trigger"
-                  [(selectedActivity)]="selectedEventType"
-                  (activityChange)="onEventTypeChange($event)"
+                  [multiple]="true"
+                  [(selectedActivities)]="selectedEventTypes"
+                  (activitiesChange)="onEventTypesChange($event)"
                   [includeFalls]="true"
-                  allValue="all"
+                  [allLabel]="'history.all_activities' | translate"
                   size="sm"
                   [fullWidth]="true"
                 />
@@ -229,8 +234,11 @@
                 <app-device-select
                   triggerId="device-select-trigger"
                   [devices]="devices()"
-                  [(selectedDeviceId)]="selectedDeviceId"
-                  (deviceIdChange)="onDeviceSelected($event)"
+                  [multiple]="true"
+                  [(selectedDeviceIds)]="selectedDeviceIds"
+                  (deviceIdsChange)="onDeviceIdsChange($event)"
+                  [allowAll]="true"
+                  [allLabel]="'history.all_devices' | translate"
                   size="sm"
                   [fullWidth]="true"
                 />
@@ -349,8 +357,11 @@
                 <app-device-select
                   triggerId="device-select-trigger-haptic"
                   [devices]="devices()"
-                  [(selectedDeviceId)]="selectedDeviceId"
-                  (deviceIdChange)="onDeviceSelected($event)"
+                  [multiple]="true"
+                  [(selectedDeviceIds)]="selectedDeviceIds"
+                  (deviceIdsChange)="onDeviceIdsChange($event)"
+                  [allowAll]="true"
+                  [allLabel]="'history.all_devices' | translate"
                   size="sm"
                   [fullWidth]="true"
                 />

@@ -252,5 +252,74 @@ describe('HistoryComponent', () => {
     expect(component.loading()).toBeFalse();
     expect(toastServiceSpy.error).toHaveBeenCalled();
   });
+
+  it('should reload events when multiple event types are selected via onEventTypesChange', () => {
+    fixture.detectChanges();
+
+    component.onEventTypesChange(['walk', 'run']);
+    expect(component.selectedEventTypes()).toEqual(['walk', 'run']);
+    expect(component.selectedEventType()).toBe('walk,run');
+    expect(component.page()).toBe(1);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      'walk,run',
+      '',
+      ''
+    );
+
+    // Empty array resets to 'all'
+    component.onEventTypesChange([]);
+    expect(component.selectedEventTypes()).toEqual([]);
+    expect(component.selectedEventType()).toBe('all');
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001',
+      1,
+      20,
+      'all',
+      '',
+      ''
+    );
+  });
+
+  it('should reload events and haptics when multiple devices are selected via onDeviceIdsChange', () => {
+    fixture.detectChanges();
+
+    component.onDeviceIdsChange(['hk-device-0001', 'hk-device-0002']);
+    expect(component.selectedDeviceIds()).toEqual(['hk-device-0001', 'hk-device-0002']);
+    expect(component.selectedDeviceId()).toBe('hk-device-0001,hk-device-0002');
+    expect(component.page()).toBe(1);
+    expect(deviceServiceSpy.getActivityEvents).toHaveBeenCalledWith(
+      'hk-device-0001,hk-device-0002',
+      1,
+      20,
+      'all',
+      '',
+      ''
+    );
+
+    // Switch to haptics tab and verify multi-device query
+    component.setTab('haptic');
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith(
+      'hk-device-0001,hk-device-0002',
+      1,
+      20,
+      '',
+      ''
+    );
+
+    // Empty array resets to 'all'
+    component.onDeviceIdsChange([]);
+    expect(component.selectedDeviceIds()).toEqual([]);
+    expect(component.selectedDeviceId()).toBe('all');
+    expect(deviceServiceSpy.getHapticHistory).toHaveBeenCalledWith(
+      'all',
+      1,
+      20,
+      '',
+      ''
+    );
+  });
 });
 

@@ -39,6 +39,9 @@ export class DeviceSelectComponent implements OnInit {
   readonly placeholder = input<string>('');
   readonly triggerId = input<string>('device-select-trigger');
   readonly autoSelectFirst = input<boolean>(false);
+  readonly multiple = input<boolean>(false);
+  readonly selectedDeviceIds = model<string[]>([]);
+  readonly deviceIdsChange = output<string[]>();
 
   // Outputs
   readonly deviceChange = output<DeviceResponse | null>();
@@ -118,8 +121,22 @@ export class DeviceSelectComponent implements OnInit {
   });
 
   readonly isAllSelected = computed<boolean>(() => {
+    if (this.multiple()) {
+      return this.selectedDeviceIds().length === 0 || this.selectedDeviceIds().includes('all');
+    }
     return this.allowAll() && !this.selectedDeviceId() && !this.selectedDevice();
   });
+
+  readonly selectedCount = computed<number>(() => {
+    if (!this.multiple()) {
+      return this.currentDevice() ? 1 : 0;
+    }
+    return this.selectedDeviceIds().filter((id) => id !== 'all').length;
+  });
+
+  isDeviceSelected(id: string): boolean {
+    return this.selectedDeviceIds().includes(id);
+  }
 
   readonly triggerSizeClasses = computed<string>(() => {
     return this.size() === 'sm'
@@ -148,7 +165,29 @@ export class DeviceSelectComponent implements OnInit {
     this.closeDropdown();
   }
 
+  toggleDevice(device: DeviceResponse): void {
+    if (!this.multiple()) {
+      this.selectDevice(device);
+      return;
+    }
+    const current = this.selectedDeviceIds().filter((id) => id !== 'all');
+    const index = current.indexOf(device.device_id);
+    let updated: string[];
+    if (index >= 0) {
+      updated = current.filter((id) => id !== device.device_id);
+    } else {
+      updated = [...current, device.device_id];
+    }
+    this.selectedDeviceIds.set(updated);
+    this.deviceIdsChange.emit(updated);
+  }
+
   selectAll(): void {
+    if (this.multiple()) {
+      this.selectedDeviceIds.set([]);
+      this.deviceIdsChange.emit([]);
+      return;
+    }
     if (!this.allowAll()) return;
     this.selectedDevice.set(null);
     this.selectedDeviceId.set('');
