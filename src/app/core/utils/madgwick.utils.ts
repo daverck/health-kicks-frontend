@@ -9,6 +9,7 @@ export interface OrientationFrame {
   gaitPhase: GaitPhase;
   accelMag: number;
   gyroMag: number;
+  accel?: { ax: number; ay: number; az: number };
 }
 
 /**
@@ -240,6 +241,7 @@ export function computeOrientationTrajectory(
       gaitPhase,
       accelMag,
       gyroMag,
+      accel: { ax: r.ax, ay: r.ay, az: r.az },
     });
   }
 

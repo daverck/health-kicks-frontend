@@ -218,7 +218,8 @@
     </div>
 
     <!-- ISB Biomechanical Standard Guide Banner / Accordion (Discreet & Collapsible) -->
-    <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-2xs">
+    @if (showIsbGuideSection) {
+      <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-3 shadow-2xs">
       <button
         type="button"
         (click)="toggleIsbGuide()"
@@ -340,6 +341,7 @@
         </div>
       }
     </div>
+    }
   }
 </div>
 

@@ -253,6 +253,14 @@ describe('StudioInspectionComponent', () => {
     expect(compiled.querySelector('app-shoe-3d-viewer')).toBeNull();
   });
 
+  it('should render isb-guide component in inspection view', () => {
+    fixture.componentRef.setInput('session', mockStudioSessionSummaries[0]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('app-isb-guide')).not.toBeNull();
+  });
+
   it('should prevent label editing and display locked banner when session is validated', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();

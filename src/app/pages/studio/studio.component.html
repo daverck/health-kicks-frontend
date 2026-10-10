@@ -447,10 +447,10 @@
       </div>
 
       <!-- IMU Charts Component -->
-      <app-imu-chart [readings]="readings()" />
+      <app-imu-chart [readings]="readings()" [showIsbGuideSection]="false" />
 
       @if (readings().length > 0) {
-        <!-- 3D Shoe Visualizer Section on demand -->
+        <!-- 3D Shoe Visualizer Section on demand (Positioned ABOVE ISB standard frame) -->
         <div class="flex justify-center mb-3">
           <button
             type="button"
@@ -468,6 +468,11 @@
             <app-shoe-3d-viewer [readings]="readings()" />
           </div>
         }
+
+        <!-- Biomechanical ISB Guide Frame (Positioned BELOW 3D visualizer) -->
+        <div class="mb-4">
+          <app-isb-guide />
+        </div>
       }
     </div>
   }

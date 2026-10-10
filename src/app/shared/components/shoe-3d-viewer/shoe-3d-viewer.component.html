@@ -74,6 +74,27 @@
         <span class="hidden sm:inline">{{ 'studio_history.axes_isb_toggle' | translate }}</span>
       </button>
 
+      <!-- Acceleration Vectors Toggle -->
+      <button
+        type="button"
+        (click)="toggleAccelVectors()"
+        [attr.aria-pressed]="showAccelVectors()"
+        [class.border-purple-400]="showAccelVectors()"
+        [class.bg-purple-50]="showAccelVectors()"
+        [class.text-purple-800]="showAccelVectors()"
+        [class.dark:bg-purple-950/40]="showAccelVectors()"
+        [class.dark:text-purple-300]="showAccelVectors()"
+        [class.border-gray-200]="!showAccelVectors()"
+        [class.bg-gray-50]="!showAccelVectors()"
+        [class.text-gray-500]="!showAccelVectors()"
+        class="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] font-semibold transition active:scale-95 shadow-2xs"
+        [title]="'studio_history.accel_vectors_tooltip' | translate"
+        data-testid="toggle-accel-vectors-btn"
+      >
+        <span>🚀</span>
+        <span class="hidden sm:inline">{{ 'studio_history.accel_vectors_toggle' | translate }}</span>
+      </button>
+
       <!-- Orbit Reset -->
       <button
         type="button"
@@ -128,7 +149,7 @@
         }
       </div>
 
-      <!-- Real-time Biomechanical Angles -->
+      <!-- Real-time Biomechanical Angles & Acceleration Components -->
       <div class="flex flex-wrap gap-1.5 text-[10px] font-mono text-gray-800">
         <div class="rounded bg-white/85 px-2 py-0.5 border border-gray-200/80 shadow-2xs backdrop-blur-xs">
           <span class="text-gray-400 font-sans">Pitch :</span>
@@ -150,31 +171,44 @@
           </span>
         </div>
 
-        <div class="rounded bg-white/85 px-2 py-0.5 border border-gray-200/80 shadow-2xs backdrop-blur-xs">
-          <span class="text-gray-400 font-sans">Norme :</span>
-          <span class="font-bold ml-1 text-slate-700">{{ liveAccelMag() }}g</span>
+        <div class="rounded bg-white/85 dark:bg-gray-900/85 px-2 py-0.5 border border-gray-200/80 dark:border-gray-800/80 shadow-2xs backdrop-blur-xs flex items-center gap-1.5" data-testid="hud-accel-components">
+          <span class="text-gray-400 font-sans">Accél. :</span>
+          <span class="text-red-600 dark:text-red-400 font-bold">X:{{ liveAx() > 0 ? '+' : '' }}{{ liveAx() }}g</span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-bold">Y:{{ liveAy() > 0 ? '+' : '' }}{{ liveAy() }}g</span>
+          <span class="text-blue-600 dark:text-blue-400 font-bold">Z:{{ liveAz() > 0 ? '+' : '' }}{{ liveAz() }}g</span>
+          <span class="text-purple-700 dark:text-purple-300 font-bold">|a|:{{ liveAccelMag() }}g</span>
         </div>
       </div>
 
-      <!-- ISB Axes Legend -->
-      @if (showAxes()) {
-        <div class="flex items-center gap-2 rounded-md bg-white/90 dark:bg-gray-900/90 px-2 py-0.5 text-[10px] font-semibold border border-gray-200/80 dark:border-gray-800/80 shadow-2xs backdrop-blur-xs">
-          <span class="text-gray-400 font-sans">Axes ISB :</span>
-          <span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400">
-            <span class="h-2 w-2 rounded-full bg-red-500"></span>
-            <span>X (AP)</span>
-          </span>
-          <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span>Y (ML)</span>
-          </span>
-          <span class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400">
-            <span class="h-2 w-2 rounded-full bg-blue-500"></span>
-            <span>Z (Vert)</span>
-          </span>
-        </div>
-      }
-    </div>
+      <!-- ISB Axes & Acceleration Legend -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        @if (showAxes()) {
+          <div class="flex items-center gap-2 rounded-md bg-white/90 dark:bg-gray-900/90 px-2 py-0.5 text-[10px] font-semibold border border-gray-200/80 dark:border-gray-800/80 shadow-2xs backdrop-blur-xs">
+            <span class="text-gray-400 font-sans">Axes ISB :</span>
+            <span class="inline-flex items-center gap-1 text-red-600 dark:text-red-400">
+              <span class="h-2 w-2 rounded-full bg-red-500"></span>
+              <span>X (AP)</span>
+            </span>
+            <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+              <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span>Y (ML)</span>
+            </span>
+            <span class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400">
+              <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+              <span>Z (Vert)</span>
+            </span>
+          </div>
+        }
+
+        @if (showAccelVectors()) {
+          <div class="flex items-center gap-2 rounded-md bg-white/90 dark:bg-gray-900/90 px-2 py-0.5 text-[10px] font-semibold border border-gray-200/80 dark:border-gray-800/80 shadow-2xs backdrop-blur-xs" data-testid="hud-accel-legend">
+            <span class="inline-flex items-center gap-1 text-purple-600 dark:text-purple-400">
+              <span class="h-2 w-2 rounded-full bg-purple-500"></span>
+              <span>{{ 'studio_history.accel_vector_resultant' | translate }}</span>
+            </span>
+          </div>
+        }
+      </div>
 
     <!-- Mouse / Drag hint badge -->
     <div class="absolute bottom-2.5 right-2.5 rounded bg-black/40 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur-xs pointer-events-none">

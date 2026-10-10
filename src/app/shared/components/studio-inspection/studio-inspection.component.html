@@ -224,16 +224,17 @@
             </button>
           </div>
         } @else {
-          <!-- IMU Chart Component (includes discreet ISB guide at the bottom) -->
+          <!-- IMU Chart Component -->
           <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs">
             <app-imu-chart
               [readings]="activeReadings()"
               [playbackTimeSec]="replayPlaybackTime()"
+              [showIsbGuideSection]="false"
               (timeSelected)="onReplayTimeSelected($event)"
             />
           </div>
 
-          <!-- 3D Shoe Visualizer & Biomechanical Replay (On-Demand, Centered, after charts & ISB) -->
+          <!-- 3D Shoe Visualizer & Biomechanical Replay (Positioned ABOVE ISB standard frame) -->
           <div class="mt-4">
             <div class="flex justify-center mb-3">
               <button
@@ -254,6 +255,11 @@
                 (timeSelected)="onReplayTimeSelected($event)"
               />
             }
+          </div>
+
+          <!-- Biomechanical ISB Guide Frame (Positioned BELOW 3D visualizer) -->
+          <div class="mt-4">
+            <app-isb-guide />
           </div>
         }
       </div>

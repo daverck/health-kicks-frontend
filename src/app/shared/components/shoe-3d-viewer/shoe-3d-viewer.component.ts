@@ -59,10 +59,14 @@ export class Shoe3dViewerComponent
   readonly livePitchDeg = signal<number>(0);
   readonly liveRollDeg = signal<number>(0);
   readonly liveYawDeg = signal<number>(0);
+  readonly liveAx = signal<number>(0);
+  readonly liveAy = signal<number>(0);
+  readonly liveAz = signal<number>(1.0);
   readonly liveGaitPhase = signal<GaitPhase>('neutral');
   readonly liveAccelMag = signal<number>(1.0);
   readonly hasWebGlError = signal<boolean>(false);
   readonly showAxes = signal<boolean>(true);
+  readonly showAccelVectors = signal<boolean>(true);
   readonly selectedModel = signal<'sneaker' | 'insole'>('sneaker');
 
   // Playback speeds
@@ -74,6 +78,11 @@ export class Shoe3dViewerComponent
   private renderer: THREE.WebGLRenderer | null = null;
   private shoeGroup: THREE.Group | null = null;
   private axesGroup: THREE.Group | null = null;
+  private accelVectorsGroup: THREE.Group | null = null;
+  private accelResultantArrow: THREE.ArrowHelper | null = null;
+  private accelAxArrow: THREE.ArrowHelper | null = null;
+  private accelAyArrow: THREE.ArrowHelper | null = null;
+  private accelAzArrow: THREE.ArrowHelper | null = null;
   private gridHelper: THREE.GridHelper | null = null;
   private animationFrameId: number | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -238,6 +247,14 @@ export class Shoe3dViewerComponent
     this.renderScene();
   }
 
+  toggleAccelVectors(): void {
+    this.showAccelVectors.update((v) => !v);
+    if (this.accelVectorsGroup) {
+      this.accelVectorsGroup.visible = this.showAccelVectors();
+    }
+    this.renderScene();
+  }
+
   private cachedSneakerMesh: THREE.Group | null = null;
   readonly isModelLoading = signal(false);
 
@@ -346,6 +363,13 @@ export class Shoe3dViewerComponent
     this.axesGroup = this.buildAxesHelper();
     this.axesGroup.visible = this.showAxes();
     this.shoeGroup.add(this.axesGroup);
+
+    if (this.accelVectorsGroup) {
+      this.shoeGroup.remove(this.accelVectorsGroup);
+    }
+    this.accelVectorsGroup = this.buildAccelVectors();
+    this.accelVectorsGroup.visible = this.showAccelVectors();
+    this.shoeGroup.add(this.accelVectorsGroup);
   }
 
   private updateThemeColors(isDark: boolean): void {
@@ -587,6 +611,66 @@ export class Shoe3dViewerComponent
     axes.add(zTip);
 
     return axes;
+  }
+
+  /**
+   * Constructs dynamic 3D acceleration vectors attached to the shoe/sensor coordinate frame:
+   * - Resultant vector (Violet/Purple 0xa855f7): dynamic 3D direction and magnitude |a|
+   * - Ax component arrow (Red 0xef4444): along Three.js Z (sensor X antero-posterior)
+   * - Ay component arrow (Emerald 0x10b981): along Three.js X (sensor Y medio-lateral)
+   * - Az component arrow (Blue 0x3b82f6): along Three.js Y (sensor Z vertical)
+   */
+  private buildAccelVectors(): THREE.Group {
+    const group = new THREE.Group();
+    group.name = 'accel-vectors';
+    group.position.set(0, 0.45, 0);
+
+    // 1. Resultant acceleration vector (Purple 0xa855f7)
+    this.accelResultantArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, 0, 0),
+      0.6,
+      0xa855f7,
+      0.16,
+      0.08
+    );
+    group.add(this.accelResultantArrow);
+
+    // 2. Ax component arrow (Along Three.js Z)
+    this.accelAxArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 0, 1),
+      new THREE.Vector3(0, 0, 0),
+      0.2,
+      0xef4444,
+      0.1,
+      0.05
+    );
+    group.add(this.accelAxArrow);
+
+    // 3. Ay component arrow (Along Three.js X)
+    this.accelAyArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0),
+      new THREE.Vector3(0, 0, 0),
+      0.2,
+      0x10b981,
+      0.1,
+      0.05
+    );
+    group.add(this.accelAyArrow);
+
+    // 4. Az component arrow (Along Three.js Y)
+    this.accelAzArrow = new THREE.ArrowHelper(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, 0, 0),
+      0.5,
+      0x3b82f6,
+      0.1,
+      0.05
+    );
+    group.add(this.accelAzArrow);
+
+    group.visible = this.showAccelVectors();
+    return group;
   }
 
   // --- Orbit & Interaction Handlers ---
@@ -835,7 +919,12 @@ export class Shoe3dViewerComponent
 
     this.shoeGroup.quaternion.copy(targetQ);
 
-    // Elevation bobbing according to gait phase & vertical acceleration
+    const ax = frame.accel?.ax ?? 0;
+    const ay = frame.accel?.ay ?? 0;
+    const az = frame.accel?.az ?? 1.0;
+    const mag = frame.accelMag || Math.sqrt(ax * ax + ay * ay + az * az);
+
+    // Elevation bobbing according to gait phase & vertical acceleration compliance
     let verticalOffset = 0;
     if (frame.gaitPhase === 'heel_strike') {
       verticalOffset = 0.08;
@@ -844,13 +933,77 @@ export class Shoe3dViewerComponent
     } else if (frame.gaitPhase === 'swing') {
       verticalOffset = 0.16;
     }
-    this.shoeGroup.position.y = verticalOffset;
+
+    // Dynamic bounded displacement based on tri-axial accelerations:
+    // Vertical (Y): baseline gait offset + dynamic vertical compliance (az)
+    const vertDynamic = Math.max(-0.06, Math.min((az - 1.0) * 0.06, 0.14));
+    // Forward / backward (Z): reactions to antero-posterior acceleration (ax)
+    const forwardDynamic = Math.max(-0.12, Math.min(ax * 0.05, 0.12));
+    // Lateral (X): reactions to medio-lateral acceleration (ay)
+    const lateralDynamic = Math.max(-0.08, Math.min(ay * 0.04, 0.08));
+
+    this.shoeGroup.position.set(lateralDynamic, verticalOffset + vertDynamic, forwardDynamic);
+
+    // Update dynamic acceleration vectors:
+    if (this.accelVectorsGroup && this.showAccelVectors()) {
+      const scale = 0.55;
+
+      // Resultant 3D acceleration vector:
+      // Three.js (X, Y, Z) = Sensor (Ay, Az, Ax)
+      const resDir = new THREE.Vector3(ay, az, ax);
+      const resMag = resDir.length();
+      if (resMag > 0.001) {
+        resDir.normalize();
+      } else {
+        resDir.set(0, 1, 0);
+      }
+      const resLen = Math.max(0.08, Math.min(resMag * scale, 2.5));
+      this.accelResultantArrow?.setDirection(resDir);
+      this.accelResultantArrow?.setLength(
+        resLen,
+        Math.min(0.14, resLen * 0.35),
+        Math.min(0.07, resLen * 0.2)
+      );
+
+      // Ax arrow (along Three.js Z)
+      const axDir = new THREE.Vector3(0, 0, ax >= 0 ? 1 : -1);
+      const axLen = Math.max(0.02, Math.min(Math.abs(ax) * scale, 1.8));
+      this.accelAxArrow?.setDirection(axDir);
+      this.accelAxArrow?.setLength(
+        axLen,
+        Math.min(0.08, axLen * 0.4),
+        Math.min(0.04, axLen * 0.2)
+      );
+
+      // Ay arrow (along Three.js X)
+      const ayDir = new THREE.Vector3(ay >= 0 ? 1 : -1, 0, 0);
+      const ayLen = Math.max(0.02, Math.min(Math.abs(ay) * scale, 1.8));
+      this.accelAyArrow?.setDirection(ayDir);
+      this.accelAyArrow?.setLength(
+        ayLen,
+        Math.min(0.08, ayLen * 0.4),
+        Math.min(0.04, ayLen * 0.2)
+      );
+
+      // Az arrow (along Three.js Y)
+      const azDir = new THREE.Vector3(0, az >= 0 ? 1 : -1, 0);
+      const azLen = Math.max(0.02, Math.min(Math.abs(az) * scale, 1.8));
+      this.accelAzArrow?.setDirection(azDir);
+      this.accelAzArrow?.setLength(
+        azLen,
+        Math.min(0.08, azLen * 0.4),
+        Math.min(0.04, azLen * 0.2)
+      );
+    }
 
     // Update Live HUD Metrics
     this.livePitchDeg.set(Math.round(frame.euler.pitch * 10) / 10);
     this.liveRollDeg.set(Math.round(frame.euler.roll * 10) / 10);
     this.liveYawDeg.set(Math.round(frame.euler.yaw * 10) / 10);
+    this.liveAx.set(Math.round(ax * 100) / 100);
+    this.liveAy.set(Math.round(ay * 100) / 100);
+    this.liveAz.set(Math.round(az * 100) / 100);
     this.liveGaitPhase.set(frame.gaitPhase);
-    this.liveAccelMag.set(Math.round(frame.accelMag * 100) / 100);
+    this.liveAccelMag.set(Math.round(mag * 100) / 100);
   }
 }

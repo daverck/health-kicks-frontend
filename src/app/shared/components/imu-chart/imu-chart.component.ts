@@ -47,6 +47,7 @@ Chart.register(
 export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() readings: ImuReading[] = [];
   @Input() playbackTimeSec: number | null = null;
+  @Input() showIsbGuideSection = true;
   readonly timeSelected = output<number>();
 
   @ViewChild('accelCanvas') private accelCanvasRef?: ElementRef<HTMLCanvasElement>;

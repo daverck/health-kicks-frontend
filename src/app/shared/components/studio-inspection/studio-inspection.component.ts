@@ -20,6 +20,7 @@ import { StudioSessionSummary } from '../../../models/studio-history.model';
 import { ImuReading } from '../../../models/telemetry.models';
 import { ImuChartComponent } from '../imu-chart/imu-chart.component';
 import { Shoe3dViewerComponent } from '../shoe-3d-viewer/shoe-3d-viewer.component';
+import { IsbGuideComponent } from '../isb-guide/isb-guide.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   PREDEFINED_LABELS,
@@ -50,6 +51,7 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
     TranslatePipe,
     ImuChartComponent,
     Shoe3dViewerComponent,
+    IsbGuideComponent,
   ],
   templateUrl: './studio-inspection.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

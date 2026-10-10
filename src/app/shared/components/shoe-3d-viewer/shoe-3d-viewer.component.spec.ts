@@ -125,4 +125,28 @@ describe('Shoe3dViewerComponent', () => {
     component.setModel('sneaker');
     expect(component.selectedModel()).toBe('sneaker');
   });
+
+  it('should toggle acceleration vectors visibility', () => {
+    expect(component.showAccelVectors()).toBeTrue();
+    component.toggleAccelVectors();
+    expect(component.showAccelVectors()).toBeFalse();
+    component.toggleAccelVectors();
+    expect(component.showAccelVectors()).toBeTrue();
+  });
+
+  it('should render acceleration components and legend in HUD', () => {
+    fixture.componentRef.setInput('readings', mockReadings);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const accelHud = compiled.querySelector('[data-testid="hud-accel-components"]');
+    expect(accelHud).toBeTruthy();
+
+    const accelLegend = compiled.querySelector('[data-testid="hud-accel-legend"]');
+    expect(accelLegend).toBeTruthy();
+
+    component.toggleAccelVectors();
+    fixture.detectChanges();
+    expect(compiled.querySelector('[data-testid="hud-accel-legend"]')).toBeNull();
+  });
 });
