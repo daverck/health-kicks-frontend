@@ -100,6 +100,13 @@
       </div>
     }
 
+    @if (isModelLoading()) {
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/70 dark:bg-gray-950/70 backdrop-blur-xs pointer-events-none z-10">
+        <div class="h-6 w-6 animate-spin rounded-full border-2 border-primary-600 border-t-transparent"></div>
+        <span class="mt-2 text-[11px] font-medium text-gray-500 dark:text-gray-400">Chargement du modèle 3D…</span>
+      </div>
+    }
+
     <!-- Biomechanical HUD (Live Overlay) -->
     <div class="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none">
       <!-- Gait Phase Badge -->

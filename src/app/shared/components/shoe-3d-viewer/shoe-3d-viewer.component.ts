@@ -281,10 +281,6 @@ export class Shoe3dViewerComponent
       return;
     }
 
-    // Add clean procedural fallback while GLB is being loaded or if offline/test
-    const fallback = this.buildProceduralShoe();
-    fallback.name = 'sneaker-fallback';
-    this.shoeGroup.add(fallback);
     this.attachAxesHelper();
     this.renderScene();
 
@@ -296,12 +292,6 @@ export class Shoe3dViewerComponent
         (gltf) => {
           this.isModelLoading.set(false);
           if (!this.shoeGroup || this.selectedModel() !== 'sneaker') return;
-
-          // Remove the fallback
-          const fb = this.shoeGroup.getObjectByName('sneaker-fallback');
-          if (fb) {
-            this.shoeGroup.remove(fb);
-          }
 
           const model = gltf.scene;
 
@@ -338,12 +328,12 @@ export class Shoe3dViewerComponent
         },
         undefined,
         (err) => {
-          console.warn('Could not load /models/blue_sneaker.glb, keeping fallback:', err);
+          console.warn('Could not load /models/blue_sneaker.glb:', err);
           this.isModelLoading.set(false);
         }
       );
     } catch (e) {
-      console.warn('GLTFLoader error, keeping fallback:', e);
+      console.warn('GLTFLoader error:', e);
       this.isModelLoading.set(false);
     }
   }
@@ -374,109 +364,7 @@ export class Shoe3dViewerComponent
     }
   }
 
-  /**
-   * Constructs an anatomical athletic sneaker model using Three.js geometric primitives.
-   * Pivot is placed near the ankle/subtalar joint for biomechanically accurate rotations.
-   */
-  private buildProceduralShoe(): THREE.Group {
-    const root = new THREE.Group();
 
-    // Shared materials
-    const outsoleMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b, // Dark charcoal rubber
-      roughness: 0.85,
-    });
-    const midsoleMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff, // Crisp white foam
-      roughness: 0.35,
-    });
-    const upperMat = new THREE.MeshStandardMaterial({
-      color: 0x1e3a8a, // Deep royal athletic blue
-      roughness: 0.6,
-    });
-    const accentMat = new THREE.MeshStandardMaterial({
-      color: 0x0284c7, // Vibrant cyan accent
-      roughness: 0.4,
-    });
-    const laceMat = new THREE.MeshStandardMaterial({
-      color: 0xf1f5f9,
-      roughness: 0.5,
-    });
-    const clipMat = new THREE.MeshStandardMaterial({
-      color: 0x0f172a, // Black hardware clip
-      metalness: 0.6,
-      roughness: 0.25,
-    });
-    const ledMat = new THREE.MeshBasicMaterial({
-      color: 0x10b981, // Glowing emerald LED
-    });
-
-    // 1. Outsole (Base sole contact)
-    const outsoleGeo = new THREE.BoxGeometry(0.72, 0.08, 1.9);
-    const outsole = new THREE.Mesh(outsoleGeo, outsoleMat);
-    outsole.position.set(0, 0.04, 0.15);
-    outsole.castShadow = true;
-    outsole.receiveShadow = true;
-    root.add(outsole);
-
-    // 2. Midsole Wedge (Cushioned running wedge, thicker at heel)
-    const midsoleGeo = new THREE.BoxGeometry(0.7, 0.12, 1.85);
-    const midsole = new THREE.Mesh(midsoleGeo, midsoleMat);
-    midsole.position.set(0, 0.14, 0.15);
-    midsole.castShadow = true;
-    root.add(midsole);
-
-    // 3. Forefoot & Toe Cap (Curved front rocker)
-    const toeGeo = new THREE.CylinderGeometry(0.34, 0.35, 0.7, 16);
-    toeGeo.rotateZ(Math.PI / 2);
-    const toe = new THREE.Mesh(toeGeo, accentMat);
-    toe.position.set(0, 0.24, 0.82);
-    toe.scale.set(0.9, 0.7, 1.3);
-    toe.castShadow = true;
-    root.add(toe);
-
-    // 4. Main Body / Mesh Upper
-    const upperGeo = new THREE.BoxGeometry(0.68, 0.28, 1.5);
-    const upper = new THREE.Mesh(upperGeo, upperMat);
-    upper.position.set(0, 0.32, 0.12);
-    upper.castShadow = true;
-    root.add(upper);
-
-    // 5. Heel Counter (Reinforced rear support)
-    const heelCounterGeo = new THREE.CylinderGeometry(0.33, 0.34, 0.32, 16);
-    const heelCounter = new THREE.Mesh(heelCounterGeo, accentMat);
-    heelCounter.position.set(0, 0.34, -0.5);
-    heelCounter.scale.set(0.95, 1.0, 1.1);
-    heelCounter.castShadow = true;
-    root.add(heelCounter);
-
-    // 6. Tongue and Lacing System
-    const tongueGeo = new THREE.BoxGeometry(0.32, 0.16, 0.7);
-    const tongue = new THREE.Mesh(tongueGeo, accentMat);
-    tongue.position.set(0, 0.44, 0.32);
-    tongue.rotation.x = -Math.PI / 7;
-    tongue.castShadow = true;
-    root.add(tongue);
-
-    // Crossing laces bars
-    for (let i = 0; i < 4; i++) {
-      const laceGeo = new THREE.BoxGeometry(0.38, 0.02, 0.04);
-      const lace = new THREE.Mesh(laceGeo, laceMat);
-      lace.position.set(0, 0.43 + i * 0.04, 0.18 + i * 0.12);
-      lace.rotation.x = -Math.PI / 7;
-      root.add(lace);
-    }
-
-    // 7. Ankle Collar
-    const collarGeo = new THREE.TorusGeometry(0.24, 0.06, 8, 20);
-    collarGeo.rotateX(Math.PI / 2);
-    const collar = new THREE.Mesh(collarGeo, outsoleMat);
-    collar.position.set(0, 0.52, -0.28);
-    collar.scale.set(1.0, 1.0, 1.3);
-    root.add(collar);
-
-    return root;
-  }
 
   /**
    * Constructs an anatomical orthotic insole (semelle biomécanique clinique)
