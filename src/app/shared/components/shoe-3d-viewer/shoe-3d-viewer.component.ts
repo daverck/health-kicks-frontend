@@ -255,7 +255,7 @@ export class Shoe3dViewerComponent
     this.renderScene();
   }
 
-  private cachedSneakerMesh: THREE.Group | null = null;
+  private static cachedSneakerMesh: THREE.Group | null = null;
   readonly isModelLoading = signal(false);
 
   private rebuildModel(): void {
@@ -276,8 +276,8 @@ export class Shoe3dViewerComponent
   private loadSneakerModel(): void {
     if (!this.shoeGroup) return;
 
-    if (this.cachedSneakerMesh) {
-      const clone = this.cachedSneakerMesh.clone(true);
+    if (Shoe3dViewerComponent.cachedSneakerMesh) {
+      const clone = Shoe3dViewerComponent.cachedSneakerMesh.clone(true);
       this.shoeGroup.add(clone);
       this.attachAxesHelper();
       this.renderScene();
@@ -323,7 +323,7 @@ export class Shoe3dViewerComponent
 
           const container = new THREE.Group();
           container.add(model);
-          this.cachedSneakerMesh = container;
+          Shoe3dViewerComponent.cachedSneakerMesh = container;
 
           this.shoeGroup.add(container.clone(true));
           this.attachAxesHelper();
