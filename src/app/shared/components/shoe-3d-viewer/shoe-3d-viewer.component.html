@@ -15,44 +15,8 @@
       </div>
     </div>
 
-    <!-- Controls: Model Switcher, Axes ISB Toggle & Orbit Reset -->
+    <!-- Controls: Axes ISB Toggle, Accel Vectors & Orbit Reset -->
     <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
-      <!-- 3D Model Switcher -->
-      <div class="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800 p-0.5 text-[11px] font-semibold">
-        <button
-          type="button"
-          (click)="setModel('sneaker')"
-          [class.bg-white]="selectedModel() === 'sneaker'"
-          [class.dark:bg-gray-900]="selectedModel() === 'sneaker'"
-          [class.text-primary-700]="selectedModel() === 'sneaker'"
-          [class.dark:text-primary-400]="selectedModel() === 'sneaker'"
-          [class.shadow-2xs]="selectedModel() === 'sneaker'"
-          [class.text-gray-500]="selectedModel() !== 'sneaker'"
-          class="inline-flex items-center gap-1 rounded-md px-2 py-1 transition"
-          title="Modèle Chaussure Sport"
-          data-testid="model-sneaker-btn"
-        >
-          <span>👟</span>
-          <span class="hidden sm:inline">{{ 'studio_history.model_sneaker' | translate }}</span>
-        </button>
-        <button
-          type="button"
-          (click)="setModel('insole')"
-          [class.bg-white]="selectedModel() === 'insole'"
-          [class.dark:bg-gray-900]="selectedModel() === 'insole'"
-          [class.text-primary-700]="selectedModel() === 'insole'"
-          [class.dark:text-primary-400]="selectedModel() === 'insole'"
-          [class.shadow-2xs]="selectedModel() === 'insole'"
-          [class.text-gray-500]="selectedModel() !== 'insole'"
-          class="inline-flex items-center gap-1 rounded-md px-2 py-1 transition"
-          title="Modèle Semelle Clinique"
-          data-testid="model-insole-btn"
-        >
-          <span>🦶</span>
-          <span class="hidden sm:inline">{{ 'studio_history.model_insole' | translate }}</span>
-        </button>
-      </div>
-
       <!-- ISB Axes Toggle -->
       <button
         type="button"
@@ -319,9 +283,7 @@
     </div>
   </div>
 
-  @if (selectedModel() === 'sneaker') {
-    <p class="text-[10px] text-gray-400 dark:text-gray-500 text-right pr-1">
-      Modèle 3D : <em>Blue Sneaker</em> par Meerschaum Digital (<a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-600 dark:hover:text-gray-300">CC-BY 4.0</a>)
-    </p>
-  }
+  <p class="text-[10px] text-gray-400 dark:text-gray-500 text-right pr-1">
+    Modèle 3D : <em>Blue Sneaker</em> par Meerschaum Digital (<a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-600 dark:hover:text-gray-300">CC-BY 4.0</a>)
+  </p>
 </div>

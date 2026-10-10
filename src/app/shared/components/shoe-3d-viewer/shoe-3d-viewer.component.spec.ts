@@ -118,12 +118,11 @@ describe('Shoe3dViewerComponent', () => {
     expect(component.showAxes()).toBeTrue();
   });
 
-  it('should switch between sneaker and insole 3D models', () => {
+  it('should use the sneaker 3D model by default and not render model switcher buttons', () => {
     expect(component.selectedModel()).toBe('sneaker');
-    component.setModel('insole');
-    expect(component.selectedModel()).toBe('insole');
-    component.setModel('sneaker');
-    expect(component.selectedModel()).toBe('sneaker');
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[data-testid="model-insole-btn"]')).toBeNull();
+    expect(compiled.querySelector('[data-testid="model-sneaker-btn"]')).toBeNull();
   });
 
   it('should toggle acceleration vectors visibility', () => {

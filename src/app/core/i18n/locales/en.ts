@@ -475,8 +475,6 @@ export const en = {
     accel_vectors_toggle: 'Acceleration Vectors',
     accel_vectors_tooltip: 'Show or hide dynamic 3D acceleration vectors',
     accel_vector_resultant: 'Resultant Accel. Vector',
-    model_sneaker: 'Athletic Shoe',
-    model_insole: 'Clinical Insole',
     loading_readings: 'Fetching high-frequency telemetry readings…',
     error_readings: 'Failed to retrieve telemetry frames for this session.',
     samples_count: '{count} IMU samples',

@@ -67,7 +67,7 @@ export class Shoe3dViewerComponent
   readonly hasWebGlError = signal<boolean>(false);
   readonly showAxes = signal<boolean>(true);
   readonly showAccelVectors = signal<boolean>(true);
-  readonly selectedModel = signal<'sneaker' | 'insole'>('sneaker');
+  readonly selectedModel = signal<'sneaker'>('sneaker');
 
   // Playback speeds
   readonly speedOptions: number[] = [0.25, 0.5, 1.0, 2.0];
@@ -258,13 +258,6 @@ export class Shoe3dViewerComponent
   private cachedSneakerMesh: THREE.Group | null = null;
   readonly isModelLoading = signal(false);
 
-  setModel(model: 'sneaker' | 'insole'): void {
-    if (this.selectedModel() === model) return;
-    this.selectedModel.set(model);
-    this.rebuildModel();
-    this.renderScene();
-  }
-
   private rebuildModel(): void {
     if (!this.shoeGroup) return;
 
@@ -277,14 +270,7 @@ export class Shoe3dViewerComponent
       }
     }
 
-    if (this.selectedModel() === 'insole') {
-      const modelMesh = this.buildProceduralInsoleMesh();
-      this.shoeGroup.add(modelMesh);
-      this.attachAxesHelper();
-      this.renderScene();
-    } else {
-      this.loadSneakerModel();
-    }
+    this.loadSneakerModel();
   }
 
   private loadSneakerModel(): void {
@@ -308,7 +294,7 @@ export class Shoe3dViewerComponent
         '/models/blue_sneaker.glb',
         (gltf) => {
           this.isModelLoading.set(false);
-          if (!this.shoeGroup || this.selectedModel() !== 'sneaker') return;
+          if (!this.shoeGroup) return;
 
           const model = gltf.scene;
 
@@ -390,133 +376,7 @@ export class Shoe3dViewerComponent
 
 
 
-  /**
-   * Constructs an anatomical orthotic insole (semelle biomécanique clinique)
-   * with arch contour, heel cup, and distinct color-coded FSR pressure sensor pads.
-   */
-  private buildProceduralInsoleMesh(): THREE.Group {
-    const root = new THREE.Group();
 
-    const baseMat = new THREE.MeshStandardMaterial({
-      color: 0x0f172a, // Deep slate core
-      roughness: 0.8,
-    });
-    const topCoverMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b, // Technical EVA cushion
-      roughness: 0.6,
-    });
-    const archMat = new THREE.MeshStandardMaterial({
-      color: 0x0284c7, // Dynamic arch bridge
-      roughness: 0.4,
-    });
-    const heelSensorMat = new THREE.MeshStandardMaterial({
-      color: 0x06b6d4, // Cyan heel strike sensor
-      roughness: 0.2,
-      emissive: 0x06b6d4,
-      emissiveIntensity: 0.35,
-    });
-    const meta1SensorMat = new THREE.MeshStandardMaterial({
-      color: 0xf59e0b, // Amber 1st metatarsal sensor
-      roughness: 0.2,
-      emissive: 0xf59e0b,
-      emissiveIntensity: 0.35,
-    });
-    const meta5SensorMat = new THREE.MeshStandardMaterial({
-      color: 0x10b981, // Emerald 5th metatarsal sensor
-      roughness: 0.2,
-      emissive: 0x10b981,
-      emissiveIntensity: 0.35,
-    });
-    const toeSensorMat = new THREE.MeshStandardMaterial({
-      color: 0x8b5cf6, // Purple big toe sensor
-      roughness: 0.2,
-      emissive: 0x8b5cf6,
-      emissiveIntensity: 0.35,
-    });
-    const clipMat = new THREE.MeshStandardMaterial({
-      color: 0x1e1e24,
-      metalness: 0.7,
-      roughness: 0.3,
-    });
-    const ledMat = new THREE.MeshBasicMaterial({
-      color: 0x10b981, // Glowing emerald LED
-    });
-
-    // 1. Base Insole Plates (Anatomical footprint)
-    const heelPlateGeo = new THREE.CylinderGeometry(0.32, 0.32, 0.05, 24);
-    const heelPlate = new THREE.Mesh(heelPlateGeo, baseMat);
-    heelPlate.position.set(0, 0.025, -0.45);
-    heelPlate.scale.set(0.95, 1, 1.1);
-    heelPlate.castShadow = true;
-    heelPlate.receiveShadow = true;
-    root.add(heelPlate);
-
-    const midfootPlateGeo = new THREE.BoxGeometry(0.56, 0.05, 0.7);
-    const midfootPlate = new THREE.Mesh(midfootPlateGeo, baseMat);
-    midfootPlate.position.set(0, 0.025, 0.0);
-    midfootPlate.castShadow = true;
-    root.add(midfootPlate);
-
-    const forefootPlateGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.05, 24);
-    const forefootPlate = new THREE.Mesh(forefootPlateGeo, baseMat);
-    forefootPlate.position.set(0, 0.025, 0.55);
-    forefootPlate.scale.set(0.98, 1, 1.25);
-    forefootPlate.castShadow = true;
-    root.add(forefootPlate);
-
-    // 2. Medial Arch Support Contour
-    const archGeo = new THREE.CylinderGeometry(0.12, 0.16, 0.45, 16);
-    archGeo.rotateZ(Math.PI / 2);
-    const arch = new THREE.Mesh(archGeo, archMat);
-    arch.position.set(-0.22, 0.06, 0.02);
-    arch.scale.set(1.1, 0.6, 1.3);
-    arch.castShadow = true;
-    root.add(arch);
-
-    // 3. Deep Heel Cup Contours
-    const heelRimGeo = new THREE.TorusGeometry(0.3, 0.04, 12, 24, Math.PI);
-    heelRimGeo.rotateX(Math.PI / 2);
-    heelRimGeo.rotateZ(Math.PI / 2);
-    const heelRim = new THREE.Mesh(heelRimGeo, topCoverMat);
-    heelRim.position.set(0, 0.06, -0.48);
-    heelRim.scale.set(0.92, 1, 1.15);
-    root.add(heelRim);
-
-    // 4. Clinical FSR Pressure Sensor Pads
-    const heelSensorGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.015, 20);
-    const heelSensor = new THREE.Mesh(heelSensorGeo, heelSensorMat);
-    heelSensor.position.set(0, 0.055, -0.42);
-    root.add(heelSensor);
-
-    const meta1SensorGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.015, 18);
-    const meta1Sensor = new THREE.Mesh(meta1SensorGeo, meta1SensorMat);
-    meta1Sensor.position.set(-0.16, 0.055, 0.45);
-    root.add(meta1Sensor);
-
-    const meta5SensorGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.015, 18);
-    const meta5Sensor = new THREE.Mesh(meta5SensorGeo, meta5SensorMat);
-    meta5Sensor.position.set(0.18, 0.055, 0.42);
-    root.add(meta5Sensor);
-
-    const toeSensorGeo = new THREE.CylinderGeometry(0.075, 0.075, 0.015, 18);
-    const toeSensor = new THREE.Mesh(toeSensorGeo, toeSensorMat);
-    toeSensor.position.set(-0.12, 0.055, 0.78);
-    root.add(toeSensor);
-
-    // 5. Lateral Electronics Clip with Status LED
-    const clipGeo = new THREE.BoxGeometry(0.12, 0.16, 0.22);
-    const clip = new THREE.Mesh(clipGeo, clipMat);
-    clip.position.set(0.32, 0.08, -0.25);
-    clip.castShadow = true;
-    root.add(clip);
-
-    const ledGeo = new THREE.SphereGeometry(0.02, 8, 8);
-    const led = new THREE.Mesh(ledGeo, ledMat);
-    led.position.set(0.385, 0.12, -0.25);
-    root.add(led);
-
-    return root;
-  }
 
   /**
    * Constructs the 3D ISB coordinate axes helper matching ISB Biomechanical Standard colors:

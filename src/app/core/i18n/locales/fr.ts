@@ -443,8 +443,6 @@ export const fr = {
     accel_vectors_toggle: 'Vecteurs d\'accélération',
     accel_vectors_tooltip: 'Afficher ou masquer les vecteurs d\'accélération 3D dynamiques',
     accel_vector_resultant: 'Vecteur Accél. Résultant',
-    model_sneaker: 'Sneaker Sport',
-    model_insole: 'Semelle Clinique',
     loading_readings: 'Récupération des trames haute fréquence…',
     error_readings: 'Impossible de récupérer les trames IMU de cette session.',
     samples_count: '{count} points IMU',
