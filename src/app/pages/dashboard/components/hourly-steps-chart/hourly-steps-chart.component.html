@@ -1,4 +1,4 @@
-<section class="card space-y-4">
+<section class="card h-full flex flex-col justify-between space-y-4">
   <!-- Header -->
   <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 dark:border-gray-800">
     <div>
@@ -16,7 +16,7 @@
   </div>
 
   <!-- Content Container with permanent canvas reference -->
-  <div class="relative min-h-[16rem] w-full">
+  <div class="relative flex-1 min-h-[16rem] w-full flex flex-col justify-center">
     <!-- Loading Overlay -->
     @if (loading()) {
       <div class="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl bg-white/85 backdrop-blur-[1px] dark:bg-gray-900/85">

@@ -39,6 +39,7 @@ Chart.register(
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   templateUrl: './hourly-steps-chart.component.html',
+  host: { class: 'block h-full' },
 })
 export class HourlyStepsChartComponent implements OnDestroy {
   private readonly stepsService = inject(StepsService);

@@ -27,6 +27,7 @@ export interface CalendarDayItem {
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   templateUrl: './activity-calendar.component.html',
+  host: { class: 'block h-full' },
 })
 export class ActivityCalendarComponent implements OnInit {
   private readonly stepsService = inject(StepsService);

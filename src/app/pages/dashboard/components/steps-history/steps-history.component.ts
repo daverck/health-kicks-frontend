@@ -17,6 +17,7 @@ import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   templateUrl: './steps-history.component.html',
+  host: { class: 'block' },
 })
 export class StepsHistoryComponent implements OnChanges {
   private readonly stepsService = inject(StepsService);
