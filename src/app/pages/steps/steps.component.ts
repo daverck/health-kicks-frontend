@@ -47,7 +47,8 @@ export class StepsComponent implements OnInit {
         this.devices.set(devices);
         this.loadingDevices.set(false);
         if (devices.length > 0 && !this.selectedDeviceId()) {
-          this.selectedDeviceId.set(devices[0].device_id);
+          const preferred = devices.find((d) => d.is_online) ?? devices[0];
+          this.selectedDeviceId.set(preferred.device_id);
         }
       },
       error: (err) => {

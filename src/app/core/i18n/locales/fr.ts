@@ -80,6 +80,8 @@ export const fr = {
     level_2: '6 000 – 9 999',
     level_3: '≥ 10 000',
     no_hourly_data: 'Aucun pas enregistré pour cette journée.',
+    empty_hourly_title: 'Aucune activité enregistrée pour cette journée',
+    empty_hourly_desc: 'Les pas sont enregistrés localement dans la chaussure connectée puis synchronisés automatiquement vers le Cloud lors de la connexion avec l’application mobile.',
     prev_month: 'Mois précédent',
     next_month: 'Mois suivant',
   },

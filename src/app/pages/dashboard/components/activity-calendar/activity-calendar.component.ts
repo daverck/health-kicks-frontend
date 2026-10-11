@@ -2,6 +2,7 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   model,
@@ -40,6 +41,15 @@ export class ActivityCalendarComponent implements OnInit {
   readonly loading = signal<boolean>(false);
   readonly error = signal<boolean>(false);
   readonly monthSummaries = signal<Record<string, number>>({});
+
+  constructor() {
+    effect(() => {
+      const devId = this.deviceId();
+      if (devId) {
+        this.loadMonthlyData();
+      }
+    });
+  }
 
   readonly monthLabel = computed(() => {
     const y = this.currentYear();

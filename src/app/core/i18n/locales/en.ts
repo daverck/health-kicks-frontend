@@ -80,6 +80,8 @@ export const en = {
     level_2: '6,000 – 9,999',
     level_3: '≥ 10,000',
     no_hourly_data: 'No steps recorded for this day.',
+    empty_hourly_title: 'No activity recorded for this day',
+    empty_hourly_desc: 'Steps are recorded locally on the smart shoe and automatically synchronized to the Cloud when connected to the mobile app.',
     prev_month: 'Previous month',
     next_month: 'Next month',
   },

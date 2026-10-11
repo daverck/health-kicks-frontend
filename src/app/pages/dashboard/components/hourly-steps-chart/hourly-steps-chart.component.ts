@@ -3,6 +3,7 @@ import {
   ElementRef,
   OnDestroy,
   ViewChild,
+  computed,
   effect,
   inject,
   input,
@@ -52,6 +53,20 @@ export class HourlyStepsChartComponent implements OnDestroy {
   readonly totalDaySteps = signal<number>(0);
   readonly hourlyData = signal<HourlyStepItem[]>([]);
 
+  readonly formattedDate = computed(() => {
+    const dt = this.date();
+    if (!dt) return '';
+    const parts = dt.split('-').map(Number);
+    if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return dt;
+    const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+    return dateObj.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  });
+
   private chart?: Chart;
 
   constructor() {
@@ -93,8 +108,20 @@ export class HourlyStepsChartComponent implements OnDestroy {
   }
 
   private renderChart(data: HourlyStepItem[]): void {
-    if (!this.chartCanvas) return;
+    if (this.totalDaySteps() === 0) {
+      this.destroyChart();
+      return;
+    }
+    if (!this.chartCanvas?.nativeElement) {
+      requestAnimationFrame(() => this.renderChart(data));
+      return;
+    }
     this.destroyChart();
+
+    const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+    const tickColor = isDark ? '#9ca3af' : '#6b7280';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+    const legendColor = isDark ? '#e5e7eb' : '#374151';
 
     const hourMap = new Map<number, HourlyStepItem>();
     for (const item of data) {
@@ -174,16 +201,16 @@ export class HourlyStepsChartComponent implements OnDestroy {
               autoSkip: true,
               maxTicksLimit: 12,
               font: { size: 10 },
-              color: '#6b7280',
+              color: tickColor,
             },
           },
           y: {
             stacked: true,
             beginAtZero: true,
-            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+            grid: { color: gridColor },
             ticks: {
               font: { size: 10 },
-              color: '#6b7280',
+              color: tickColor,
             },
           },
         },
@@ -194,7 +221,7 @@ export class HourlyStepsChartComponent implements OnDestroy {
             labels: {
               boxWidth: 12,
               font: { size: 11 },
-              color: '#374151',
+              color: legendColor,
             },
           },
           tooltip: {
