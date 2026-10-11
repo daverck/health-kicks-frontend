@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { StepsComponent } from './steps.component';
+import { StepsComponent, getLocalDateString } from './steps.component';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { StepsService } from '../../core/services/steps.service';
@@ -35,7 +35,7 @@ describe('StepsComponent', () => {
     stepsServiceSpy.getHourlySteps.and.returnValue(
       of({
         device_id: 'hk-device-0001',
-        date: new Date().toISOString().slice(0, 10),
+        date: getLocalDateString(),
         hourly_data: [],
       })
     );
@@ -57,6 +57,10 @@ describe('StepsComponent', () => {
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should initialize selectedDate with local date string', () => {
+    expect(component.selectedDate()).toBe(getLocalDateString());
   });
 
   it('should load devices and auto-select the first device on init', () => {

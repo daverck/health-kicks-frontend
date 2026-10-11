@@ -22,6 +22,13 @@ export interface CalendarDayItem {
   isSelected: boolean;
 }
 
+function getLocalDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 @Component({
   selector: 'app-activity-calendar',
   standalone: true,
@@ -33,7 +40,7 @@ export class ActivityCalendarComponent implements OnInit {
   private readonly stepsService = inject(StepsService);
 
   readonly deviceId = input.required<string>();
-  readonly selectedDate = model<string>(new Date().toISOString().slice(0, 10));
+  readonly selectedDate = model<string>(getLocalDateString());
   readonly dateSelected = output<string>();
 
   readonly currentYear = signal<number>(new Date().getFullYear());

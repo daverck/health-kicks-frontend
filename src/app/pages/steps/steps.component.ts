@@ -10,6 +10,13 @@ import { StepsHistoryComponent } from '../dashboard/components/steps-history/ste
 import { HourlyStepsChartComponent } from '../dashboard/components/hourly-steps-chart/hourly-steps-chart.component';
 import { ActivityCalendarComponent } from '../dashboard/components/activity-calendar/activity-calendar.component';
 
+export function getLocalDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 @Component({
   selector: 'app-steps',
   standalone: true,
@@ -30,7 +37,7 @@ export class StepsComponent implements OnInit {
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');
-  readonly selectedDate = signal<string>(new Date().toISOString().slice(0, 10));
+  readonly selectedDate = signal<string>(getLocalDateString());
   readonly loadingDevices = signal<boolean>(false);
   readonly devicesError = signal<boolean>(false);
 
