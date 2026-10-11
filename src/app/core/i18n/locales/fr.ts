@@ -341,6 +341,8 @@ export const fr = {
     labels: {
       idle: 'Immobile / Repos',
       idle_desc: 'Capteur posé sur une table ou personne immobile',
+      sit_down: "S'asseoir (Transition)",
+      sit_down_desc: 'Transition debout vers assis (chaise, fauteuil, canapé)',
       walk: 'Marche',
       walk_desc: 'Pas réguliers sur sol plat',
       run: 'Course',

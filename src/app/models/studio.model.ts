@@ -4,6 +4,7 @@
 
 export type StudioActivityCode =
   | 'idle'
+  | 'sit_down'
   | 'walk'
   | 'run'
   | 'stairs'
@@ -41,6 +42,13 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
     icon: '⏸️',
     description: 'Capteur posé sur une table ou personne debout/assise sans bouger',
     badgeColor: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200',
+  },
+  {
+    id: 'sit_down',
+    name: "S'asseoir (Transition)",
+    icon: '🪑',
+    description: 'Transition debout vers assis (chaise, fauteuil, canapé)',
+    badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40',
   },
   {
     id: 'run',

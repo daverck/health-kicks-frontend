@@ -9,16 +9,17 @@ import {
 } from './studio.model';
 
 describe('Studio Model Definitions', () => {
-  it('should define exactly 12 standard studio labels', () => {
-    expect(PREDEFINED_LABELS.length).toBe(12);
-    expect(STANDARD_STUDIO_LABELS.length).toBe(12);
-    expect(STANDARD_STUDIO_LABEL_IDS.size).toBe(12);
+  it('should define exactly 13 standard studio labels', () => {
+    expect(PREDEFINED_LABELS.length).toBe(13);
+    expect(STANDARD_STUDIO_LABELS.length).toBe(13);
+    expect(STANDARD_STUDIO_LABEL_IDS.size).toBe(13);
   });
 
   it('should identify standard labels accurately', () => {
     const standardKeys = [
       'walk',
       'idle',
+      'sit_down',
       'run',
       'stairs',
       'stairs_up',

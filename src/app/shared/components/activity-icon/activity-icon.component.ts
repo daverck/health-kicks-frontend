@@ -34,6 +34,13 @@ import { CommonModule } from '@angular/common';
           <circle cx="12" cy="13.5" r="1.5" fill="currentColor" />
         </svg>
       }
+      @case ('sit_down') {
+        <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
+          <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" />
+          <path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z" />
+          <path d="M5 18v2M19 18v2" />
+        </svg>
+      }
       @case ('stairs') {
         <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
           <path d="M4 19h4v-4h4v-4h4V7h4" />
