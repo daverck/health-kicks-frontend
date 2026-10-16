@@ -429,6 +429,16 @@ describe('AuthService', () => {
         role: 'clinician',
       }));
     });
+
+    it('should discard tampered hk_user role when JWT token claims a different role', () => {
+      const payloadBase64 = btoa(JSON.stringify({ sub: '99', email: 'tamper@hk.local', role: 'user' }));
+      const jwtToken = `header.${payloadBase64}.signature`;
+      localStorage.setItem('hk_access_token', jwtToken);
+      localStorage.setItem('hk_user', JSON.stringify({ id: 99, email: 'tamper@hk.local', role: 'admin', is_active: true }));
+
+      const newService = TestBed.runInInjectionContext(() => new AuthService());
+      expect(newService.user()?.role).toBe('user');
+    });
   });
 });
 

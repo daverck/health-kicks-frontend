@@ -252,19 +252,26 @@ export class AuthService {
     return this.handleOAuthCallback('azure', code, state, codeVerifier);
   }
 
-  private getStoredUser(): UserResponse | null {
+  getStoredUser(): UserResponse | null {
+    const tokenUser = this.getUserFromToken();
     try {
       const raw = localStorage.getItem(USER_KEY);
       if (raw) {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        // Security check: verify that stored user role matches cryptographically signed JWT claim
+        if (tokenUser && tokenUser.role && parsed && parsed.role && parsed.role !== tokenUser.role) {
+          console.warn('[Security] Discrepancy between stored role and token claim. Discarding tampered user object.');
+          return tokenUser;
+        }
+        return parsed;
       }
     } catch {
       // Ignore JSON parse error
     }
-    return this.getUserFromToken();
+    return tokenUser;
   }
 
-  private getUserFromToken(): UserResponse | null {
+  getUserFromToken(): UserResponse | null {
     try {
       const token = localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token');
       if (!token) return null;

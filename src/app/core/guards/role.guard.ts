@@ -21,7 +21,15 @@ export const clinicianOrAdminGuard: CanActivateFn = (
     return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
   }
 
+  // Security check: inspect the signed JWT claims if available to detect localStorage tampering
+  const tokenUser = typeof auth.getUserFromToken === 'function' ? auth.getUserFromToken() : null;
   const currentUser = auth.currentUser ? auth.currentUser() : auth.user();
+
+  // If the JWT payload explicitly contains role 'user', block elevation even if localStorage is tampered
+  if (tokenUser && tokenUser.role === 'user') {
+    return router.createUrlTree(['/dashboard']);
+  }
+
   const role = currentUser?.role;
 
   if (role === 'admin' || role === 'clinician') {

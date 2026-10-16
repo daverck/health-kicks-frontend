@@ -158,5 +158,18 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
     });
     expect(tree).toEqual(jasmine.objectContaining({ commands: ['/login'] }));
   });
+
+  it('should block and redirect to /dashboard if localStorage user role was tampered to admin but JWT token claims role "user"', () => {
+    authServiceSpy.isAuthenticated.and.returnValue(true);
+    authServiceSpy.currentUser.set(mockAdmin);
+    (authServiceSpy as any).getUserFromToken = jasmine.createSpy('getUserFromToken').and.returnValue(mockUser);
+
+    const dummyRoute = {} as ActivatedRouteSnapshot;
+    const dummyState = { url: '/dashboard/studio' } as RouterStateSnapshot;
+
+    const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
+    expect(result).not.toBeTrue();
+    expect(router.createUrlTree).toHaveBeenCalledWith(['/dashboard']);
+  });
 });
 
