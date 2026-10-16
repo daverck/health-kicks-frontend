@@ -24,6 +24,8 @@ describe('OAuthCallbackComponent', () => {
     authServiceSpy = jasmine.createSpyObj('AuthService', [
       'validateOAuthState',
       'handleOAuthCallback',
+      'consumePkceVerifier',
+      'exchangeOAuthTicket',
     ]);
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'info']);
 
@@ -129,6 +131,24 @@ describe('OAuthCallbackComponent', () => {
       expect(component.error()).toBe("Impossible de finaliser l'authentification Google. Veuillez réessayer.");
       expect(toastServiceSpy.error).toHaveBeenCalledWith("Impossible de finaliser l'authentification Google. Veuillez réessayer.");
       expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+
+    it('should exchange one-time ticket with PKCE verifier and navigate to /dashboard/devices on success', async () => {
+      await setup({ ticket: 'one-time-ticket-xyz', state: 'valid-state' }, 'google');
+      authServiceSpy.validateOAuthState.and.returnValue(true);
+      authServiceSpy.consumePkceVerifier.and.returnValue('verifier-abc');
+      authServiceSpy.exchangeOAuthTicket.and.returnValue(
+        of({ access_token: MOCK_TOKEN, user: mockUser })
+      );
+
+      fixture.detectChanges();
+
+      expect(authServiceSpy.validateOAuthState).toHaveBeenCalledWith('google', 'valid-state');
+      expect(authServiceSpy.consumePkceVerifier).toHaveBeenCalledWith('google');
+      expect(authServiceSpy.exchangeOAuthTicket).toHaveBeenCalledWith('one-time-ticket-xyz', 'verifier-abc');
+      expect(toastServiceSpy.success).toHaveBeenCalledWith('Connexion avec Google réussie !');
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard/devices');
+      expect(component.error()).toBeNull();
     });
   });
 

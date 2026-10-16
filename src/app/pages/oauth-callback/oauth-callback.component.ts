@@ -65,8 +65,41 @@ export class OAuthCallbackComponent implements OnInit {
       return;
     }
 
+    const ticket = params.get('ticket');
     const code = params.get('code');
     const state = params.get('state');
+
+    if (ticket) {
+      if (state) {
+        const isValidState = this.auth.validateOAuthState(this.provider, state);
+        if (!isValidState) {
+          const msg = 'Échec de validation de sécurité (paramètre state invalide ou expiré). Veuillez réessayer.';
+          this.error.set(msg);
+          this.toast.error(msg);
+          this.loading.set(false);
+          return;
+        }
+      }
+
+      const verifier = this.auth.consumePkceVerifier ? this.auth.consumePkceVerifier(this.provider) : null;
+      this.auth.exchangeOAuthTicket(ticket, verifier).subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.toast.success(`Connexion avec ${this.providerLabel} réussie !`);
+          this.router.navigateByUrl('/dashboard/devices');
+        },
+        error: (err: any) => {
+          this.loading.set(false);
+          const detail =
+            err?.error?.detail ||
+            err?.error?.message ||
+            `Impossible de finaliser l'authentification ${this.providerLabel}. Veuillez réessayer.`;
+          this.error.set(detail);
+          this.toast.error(detail);
+        },
+      });
+      return;
+    }
 
     if (!code || !state) {
       const msg = `Paramètres d'autorisation ${this.providerLabel} manquants (code ou state absent).`;

@@ -13,6 +13,7 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
@@ -31,6 +32,7 @@ describe('AuthService', () => {
   afterEach(() => {
     httpTesting.verify();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it('should be created and initial state reflects empty localStorage', () => {
@@ -90,7 +92,7 @@ describe('AuthService', () => {
     req.flush(mockGoogleLogin);
   });
 
-  it('should initiate loginWithGoogle, store signed state in sessionStorage and redirect', () => {
+  it('should initiate loginWithGoogle with PKCE S256 challenge, store signed state & verifier in sessionStorage and redirect', () => {
     sessionStorage.clear();
     spyOn(service, 'redirectTo');
     const mockGoogleLogin = {
@@ -101,10 +103,18 @@ describe('AuthService', () => {
 
     service.loginWithGoogle();
 
+    const storedVerifier = sessionStorage.getItem('hk_oauth_pkce_google');
+    expect(storedVerifier).toBeTruthy();
+    expect(storedVerifier!.length).toBe(64);
+    const expectedChallenge = service.computePkceChallenge(storedVerifier!);
+
     const req = httpTesting.expectOne(
-      `${environment.apiUrl}/api/v1/auth/google/login?redirect=false`
+      (r) => r.url === `${environment.apiUrl}/api/v1/auth/google/login`
     );
     expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('redirect')).toBe('false');
+    expect(req.request.params.get('code_challenge')).toBe(expectedChallenge);
+    expect(req.request.params.get('code_challenge_method')).toBe('S256');
     req.flush(mockGoogleLogin);
 
     expect(sessionStorage.getItem('google_oauth_state')).toBe('signed-state-backend');
@@ -159,7 +169,7 @@ describe('AuthService', () => {
     req.flush(mockAzureLogin);
   });
 
-  it('should initiate loginWithMicrosoft, store signed state in sessionStorage and redirect', () => {
+  it('should initiate loginWithMicrosoft with PKCE S256 challenge, store signed state in sessionStorage and redirect', () => {
     sessionStorage.clear();
     spyOn(service, 'redirectTo');
     const mockAzureLogin = {
@@ -170,10 +180,17 @@ describe('AuthService', () => {
 
     service.loginWithMicrosoft();
 
+    const storedVerifier = sessionStorage.getItem('hk_oauth_pkce_azure');
+    expect(storedVerifier).toBeTruthy();
+    const expectedChallenge = service.computePkceChallenge(storedVerifier!);
+
     const req = httpTesting.expectOne(
-      `${environment.apiUrl}/api/v1/auth/azure/login?redirect=false`
+      (r) => r.url === `${environment.apiUrl}/api/v1/auth/azure/login`
     );
     expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('redirect')).toBe('false');
+    expect(req.request.params.get('code_challenge')).toBe(expectedChallenge);
+    expect(req.request.params.get('code_challenge_method')).toBe('S256');
     req.flush(mockAzureLogin);
 
     expect(sessionStorage.getItem('azure_oauth_state')).toBe('signed-state-backend');
@@ -225,6 +242,44 @@ describe('AuthService', () => {
     expect(cbReq.request.method).toBe('POST');
     expect(cbReq.request.body).toEqual({ code: 'c-1', state: 's-1' });
     cbReq.flush(mockLoginResponse);
+  });
+
+  it('should compute RFC 7636 S256 PKCE challenge and consume verifier on callback or ticket exchange', () => {
+    // RFC 7636 Appendix B test vector
+    const rfcVerifier = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk';
+    expect(service.computePkceChallenge(rfcVerifier)).toBe('E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM');
+
+    const verifier = service.generatePkceVerifier('google');
+    expect(verifier.length).toBe(64);
+    expect(sessionStorage.getItem('hk_oauth_pkce_google')).toBe(verifier);
+
+    service.handleOAuthCallback('google', 'code-pkce', 'state-pkce').subscribe();
+    const cbReq = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/google/callback`);
+    expect(cbReq.request.body).toEqual({
+      code: 'code-pkce',
+      state: 'state-pkce',
+      code_verifier: verifier,
+    });
+    cbReq.flush(mockLoginResponse);
+    expect(sessionStorage.getItem('hk_oauth_pkce_google')).toBeNull();
+  });
+
+  it('should exchange one-time OAuth ticket via POST /api/v1/auth/token/exchange and establish session', () => {
+    service.exchangeOAuthTicket('one-time-ticket-123', 'pkce-verifier-456').subscribe((res) => {
+      expect(res.access_token).toBe(MOCK_TOKEN);
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/auth/token/exchange`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      ticket: 'one-time-ticket-123',
+      code_verifier: 'pkce-verifier-456',
+    });
+    req.flush(mockLoginResponse);
+
+    expect(service.isAuthenticated()).toBeTrue();
+    expect(service.token()).toBe(MOCK_TOKEN);
+    expect(service.user()).toEqual(mockUser);
   });
 
 
