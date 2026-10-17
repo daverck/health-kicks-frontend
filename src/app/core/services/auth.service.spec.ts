@@ -377,17 +377,18 @@ describe('AuthService', () => {
       expect(service.user()).toEqual(mockUser);
     });
 
-    it('should throw an error if refreshToken is called without an available refresh token', (done) => {
-      service.refreshToken().subscribe({
-        next: () => {
-          fail('Should not succeed when refresh token is missing');
-          done();
-        },
-        error: (err) => {
-          expect(err.message).toBe('No refresh token available');
-          httpTesting.expectNone(`${environment.apiUrl}/api/v1/auth/refresh`);
-          done();
-        },
+    it('should throw an error if refreshToken is called without an available refresh token', () => {
+      return new Promise<void>((resolve, reject) => {
+        service.refreshToken().subscribe({
+          next: () => {
+            reject(new Error('Should not succeed when refresh token is missing'));
+          },
+          error: (err) => {
+            expect(err.message).toBe('No refresh token available');
+            httpTesting.expectNone(`${environment.apiUrl}/api/v1/auth/refresh`);
+            resolve();
+          },
+        });
       });
     });
 

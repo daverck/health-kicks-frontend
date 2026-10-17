@@ -81,7 +81,9 @@ export class DashboardComponent implements OnInit {
     this.deviceService.listDevices().subscribe({
       next: (devices) => {
         this.devices.set(devices);
-        const targetId = this.route.snapshot.queryParamMap.get('deviceId');
+        const targetId =
+          this.route.snapshot.queryParamMap.get('deviceId') ||
+          this.router.parseUrl(this.router.url).queryParams['deviceId'];
         const matched = targetId ? devices.find((d) => d.device_id === targetId) : null;
         if (matched) {
           this.selectedDevice.set(matched);

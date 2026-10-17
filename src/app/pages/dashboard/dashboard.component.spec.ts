@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { DashboardComponent } from './dashboard.component';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter, Router, ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import {
   mockDevices,
@@ -49,9 +49,15 @@ describe('DashboardComponent', () => {
   });
 
   it('should preselect device specified in queryParams', fakeAsync(() => {
-    const router = TestBed.inject(Router);
-    router.navigate([], { queryParams: { deviceId: 'hk-device-0002' } });
-    tick();
+    const route = TestBed.inject(ActivatedRoute);
+    Object.defineProperty(route, 'snapshot', {
+      value: { ...route.snapshot, queryParamMap: convertToParamMap({ deviceId: 'hk-device-0002' }) },
+      configurable: true,
+    });
+    Object.defineProperty(route, 'queryParamMap', {
+      value: of(convertToParamMap({ deviceId: 'hk-device-0002' })),
+      configurable: true,
+    });
 
     const queryFixture = TestBed.createComponent(DashboardComponent);
     const queryComponent = queryFixture.componentInstance;

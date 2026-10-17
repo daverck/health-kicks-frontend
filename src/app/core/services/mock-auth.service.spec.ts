@@ -51,35 +51,41 @@ describe('MockAuthService', () => {
     expect(user?.is_active).toBeTrue();
   });
 
-  it('devrait retourner le profil mocké via loadMe sans appel HTTP', (done) => {
-    service.loadMe().subscribe((user) => {
-      expect(user.id).toBe(1);
-      expect(user.email).toBe('serckdavid@gmail.com');
-      expect(user.role).toBe('admin');
-      done();
-    });
+  it('devrait retourner le profil mocké via loadMe sans appel HTTP', () => {
+    return new Promise<void>((resolve) => {
+      service.loadMe().subscribe((user) => {
+        expect(user.id).toBe(1);
+        expect(user.email).toBe('serckdavid@gmail.com');
+        expect(user.role).toBe('admin');
+        resolve();
+      });
 
-    // Verify that no HTTP call was made to the backend
-    httpTesting.expectNone(() => true);
+      // Verify that no HTTP call was made to the backend
+      httpTesting.expectNone(() => true);
+    });
   });
 
-  it('devrait simuler le login avec succès sans appel HTTP', (done) => {
-    service.login('autre@healthkicks.local', 'password').subscribe((res) => {
-      expect(res.access_token).toBe('mock-dev-jwt-token');
-      expect(res.user?.id).toBe(1);
-      done();
-    });
+  it('devrait simuler le login avec succès sans appel HTTP', () => {
+    return new Promise<void>((resolve) => {
+      service.login('autre@healthkicks.local', 'password').subscribe((res) => {
+        expect(res.access_token).toBe('mock-dev-jwt-token');
+        expect(res.user?.id).toBe(1);
+        resolve();
+      });
 
-    httpTesting.expectNone(() => true);
+      httpTesting.expectNone(() => true);
+    });
   });
 
-  it('devrait simuler le refresh token sans appel réseau', (done) => {
-    service.refreshToken().subscribe((res) => {
-      expect(res.access_token).toBe('mock-dev-jwt-token');
-      done();
-    });
+  it('devrait simuler le refresh token sans appel réseau', () => {
+    return new Promise<void>((resolve) => {
+      service.refreshToken().subscribe((res) => {
+        expect(res.access_token).toBe('mock-dev-jwt-token');
+        resolve();
+      });
 
-    httpTesting.expectNone(() => true);
+      httpTesting.expectNone(() => true);
+    });
   });
 
   it('devrait simuler la connexion OAuth et rediriger vers le dashboard', () => {
