@@ -1,7 +1,21 @@
-/* You can add global styles to this file, and also import other style files */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Tailwind v4 Preparation: CSS Theme Tokens */
+:root {
+  --color-primary-50: #eef6ff;
+  --color-primary-100: #d9eaff;
+  --color-primary-200: #bcdaff;
+  --color-primary-300: #8ec2ff;
+  --color-primary-400: #599fff;
+  --color-primary-500: #337bff;
+  --color-primary-600: #1d5cf5;
+  --color-primary-700: #1747e1;
+  --color-primary-800: #193cb6;
+  --color-primary-900: #1a368f;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
 
 /* Small shared component classes (Tailwind layer) */
 @layer components {
