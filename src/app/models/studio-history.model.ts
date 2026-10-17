@@ -7,6 +7,9 @@ export interface StudioSessionSummary {
   device_id: string;
   user_id: number;
   user_email?: string | null;
+  author_name?: string | null;
+  subject_pseudonym?: string | null;
+  is_pseudonymized?: boolean;
   label: string;
   sample_count: number;
   duration_sec: number;
@@ -25,6 +28,8 @@ export interface StudioAuthorSummary {
   id: number;
   email: string;
   name?: string | null;
+  subject_pseudonym?: string | null;
+  is_pseudonymized?: boolean;
 }
 
 export interface StudioSessionUpdatePayload {

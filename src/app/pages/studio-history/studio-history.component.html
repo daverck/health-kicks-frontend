@@ -261,7 +261,7 @@
             @if (isAdmin()) {
               <div class="col-span-2">
                 <span class="text-[10px] uppercase tracking-wider text-gray-400 block">{{ 'studio_history.col_author' | translate }}</span>
-                <span class="text-gray-700">{{ s.user_email || ('User #' + s.user_id) }}</span>
+                <span class="text-gray-700">{{ s.user_email || s.author_name || ('User #' + s.user_id) }}</span>
               </div>
             }
           </div>
@@ -517,7 +517,7 @@
                 <!-- Author (Admin only) -->
                 @if (isAdmin()) {
                   <td class="whitespace-nowrap px-2.5 py-2.5 text-gray-700 author-cell">
-                    {{ s.user_email || ('User #' + s.user_id) }}
+                    {{ s.user_email || s.author_name || ('User #' + s.user_id) }}
                   </td>
                 }
 
