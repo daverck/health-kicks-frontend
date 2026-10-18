@@ -151,7 +151,12 @@ export class StudioComponent implements OnInit, OnDestroy {
 
   // Dataset statistics & balance guidance
   readonly targetPerClass = 25;
-  readonly datasetStats = signal<StudioDatasetStats>({ total_sessions: 0, by_label: {} });
+  readonly datasetStats = signal<StudioDatasetStats>({
+    total_sessions: 0,
+    total_duration_sec: 0,
+    total_samples: 0,
+    by_label: {},
+  });
   readonly isLoadingStats = signal<boolean>(false);
 
   readonly classesReachingTarget = computed(() => {

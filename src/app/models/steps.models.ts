@@ -1,30 +1,32 @@
+import { components } from './generated-api.types';
+
 /**
  * Daily step count summary by date and activity type.
  */
-export interface DailyStepsSummary {
-  date: string; // YYYY-MM-DD
-  total_steps: number;
-  by_activity: Record<string, number>; // e.g. { walk: 4120, run: 1850, stairs: 310 }
-}
+export type DailyStepsSummary = components['schemas']['DailyStepsSummary'];
 
 /**
  * Historical daily step count response for a device.
  */
-export interface DailyStepsHistoryResponse {
-  device_id: string;
-  from_date: string;
-  to_date: string;
-  history: DailyStepsSummary[];
-}
+export type DailyStepsHistoryResponse = components['schemas']['DailyStepsHistoryResponse'];
 
-export interface HourlyStepItem {
-  hour: number;
-  total_steps: number;
-  by_activity: Record<string, number>;
-}
+/**
+ * Hourly step distribution item for a 24-hour cycle.
+ */
+export type HourlyStepItem = components['schemas']['HourlyStepItem'];
 
-export interface HourlyStepsResponse {
-  device_id: string;
-  date: string;
-  hourly_data: HourlyStepItem[];
-}
+/**
+ * Hourly steps response breakdown for a specific date.
+ */
+export type HourlyStepsResponse = components['schemas']['HourlyStepsResponse'];
+
+/**
+ * Multi-activity step snapshot sync payload sent by IoT devices or mobile gateways.
+ */
+export type DailyStepsSyncPayload = components['schemas']['DailyStepsSyncPayload'];
+
+/**
+ * Synchronization confirmation response from backend step ingestion service.
+ */
+export type DailyStepsSyncResponse = components['schemas']['DailyStepsSyncResponse'];
+

@@ -1,25 +1,10 @@
-/**
- * TypeScript models generated from the backend OpenAPI contract:
- * http://healthkicks.duckdns.org:8000/openapi.json (HealthKicks Cloud API 1.0.0)
- */
+import { components } from './generated-api.types';
 
 // ---------- Auth ----------
 
-export interface UserResponse {
-  id: number;
-  email: string;
-  name?: string | null;
-  avatar_url?: string | null;
-  role: UserRole;
-  is_active: boolean;
-}
-
-export type UserRole = 'admin' | 'clinician' | 'user';
-
-export interface UserUpdate {
-  role?: UserRole | null;
-  is_active?: boolean | null;
-}
+export type UserResponse = components['schemas']['UserResponse'];
+export type UserRole = components['schemas']['UserRole'];
+export type UserUpdate = components['schemas']['UserUpdate'];
 
 /** Local profile edit payload (name is not yet part of UserUpdate contract). */
 export interface ProfileUpdatePayload {
@@ -28,13 +13,10 @@ export interface ProfileUpdatePayload {
 }
 
 export type User = UserResponse;
-
-export interface TokenResponse {
-  access_token: string;
-  refresh_token?: string;
-  token_type?: string;
-  user?: UserResponse | null;
-}
+export type TokenResponse = components['schemas']['TokenResponse'];
+export type OAuthLoginResponse = components['schemas']['OAuthLoginResponse'];
+export type OAuthCallbackRequest = components['schemas']['OAuthCallbackRequest'];
+export type OAuthTicketExchangeRequest = components['schemas']['OAuthTicketExchangeRequest'];
 
 export interface AuthTokens {
   access_token: string;
@@ -43,90 +25,38 @@ export interface AuthTokens {
 
 // ---------- Devices / IoT ----------
 
-export interface DeviceCreate {
-  device_id: string;
-  name?: string | null;
-}
+export type DeviceCreate = components['schemas']['DeviceCreate'];
+export type DeviceResponse = components['schemas']['DeviceResponse'];
+export type DeviceStatus = components['schemas']['DeviceStatus'];
 
-export interface DeviceResponse {
-  id: number;
-  device_id: string;
-  name?: string | null;
-  status: string;
-  last_seen_utc?: string | null;
-  created_at: string;
-  bound_at_utc?: string | null;
-  is_online?: boolean;
-  last_seen?: string | null;
-  firmware_version?: string | null;
-  last_calibration_time?: string | null;
-}
-
-export interface HapticTrigger {
-  /** 0 - 255 */
-  intensity: number;
-  /** 50 - 10000 ms, default 500 */
-  duration_ms?: number;
-}
+export type HapticTrigger = components['schemas']['HapticTrigger'];
 
 /** Loose response shape for the haptic trigger endpoint (map of string|integer). */
 export interface HapticTriggerResponse {
   [key: string]: string | number;
 }
 
-export interface HapticLogItem {
-  id: number;
-  device_id: string;
-  intensity: number;
-  duration_ms: number;
-  triggered_at_utc: string;
-  triggered_by_user: boolean;
-}
-
-export interface HapticLogPage {
-  items: HapticLogItem[];
-  page: number;
-  page_size: number;
-  total: number;
-}
+export type HapticLogItem = components['schemas']['HapticLogResponse'];
+export type HapticLogResponse = components['schemas']['HapticLogResponse'];
+export type HapticLogPage = components['schemas']['HapticLogPage'];
 
 // ---------- Activity events (history) ----------
 
-export interface ActivityEvent {
-  id: number;
-  device_id: string;
-  event_type: string;
-  timestamp_utc: string;
-  confidence_score?: number | null;
-}
-
-export type ActivityEventResponse = ActivityEvent;
-
-export interface ActivityEventPage {
-  items: ActivityEvent[];
-  page: number;
-  page_size: number;
-  total: number;
-}
+export type ActivityEvent = components['schemas']['ActivityEventResponse'];
+export type ActivityEventResponse = components['schemas']['ActivityEventResponse'];
+export type ActivityEventPage = components['schemas']['ActivityEventPage'];
 
 // Backward-compatibility aliases
 export type FallEventResponse = ActivityEvent;
 export type FallEventPage = ActivityEventPage;
 
-// ---------- Health ----------
+// ---------- Health & Ingestion ----------
 
-export interface HealthResponse {
-  status: string;
-  database: string;
-}
-
-export interface IngestionResponse {
-  status: string;
-  msg_id: string;
-  duplicate: boolean;
-}
+export type HealthResponse = components['schemas']['HealthResponse'];
+export type IngestionResponse = components['schemas']['IngestionResponse'];
 
 // ---------- Telemetry & Studio ----------
 
 export * from './telemetry.models';
 export * from './studio-history.model';
+
