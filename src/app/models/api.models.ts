@@ -60,3 +60,17 @@ export type IngestionResponse = components['schemas']['IngestionResponse'];
 export * from './telemetry.models';
 export * from './studio-history.model';
 
+// ---------- Standard Error Payloads ----------
+
+/** Individual validation error item returned by FastAPI HTTP 422 responses. */
+export interface ApiValidationErrorItem {
+  loc: (string | number)[];
+  msg: string;
+  type: string;
+}
+
+/** Standard FastAPI error payload containing either a message or validation array. */
+export interface ApiErrorPayload {
+  detail: string | ApiValidationErrorItem[];
+}
+

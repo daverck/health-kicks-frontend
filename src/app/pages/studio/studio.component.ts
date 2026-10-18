@@ -76,20 +76,27 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly isCustomStudioLabel = isCustomStudioLabel;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
-  // Devices state
+  /** List of all footwear devices provisioned in the user's account. */
   readonly devices = signal<DeviceResponse[]>([]);
+  /** Device ID currently selected for Studio motion capture. */
   readonly selectedDeviceId = signal<string>('');
+  /** Loading indicator flag while fetching the device list. */
   readonly devicesLoading = signal<boolean>(true);
+  /** Error flag if the device listing query failed. */
   readonly devicesError = signal<boolean>(false);
 
   // Autocomplete & online filtering
+  /** Active search query for filtering candidate devices. */
   readonly deviceSearchQuery = signal<string>('');
+  /** Visibility toggle for the custom dropdown menu. */
   readonly isDeviceDropdownOpen = signal<boolean>(false);
 
+  /** Reactive collection of devices reporting an active 'online' presence. */
   readonly onlineDevices = computed(() => {
     return this.devices().filter((d) => d.status === 'online');
   });
 
+  /** Devices matching the search query among currently online devices. */
   readonly filteredOnlineDevices = computed(() => {
     const query = this.deviceSearchQuery().trim().toLowerCase();
     const online = this.onlineDevices();
@@ -103,14 +110,17 @@ export class StudioComponent implements OnInit, OnDestroy {
     );
   });
 
+  /** Full metadata of the device matching [selectedDeviceId]. */
   readonly selectedDevice = computed(() => {
     const id = this.selectedDeviceId();
     return this.devices().find((d) => d.device_id === id) ?? null;
   });
 
-  // Workflow state machine
+  /** Active phase in the Studio recording state machine ('idle' | 'configuring' | 'recording' | 'complete'). */
   readonly state = signal<StudioState>('idle');
+  /** Activity code selected for recording (e.g. 'walk', 'idle', 'fall_forward'). */
   readonly selectedLabel = signal<string>('walk');
+  /** Custom activity name when 'custom' label is active. */
   readonly customLabel = signal<string>('');
 
   readonly effectiveLabel = computed(() => {
