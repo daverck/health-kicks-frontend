@@ -14,5 +14,6 @@ export interface StudioHistoryFilterParams {
   start_date?: string;
   end_date?: string;
   is_validated?: boolean;
+  cursor?: string | null;
 }
 

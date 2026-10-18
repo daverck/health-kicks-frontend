@@ -63,6 +63,9 @@ export class StudioHistoryService {
       if (params.is_validated !== undefined && params.is_validated !== null) {
         httpParams = httpParams.set('is_validated', params.is_validated.toString());
       }
+      if (params.cursor) {
+        httpParams = httpParams.set('cursor', params.cursor.trim());
+      }
     }
 
     return this.http.get<PaginatedSessionsResponse>(this.base, { params: httpParams });
