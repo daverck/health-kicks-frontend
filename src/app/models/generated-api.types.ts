@@ -182,15 +182,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Google Callback Get
-         * @description Browser redirect handler for Google OAuth2.
-         *
-         *     Extracts the authorization code and state parameter, validates CSRF & expiration,
-         *     exchanges code for user profile, and redirects with a short-lived one-time ticket to:
-         *     - `healthkicks://auth/callback` if target platform is mobile
-         *     - `{frontend_url}/auth/google/callback` (or `/login?error=`) for web clients
-         */
+        /** Google Callback Get */
         get: operations["google_callback_get_api_v1_auth_google_callback_get"];
         put?: never;
         /** Google Callback */
@@ -225,15 +217,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Azure Callback Get
-         * @description Browser redirect handler for Azure AD / Microsoft Entra ID.
-         *
-         *     Extracts the authorization code and state parameter, validates CSRF & expiration,
-         *     exchanges code for user profile, and redirects with a short-lived one-time ticket to:
-         *     - `healthkicks://auth/callback` if target platform is mobile
-         *     - `{frontend_url}/auth/azure/callback` (or `/login?error=`) for web clients
-         */
+        /** Azure Callback Get */
         get: operations["azure_callback_get_api_v1_auth_azure_callback_get"];
         put?: never;
         /** Azure Callback */
@@ -310,9 +294,6 @@ export interface paths {
         /**
          * Get Iot Credentials
          * @description Exchange authenticated user session for temporary AWS STS IoT credentials.
-         *
-         *     Allows clients (mobile app, web dashboard) to connect directly to AWS IoT Core
-         *     via WebSockets SigV4, dynamically scoped to the user's bound devices.
          */
         post: operations["get_iot_credentials_api_v1_auth_iot_credentials_post"];
         delete?: never;
@@ -585,7 +566,7 @@ export interface paths {
         };
         /**
          * List Sessions
-         * @description List studio sessions with RBAC, pagination, and multi-value filters.
+         * @description List studio sessions with RBAC, cursor keyset pagination, and multi-value filters.
          */
         get: operations["list_sessions_api_v1_studio_sessions_get"];
         put?: never;
@@ -832,6 +813,8 @@ export interface components {
             page_size: number;
             /** Total */
             total: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
         };
         /** ActivityEventResponse */
         ActivityEventResponse: {
@@ -1105,6 +1088,8 @@ export interface components {
             page_size: number;
             /** Total */
             total: number;
+            /** Next Cursor */
+            next_cursor?: string | null;
         };
         /** HapticLogResponse */
         HapticLogResponse: {
@@ -1293,7 +1278,10 @@ export interface components {
             /** User Id */
             user_id?: string | null;
         };
-        /** OAuthCallbackRequest */
+        /**
+         * OAuthCallbackRequest
+         * @description OAuth callback POST body.
+         */
         OAuthCallbackRequest: {
             /** Code */
             code: string;
@@ -1302,7 +1290,10 @@ export interface components {
             /** Code Verifier */
             code_verifier?: string | null;
         };
-        /** OAuthLoginResponse */
+        /**
+         * OAuthLoginResponse
+         * @description OAuth login initialization response.
+         */
         OAuthLoginResponse: {
             /** Authorization Url */
             authorization_url: string;
@@ -1332,6 +1323,16 @@ export interface components {
             page: number;
             /** Size */
             size: number;
+            /**
+             * Next Cursor
+             * @description Opaque cursor for keyset pagination of next page
+             */
+            next_cursor?: string | null;
+            /**
+             * Prev Cursor
+             * @description Opaque cursor for keyset pagination of previous page
+             */
+            prev_cursor?: string | null;
         };
         /** RawTelemetryIngestionRequest */
         RawTelemetryIngestionRequest: {
@@ -1359,7 +1360,10 @@ export interface components {
                 [key: string]: unknown;
             }[] | null;
         };
-        /** RefreshTokenRequest */
+        /**
+         * RefreshTokenRequest
+         * @description Token refresh request.
+         */
         RefreshTokenRequest: {
             /** Refresh Token */
             refresh_token: string;
@@ -1606,7 +1610,10 @@ export interface components {
             /** Topic */
             topic: string;
         };
-        /** TokenResponse */
+        /**
+         * TokenResponse
+         * @description JWT Token pair response.
+         */
         TokenResponse: {
             /** Access Token */
             access_token: string;
@@ -1619,7 +1626,10 @@ export interface components {
             token_type: string;
             user: components["schemas"]["UserResponse"];
         };
-        /** UserResponse */
+        /**
+         * UserResponse
+         * @description User profile response.
+         */
         UserResponse: {
             /** Id */
             id: number;
@@ -1723,6 +1733,8 @@ export interface operations {
                 start_date?: string | null;
                 /** @description Date/heure de fin (inclusive, ISO 8601) */
                 end_date?: string | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
                 page?: number;
                 page_size?: number;
             };
@@ -1761,6 +1773,8 @@ export interface operations {
                 start_date?: string | null;
                 /** @description Date/heure de fin (inclusive, ISO 8601) */
                 end_date?: string | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
                 page?: number;
                 page_size?: number;
             };
@@ -1799,6 +1813,8 @@ export interface operations {
                 start_date?: string | null;
                 /** @description Date/heure de fin (inclusive, ISO 8601) */
                 end_date?: string | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
                 page?: number;
                 page_size?: number;
             };
@@ -2251,6 +2267,8 @@ export interface operations {
             query?: {
                 /** @description Optional user ID filter for admins */
                 user_id?: number | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
                 skip?: number;
                 limit?: number;
             };
@@ -2710,6 +2728,8 @@ export interface operations {
             query?: {
                 page?: number;
                 size?: number;
+                /** @description Opaque cursor for keyset pagination */
+                cursor?: string | null;
                 /** @description Single activity label or comma-separated list of labels */
                 label?: string | null;
                 /** @description Single device ID or comma-separated list of device IDs */
