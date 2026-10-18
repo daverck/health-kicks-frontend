@@ -1,6 +1,7 @@
 {
   "name": "health-kicks-app",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -12,6 +13,7 @@
     "test:ci": "vitest run",
     "test:vitest": "vitest run",
     "test:vitest:watch": "vitest",
+    "lint": "eslint .",
     "generate:api": "openapi-typescript ../health-kicks/openapi.json -o src/app/models/generated-api.types.ts"
   },
   "private": true,
@@ -36,13 +38,17 @@
     "@angular/build": "^22.2.3",
     "@angular/cli": "^22.2.3",
     "@angular/compiler-cli": "^22.2.3",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/three": "^0.186.0",
+    "angular-eslint": "^22.6.0",
+    "eslint": "^10.13.0",
     "jsdom": "^30.1.3",
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.30",
-    "@tailwindcss/postcss": "^4.3.3",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.5"
   }
 }
