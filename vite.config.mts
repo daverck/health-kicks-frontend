@@ -1,13 +1,14 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vitest/config';
 import angular from '@analogjs/vite-plugin-angular';
-import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(() => ({
   plugins: [
     angular(),
-    tsconfigPaths(),
   ],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     globals: true,
     setupFiles: ['src/testing/setup-vitest.ts'],

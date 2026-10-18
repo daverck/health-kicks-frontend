@@ -561,6 +561,7 @@ export class StudioComponent implements OnInit, OnDestroy {
           duration_sec: session.duration_sec,
           created_at: new Date().toISOString(),
           is_validated: false,
+          is_pseudonymized: false,
         }
       : null;
 
