@@ -16,28 +16,28 @@
     @if (isAllSelected()) {
       <div class="flex items-center gap-2 truncate">
         <span class="text-sm">🏃</span>
-        <span class="font-medium text-gray-900 truncate">
+        <span class="font-medium text-gray-900 dark:text-gray-100 truncate">
           {{ allLabel() || ('studio_history.filter_all_labels' | translate) }}
         </span>
       </div>
     } @else if (multiple()) {
       <div class="flex items-center gap-2 truncate">
         <span class="text-sm">🏃</span>
-        <span class="font-semibold text-gray-900 truncate">
+        <span class="font-semibold text-gray-900 dark:text-gray-100 truncate">
           {{ selectedCount() }} {{ 'history.activities_selected' | translate }}
         </span>
       </div>
     } @else if (isFallsSelected()) {
       <div class="flex items-center gap-2 truncate">
         <span class="text-sm">🚨</span>
-        <span class="font-medium text-red-700 truncate">
+        <span class="font-medium text-red-700 dark:text-red-400 truncate">
           {{ fallsLabel() || ('history.filter_falls' | translate) }}
         </span>
       </div>
     } @else if (currentLabel()) {
       <div class="flex items-center gap-2 truncate">
         <span class="text-sm flex-shrink-0">{{ currentLabel()!.icon }}</span>
-        <span class="font-semibold text-gray-900 truncate">
+        <span class="font-semibold text-gray-900 dark:text-gray-100 truncate">
           {{ 'studio.labels.' + currentLabel()!.id | translate }}
         </span>
       </div>
@@ -46,14 +46,14 @@
       <div class="flex items-center gap-2 truncate">
         @if (selectedActivity()) {
           <span class="text-sm">{{ isCustomStudioLabel(selectedActivity()) ? customLabelIcon : '🏷️' }}</span>
-          <span class="font-medium text-gray-900 truncate" [class.text-purple-700]="isCustomStudioLabel(selectedActivity())">{{ selectedActivity() }}</span>
+          <span class="font-medium text-gray-900 dark:text-gray-100 truncate" [class.text-purple-700]="isCustomStudioLabel(selectedActivity())" [class.dark:text-purple-300]="isCustomStudioLabel(selectedActivity())">{{ selectedActivity() }}</span>
           @if (isCustomStudioLabel(selectedActivity())) {
-            <span class="inline-flex items-center rounded-sm bg-purple-100 px-1.5 py-0.2 text-[10px] font-semibold text-purple-700">
+            <span class="inline-flex items-center rounded-sm bg-purple-100 px-1.5 py-0.2 text-[10px] font-semibold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border dark:border-purple-800">
               {{ 'history.label_experimental' | translate }}
             </span>
           }
         } @else {
-          <span class="text-gray-400 truncate">
+          <span class="text-gray-400 dark:text-gray-400 truncate">
             {{ placeholder() || ('studio_history.filter_all_labels' | translate) }}
           </span>
         }
@@ -120,9 +120,11 @@
           <button
             type="button"
             (click)="selectAll()"
-            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50 dark:hover:bg-gray-700"
             [class.bg-primary-50]="isAllSelected()"
             [class.text-primary-900]="isAllSelected()"
+            [class.dark:bg-primary-950/60]="isAllSelected()"
+            [class.dark:text-primary-300]="isAllSelected()"
             data-testid="activity-option-all"
           >
             <div class="flex items-center gap-2 truncate pr-2">
@@ -130,16 +132,16 @@
                 <input
                   type="checkbox"
                   [checked]="isAllSelected()"
-                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none dark:border-gray-600"
                 />
               }
               <span class="text-sm">🏃</span>
-              <span class="font-medium text-gray-900 truncate">
+              <span class="font-medium text-gray-900 dark:text-gray-100 truncate">
                 {{ allLabel() || ('studio_history.filter_all_labels' | translate) }}
               </span>
             </div>
             @if (!multiple() && isAllSelected()) {
-              <span class="text-primary-600 font-bold text-sm">✓</span>
+              <span class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
             }
           </button>
         }
@@ -149,9 +151,11 @@
           <button
             type="button"
             (click)="toggleFalls()"
-            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+            class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50 dark:hover:bg-gray-700"
             [class.bg-primary-50]="isFallsSelected()"
             [class.text-primary-900]="isFallsSelected()"
+            [class.dark:bg-primary-950/60]="isFallsSelected()"
+            [class.dark:text-primary-300]="isFallsSelected()"
             data-testid="activity-option-falls"
           >
             <div class="flex items-center gap-2 truncate pr-2">
@@ -159,22 +163,22 @@
                 <input
                   type="checkbox"
                   [checked]="isFallsSelected()"
-                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                  class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none dark:border-gray-600"
                 />
               }
               <span class="text-sm">🚨</span>
-              <span class="font-medium text-red-700 truncate">
+              <span class="font-medium text-red-700 dark:text-red-400 truncate">
                 {{ fallsLabel() || ('history.filter_falls' | translate) }}
               </span>
             </div>
             @if (!multiple() && isFallsSelected()) {
-              <span class="text-primary-600 font-bold text-sm">✓</span>
+              <span class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
             }
           </button>
         }
 
         @if (filteredLabels().length === 0 && searchQuery()) {
-          <div class="p-4 text-center text-xs text-gray-500">
+          <div class="p-4 text-center text-xs text-gray-500 dark:text-gray-400">
             {{ 'dashboard.no_device_found' | translate }}
           </div>
         } @else {
@@ -182,9 +186,11 @@
             <button
               type="button"
               (click)="toggleActivity(label)"
-              class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50"
+              class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50 dark:hover:bg-gray-700"
               [class.bg-primary-50]="multiple() ? isActivitySelected(label.id) : (selectedActivity() === label.id)"
               [class.text-primary-900]="multiple() ? isActivitySelected(label.id) : (selectedActivity() === label.id)"
+              [class.dark:bg-primary-950/60]="multiple() ? isActivitySelected(label.id) : (selectedActivity() === label.id)"
+              [class.dark:text-primary-300]="multiple() ? isActivitySelected(label.id) : (selectedActivity() === label.id)"
               [attr.data-testid]="'activity-option-' + label.id"
             >
               <div class="flex items-center gap-2.5 truncate pr-2">
@@ -192,16 +198,16 @@
                   <input
                     type="checkbox"
                     [checked]="isActivitySelected(label.id)"
-                    class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none"
+                    class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none dark:border-gray-600"
                   />
                 }
                 <span class="text-sm flex-shrink-0">{{ label.icon }}</span>
                 <div class="truncate">
-                  <span class="font-medium text-gray-900 truncate">
+                  <span class="font-medium text-gray-900 dark:text-gray-100 truncate">
                     {{ 'studio.labels.' + label.id | translate }}
                   </span>
                   @if (label.description) {
-                    <p class="truncate text-[10px] text-gray-400">
+                    <p class="truncate text-[10px] text-gray-400 dark:text-gray-400">
                       {{ 'studio.labels.' + label.id + '_desc' | translate }}
                     </p>
                   }
@@ -209,7 +215,7 @@
               </div>
 
               @if (!multiple() && selectedActivity() === label.id) {
-                <span class="text-primary-600 font-bold text-sm flex-shrink-0">✓</span>
+                <span class="text-primary-600 dark:text-primary-400 font-bold text-sm flex-shrink-0">✓</span>
               }
             </button>
           }

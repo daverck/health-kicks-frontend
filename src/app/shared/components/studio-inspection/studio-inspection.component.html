@@ -1,6 +1,6 @@
 @if (session(); as s) {
   <div
-    class="flex flex-col bg-white"
+    class="flex flex-col bg-white dark:bg-gray-900"
     [class.h-full]="!isStandalone()"
     [class.min-h-0]="!isStandalone()"
     [class.flex-1]="!isStandalone()"
@@ -8,25 +8,26 @@
     [class.rounded-2xl]="isStandalone()"
     [class.border]="isStandalone()"
     [class.border-gray-200]="isStandalone()"
+    [class.dark:border-gray-800]="isStandalone()"
     [class.shadow-sm]="isStandalone()"
   >
     <!-- Inspection Header -->
-    <div class="shrink-0 flex flex-wrap items-center justify-between border-b border-gray-200 px-4 py-3 sm:px-6 sm:py-4 bg-gray-50/50 gap-3">
+    <div class="shrink-0 flex flex-wrap items-center justify-between border-b border-gray-200 dark:border-gray-800 px-4 py-3 sm:px-6 sm:py-4 bg-gray-50/50 dark:bg-gray-800/50 gap-3">
       <div class="min-w-0 flex-1">
         <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
           @if (isStandalone()) {
             <a
               routerLink="/dashboard/studio/history"
-              class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-900 transition mr-1"
+              class="inline-flex items-center gap-1 text-xs font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition mr-1"
               data-testid="standalone-back-link"
             >
               <span>←</span>
               <span>{{ 'studio_history.back_to_history' | translate }}</span>
             </a>
-            <span class="text-gray-300">/</span>
+            <span class="text-gray-300 dark:text-gray-600">/</span>
           }
 
-          <h2 class="text-sm sm:text-base font-bold text-gray-900">
+          <h2 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">
             {{ 'studio_history.drawer_title' | translate }}
           </h2>
 
@@ -77,7 +78,7 @@
         <button
           type="button"
           (click)="copyShareLink()"
-          class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95"
+          class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           [title]="'studio_history.copy_link' | translate"
           [attr.aria-label]="'studio_history.copy_link' | translate"
           data-testid="copy-link-btn"
@@ -93,7 +94,7 @@
           type="button"
           (click)="exportJson()"
           [disabled]="isLoadingReadings()"
-          class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+          class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           [title]="'studio_history.export_json' | translate"
           [attr.aria-label]="'studio_history.export_json' | translate"
           data-testid="export-json-btn"
@@ -106,7 +107,7 @@
           <!-- Open in Full Page Link -->
           <a
             [routerLink]="['/dashboard/studio/history', s.id]"
-            class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95"
+            class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
             [title]="'studio_history.open_full_page' | translate"
             data-testid="open-full-page-btn"
           >
@@ -117,13 +118,13 @@
 
         <!-- Previous / Next Session Navigation (if enabled) -->
         @if (showNavigation() && !isStandalone()) {
-          <div class="flex items-center rounded-lg border border-gray-200 bg-white p-0.5 shadow-xs">
+          <div class="flex items-center rounded-lg border border-gray-200 bg-white p-0.5 shadow-xs dark:border-gray-700 dark:bg-gray-800">
             <button
               id="prev-session-btn"
               type="button"
               (click)="previous.emit()"
               [disabled]="!hasPrevious()"
-              class="inline-flex items-center gap-1 rounded-md px-2 sm:px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+              class="inline-flex items-center gap-1 rounded-md px-2 sm:px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-700"
               [title]="'studio_history.prev' | translate"
               [attr.aria-label]="'studio_history.prev' | translate"
               data-testid="prev-session-btn"
@@ -134,14 +135,14 @@
               <span class="hidden sm:inline">{{ 'studio_history.prev' | translate }}</span>
             </button>
 
-            <span class="h-3.5 w-px bg-gray-200 mx-0.5"></span>
+            <span class="h-3.5 w-px bg-gray-200 dark:bg-gray-700 mx-0.5"></span>
 
             <button
               id="next-session-btn"
               type="button"
               (click)="next.emit()"
               [disabled]="!hasNext()"
-              class="inline-flex items-center gap-1 rounded-md px-2 sm:px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+              class="inline-flex items-center gap-1 rounded-md px-2 sm:px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-700"
               [title]="'studio_history.next' | translate"
               [attr.aria-label]="'studio_history.next' | translate"
               data-testid="next-session-btn"
@@ -159,7 +160,7 @@
           id="close-inspection-btn"
           type="button"
           (click)="close.emit()"
-          class="rounded-lg p-1.5 sm:p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+          class="rounded-lg p-1.5 sm:p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200 transition"
           [attr.aria-label]="'common.close' | translate"
           data-testid="close-inspection-btn"
         >
@@ -177,17 +178,17 @@
     >
       <!-- Telemetry Metadata Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-        <div class="rounded-xl border border-gray-100 bg-gray-50 p-3">
+        <div class="rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-800/60">
           <span class="text-gray-400 uppercase tracking-wider text-[10px]">{{ 'studio_history.col_device' | translate }}</span>
-          <p class="mt-1 font-mono font-semibold text-gray-800">{{ s.device_id }}</p>
+          <p class="mt-1 font-mono font-semibold text-gray-800 dark:text-gray-200">{{ s.device_id }}</p>
         </div>
-        <div class="rounded-xl border border-gray-100 bg-gray-50 p-3">
+        <div class="rounded-xl border border-gray-100 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-800/60">
           <span class="text-gray-400 uppercase tracking-wider text-[10px]">{{ 'studio_history.col_samples' | translate }}</span>
-          <p class="mt-1 font-semibold text-gray-800">{{ s.sample_count }} points</p>
+          <p class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ s.sample_count }} points</p>
         </div>
-        <div class="rounded-xl border border-gray-100 bg-gray-50 p-3 col-span-2 sm:col-span-1">
+        <div class="rounded-xl border border-gray-100 bg-gray-50 p-3 col-span-2 sm:col-span-1 dark:border-gray-800 dark:bg-gray-800/60">
           <span class="text-gray-400 uppercase tracking-wider text-[10px]">{{ 'studio_history.col_duration' | translate }}</span>
-          <p class="mt-1 font-semibold text-gray-800">{{ s.duration_sec }}s</p>
+          <p class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ s.duration_sec }}s</p>
         </div>
       </div>
 
@@ -220,7 +221,7 @@
           </div>
         } @else {
           <!-- IMU Chart Component -->
-          <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs">
+          <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-2xs dark:border-gray-800 dark:bg-gray-900">
             <app-imu-chart
               [readings]="activeReadings()"
               [playbackTimeSec]="replayPlaybackTime()"
@@ -238,7 +239,7 @@
               class="flex w-full items-center justify-between text-left text-xs font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition group focus:outline-none"
             >
               <span class="flex items-center gap-2">
-                <span class="text-base sm:text-lg">👟</span>
+                <span class="text-base sm:lg">👟</span>
                 <span>{{ (show3dViewer() ? 'studio_history.hide_3d_viewer' : 'studio_history.show_3d_viewer') | translate }}</span>
               </span>
               <span class="text-xs text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200 transition">
@@ -265,19 +266,19 @@
       </div>
 
       <!-- Curation Actions Section -->
-      <div class="rounded-xl border border-gray-200 bg-gray-50/60 p-5 space-y-4">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700">
+      <div class="rounded-xl border border-gray-200 bg-gray-50/60 p-5 space-y-4 dark:border-gray-800 dark:bg-gray-800/40">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
           {{ 'studio_history.curation_title' | translate }}
         </h3>
 
         <!-- Validation Action if pending -->
         @if (!s.is_validated) {
-          <div class="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div class="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 flex flex-wrap items-center justify-between gap-3 dark:border-amber-900/50 dark:bg-amber-950/30">
             <div>
-              <p class="text-xs font-bold text-amber-800">
+              <p class="text-xs font-bold text-amber-800 dark:text-amber-300">
                 {{ 'studio_history.status_pending' | translate }}
               </p>
-              <p class="text-[11px] text-amber-700 mt-0.5">
+              <p class="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5">
                 Cette capture n'a pas encore été validée.
               </p>
             </div>
@@ -303,12 +304,12 @@
         @if (!s.is_validated) {
           <div class="space-y-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <label class="block text-xs font-medium text-gray-700">
+              <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
                 {{ 'studio_history.change_label' | translate }}
               </label>
 
               <!-- Mode Toggle Pill: Predefined vs Custom -->
-              <div class="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-2xs text-[11px]">
+              <div class="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-2xs text-[11px] dark:border-gray-700 dark:bg-gray-800">
                 <button
                   id="label-mode-predefined-btn"
                   type="button"
@@ -316,8 +317,8 @@
                   data-testid="label-mode-predefined"
                   class="rounded-md px-2 py-0.5 font-medium transition"
                   [ngClass]="labelEditMode() === 'predefined'
-                    ? 'bg-primary-50 font-semibold text-primary-700 shadow-2xs'
-                    : 'text-gray-500 hover:text-gray-800'"
+                    ? 'bg-primary-50 font-semibold text-primary-700 shadow-2xs dark:bg-primary-950/70 dark:text-primary-300'
+                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'"
                 >
                   📋 {{ 'studio_history.label_mode_predefined' | translate }}
                 </button>
@@ -328,8 +329,8 @@
                   data-testid="label-mode-custom"
                   class="rounded-md px-2 py-0.5 font-medium transition"
                   [ngClass]="labelEditMode() === 'custom'
-                    ? 'bg-primary-50 font-semibold text-primary-700 shadow-2xs'
-                    : 'text-gray-500 hover:text-gray-800'"
+                    ? 'bg-primary-50 font-semibold text-primary-700 shadow-2xs dark:bg-primary-950/70 dark:text-primary-300'
+                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'"
                 >
                   ✏️ {{ 'studio_history.label_mode_custom' | translate }}
                 </button>
@@ -344,7 +345,7 @@
                   [ngModel]="editLabelValue()"
                   (ngModelChange)="editLabelValue.set($event)"
                   data-testid="edit-label-select"
-                  class="flex-1 min-w-[200px] rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                  class="flex-1 min-w-[200px] rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 >
                   @for (l of predefinedLabels; track l.id) {
                     <option [value]="l.id">{{ l.icon }} {{ 'studio.labels.' + l.id | translate }}</option>
@@ -362,13 +363,13 @@
                     (ngModelChange)="customLabelValue.set($event)"
                     (keydown.enter)="canSaveLabel() && !isUpdatingLabel() && updateLabel()"
                     data-testid="edit-custom-label-input"
-                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 pr-8 text-xs font-medium text-gray-800 placeholder:text-gray-400 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                    class="w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 pr-8 text-xs font-medium text-gray-800 placeholder:text-gray-400 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
                   />
                   @if (customLabelValue()) {
                     <button
                       type="button"
                       (click)="customLabelValue.set('')"
-                      class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xs"
+                      class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs"
                       aria-label="Effacer le label"
                     >
                       ✕
@@ -425,21 +426,21 @@
         }
 
         <!-- Delete Session Action -->
-        <div class="border-t border-gray-200/80 pt-4">
+        <div class="border-t border-gray-200/80 dark:border-gray-800 pt-4">
           @if (!showDeleteConfirm()) {
             <button
               id="delete-session-btn"
               type="button"
               (click)="confirmDelete()"
               data-testid="delete-session-btn"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-red-600 shadow-2xs hover:bg-red-50 transition active:scale-95"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-red-600 shadow-2xs hover:bg-red-50 transition active:scale-95 dark:border-red-900/50 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-950/40"
             >
               <span>🗑️</span> {{ 'studio_history.delete_session' | translate }}
             </button>
           } @else {
             <!-- Confirmation Banner -->
-            <div class="rounded-lg border border-red-200 bg-red-50/80 p-3 space-y-2">
-              <p class="text-xs font-medium text-red-800">
+            <div class="rounded-lg border border-red-200 bg-red-50/80 p-3 space-y-2 dark:border-red-900/50 dark:bg-red-950/40">
+              <p class="text-xs font-medium text-red-800 dark:text-red-300">
                 ⚠️ {{ 'studio_history.delete_confirm' | translate }}
               </p>
               <div class="flex items-center gap-2">
@@ -457,7 +458,7 @@
                   type="button"
                   (click)="cancelDelete()"
                   data-testid="cancel-delete-btn"
-                  class="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition active:scale-95"
+                  class="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   {{ 'common.cancel' | translate }}
                 </button>
