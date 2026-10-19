@@ -436,6 +436,7 @@ export const fr = {
     next: 'Suivant',
     loading: 'Chargement des sessions…',
     error_loading: 'Impossible de charger l’historique des sessions.',
+    error_service_unavailable: 'Service temporairement indisponible, veuillez vérifier votre connexion.',
     retry: 'Réessayer',
     drawer_title: 'Inspection de la capture',
     drawer_subtitle: 'Trames IMU haute fréquence (DynamoDB)',

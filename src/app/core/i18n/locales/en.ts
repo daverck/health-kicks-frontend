@@ -468,6 +468,7 @@ export const en = {
     next: 'Next',
     loading: 'Loading sessions…',
     error_loading: 'Failed to load session history.',
+    error_service_unavailable: 'Service temporarily unavailable, please check your connection.',
     retry: 'Retry',
     drawer_title: 'Capture Inspection',
     drawer_subtitle: 'High-frequency IMU telemetry frames (DynamoDB)',

@@ -228,8 +228,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
         this.errorMessage.set(
           err?.status === 0
-            ? 'Service temporairement indisponible, vérifiez votre connexion.'
-            : (err?.error?.detail ?? 'Impossible de charger l’historique des sessions.')
+            ? this.translation.translate('studio_history.error_service_unavailable')
+            : (err?.error?.detail ?? this.translation.translate('studio_history.error_loading'))
         );
       },
     });
