@@ -21,7 +21,7 @@
   } @else {
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <!-- Navigation par onglets (placée en premier pour ne jamais bouger) -->
-    <div class="flex rounded-lg border border-gray-200 bg-white p-1 text-sm shadow-sm w-fit">
+    <div class="flex rounded-lg border border-gray-200 bg-white p-1 text-sm shadow-sm w-fit dark:border-gray-800 dark:bg-gray-900">
       <button
         id="tab-activities"
         type="button"
@@ -30,7 +30,9 @@
         [class.bg-primary-600]="activeTab() === 'activities'"
         [class.text-white]="activeTab() === 'activities'"
         [class.text-gray-600]="activeTab() !== 'activities'"
+        [class.dark:text-gray-400]="activeTab() !== 'activities'"
         [class.hover:text-gray-900]="activeTab() !== 'activities'"
+        [class.dark:hover:text-white]="activeTab() !== 'activities'"
       >
         <span>🏃 {{ 'history.tab_activities' | translate }}</span>
         @if (total() !== null) {
@@ -38,8 +40,12 @@
             class="rounded-full px-2 py-0.5 text-xs font-semibold"
             [class.bg-white]="activeTab() === 'activities'"
             [class.text-primary-700]="activeTab() === 'activities'"
+            [class.dark:bg-gray-950]="activeTab() === 'activities'"
+            [class.dark:text-primary-300]="activeTab() === 'activities'"
             [class.bg-gray-100]="activeTab() !== 'activities'"
             [class.text-gray-600]="activeTab() !== 'activities'"
+            [class.dark:bg-gray-800]="activeTab() !== 'activities'"
+            [class.dark:text-gray-300]="activeTab() !== 'activities'"
           >
             {{ total() }}
           </span>
@@ -54,7 +60,9 @@
         [class.bg-primary-600]="activeTab() === 'haptic'"
         [class.text-white]="activeTab() === 'haptic'"
         [class.text-gray-600]="activeTab() !== 'haptic'"
+        [class.dark:text-gray-400]="activeTab() !== 'haptic'"
         [class.hover:text-gray-900]="activeTab() !== 'haptic'"
+        [class.dark:hover:text-white]="activeTab() !== 'haptic'"
       >
         <span>📳 {{ 'history.tab_haptics' | translate }}</span>
         @if (hapticTotal() !== null) {
@@ -62,8 +70,12 @@
             class="rounded-full px-2 py-0.5 text-xs font-semibold"
             [class.bg-white]="activeTab() === 'haptic'"
             [class.text-primary-700]="activeTab() === 'haptic'"
+            [class.dark:bg-gray-950]="activeTab() === 'haptic'"
+            [class.dark:text-primary-300]="activeTab() === 'haptic'"
             [class.bg-gray-100]="activeTab() !== 'haptic'"
             [class.text-gray-600]="activeTab() !== 'haptic'"
+            [class.dark:bg-gray-800]="activeTab() !== 'haptic'"
+            [class.dark:text-gray-300]="activeTab() !== 'haptic'"
           >
             {{ hapticTotal() }}
           </span>
@@ -189,17 +201,17 @@
 
       <!-- Table (desktop) -->
       <section class="card hidden min-h-[380px] overflow-x-auto p-0 md:block">
-        <table class="min-w-full divide-y divide-gray-100 text-sm">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
+          <thead class="bg-gray-50 dark:bg-gray-800/80">
             <!-- Row 1: Column Titles -->
             <tr>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[210px]">{{ 'history.activity' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[110px]">{{ 'history.confidence_col' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[230px]">{{ 'history.device' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[210px]">{{ 'history.activity' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[110px]">{{ 'history.confidence_col' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[230px]">{{ 'history.device' | translate }}</th>
             </tr>
             <!-- Row 2: Filters directly above corresponding columns -->
-            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal">
+            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal dark:border-gray-750 dark:bg-gray-800/50">
               <!-- Timestamp: Date filter -->
               <th scope="col" class="px-4 py-2 text-left">
                 <app-date-filter
@@ -245,23 +257,23 @@
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
             @if (events().length === 0) {
               <tr>
-                <td colspan="4" class="py-12 text-center text-sm text-gray-500">
+                <td colspan="4" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                   {{ 'history.empty_activities' | translate }}
                 </td>
               </tr>
             } @else if (filteredEvents().length === 0) {
               <tr>
-                <td colspan="4" class="py-12 text-center text-sm text-gray-500">
+                <td colspan="4" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                   {{ 'history.no_match' | translate }}
                 </td>
               </tr>
             } @else {
               @for (event of filteredEvents(); track event.id) {
-                <tr class="hover:bg-gray-50">
-                  <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ event.timestamp_utc | date:'medium' }}</td>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                  <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ event.timestamp_utc | date:'medium' }}</td>
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-1.5">
                       <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border"
@@ -276,10 +288,10 @@
                       }
                     </div>
                   </td>
-                  <td class="px-4 py-3 text-gray-600 font-medium">
+                  <td class="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">
                     @if (event.confidence_score != null) { {{ (event.confidence_score * 100).toFixed(0) }} % } @else { — }
                   </td>
-                  <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ event.device_id }}</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ event.device_id }}</td>
                 </tr>
               }
             }
@@ -323,18 +335,18 @@
 
       <!-- Table (desktop) -->
       <section class="card hidden min-h-[380px] overflow-x-auto p-0 md:block">
-        <table class="min-w-full divide-y divide-gray-100 text-sm">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
+          <thead class="bg-gray-50 dark:bg-gray-800/80">
             <!-- Row 1: Column Titles -->
             <tr>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[130px]">{{ 'history.intensity' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[110px]">{{ 'history.duration' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[130px]">Déclenché par</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 min-w-[230px]">{{ 'history.device' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[130px]">{{ 'history.intensity' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[110px]">{{ 'history.duration' | translate }}</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[130px]">Déclenché par</th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[230px]">{{ 'history.device' | translate }}</th>
             </tr>
             <!-- Row 2: Filters directly above corresponding columns -->
-            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal">
+            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal dark:border-gray-750 dark:bg-gray-800/50">
               <!-- Timestamp: Date filter -->
               <th scope="col" class="px-4 py-2 text-left">
                 <app-date-filter
@@ -368,32 +380,36 @@
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-50">
+          <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
             @if (hapticLogs().length === 0) {
               <tr>
-                <td colspan="5" class="py-12 text-center text-sm text-gray-500">
+                <td colspan="5" class="py-12 text-center text-sm text-gray-500 dark:text-gray-400">
                   {{ 'history.empty_haptics' | translate }}
                 </td>
               </tr>
             } @else {
               @for (log of hapticLogs(); track log.id) {
-                <tr class="hover:bg-gray-50">
-                  <td class="whitespace-nowrap px-4 py-3 text-gray-600">{{ log.triggered_at_utc | date:'medium' }}</td>
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60">
+                  <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">{{ log.triggered_at_utc | date:'medium' }}</td>
                   <td class="px-4 py-3">
-                    <span class="font-semibold text-primary-600">Niveau {{ intensityToLevel(log.intensity) }}</span>
+                    <span class="font-semibold text-primary-600 dark:text-primary-400">Niveau {{ intensityToLevel(log.intensity) }}</span>
                     <span class="text-xs text-gray-400"> ({{ log.intensity }}/255)</span>
                   </td>
-                  <td class="px-4 py-3 text-gray-700">{{ log.duration_ms }} ms</td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ log.duration_ms }} ms</td>
                   <td class="px-4 py-3">
                     <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
                           [class.bg-blue-100]="log.triggered_by_user"
                           [class.text-blue-700]="log.triggered_by_user"
+                          [class.dark:bg-blue-950/60]="log.triggered_by_user"
+                          [class.dark:text-blue-300]="log.triggered_by_user"
                           [class.bg-purple-100]="!log.triggered_by_user"
-                          [class.text-purple-700]="!log.triggered_by_user">
+                          [class.text-purple-700]="!log.triggered_by_user"
+                          [class.dark:bg-purple-950/60]="!log.triggered_by_user"
+                          [class.dark:text-purple-300]="!log.triggered_by_user">
                       {{ log.triggered_by_user ? ('dashboard.user_trigger' | translate) : ('dashboard.auto_trigger' | translate) }}
                     </span>
                   </td>
-                  <td class="px-4 py-3 font-mono text-xs text-gray-500">{{ log.device_id }}</td>
+                  <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">{{ log.device_id }}</td>
                 </tr>
               }
             }

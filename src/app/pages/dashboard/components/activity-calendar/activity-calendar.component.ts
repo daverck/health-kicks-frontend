@@ -161,18 +161,18 @@ export class ActivityCalendarComponent implements OnInit {
     let base = 'transition-all cursor-pointer rounded-lg p-1.5 text-center flex flex-col items-center justify-center ';
 
     if (day.isSelected) {
-      base += 'ring-2 ring-primary-500 ring-offset-2 ';
+      base += 'ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900 ';
     }
 
     switch (day.level) {
       case 3:
-        return base + 'bg-emerald-600 text-white font-bold shadow-sm hover:bg-emerald-700';
+        return base + 'bg-emerald-600 text-white font-bold shadow-sm hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500';
       case 2:
-        return base + 'bg-emerald-300 text-emerald-950 font-semibold hover:bg-emerald-400';
+        return base + 'bg-emerald-300 text-emerald-950 font-semibold hover:bg-emerald-400 dark:bg-emerald-700/80 dark:text-emerald-100 dark:hover:bg-emerald-600';
       case 1:
-        return base + 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200';
+        return base + 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:hover:bg-emerald-900/80';
       default:
-        return base + 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+        return base + 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-700';
     }
   }
 }

@@ -13,7 +13,7 @@
         @for (link of visibleLinks(); track link.path) {
           <a
             [routerLink]="link.path"
-            routerLinkActive="bg-primary-50 text-primary-700 font-semibold dark:bg-primary-950/60 dark:text-primary-400"
+            routerLinkActive="bg-primary-50 text-primary-700 font-semibold dark:bg-primary-950/70 dark:text-primary-300"
             class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white transition"
           >
             <span>{{ link.icon }}</span> {{ link.labelKey | translate }}
@@ -115,7 +115,7 @@
           @for (link of visibleLinks(); track link.path) {
             <a
               [routerLink]="link.path"
-              routerLinkActive="bg-primary-50 text-primary-700 font-semibold dark:bg-primary-950/60 dark:text-primary-400"
+              routerLinkActive="bg-primary-50 text-primary-700 font-semibold dark:bg-primary-950/70 dark:text-primary-300"
               (click)="closeMobileMenu()"
               class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white transition"
             >

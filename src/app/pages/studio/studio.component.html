@@ -2,15 +2,15 @@
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">{{ 'studio.title' | translate }}</h1>
-      <p class="mt-1 text-sm text-gray-600">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'studio.title' | translate }}</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
         {{ 'studio.subtitle' | translate }}
       </p>
     </div>
     <div class="flex items-center gap-3">
       <a
         routerLink="/dashboard/studio/history"
-        class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95"
+        class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
       >
         <span>📊</span> {{ 'studio.view_history' | translate }}
       </a>
@@ -19,18 +19,18 @@
 
   <!-- Device Selection Bar -->
   @if (state() !== 'inspecting') {
-    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <div class="flex flex-wrap items-center gap-3">
-        <label for="device-select-btn" class="text-sm font-medium text-gray-700">{{ 'studio.target_device' | translate }}</label>
+        <label for="device-select-btn" class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'studio.target_device' | translate }}</label>
         @if (devicesLoading()) {
-          <span class="text-sm text-gray-500">{{ 'studio.searching_devices' | translate }}</span>
+          <span class="text-sm text-gray-500 dark:text-gray-400">{{ 'studio.searching_devices' | translate }}</span>
         } @else if (devices().length === 0) {
-          <span class="text-sm font-semibold text-amber-600">{{ 'studio.no_paired_devices' | translate }}</span>
+          <span class="text-sm font-semibold text-amber-600 dark:text-amber-400">{{ 'studio.no_paired_devices' | translate }}</span>
         } @else if (onlineDevices().length === 0) {
-          <div class="flex items-center gap-2 text-sm text-amber-700">
+          <div class="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
             <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
             <span class="font-medium">{{ 'studio.no_online_devices' | translate }}</span>
-            <span class="text-xs text-gray-500">{{ 'studio.turn_on_insoles' | translate }}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'studio.turn_on_insoles' | translate }}</span>
           </div>
         } @else {
           <!-- Single Searchable Select with Integrated Autocomplete Filter -->
@@ -56,22 +56,22 @@
   <!-- STEP 1: IDLE - Movement Label Choice & Launch -->
   @if (state() === 'idle') {
     <div class="space-y-6">
-      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h2 class="text-base font-semibold text-gray-900">{{ 'studio.step1_title' | translate }}</h2>
-        <p class="mt-1 text-sm text-gray-500">
+      <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'studio.step1_title' | translate }}</h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {{ 'studio.step1_desc' | translate }}
         </p>
 
         <!-- Dataset Coverage Summary Banner -->
-        <div id="dataset-stats-summary" class="mt-4 rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-blue-50/40 to-white p-4 shadow-sm">
+        <div id="dataset-stats-summary" class="mt-4 rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-blue-50/40 to-white p-4 shadow-sm dark:border-indigo-950 dark:from-indigo-950/40 dark:via-blue-950/30 dark:to-gray-900">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-lg text-indigo-700">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-lg text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
                 📊
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="text-sm font-bold text-gray-900">{{ 'studio.dataset_summary_title' | translate }}</h3>
+                  <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ 'studio.dataset_summary_title' | translate }}</h3>
                   @if (isLoadingStats()) {
                     <span class="inline-block h-3 w-3 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"></span>
                   }
@@ -136,11 +136,17 @@
               (click)="selectLabel(label.id)"
               class="relative flex flex-col items-center justify-center rounded-xl border p-4 text-center transition hover:shadow-md"
               [class.border-primary-600]="selectedLabel() === label.id && !customLabel()"
+              [class.dark:border-primary-500]="selectedLabel() === label.id && !customLabel()"
               [class.bg-primary-50]="selectedLabel() === label.id && !customLabel()"
+              [class.dark:bg-primary-950/70]="selectedLabel() === label.id && !customLabel()"
               [class.text-primary-800]="selectedLabel() === label.id && !customLabel()"
+              [class.dark:text-primary-300]="selectedLabel() === label.id && !customLabel()"
               [class.border-gray-200]="selectedLabel() !== label.id || customLabel()"
+              [class.dark:border-gray-800]="selectedLabel() !== label.id || customLabel()"
               [class.bg-white]="selectedLabel() !== label.id || customLabel()"
+              [class.dark:bg-gray-800]="selectedLabel() !== label.id || customLabel()"
               [class.text-gray-700]="selectedLabel() !== label.id || customLabel()"
+              [class.dark:text-gray-200]="selectedLabel() !== label.id || customLabel()"
             >
 
               <div
@@ -165,12 +171,21 @@
                 [class.bg-emerald-50]="getCountForLabel(label.id) >= targetPerClass"
                 [class.text-emerald-700]="getCountForLabel(label.id) >= targetPerClass"
                 [class.border-emerald-200]="getCountForLabel(label.id) >= targetPerClass"
+                [class.dark:bg-emerald-950/40]="getCountForLabel(label.id) >= targetPerClass"
+                [class.dark:text-emerald-300]="getCountForLabel(label.id) >= targetPerClass"
+                [class.dark:border-emerald-800]="getCountForLabel(label.id) >= targetPerClass"
                 [class.bg-amber-50]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
                 [class.text-amber-700]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
                 [class.border-amber-200]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
+                [class.dark:bg-amber-950/40]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
+                [class.dark:text-amber-300]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
+                [class.dark:border-amber-800]="getCountForLabel(label.id) > 0 && getCountForLabel(label.id) < targetPerClass"
                 [class.bg-gray-50]="getCountForLabel(label.id) === 0"
                 [class.text-gray-500]="getCountForLabel(label.id) === 0"
                 [class.border-gray-200]="getCountForLabel(label.id) === 0"
+                [class.dark:bg-gray-800]="getCountForLabel(label.id) === 0"
+                [class.dark:text-gray-400]="getCountForLabel(label.id) === 0"
+                [class.dark:border-gray-700]="getCountForLabel(label.id) === 0"
               >
                 <span class="font-bold">{{ getCountForLabel(label.id) }}</span> / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
               </span>
@@ -179,8 +194,8 @@
         </div>
 
         <!-- Custom Label input -->
-        <div class="mt-6 border-t border-gray-100 pt-4">
-          <label for="custom-label" class="block text-xs font-semibold uppercase tracking-wider text-gray-500">
+        <div class="mt-6 border-t border-gray-100 pt-4 dark:border-gray-800">
+          <label for="custom-label" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
             {{ 'studio.custom_label' | translate }}
           </label>
           <div class="mt-2 flex max-w-md items-center gap-2">
@@ -190,13 +205,13 @@
               [placeholder]="'studio.custom_label_placeholder' | translate"
               [ngModel]="customLabel()"
               (ngModelChange)="customLabel.set($event)"
-              class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             />
             @if (customLabel()) {
               <button
                 type="button"
                 (click)="customLabel.set('')"
-                class="text-xs text-gray-400 hover:text-gray-600"
+                class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 {{ 'studio.clear' | translate }}
               </button>
@@ -212,12 +227,12 @@
       </div>
 
       <!-- Action Button -->
-      <div class="flex flex-col items-center justify-center rounded-xl border border-primary-100 bg-gradient-to-b from-primary-50/50 to-white p-8 text-center shadow-sm">
-        <h3 class="text-lg font-bold text-gray-900">{{ 'studio.ready_question' | translate }}</h3>
-        <p class="mt-1 max-w-md text-sm text-gray-600">
+      <div class="flex flex-col items-center justify-center rounded-xl border border-primary-100 bg-gradient-to-b from-primary-50/50 to-white p-8 text-center shadow-sm dark:border-gray-800 dark:from-gray-900 dark:to-gray-950">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'studio.ready_question' | translate }}</h3>
+        <p class="mt-1 max-w-md text-sm text-gray-600 dark:text-gray-400">
           {{ 'studio.ready_explanation' | translate }}
         </p>
-        <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-primary-700">
+        <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-primary-700 dark:text-primary-300">
           <span>{{ 'studio.selected_label' | translate:{ label: displayLabel() } }}</span>
           @if (isCustomStudioLabel(effectiveLabel())) {
             <span
@@ -361,26 +376,26 @@
   @if (state() === 'inspecting') {
     <div class="space-y-6">
       <!-- Session Summary Header -->
-      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2">
-              <span class="inline-flex rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-bold text-primary-800">
+              <span class="inline-flex rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-bold text-primary-800 dark:bg-primary-900/60 dark:text-primary-300">
                 {{ getLabelDisplayName(currentSession()?.label || effectiveLabel()) }}
               </span>
-              <span class="font-mono text-xs text-gray-500">
+              <span class="font-mono text-xs text-gray-500 dark:text-gray-400">
                 Session : {{ currentSession()?.session_id }}
               </span>
             </div>
-            <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-              <span>{{ 'history.device' | translate }} : <strong class="text-gray-700">{{ selectedDeviceId() }}</strong> ·
+            <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              <span>{{ 'history.device' | translate }} : <strong class="text-gray-700 dark:text-gray-200">{{ selectedDeviceId() }}</strong> ·
               {{ 'studio.points_recorded' | translate:{ count: readings().length } }}</span>
               <button
                 id="refresh-readings-btn"
                 type="button"
                 (click)="refreshCurrentReadings()"
                 [disabled]="isRefreshingReadings()"
-                class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40"
+                class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 title="Rafraîchir les trames télémétriques"
               >
                 @if (isRefreshingReadings()) {
@@ -400,7 +415,7 @@
               type="button"
               (click)="exportJson()"
               [disabled]="readings().length === 0"
-              class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
               [title]="'studio_history.export_json' | translate"
               data-testid="export-session-btn"
             >
@@ -412,7 +427,7 @@
               type="button"
               (click)="rejectSession()"
               [disabled]="isDeleting() || isValidating()"
-              class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 transition active:scale-95 disabled:opacity-50"
+              class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 transition active:scale-95 disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-900/50"
             >
               @if (isDeleting()) {
                 <span class="animate-spin">⏳</span> {{ 'common.loading' | translate }}
@@ -491,21 +506,21 @@
     aria-modal="true"
     data-testid="delete-confirm-modal"
   >
-    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-4">
-      <div class="flex items-center gap-3 text-red-600">
+    <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl space-y-4 dark:border dark:border-gray-800 dark:bg-gray-900">
+      <div class="flex items-center gap-3 text-red-600 dark:text-red-400">
         <span class="text-2xl">⚠️</span>
-        <h3 class="text-base font-bold text-gray-900">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">
           {{ 'studio.reject_session' | translate }}
         </h3>
       </div>
-      <p class="text-sm text-gray-600">
+      <p class="text-sm text-gray-600 dark:text-gray-300">
         {{ 'studio.reject_confirm' | translate }}
       </p>
       <div class="flex justify-end gap-3 pt-2">
         <button
           type="button"
           (click)="cancelRejectPrompt()"
-          class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition"
+          class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
         >
           {{ 'common.cancel' | translate }}
         </button>
