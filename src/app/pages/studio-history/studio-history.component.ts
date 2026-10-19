@@ -124,13 +124,20 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   });
 
   readonly hasPreviousSession = computed<boolean>(() => {
-    return this.currentSessionIndex() > 0;
+    if (this.isLoading()) return false;
+    const idx = this.currentSessionIndex();
+    if (idx > 0) return true;
+    if (idx === 0 && this.page() > 1) return true;
+    return false;
   });
 
   readonly hasNextSession = computed<boolean>(() => {
+    if (this.isLoading()) return false;
     const idx = this.currentSessionIndex();
     const list = this.sessions();
-    return idx >= 0 && idx < list.length - 1;
+    if (idx >= 0 && idx < list.length - 1) return true;
+    if (idx >= 0 && idx === list.length - 1 && this.page() < this.totalPages()) return true;
+    return false;
   });
 
   // Direct List Deletion State
@@ -175,7 +182,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadSessions(): void {
+  loadSessions(onLoaded?: (items: StudioSessionSummary[]) => void): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
@@ -223,6 +230,9 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
         this.page.set(res.page);
         this.size.set(res.size);
         this.isLoading.set(false);
+        if (onLoaded) {
+          onLoaded(res.items);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -301,19 +311,35 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   goToPreviousSession(): void {
+    if (this.isLoading()) return;
     const idx = this.currentSessionIndex();
     if (idx > 0) {
       const prev = this.sessions()[idx - 1];
       this.openInspection(prev);
+    } else if (idx === 0 && this.page() > 1) {
+      this.page.update((p) => p - 1);
+      this.loadSessions((newItems) => {
+        if (newItems.length > 0) {
+          this.openInspection(newItems[newItems.length - 1]);
+        }
+      });
     }
   }
 
   goToNextSession(): void {
+    if (this.isLoading()) return;
     const idx = this.currentSessionIndex();
     const list = this.sessions();
     if (idx >= 0 && idx < list.length - 1) {
       const next = this.sessions()[idx + 1];
       this.openInspection(next);
+    } else if (idx >= 0 && idx === list.length - 1 && this.page() < this.totalPages()) {
+      this.page.update((p) => p + 1);
+      this.loadSessions((newItems) => {
+        if (newItems.length > 0) {
+          this.openInspection(newItems[0]);
+        }
+      });
     }
   }
 

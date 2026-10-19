@@ -58,6 +58,26 @@ describe('StudioInspectionComponent', () => {
     expect(component.activeReadings().length).toBe(mockStudioSessionReadingsResponse.readings.length);
   });
 
+  it('should not reload readings when the same session is validated or updated', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
+    fixture.detectChanges();
+
+    expect(mockStudioHistoryService.getSessionReadings).toHaveBeenCalledTimes(1);
+
+    // Update session input with same ID (e.g. validated)
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
+    fixture.detectChanges();
+
+    // Should still only have been called once!
+    expect(mockStudioHistoryService.getSessionReadings).toHaveBeenCalledTimes(1);
+
+    // Updating to a different session ID should reload
+    fixture.componentRef.setInput('session', mockStudioSessionSummaries[1]);
+    fixture.detectChanges();
+
+    expect(mockStudioHistoryService.getSessionReadings).toHaveBeenCalledTimes(2);
+  });
+
   it('should emit sessionConfirmed when confirmSession is called successfully', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
     fixture.detectChanges();

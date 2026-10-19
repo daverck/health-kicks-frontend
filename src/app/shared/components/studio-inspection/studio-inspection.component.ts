@@ -116,24 +116,36 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     return Boolean(target) && target !== currentSession.label;
   });
 
+  private currentSessionId: string | null = null;
+
   onReplayTimeSelected(timeSec: number): void {
     this.replayPlaybackTime.set(timeSec);
   }
 
   ngOnInit(): void {
     const current = this.session();
-    if (current) {
+    if (current && this.currentSessionId !== current.id) {
       this.initSessionState(current);
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['session'] && this.session()) {
-      this.initSessionState(this.session()!);
+    if (changes['session']) {
+      const current = this.session();
+      if (current) {
+        if (this.currentSessionId === current.id) {
+          this.syncLabelState(current);
+        } else {
+          this.initSessionState(current);
+        }
+      } else {
+        this.currentSessionId = null;
+        this.activeReadings.set([]);
+      }
     }
   }
 
-  private initSessionState(session: StudioSessionSummary): void {
+  private syncLabelState(session: StudioSessionSummary): void {
     const isPredefined = this.predefinedLabels.some((l) => l.id === session.label);
     if (isPredefined) {
       this.labelEditMode.set('predefined');
@@ -144,6 +156,11 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
       this.customLabelValue.set(session.label);
       this.editLabelValue.set('walk');
     }
+  }
+
+  private initSessionState(session: StudioSessionSummary): void {
+    this.currentSessionId = session.id;
+    this.syncLabelState(session);
     this.activeReadings.set([]);
     this.replayPlaybackTime.set(0);
     this.show3dViewer.set(false);

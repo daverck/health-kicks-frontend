@@ -355,6 +355,63 @@ describe('StudioHistoryComponent', () => {
     expect(component.inspectingSession()).toBeNull();
   });
 
+  it('should navigate across pages when reaching the boundary of the current page list', () => {
+    fixture.detectChanges();
+
+    const page1Sessions = [mockStudioSessionSummaries[0], mockStudioSessionSummaries[1]];
+    const page2Sessions = [mockStudioSessionSummaries[2]];
+
+    component.total.set(3);
+    component.size.set(2);
+    component.page.set(1);
+    component.sessions.set(page1Sessions);
+
+    // Inspect the last session of page 1
+    component.openInspection(page1Sessions[1]);
+    fixture.detectChanges();
+
+    expect(component.currentSessionIndex()).toBe(1);
+    expect(component.hasNextSession()).toBeTrue();
+
+    // Prepare mock for page 2 load
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({
+        items: page2Sessions,
+        total: 3,
+        page: 2,
+        size: 2,
+      })
+    );
+
+    // Navigate next across page boundary
+    component.goToNextSession();
+    fixture.detectChanges();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalled();
+    expect(component.page()).toBe(2);
+    expect(component.inspectingSession()?.id).toBe(page2Sessions[0].id);
+    expect(component.hasPreviousSession()).toBeTrue();
+    expect(component.hasNextSession()).toBeFalse();
+
+    // Prepare mock for page 1 load
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({
+        items: page1Sessions,
+        total: 3,
+        page: 1,
+        size: 2,
+      })
+    );
+
+    // Navigate previous across page boundary
+    component.goToPreviousSession();
+    fixture.detectChanges();
+
+    expect(component.page()).toBe(1);
+    // Should have selected the LAST session of page 1
+    expect(component.inspectingSession()?.id).toBe(page1Sessions[1].id);
+  });
+
   it('should update session and list when label is updated from inspection child component', () => {
     fixture.detectChanges();
 
