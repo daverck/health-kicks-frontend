@@ -1,10 +1,10 @@
-<div class="min-h-screen flex flex-col bg-gray-50">
+<div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 transition-colors">
   <!-- Top Navigation Header -->
-  <header class="w-full border-b border-gray-200/80 bg-white/80 backdrop-blur px-4 py-3 sm:px-6">
+  <header class="w-full border-b border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur px-4 py-3 sm:px-6">
     <div class="mx-auto flex max-w-5xl items-center justify-between">
       <a
         routerLink="/"
-        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-900 transition"
+        class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition"
         data-testid="login-back-home"
       >
         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -15,6 +15,7 @@
 
       <div class="flex items-center gap-2">
         <app-language-selector />
+        <app-theme-toggle />
       </div>
     </div>
   </header>
@@ -25,12 +26,14 @@
       <div class="mb-6 sm:mb-8 text-center">
         <a routerLink="/" class="inline-flex items-center gap-2">
           <img src="/favicon.svg" alt="HealthKicks Logo" class="h-9 w-9 sm:h-10 sm:w-10 object-contain" />
-          <span class="text-xl sm:text-2xl font-bold tracking-tight">Health<span class="text-primary-600">Kicks</span></span>
+          <span class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+            >Health<span class="text-primary-600 dark:text-primary-400">Kicks</span></span
+          >
         </a>
-        <h1 class="mt-4 sm:mt-6 text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
+        <h1 class="mt-4 sm:mt-6 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
           {{ 'auth.login_title' | translate }}
         </h1>
-        <p class="mt-1.5 text-xs sm:text-sm text-gray-600 max-w-xs sm:max-w-none mx-auto">
+        <p class="mt-1.5 text-xs sm:text-sm text-gray-600 dark:text-gray-400 max-w-xs sm:max-w-none mx-auto">
           {{ 'auth.login_subtitle' | translate }}
         </p>
       </div>
@@ -38,7 +41,7 @@
       <div class="card space-y-4 shadow-sm">
         <!-- Google SSO -->
         <button type="button" (click)="loginWithGoogle()"
-          class="btn-secondary flex w-full items-center justify-center gap-3 py-3 text-sm font-semibold shadow-2xs hover:bg-gray-50 transition active:scale-98"
+          class="btn-secondary flex w-full items-center justify-center gap-3 py-3 text-sm font-semibold shadow-2xs hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-98"
           [disabled]="loading()">
           <svg class="h-5 w-5" viewBox="0 0 24 24">
             <path fill="#4285F4"
@@ -54,7 +57,7 @@
 
         <!-- Microsoft SSO -->
         <button type="button" (click)="loginWithMicrosoft()"
-          class="btn-secondary flex w-full items-center justify-center gap-3 py-3 text-sm font-semibold shadow-2xs hover:bg-gray-50 transition active:scale-98"
+          class="btn-secondary flex w-full items-center justify-center gap-3 py-3 text-sm font-semibold shadow-2xs hover:bg-gray-50 dark:hover:bg-gray-700 transition active:scale-98"
           [disabled]="loading()">
           <svg class="h-5 w-5" viewBox="0 0 23 23">
             <path fill="#f35325" d="M1 1h10v10H1z" />
@@ -66,19 +69,19 @@
         </button>
 
         @if (errorMessage()) {
-          <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-xs sm:text-sm text-red-700 font-medium">
+          <div class="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-3 text-xs sm:text-sm text-red-700 dark:text-red-300 font-medium">
             {{ errorMessage() }}
           </div>
         }
 
-        <div class="pt-2 text-center text-[11px] sm:text-xs text-gray-400">
+        <div class="pt-2 text-center text-[11px] sm:text-xs text-gray-400 dark:text-gray-500">
           Authentification sécurisée OpenID Connect / OAuth 2.0. Aucun mot de passe stocké.
         </div>
       </div>
 
-      <p class="mt-6 text-center text-xs sm:text-sm text-gray-600">
+      <p class="mt-6 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
         Nouveau sur HealthKicks ?
-        <a routerLink="/register" class="font-semibold text-primary-600 hover:text-primary-700 transition">
+        <a routerLink="/register" class="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition">
           {{ 'auth.sign_up' | translate }}
         </a>
       </p>

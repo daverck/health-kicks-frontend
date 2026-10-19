@@ -5,11 +5,12 @@ import { AuthService } from '../../core/services/auth.service';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, LanguageSelectorComponent],
+  imports: [RouterLink, TranslatePipe, LanguageSelectorComponent, ThemeToggleComponent],
   templateUrl: './register.component.html',
 })
 export class RegisterComponent {

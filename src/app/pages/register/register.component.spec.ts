@@ -51,12 +51,15 @@ describe('RegisterComponent', () => {
     expect(errorDiv.textContent).toContain('Erreur SSO');
   });
 
-  it('should render header with back to home link and language selector', () => {
+  it('should render header with back to home link, language selector and theme toggle', () => {
     const backLink = fixture.nativeElement.querySelector('[data-testid="register-back-home"]');
     expect(backLink).toBeTruthy();
     expect(backLink.getAttribute('href')).toBe('/');
 
     const langSelector = fixture.nativeElement.querySelector('app-language-selector');
     expect(langSelector).toBeTruthy();
+
+    const themeToggle = fixture.nativeElement.querySelector('app-theme-toggle');
+    expect(themeToggle).toBeTruthy();
   });
 });
