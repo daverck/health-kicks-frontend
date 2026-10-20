@@ -344,7 +344,18 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
+    const previous = this.sessions().find((session) => session.id === updated.id);
     this.inspectingSession.set(updated);
+    const statusFilter = this.selectedValidated();
+    if (
+      previous &&
+      previous.is_validated !== updated.is_validated &&
+      ((statusFilter === 'true' && !updated.is_validated) ||
+        (statusFilter === 'false' && updated.is_validated))
+    ) {
+      this.loadSessions();
+      return;
+    }
     this.sessions.update((items) =>
       items.map((it) => (it.id === updated.id ? updated : it))
     );

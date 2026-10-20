@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { StudioInspectionComponent } from './studio-inspection.component';
 import { StudioHistoryService } from '../../../core/services/studio-history.service';
+import { StudioService } from '../../../core/services/studio.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { of, throwError } from 'rxjs';
@@ -12,6 +13,7 @@ describe('StudioInspectionComponent', () => {
   let component: StudioInspectionComponent;
   let fixture: ComponentFixture<StudioInspectionComponent>;
   let mockStudioHistoryService: jasmine.SpyObj<StudioHistoryService>;
+  let mockStudioService: jasmine.SpyObj<StudioService>;
   let mockToastService: jasmine.SpyObj<ToastService>;
   let mockTranslationService: jasmine.SpyObj<TranslationService>;
 
@@ -21,7 +23,9 @@ describe('StudioInspectionComponent', () => {
       'confirmSession',
       'updateSessionLabel',
       'deleteSession',
+      'updateSessionValidation',
     ]);
+    mockStudioService = jasmine.createSpyObj('StudioService', ['trimSession']);
     mockToastService = jasmine.createSpyObj('ToastService', ['success', 'error', 'info']);
     mockTranslationService = jasmine.createSpyObj('TranslationService', ['translate']);
     mockTranslationService.translate.and.callFake((key: string) => key);
@@ -34,12 +38,19 @@ describe('StudioInspectionComponent', () => {
       of({ ...mockStudioSessionSummaries[0], label: 'run' })
     );
     mockStudioHistoryService.deleteSession.and.returnValue(of(undefined));
+    mockStudioHistoryService.updateSessionValidation.and.returnValue(
+      of({ ...mockStudioSessionSummaries[0], is_validated: false })
+    );
+    mockStudioService.trimSession.and.returnValue(
+      of({ ...mockStudioSessionSummaries[1], duration_sec: 0.6, sample_count: 2 })
+    );
 
     await TestBed.configureTestingModule({
       imports: [StudioInspectionComponent],
       providers: [
         provideRouter([]),
         { provide: StudioHistoryService, useValue: mockStudioHistoryService },
+        { provide: StudioService, useValue: mockStudioService },
         { provide: ToastService, useValue: mockToastService },
         { provide: TranslationService, useValue: mockTranslationService },
       ],
@@ -118,6 +129,57 @@ describe('StudioInspectionComponent', () => {
     expect(mockStudioHistoryService.updateSessionLabel).toHaveBeenCalledWith(mockStudioSessionSummaries[0].id, 'run');
     expect(mockToastService.success).toHaveBeenCalled();
     expect(updatedSession).not.toBeNull();
+  });
+
+  it('shows the trim control only for unvalidated sessions', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).not.toBeNull();
+
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).toBeNull();
+  });
+
+  it('trims the session, updates readings and emits the updated summary', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
+    fixture.detectChanges();
+    component.trimDurationSec.set(0.6);
+    component.onTrimDurationChanged(0.6);
+    let updatedSession = null;
+    component.sessionUpdated.subscribe((session) => (updatedSession = session));
+
+    component.trimSession();
+
+    expect(mockStudioService.trimSession).toHaveBeenCalledWith(
+      mockStudioSessionSummaries[1].id,
+      0.6
+    );
+    expect(component.activeReadings().length).toBe(2);
+    expect(component.trimDurationSec()).toBe(0.6);
+    expect(component.replayPlaybackTime()).toBe(0.6);
+    expect(updatedSession).toEqual(
+      jasmine.objectContaining({ duration_sec: 0.6, sample_count: 2 })
+    );
+    expect(mockToastService.success).toHaveBeenCalledWith('studio_history.trim_success');
+  });
+
+  it('reverts a validated session to pending and emits the updated summary', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
+    fixture.detectChanges();
+    let updatedSession = null;
+    component.sessionUpdated.subscribe((session) => (updatedSession = session));
+
+    component.reopenSession();
+
+    expect(mockStudioHistoryService.updateSessionValidation).toHaveBeenCalledWith(
+      mockStudioSessionSummaries[0].id,
+      false
+    );
+    expect(updatedSession).toEqual(jasmine.objectContaining({ is_validated: false }));
+    expect(mockToastService.success).toHaveBeenCalledWith(
+      'studio_history.session_unvalidated_success'
+    );
   });
 
   it('should support custom label editing', () => {

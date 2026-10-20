@@ -49,6 +49,7 @@ describe('StudioHistoryComponent', () => {
       'getSessionReadings',
       'confirmSession',
       'updateSessionLabel',
+      'updateSessionValidation',
       'deleteSession',
       'getAuthors',
     ]);
@@ -235,6 +236,21 @@ describe('StudioHistoryComponent', () => {
 
     expect(component.inspectingSession()?.is_validated).toBeTrue();
     expect(component.sessions().find((s) => s.id === 'sess-002')?.is_validated).toBeTrue();
+  });
+
+  it('reloads the active status filter when a session becomes pending again', () => {
+    fixture.detectChanges();
+    component.selectedValidated.set('true');
+
+    const pendingSession = { ...mockStudioSessionSummaries[0], is_validated: false };
+    component.onSessionUpdatedFromInspection(pendingSession);
+
+    expect(component.inspectingSession()?.is_validated).toBeFalse();
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      is_validated: true,
+    });
   });
 
   it('should reset filters including status and reload sessions', () => {

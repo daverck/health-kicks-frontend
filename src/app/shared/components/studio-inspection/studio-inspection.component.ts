@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { StudioHistoryService } from '../../../core/services/studio-history.service';
+import { StudioService } from '../../../core/services/studio.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { StudioSessionSummary } from '../../../models/studio-history.model';
@@ -58,6 +59,7 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
 })
 export class StudioInspectionComponent implements OnInit, OnChanges {
   private readonly studioHistoryService = inject(StudioHistoryService);
+  private readonly studioService = inject(StudioService);
   private readonly toast = inject(ToastService);
   readonly translation = inject(TranslationService);
 
@@ -85,9 +87,27 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly activeReadings = signal<ImuReading[]>([]);
   readonly isLoadingReadings = signal<boolean>(false);
   readonly isValidatingSession = signal<boolean>(false);
+  readonly isTrimmingSession = signal<boolean>(false);
+  readonly isUpdatingValidation = signal<boolean>(false);
   readonly readingsError = signal<string | null>(null);
   readonly replayPlaybackTime = signal<number>(0);
   readonly show3dViewer = signal<boolean>(false);
+  readonly trimDurationSec = signal<number>(2);
+  readonly showTrimConfirm = signal<boolean>(false);
+  readonly showUnvalidateConfirm = signal<boolean>(false);
+
+  readonly trimMaxDurationSec = computed(() => {
+    const duration = this.session()?.duration_sec ?? 0;
+    return Math.floor(Math.min(duration, 30) * 10) / 10;
+  });
+
+  readonly trimPreviewReadings = computed(() => {
+    const readings = this.activeReadings();
+    if (readings.length === 0) return [];
+    const cutoffTimestamp =
+      readings[0].timestamp_epoch_us + Math.round(this.trimDurationSec() * 1_000_000);
+    return readings.filter((reading) => reading.timestamp_epoch_us <= cutoffTimestamp);
+  });
 
   toggle3dViewer(): void {
     this.show3dViewer.update((v) => !v);
@@ -120,6 +140,14 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
 
   onReplayTimeSelected(timeSec: number): void {
     this.replayPlaybackTime.set(timeSec);
+  }
+
+  onTrimDurationChanged(durationSec: number): void {
+    const maxDuration = this.trimMaxDurationSec();
+    const nextDuration = Math.min(maxDuration, Math.max(0.6, Number(durationSec)));
+    const roundedDuration = Math.round(nextDuration * 10) / 10;
+    this.trimDurationSec.set(roundedDuration);
+    this.replayPlaybackTime.set(roundedDuration);
   }
 
   ngOnInit(): void {
@@ -165,8 +193,16 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     this.replayPlaybackTime.set(0);
     this.show3dViewer.set(false);
     this.showDeleteConfirm.set(false);
+    this.showTrimConfirm.set(false);
+    this.showUnvalidateConfirm.set(false);
+    this.trimDurationSec.set(Math.max(0.6, Math.min(2, this.trimMaxDurationFor(session.duration_sec))));
+    this.replayPlaybackTime.set(this.trimDurationSec());
     this.linkCopied.set(false);
     this.loadReadings(session.id);
+  }
+
+  private trimMaxDurationFor(durationSec: number): number {
+    return Math.floor(Math.min(durationSec, 30) * 10) / 10;
   }
 
   loadReadings(sessionId: string): void {
@@ -203,6 +239,67 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
         this.isValidatingSession.set(false);
         this.toast.error(
           err?.error?.detail ?? 'Erreur lors de la validation de la session.'
+        );
+      },
+    });
+  }
+
+  trimSession(): void {
+    const current = this.session();
+    const newDurationSec = this.trimDurationSec();
+    if (
+      !current ||
+      current.is_validated ||
+      newDurationSec <= 0.5 ||
+      newDurationSec >= current.duration_sec ||
+      this.isTrimmingSession()
+    ) {
+      return;
+    }
+
+    this.isTrimmingSession.set(true);
+    this.studioService.trimSession(current.id, newDurationSec).subscribe({
+      next: (updated) => {
+        this.isTrimmingSession.set(false);
+        this.showTrimConfirm.set(false);
+        this.activeReadings.set(this.trimPreviewReadings());
+        this.trimDurationSec.set(updated.duration_sec);
+        this.replayPlaybackTime.set(updated.duration_sec);
+        this.toast.success(
+          this.translation.translate('studio_history.trim_success', {
+            duration: updated.duration_sec.toFixed(1),
+          })
+        );
+        this.sessionUpdated.emit(updated);
+      },
+      error: (err) => {
+        this.isTrimmingSession.set(false);
+        this.toast.error(
+          err?.error?.detail ?? this.translation.translate('studio_history.trim_error')
+        );
+      },
+    });
+  }
+
+  reopenSession(): void {
+    const current = this.session();
+    if (!current?.is_validated || this.isUpdatingValidation()) return;
+
+    this.isUpdatingValidation.set(true);
+    this.studioHistoryService.updateSessionValidation(current.id, false).subscribe({
+      next: (updated) => {
+        this.isUpdatingValidation.set(false);
+        this.showUnvalidateConfirm.set(false);
+        this.toast.success(
+          this.translation.translate('studio_history.session_unvalidated_success')
+        );
+        this.sessionUpdated.emit(updated);
+      },
+      error: (err) => {
+        this.isUpdatingValidation.set(false);
+        this.toast.error(
+          err?.error?.detail ??
+            this.translation.translate('studio_history.session_unvalidated_error')
         );
       },
     });
@@ -326,4 +423,3 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     return found ? found.icon : CUSTOM_LABEL_ICON;
   }
 }
-

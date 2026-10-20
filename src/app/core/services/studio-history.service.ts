@@ -113,6 +113,18 @@ export class StudioHistoryService {
   }
 
   /**
+   * Updates whether a studio session is included in the validated dataset.
+   * PATCH /api/v1/studio/sessions/{sessionId}
+   */
+  updateSessionValidation(
+    sessionId: string,
+    isValidated: boolean
+  ): Observable<StudioSessionSummary> {
+    const payload: StudioSessionUpdatePayload = { is_validated: isValidated };
+    return this.http.patch<StudioSessionSummary>(`${this.base}/${sessionId}`, payload);
+  }
+
+  /**
    * Deletes a recording session from PostgreSQL and removes its telemetry readings from DynamoDB.
    * DELETE /api/v1/studio/sessions/{sessionId} (HTTP 204)
    */

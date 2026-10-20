@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { StudioService } from './studio.service';
 import { environment } from '../../../environments/environment';
+import { mockStudioSessionSummaries } from '../../../testing/mocks/studio-history.mock';
 import {
   mockStudioStartRequest,
   mockStudioStartResponse,
@@ -63,6 +64,21 @@ describe('StudioService', () => {
     req.flush(mockStudioSessionReadingsResponse);
   });
 
+  it('should trim a studio session through PATCH /api/v1/studio/sessions/{id}/trim', () => {
+    const updated = { ...mockStudioSessionSummaries[1], duration_sec: 2, sample_count: 200 };
+
+    service.trimSession('sess-002', 2).subscribe((res) => {
+      expect(res).toEqual(updated);
+    });
+
+    const req = httpTesting.expectOne(
+      `${environment.apiUrl}/api/v1/studio/sessions/sess-002/trim`
+    );
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ new_duration_sec: 2 });
+    req.flush(updated);
+  });
+
   it('should delete session readings via DELETE /api/v1/devices/{id}/telemetry/sessions/{session_id}', () => {
     let deleted = false;
     service.deleteSessionReadings('hk-device-0001', 'sess-abc-12345').subscribe(() => {
@@ -103,4 +119,3 @@ describe('StudioService', () => {
     req.flush(mockStudioDatasetStats);
   });
 });
-

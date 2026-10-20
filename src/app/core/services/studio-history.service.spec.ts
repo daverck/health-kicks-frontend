@@ -112,6 +112,19 @@ describe('StudioHistoryService', () => {
     req.flush(updated);
   });
 
+  it('should revert session validation status to pending', () => {
+    const updated = { ...mockStudioSessionSummaries[0], is_validated: false };
+
+    service.updateSessionValidation('sess-001', false).subscribe((res) => {
+      expect(res).toEqual(updated);
+    });
+
+    const req = httpMock.expectOne(`${baseUrl}/sess-001`);
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ is_validated: false });
+    req.flush(updated);
+  });
+
   it('should get sessions with array filter params', () => {
     service
       .getSessions({

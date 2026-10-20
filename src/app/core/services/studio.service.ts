@@ -8,6 +8,10 @@ import {
   StudioSessionReadingsResponse,
   StudioDatasetStats,
 } from '../../models/telemetry.models';
+import {
+  StudioSessionSummary,
+  StudioSessionTrimPayload,
+} from '../../models/studio-history.model';
 
 export type { StudioDatasetStats };
 
@@ -39,6 +43,18 @@ export class StudioService {
   }
 
   /**
+   * Permanently removes telemetry frames beyond the requested duration.
+   * PATCH /api/v1/studio/sessions/{session_id}/trim
+   */
+  trimSession(sessionId: string, newDurationSec: number): Observable<StudioSessionSummary> {
+    const payload: StudioSessionTrimPayload = { new_duration_sec: newDurationSec };
+    return this.http.patch<StudioSessionSummary>(
+      `${this.base}/studio/sessions/${sessionId}/trim`,
+      payload
+    );
+  }
+
+  /**
    * Deletes session telemetry readings from DynamoDB when an experiment is rejected.
    * DELETE /api/v1/devices/{device_id}/telemetry/sessions/{session_id}
    */
@@ -60,4 +76,3 @@ export class StudioService {
     return this.http.get<StudioDatasetStats>(url);
   }
 }
-
