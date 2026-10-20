@@ -257,7 +257,9 @@ describe('StudioInspectionComponent', () => {
 
     expect(component.show3dViewer()).toBeFalse();
     let compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('[data-testid="shoe-3d-panel"]')).not.toBeNull();
+    const shoe3dPanel = compiled.querySelector('[data-testid="shoe-3d-panel"]');
+    expect(shoe3dPanel).not.toBeNull();
+    expect(shoe3dPanel?.classList.contains('mt-6')).toBeTrue();
     expect(compiled.querySelector('app-shoe-3d-viewer')).toBeNull();
 
     const toggleBtn = compiled.querySelector('[data-testid="toggle-3d-viewer-btn"]') as HTMLButtonElement;
