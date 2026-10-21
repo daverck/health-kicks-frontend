@@ -47,6 +47,8 @@ Chart.register(
 export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() readings: ImuReading[] = [];
   @Input() playbackTimeSec: number | null = null;
+  @Input() trimStartTimeSec: number | null = null;
+  @Input() trimEndTimeSec: number | null = null;
   @Input() showIsbGuideSection = true;
   readonly timeSelected = output<number>();
 
@@ -163,7 +165,11 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['readings']) {
       this.renderCharts();
-    } else if (changes['playbackTimeSec']) {
+    } else if (
+      changes['playbackTimeSec'] ||
+      changes['trimStartTimeSec'] ||
+      changes['trimEndTimeSec']
+    ) {
       this.updateCursor();
     }
   }
@@ -233,30 +239,34 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
     const cursorPlugin = {
       id: 'playbackCursor',
       afterDraw: (chart: Chart) => {
-        if (this.playbackTimeSec === null || this.playbackTimeSec === undefined) return;
         const xScale = chart.scales['x'];
         const yScale = chart.scales['y'];
         if (!xScale || !yScale) return;
 
-        const xPixel = xScale.getPixelForValue(this.playbackTimeSec);
-        if (xPixel < xScale.left || xPixel > xScale.right) return;
-
         const ctx = chart.ctx;
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(xPixel, yScale.top);
-        ctx.lineTo(xPixel, yScale.bottom);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = '#0284c7'; // Primary blue
-        ctx.setLineDash([4, 4]);
-        ctx.stroke();
+        const drawMarker = (timeSec: number | null, color: string, lineWidth: number) => {
+          if (timeSec === null) return;
+          const xPixel = xScale.getPixelForValue(timeSec);
+          if (xPixel < xScale.left || xPixel > xScale.right) return;
 
-        // Top marker pin
-        ctx.beginPath();
-        ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
-        ctx.fillStyle = '#0284c7';
-        ctx.fill();
-        ctx.restore();
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPixel, yScale.top);
+          ctx.lineTo(xPixel, yScale.bottom);
+          ctx.lineWidth = lineWidth;
+          ctx.strokeStyle = color;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.restore();
+        };
+
+        drawMarker(this.trimStartTimeSec, '#059669', 2);
+        drawMarker(this.trimEndTimeSec, '#e11d48', 2);
+        drawMarker(this.playbackTimeSec, '#0284c7', 1.5);
       },
     };
 
@@ -444,4 +454,3 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.chartGyro = new Chart(this.gyroCanvasRef.nativeElement, gyroConfig);
   }
 }
-

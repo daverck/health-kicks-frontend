@@ -58,6 +58,8 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioInspectionComponent implements OnInit, OnChanges {
+  private static readonly MIN_TRIM_INTERVAL_SEC = 0.6;
+
   private readonly studioHistoryService = inject(StudioHistoryService);
   private readonly studioService = inject(StudioService);
   private readonly toast = inject(ToastService);
@@ -92,21 +94,37 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly readingsError = signal<string | null>(null);
   readonly replayPlaybackTime = signal<number>(0);
   readonly show3dViewer = signal<boolean>(false);
-  readonly trimDurationSec = signal<number>(2);
+  readonly trimStartOffsetSec = signal<number>(0);
+  readonly trimEndOffsetSec = signal<number>(2);
   readonly showTrimConfirm = signal<boolean>(false);
   readonly showUnvalidateConfirm = signal<boolean>(false);
 
   readonly trimMaxDurationSec = computed(() => {
     const duration = this.session()?.duration_sec ?? 0;
-    return Math.floor(Math.min(duration, 30) * 10) / 10;
+    return Math.min(duration, 30);
+  });
+
+  readonly trimDurationSec = computed(
+    () => this.trimEndOffsetSec() - this.trimStartOffsetSec()
+  );
+
+  readonly hasTrimChanges = computed(() => {
+    const duration = this.session()?.duration_sec ?? 0;
+    return this.trimStartOffsetSec() > 0 || this.trimEndOffsetSec() < duration;
   });
 
   readonly trimPreviewReadings = computed(() => {
     const readings = this.activeReadings();
     if (readings.length === 0) return [];
-    const cutoffTimestamp =
-      readings[0].timestamp_epoch_us + Math.round(this.trimDurationSec() * 1_000_000);
-    return readings.filter((reading) => reading.timestamp_epoch_us <= cutoffTimestamp);
+    const startTimestamp =
+      readings[0].timestamp_epoch_us + Math.round(this.trimStartOffsetSec() * 1_000_000);
+    const endTimestamp =
+      readings[0].timestamp_epoch_us + Math.round(this.trimEndOffsetSec() * 1_000_000);
+    return readings.filter(
+      (reading) =>
+        reading.timestamp_epoch_us >= startTimestamp &&
+        reading.timestamp_epoch_us <= endTimestamp
+    );
   });
 
   toggle3dViewer(): void {
@@ -142,12 +160,31 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     this.replayPlaybackTime.set(timeSec);
   }
 
-  onTrimDurationChanged(durationSec: number): void {
-    const maxDuration = this.trimMaxDurationSec();
-    const nextDuration = Math.min(maxDuration, Math.max(0.6, Number(durationSec)));
-    const roundedDuration = Math.round(nextDuration * 10) / 10;
-    this.trimDurationSec.set(roundedDuration);
-    this.replayPlaybackTime.set(roundedDuration);
+  onTrimStartChanged(offsetSec: number): void {
+    const latestStart = this.trimEndOffsetSec() - StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
+    const nextStart = Math.min(
+      Math.floor(latestStart * 10) / 10,
+      Math.max(0, Number(offsetSec))
+    );
+    const roundedStart = Math.round(nextStart * 10) / 10;
+    this.trimStartOffsetSec.set(roundedStart);
+    this.replayPlaybackTime.set(roundedStart);
+  }
+
+  onTrimEndChanged(offsetSec: number): void {
+    const earliestEnd =
+      this.trimStartOffsetSec() + StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
+    const minimumEnd = Math.ceil(earliestEnd * 10) / 10;
+    const nextEnd = Math.min(
+      this.trimMaxDurationSec(),
+      Math.max(minimumEnd, Number(offsetSec))
+    );
+    const roundedEnd = Math.min(
+      this.trimMaxDurationSec(),
+      Math.round(nextEnd * 10) / 10
+    );
+    this.trimEndOffsetSec.set(roundedEnd);
+    this.replayPlaybackTime.set(roundedEnd);
   }
 
   ngOnInit(): void {
@@ -195,14 +232,15 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     this.showDeleteConfirm.set(false);
     this.showTrimConfirm.set(false);
     this.showUnvalidateConfirm.set(false);
-    this.trimDurationSec.set(Math.max(0.6, Math.min(2, this.trimMaxDurationFor(session.duration_sec))));
-    this.replayPlaybackTime.set(this.trimDurationSec());
+    this.trimStartOffsetSec.set(0);
+    this.trimEndOffsetSec.set(this.trimMaxDurationFor(session.duration_sec));
+    this.replayPlaybackTime.set(this.trimEndOffsetSec());
     this.linkCopied.set(false);
     this.loadReadings(session.id);
   }
 
   private trimMaxDurationFor(durationSec: number): number {
-    return Math.floor(Math.min(durationSec, 30) * 10) / 10;
+    return Math.min(durationSec, 30);
   }
 
   loadReadings(sessionId: string): void {
@@ -246,27 +284,32 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
 
   trimSession(): void {
     const current = this.session();
-    const newDurationSec = this.trimDurationSec();
+    const startOffsetSec = this.trimStartOffsetSec();
+    const endOffsetSec = this.trimEndOffsetSec();
+    const newDurationSec = endOffsetSec - startOffsetSec;
     if (
       !current ||
       current.is_validated ||
-      newDurationSec <= 0.5 ||
-      newDurationSec >= current.duration_sec ||
+      newDurationSec < StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC ||
+      !this.hasTrimChanges() ||
       this.isTrimmingSession()
     ) {
       return;
     }
 
     this.isTrimmingSession.set(true);
-    this.studioService.trimSession(current.id, newDurationSec).subscribe({
+    this.studioService.trimSession(current.id, startOffsetSec, endOffsetSec).subscribe({
       next: (updated) => {
         this.isTrimmingSession.set(false);
         this.showTrimConfirm.set(false);
         this.activeReadings.set(this.trimPreviewReadings());
-        this.trimDurationSec.set(updated.duration_sec);
+        this.trimStartOffsetSec.set(0);
+        this.trimEndOffsetSec.set(updated.duration_sec);
         this.replayPlaybackTime.set(updated.duration_sec);
         this.toast.success(
           this.translation.translate('studio_history.trim_success', {
+            start: startOffsetSec.toFixed(1),
+            end: endOffsetSec.toFixed(1),
             duration: updated.duration_sec.toFixed(1),
           })
         );

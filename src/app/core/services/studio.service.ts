@@ -43,11 +43,18 @@ export class StudioService {
   }
 
   /**
-   * Permanently removes telemetry frames beyond the requested duration.
+   * Permanently removes telemetry frames outside the requested retained interval.
    * PATCH /api/v1/studio/sessions/{session_id}/trim
    */
-  trimSession(sessionId: string, newDurationSec: number): Observable<StudioSessionSummary> {
-    const payload: StudioSessionTrimPayload = { new_duration_sec: newDurationSec };
+  trimSession(
+    sessionId: string,
+    startOffsetSec: number,
+    endOffsetSec: number
+  ): Observable<StudioSessionSummary> {
+    const payload: StudioSessionTrimPayload = {
+      start_offset_sec: startOffsetSec,
+      end_offset_sec: endOffsetSec,
+    };
     return this.http.patch<StudioSessionSummary>(
       `${this.base}/studio/sessions/${sessionId}/trim`,
       payload

@@ -67,7 +67,7 @@ describe('StudioService', () => {
   it('should trim a studio session through PATCH /api/v1/studio/sessions/{id}/trim', () => {
     const updated = { ...mockStudioSessionSummaries[1], duration_sec: 2, sample_count: 200 };
 
-    service.trimSession('sess-002', 2).subscribe((res) => {
+    service.trimSession('sess-002', 1, 3).subscribe((res) => {
       expect(res).toEqual(updated);
     });
 
@@ -75,7 +75,7 @@ describe('StudioService', () => {
       `${environment.apiUrl}/api/v1/studio/sessions/sess-002/trim`
     );
     expect(req.request.method).toBe('PATCH');
-    expect(req.request.body).toEqual({ new_duration_sec: 2 });
+    expect(req.request.body).toEqual({ start_offset_sec: 1, end_offset_sec: 3 });
     req.flush(updated);
   });
 

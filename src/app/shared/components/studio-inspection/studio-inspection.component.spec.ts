@@ -135,6 +135,8 @@ describe('StudioInspectionComponent', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-start-slider"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-end-slider"]')).not.toBeNull();
 
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();
@@ -144,8 +146,8 @@ describe('StudioInspectionComponent', () => {
   it('trims the session, updates readings and emits the updated summary', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
     fixture.detectChanges();
-    component.trimDurationSec.set(0.6);
-    component.onTrimDurationChanged(0.6);
+    component.onTrimStartChanged(0.4);
+    component.onTrimEndChanged(1.0);
     let updatedSession = null;
     component.sessionUpdated.subscribe((session) => (updatedSession = session));
 
@@ -153,15 +155,28 @@ describe('StudioInspectionComponent', () => {
 
     expect(mockStudioService.trimSession).toHaveBeenCalledWith(
       mockStudioSessionSummaries[1].id,
-      0.6
+      0.4,
+      1.0
     );
     expect(component.activeReadings().length).toBe(2);
+    expect(component.trimStartOffsetSec()).toBe(0);
+    expect(component.trimEndOffsetSec()).toBe(0.6);
     expect(component.trimDurationSec()).toBe(0.6);
     expect(component.replayPlaybackTime()).toBe(0.6);
     expect(updatedSession).toEqual(
       jasmine.objectContaining({ duration_sec: 0.6, sample_count: 2 })
     );
     expect(mockToastService.success).toHaveBeenCalledWith('studio_history.trim_success');
+  });
+
+  it('keeps a minimum interval between the two trim cursors', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
+    fixture.detectChanges();
+
+    component.onTrimEndChanged(1.0);
+    component.onTrimStartChanged(0.8);
+
+    expect(component.trimEndOffsetSec() - component.trimStartOffsetSec()).toBeGreaterThanOrEqual(0.6);
   });
 
   it('reverts a validated session to pending and emits the updated summary', () => {

@@ -645,6 +645,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/studio/sessions/{session_id}/trim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Trim Session
+         * @description Keep a selected time interval from an unvalidated session.
+         */
+        patch: operations["trim_session_api_v1_studio_sessions__session_id__trim_patch"];
+        trace?: never;
+    };
     "/api/v1/studio/sessions/{session_id}/confirm": {
         parameters: {
             query?: never;
@@ -799,26 +819,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/studio/sessions/{session_id}/trim": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Trim Session
-         * @description Permanently remove telemetry after a requested duration for an unvalidated session.
-         */
-        patch: operations["trim_session_api_v1_studio_sessions__session_id__trim_patch"];
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -859,22 +859,6 @@ export interface components {
              * @default false
              */
             is_pseudonymized: boolean;
-        };
-        /**
-         * ActivityStepItem
-         * @description Step count payload for a specific activity type.
-         */
-        ActivityStepItem: {
-            /**
-             * Activity Type
-             * @description Activity type name (e.g., 'walk', 'run', 'stairs', 'unclassified')
-             */
-            activity_type: string;
-            /**
-             * Step Count
-             * @description Non-negative accumulated step count for this activity
-             */
-            step_count: number;
         };
         /**
          * DailyStepsHistoryResponse
@@ -945,10 +929,10 @@ export interface components {
              */
             date: string;
             /**
-             * Activities
-             * @description List of step counts broken down by activity type
+             * Hourly Steps
+             * @description Fine-grained hourly step counts recorded throughout the day
              */
-            activities: components["schemas"]["ActivityStepItem"][];
+            hourly_steps: components["schemas"]["HourlyActivityStepItem"][];
         };
         /**
          * DailyStepsSyncResponse
@@ -1154,6 +1138,27 @@ export interface components {
             /** Environment */
             environment?: string | null;
             database_pool?: components["schemas"]["DatabasePoolStatus"] | null;
+        };
+        /**
+         * HourlyActivityStepItem
+         * @description Hourly step count payload for a specific hour and activity type.
+         */
+        HourlyActivityStepItem: {
+            /**
+             * Hour
+             * @description Hour of the day (0 to 23)
+             */
+            hour: number;
+            /**
+             * Activity Type
+             * @description Activity type name (e.g., 'walk', 'run', 'stairs', 'unclassified')
+             */
+            activity_type: string;
+            /**
+             * Step Count
+             * @description Non-negative accumulated step count for this hour and activity
+             */
+            step_count: number;
         };
         /**
          * HourlyStepItem
@@ -1557,6 +1562,29 @@ export interface components {
             created_at: string;
         };
         /**
+         * StudioSessionTrimPayload
+         * @description Payload to keep a time interval from an unvalidated Studio recording.
+         */
+        StudioSessionTrimPayload: {
+            /**
+             * Start Offset Sec
+             * @description Start offset of the retained session interval in seconds
+             * @default 0
+             */
+            start_offset_sec: number;
+            /**
+             * End Offset Sec
+             * @description End offset of the retained session interval in seconds
+             */
+            end_offset_sec?: number | null;
+            /**
+             * New Duration Sec
+             * @deprecated
+             * @description Legacy end offset for trimming from the beginning
+             */
+            new_duration_sec?: number | null;
+        };
+        /**
          * StudioSessionUpdatePayload
          * @description Payload to update the label or confirmation status of a Studio recording.
          */
@@ -1697,17 +1725,6 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
-        };
-        /**
-         * StudioSessionTrimPayload
-         * @description Payload to shorten an unvalidated Studio recording.
-         */
-        StudioSessionTrimPayload: {
-            /**
-             * New Duration Sec
-             * @description Nouvelle durée tronquée de la session en secondes
-             */
-            new_duration_sec: number;
         };
     };
     responses: never;
@@ -2946,6 +2963,41 @@ export interface operations {
             };
         };
     };
+    trim_session_api_v1_studio_sessions__session_id__trim_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudioSessionTrimPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioSessionSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     confirm_session_api_v1_studio_sessions__session_id__confirm_patch: {
         parameters: {
             query?: never;
@@ -3164,41 +3216,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    trim_session_api_v1_studio_sessions__session_id__trim_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                session_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StudioSessionTrimPayload"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioSessionSummary"];
                 };
             };
             /** @description Validation Error */

@@ -235,6 +235,8 @@
             <app-imu-chart
               [readings]="activeReadings()"
               [playbackTimeSec]="replayPlaybackTime()"
+              [trimStartTimeSec]="s.is_validated ? null : trimStartOffsetSec()"
+              [trimEndTimeSec]="s.is_validated ? null : trimEndOffsetSec()"
               [showIsbGuideSection]="false"
               (timeSelected)="onReplayTimeSelected($event)"
             />
@@ -259,27 +261,43 @@
                   {{ trimPreviewReadings().length }} / {{ activeReadings().length }}
                 </span>
               </div>
-              <label for="trim-duration-slider" class="flex items-center justify-between gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
-                <span>{{ 'studio_history.trim_cut_at' | translate }}</span>
-                <span class="font-mono font-bold">{{ trimDurationSec() | number: '1.1-1' }} s</span>
+              <label for="trim-start-slider" class="flex items-center justify-between gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                <span>{{ 'studio_history.trim_start_at' | translate }}</span>
+                <span class="font-mono font-bold">{{ trimStartOffsetSec() | number: '1.1-1' }} s</span>
               </label>
               <input
-                id="trim-duration-slider"
+                id="trim-start-slider"
                 type="range"
-                min="0.6"
+                min="0"
+                [max]="trimEndOffsetSec() - 0.6"
+                step="0.1"
+                [ngModel]="trimStartOffsetSec()"
+                (ngModelChange)="onTrimStartChanged($event)"
+                [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession()"
+                data-testid="trim-start-slider"
+                class="w-full accent-emerald-600 disabled:opacity-50"
+              />
+              <label for="trim-end-slider" class="flex items-center justify-between gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                <span>{{ 'studio_history.trim_end_at' | translate }}</span>
+                <span class="font-mono font-bold">{{ trimEndOffsetSec() | number: '1.1-1' }} s</span>
+              </label>
+              <input
+                id="trim-end-slider"
+                type="range"
+                [min]="trimStartOffsetSec() + 0.6"
                 [max]="trimMaxDurationSec()"
                 step="0.1"
-                [ngModel]="trimDurationSec()"
-                (ngModelChange)="onTrimDurationChanged($event)"
+                [ngModel]="trimEndOffsetSec()"
+                (ngModelChange)="onTrimEndChanged($event)"
                 [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession()"
-                data-testid="trim-duration-slider"
-                class="w-full accent-amber-600 disabled:opacity-50"
+                data-testid="trim-end-slider"
+                class="w-full accent-rose-600 disabled:opacity-50"
               />
               @if (!showTrimConfirm()) {
                 <button
                   type="button"
                   (click)="showTrimConfirm.set(true)"
-                  [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession() || trimDurationSec() >= s.duration_sec"
+                  [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession() || !hasTrimChanges()"
                   data-testid="trim-session-btn"
                   class="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-amber-700 transition disabled:opacity-50"
                 >
@@ -291,13 +309,17 @@
                     {{ 'studio_history.trim_confirm_title' | translate }}
                   </p>
                   <p class="text-[11px] text-amber-900 dark:text-amber-200">
-                    {{ translation.translate('studio_history.trim_confirm_warning', { duration: trimDurationSec().toFixed(1) }) }}
+                    {{ translation.translate('studio_history.trim_confirm_warning', {
+                      start: trimStartOffsetSec().toFixed(1),
+                      end: trimEndOffsetSec().toFixed(1),
+                      duration: trimDurationSec().toFixed(1)
+                    }) }}
                   </p>
                   <div class="flex flex-wrap gap-2">
                     <button
                       type="button"
                       (click)="trimSession()"
-                      [disabled]="isTrimmingSession() || trimDurationSec() >= s.duration_sec"
+                      [disabled]="isTrimmingSession() || !hasTrimChanges()"
                       data-testid="confirm-trim-session-btn"
                       class="rounded-md bg-amber-700 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-800 disabled:opacity-50"
                     >
