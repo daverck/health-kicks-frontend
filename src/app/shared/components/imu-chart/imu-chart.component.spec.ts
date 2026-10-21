@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SimpleChange } from '@angular/core';
+import { Chart } from 'chart.js';
 import { ImuChartComponent } from './imu-chart.component';
 import { mockImuReadings } from '../../../../testing/mocks/telemetry.mock';
 
@@ -46,6 +47,61 @@ describe('ImuChartComponent', () => {
     expect(compiled.textContent).toContain('Accélération Tri-axiale');
     expect(compiled.textContent).toContain('Vitesse Angulaire (Gyroscope)');
     expect(compiled.querySelectorAll('canvas').length).toBe(2);
+  });
+
+  it('should emit trim handle changes when dragging a marker on the chart', () => {
+    component.readings = mockImuReadings;
+    component.trimStartTimeSec = 0.2;
+    component.trimEndTimeSec = 2;
+    component.trimSelectionEnabled = true;
+    fixture.detectChanges();
+    component.ngOnChanges({
+      readings: new SimpleChange(null, mockImuReadings, true),
+    });
+    fixture.detectChanges();
+
+    const canvas = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
+    const chart = Chart.getChart(canvas);
+    expect(chart).toBeTruthy();
+    if (!chart) return;
+    Object.defineProperty(chart, 'width', { value: 600, configurable: true });
+    const xScale = chart.scales['x'];
+    Object.defineProperty(xScale, 'left', { value: 0, configurable: true });
+    Object.defineProperty(xScale, 'right', { value: 600, configurable: true });
+    vi.spyOn(xScale, 'getPixelForValue').mockImplementation((value) =>
+      Number(value) === 0.2 ? 120 : 500
+    );
+    vi.spyOn(xScale, 'getValueForPixel').mockReturnValue(0.4);
+
+    vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 600,
+      bottom: 256,
+      width: 600,
+      height: 256,
+      x: 0,
+      y: 0,
+      toJSON: () => undefined,
+    });
+    Object.defineProperty(canvas, 'setPointerCapture', { value: () => undefined });
+    const changed = vi.fn();
+    component.trimHandleChanged.subscribe(changed);
+    const dispatchPointer = (type: string, clientX: number): void => {
+      const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX });
+      Object.defineProperty(event, 'pointerId', { value: 1 });
+      canvas.dispatchEvent(event);
+    };
+
+    dispatchPointer('pointerdown', 120);
+    expect(canvas.style.cursor).toBe('grabbing');
+    dispatchPointer('pointermove', 240);
+    dispatchPointer('pointerup', 240);
+
+    expect(changed).toHaveBeenCalledWith(
+      jasmine.objectContaining({ handle: 'start', timeSec: jasmine.any(Number) })
+    );
+    expect(changed.mock.calls[0][0].timeSec).toBeCloseTo(0.4, 1);
   });
 
   it('should toggle individual acceleration axes and update signals', () => {
@@ -223,4 +279,3 @@ describe('ImuChartComponent', () => {
     expect(() => component.ngOnDestroy()).not.toThrow();
   });
 });
-

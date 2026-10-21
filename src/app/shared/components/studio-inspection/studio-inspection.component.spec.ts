@@ -179,6 +179,17 @@ describe('StudioInspectionComponent', () => {
     expect(component.trimEndOffsetSec() - component.trimStartOffsetSec()).toBeGreaterThanOrEqual(0.6);
   });
 
+  it('routes a dragged chart marker to the matching trim boundary', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
+    fixture.detectChanges();
+
+    component.onTrimHandleChanged({ handle: 'start', timeSec: 0.4 });
+    expect(component.trimStartOffsetSec()).toBe(0.4);
+
+    component.onTrimHandleChanged({ handle: 'end', timeSec: 1.4 });
+    expect(component.trimEndOffsetSec()).toBe(1.4);
+  });
+
   it('reverts a validated session to pending and emits the updated summary', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();

@@ -237,8 +237,10 @@
               [playbackTimeSec]="replayPlaybackTime()"
               [trimStartTimeSec]="s.is_validated ? null : trimStartOffsetSec()"
               [trimEndTimeSec]="s.is_validated ? null : trimEndOffsetSec()"
+              [trimSelectionEnabled]="!s.is_validated"
               [showIsbGuideSection]="false"
               (timeSelected)="onReplayTimeSelected($event)"
+              (trimHandleChanged)="onTrimHandleChanged($event)"
             />
           </div>
 

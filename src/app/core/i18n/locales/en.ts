@@ -465,7 +465,7 @@ export const en = {
     session_unvalidated_error: 'Could not return the session to pending validation.',
     trim_session_title: 'Shorten / trim session',
     trim_session_btn: 'Trim session',
-    trim_preview_help: 'Adjust the start and end sliders to preview the retained interval on the IMU signal.',
+    trim_preview_help: 'Drag the S (start) and E (end) markers directly on the chart. The sliders below remain available for precise adjustments.',
     trim_frames_kept: 'Frames kept',
     trim_start_at: 'Keep from',
     trim_end_at: 'Keep until',

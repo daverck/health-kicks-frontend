@@ -160,6 +160,14 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     this.replayPlaybackTime.set(timeSec);
   }
 
+  onTrimHandleChanged(event: { handle: 'start' | 'end'; timeSec: number }): void {
+    if (event.handle === 'start') {
+      this.onTrimStartChanged(event.timeSec);
+    } else {
+      this.onTrimEndChanged(event.timeSec);
+    }
+  }
+
   onTrimStartChanged(offsetSec: number): void {
     const latestStart = this.trimEndOffsetSec() - StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
     const nextStart = Math.min(

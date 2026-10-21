@@ -49,14 +49,19 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() playbackTimeSec: number | null = null;
   @Input() trimStartTimeSec: number | null = null;
   @Input() trimEndTimeSec: number | null = null;
+  @Input() trimSelectionEnabled = false;
   @Input() showIsbGuideSection = true;
   readonly timeSelected = output<number>();
+  readonly trimHandleChanged = output<{ handle: 'start' | 'end'; timeSec: number }>();
 
   @ViewChild('accelCanvas') private accelCanvasRef?: ElementRef<HTMLCanvasElement>;
   @ViewChild('gyroCanvas') private gyroCanvasRef?: ElementRef<HTMLCanvasElement>;
 
   private chartAccel: Chart | null = null;
   private chartGyro: Chart | null = null;
+  private activeTrimHandle: 'start' | 'end' | null = null;
+  private suppressNextClick = false;
+  private trimInteractionCleanups: (() => void)[] = [];
 
   // Biomechanical ISB Guide visibility
   readonly showIsbGuide = signal<boolean>(false);
@@ -175,6 +180,9 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private updateCursor(): void {
+    const touchAction = this.trimSelectionEnabled ? 'none' : '';
+    if (this.accelCanvasRef) this.accelCanvasRef.nativeElement.style.touchAction = touchAction;
+    if (this.gyroCanvasRef) this.gyroCanvasRef.nativeElement.style.touchAction = touchAction;
     if (this.chartAccel) {
       this.chartAccel.update('none');
     }
@@ -188,6 +196,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private destroyCharts(): void {
+    this.clearTrimInteractions();
     if (this.chartAccel) {
       this.chartAccel.destroy();
       this.chartAccel = null;
@@ -235,7 +244,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
       dataGz.push({ x: tOffset, y: r.gz });
     }
 
-    // Custom plugin drawing dynamic vertical playback cursor
+    // Custom plugin drawing playback and trim cursors.
     const cursorPlugin = {
       id: 'playbackCursor',
       afterDraw: (chart: Chart) => {
@@ -244,6 +253,20 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
         if (!xScale || !yScale) return;
 
         const ctx = chart.ctx;
+        if (
+          this.trimSelectionEnabled &&
+          this.trimStartTimeSec !== null &&
+          this.trimEndTimeSec !== null
+        ) {
+          const startPixel = xScale.getPixelForValue(this.trimStartTimeSec);
+          const endPixel = xScale.getPixelForValue(this.trimEndTimeSec);
+          ctx.save();
+          ctx.fillStyle = 'rgba(107, 114, 128, 0.12)';
+          ctx.fillRect(xScale.left, yScale.top, startPixel - xScale.left, yScale.bottom - yScale.top);
+          ctx.fillRect(endPixel, yScale.top, xScale.right - endPixel, yScale.bottom - yScale.top);
+          ctx.restore();
+        }
+
         const drawMarker = (timeSec: number | null, color: string, lineWidth: number) => {
           if (timeSec === null) return;
           const xPixel = xScale.getPixelForValue(timeSec);
@@ -257,6 +280,20 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
           ctx.strokeStyle = color;
           ctx.setLineDash([4, 4]);
           ctx.stroke();
+          if (this.trimSelectionEnabled && (color === '#059669' || color === '#e11d48')) {
+            ctx.beginPath();
+            ctx.arc(xPixel, yScale.top + 8, 7, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.fillStyle = color;
+            ctx.font = 'bold 9px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(color === '#059669' ? 'D' : 'F', xPixel, yScale.top + 8);
+          }
           ctx.beginPath();
           ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
           ctx.fillStyle = color;
@@ -289,6 +326,10 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
         intersect: false,
       },
       onClick: (event: any, elements: any, chart: Chart) => {
+        if (this.suppressNextClick) {
+          this.suppressNextClick = false;
+          return;
+        }
         const xScale = chart.scales['x'];
         if (!xScale) return;
         const canvasRect = chart.canvas.getBoundingClientRect();
@@ -452,5 +493,91 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
 
     this.chartAccel = new Chart(this.accelCanvasRef.nativeElement, accelConfig);
     this.chartGyro = new Chart(this.gyroCanvasRef.nativeElement, gyroConfig);
+    this.attachTrimInteractions(this.accelCanvasRef.nativeElement, this.chartAccel);
+    this.attachTrimInteractions(this.gyroCanvasRef.nativeElement, this.chartGyro);
+  }
+
+  private attachTrimInteractions(canvas: HTMLCanvasElement, chart: Chart): void {
+    canvas.style.touchAction = this.trimSelectionEnabled ? 'none' : '';
+
+    const getTrimHandleAt = (event: PointerEvent): 'start' | 'end' | null => {
+      if (
+        !this.trimSelectionEnabled ||
+        this.trimStartTimeSec === null ||
+        this.trimEndTimeSec === null
+      ) {
+        return null;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0) return null;
+      const xPixel = ((event.clientX - rect.left) / rect.width) * chart.width;
+      const xScale = chart.scales['x'];
+      if (!xScale || xPixel < xScale.left || xPixel > xScale.right) return null;
+
+      const startDistance = Math.abs(xPixel - xScale.getPixelForValue(this.trimStartTimeSec));
+      const endDistance = Math.abs(xPixel - xScale.getPixelForValue(this.trimEndTimeSec));
+      const nearest = startDistance <= endDistance ? 'start' : 'end';
+      return Math.min(startDistance, endDistance) <= 14 ? nearest : null;
+    };
+
+    const onPointerDown = (event: PointerEvent): void => {
+      this.activeTrimHandle = getTrimHandleAt(event);
+      if (!this.activeTrimHandle) return;
+      event.preventDefault();
+      this.suppressNextClick = true;
+      if (typeof canvas.setPointerCapture === 'function') {
+        canvas.setPointerCapture(event.pointerId);
+      }
+      canvas.style.cursor = 'grabbing';
+    };
+    const onPointerMove = (event: PointerEvent): void => {
+      if (!this.activeTrimHandle) {
+        canvas.style.cursor = getTrimHandleAt(event) ? 'grab' : '';
+        return;
+      }
+
+      event.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const xPixel = ((event.clientX - rect.left) / rect.width) * chart.width;
+      const xScale = chart.scales['x'];
+      if (!xScale) return;
+      const timeSec = xScale.getValueForPixel(
+        Math.min(xScale.right, Math.max(xScale.left, xPixel))
+      );
+      if (timeSec !== undefined && timeSec !== null) {
+        this.suppressNextClick = true;
+        this.trimHandleChanged.emit({ handle: this.activeTrimHandle, timeSec });
+      }
+    };
+    const onPointerUp = (): void => {
+      if (this.activeTrimHandle) {
+        this.activeTrimHandle = null;
+        canvas.style.cursor = '';
+      }
+    };
+    const onPointerCancel = (): void => {
+      onPointerUp();
+      this.suppressNextClick = false;
+    };
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerCancel);
+    this.trimInteractionCleanups.push(() => {
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      canvas.removeEventListener('pointercancel', onPointerCancel);
+      canvas.style.touchAction = '';
+      canvas.style.cursor = '';
+    });
+  }
+
+  private clearTrimInteractions(): void {
+    for (const cleanup of this.trimInteractionCleanups) cleanup();
+    this.trimInteractionCleanups = [];
+    this.activeTrimHandle = null;
   }
 }

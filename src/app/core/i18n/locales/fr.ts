@@ -433,7 +433,7 @@ export const fr = {
     session_unvalidated_error: 'Impossible de repasser la session en attente de validation.',
     trim_session_title: 'Écourter / rogner la session',
     trim_session_btn: 'Écourter la session',
-    trim_preview_help: 'Ajustez les curseurs de début et de fin pour prévisualiser l’intervalle conservé sur le signal IMU.',
+    trim_preview_help: 'Faites glisser les repères D (début) et F (fin) directement sur le graphique. Les curseurs ci-dessous restent disponibles pour un réglage précis.',
     trim_frames_kept: 'Trames conservées',
     trim_start_at: 'Début conservé',
     trim_end_at: 'Fin conservée',
