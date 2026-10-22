@@ -58,7 +58,8 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioInspectionComponent implements OnInit, OnChanges {
-  private static readonly MIN_TRIM_INTERVAL_SEC = 0.6;
+  private static readonly MIN_TRIM_INTERVAL_SEC = 2;
+  readonly minimumTrimDurationSec = StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
 
   private readonly studioHistoryService = inject(StudioHistoryService);
   private readonly studioService = inject(StudioService);

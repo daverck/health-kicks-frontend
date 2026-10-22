@@ -42,7 +42,7 @@ describe('StudioInspectionComponent', () => {
       of({ ...mockStudioSessionSummaries[0], is_validated: false })
     );
     mockStudioService.trimSession.and.returnValue(
-      of({ ...mockStudioSessionSummaries[1], duration_sec: 0.6, sample_count: 2 })
+      of({ ...mockStudioSessionSummaries[1], duration_sec: 2, sample_count: 100 })
     );
 
     await TestBed.configureTestingModule({
@@ -172,13 +172,21 @@ describe('StudioInspectionComponent', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).toBeNull();
+
+    fixture.componentRef.setInput('session', {
+      ...mockStudioSessionSummaries[1],
+      is_validated: false,
+      duration_sec: 2,
+    });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).toBeNull();
   });
 
   it('trims the session, updates readings and emits the updated summary', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
     fixture.detectChanges();
     component.onTrimStartChanged(0.4);
-    component.onTrimEndChanged(1.0);
+    component.onTrimEndChanged(2.4);
     let updatedSession = null;
     component.sessionUpdated.subscribe((session) => (updatedSession = session));
 
@@ -187,15 +195,15 @@ describe('StudioInspectionComponent', () => {
     expect(mockStudioService.trimSession).toHaveBeenCalledWith(
       mockStudioSessionSummaries[1].id,
       0.4,
-      1.0
+      2.4
     );
     expect(component.activeReadings().length).toBe(2);
     expect(component.trimStartOffsetSec()).toBe(0);
-    expect(component.trimEndOffsetSec()).toBe(0.6);
-    expect(component.trimDurationSec()).toBe(0.6);
-    expect(component.replayPlaybackTime()).toBe(0.6);
+    expect(component.trimEndOffsetSec()).toBe(2);
+    expect(component.trimDurationSec()).toBe(2);
+    expect(component.replayPlaybackTime()).toBe(2);
     expect(updatedSession).toEqual(
-      jasmine.objectContaining({ duration_sec: 0.6, sample_count: 2 })
+      jasmine.objectContaining({ duration_sec: 2, sample_count: 100 })
     );
     expect(mockToastService.success).toHaveBeenCalledWith('studio_history.trim_success');
   });
@@ -207,7 +215,7 @@ describe('StudioInspectionComponent', () => {
     component.onTrimEndChanged(1.0);
     component.onTrimStartChanged(0.8);
 
-    expect(component.trimEndOffsetSec() - component.trimStartOffsetSec()).toBeGreaterThanOrEqual(0.6);
+    expect(component.trimEndOffsetSec() - component.trimStartOffsetSec()).toBeGreaterThanOrEqual(2);
   });
 
   it('routes a dragged chart marker to the matching trim boundary', () => {
@@ -218,7 +226,7 @@ describe('StudioInspectionComponent', () => {
     expect(component.trimStartOffsetSec()).toBe(0.4);
 
     component.onTrimHandleChanged({ handle: 'end', timeSec: 1.4 });
-    expect(component.trimEndOffsetSec()).toBe(1.4);
+    expect(component.trimEndOffsetSec()).toBe(2.4);
   });
 
   it('reverts a validated session to pending and emits the updated summary', () => {

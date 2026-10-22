@@ -244,7 +244,7 @@
             />
           </div>
 
-          @if (!s.is_validated && trimMaxDurationSec() >= 0.6 && s.duration_sec > 0.6) {
+          @if (!s.is_validated && trimMaxDurationSec() >= minimumTrimDurationSec && s.duration_sec > minimumTrimDurationSec) {
             <section
               class="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-3 dark:border-amber-900/60 dark:bg-amber-950/20"
               data-testid="trim-session-control"
