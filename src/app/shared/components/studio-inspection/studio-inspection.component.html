@@ -237,7 +237,7 @@
               [playbackTimeSec]="replayPlaybackTime()"
               [trimStartTimeSec]="s.is_validated ? null : trimStartOffsetSec()"
               [trimEndTimeSec]="s.is_validated ? null : trimEndOffsetSec()"
-              [trimSelectionEnabled]="!s.is_validated"
+              [trimSelectionEnabled]="!s.is_validated && !isTrimmingSession()"
               [showIsbGuideSection]="false"
               (timeSelected)="onReplayTimeSelected($event)"
               (trimHandleChanged)="onTrimHandleChanged($event)"
@@ -263,38 +263,6 @@
                   {{ trimPreviewReadings().length }} / {{ activeReadings().length }}
                 </span>
               </div>
-              <label for="trim-start-slider" class="flex items-center justify-between gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
-                <span>{{ 'studio_history.trim_start_at' | translate }}</span>
-                <span class="font-mono font-bold">{{ trimStartOffsetSec() | number: '1.1-1' }} s</span>
-              </label>
-              <input
-                id="trim-start-slider"
-                type="range"
-                min="0"
-                [max]="trimEndOffsetSec() - 0.6"
-                step="0.1"
-                [ngModel]="trimStartOffsetSec()"
-                (ngModelChange)="onTrimStartChanged($event)"
-                [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession()"
-                data-testid="trim-start-slider"
-                class="w-full accent-emerald-600 disabled:opacity-50"
-              />
-              <label for="trim-end-slider" class="flex items-center justify-between gap-2 text-xs font-medium text-gray-700 dark:text-gray-300">
-                <span>{{ 'studio_history.trim_end_at' | translate }}</span>
-                <span class="font-mono font-bold">{{ trimEndOffsetSec() | number: '1.1-1' }} s</span>
-              </label>
-              <input
-                id="trim-end-slider"
-                type="range"
-                [min]="trimStartOffsetSec() + 0.6"
-                [max]="trimMaxDurationSec()"
-                step="0.1"
-                [ngModel]="trimEndOffsetSec()"
-                (ngModelChange)="onTrimEndChanged($event)"
-                [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession()"
-                data-testid="trim-end-slider"
-                class="w-full accent-rose-600 disabled:opacity-50"
-              />
               @if (!showTrimConfirm()) {
                 <button
                   type="button"

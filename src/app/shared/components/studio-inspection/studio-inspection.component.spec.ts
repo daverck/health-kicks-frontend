@@ -135,8 +135,8 @@ describe('StudioInspectionComponent', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('[data-testid="trim-start-slider"]')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('[data-testid="trim-end-slider"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-start-slider"]')).toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-testid="trim-end-slider"]')).toBeNull();
 
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();
