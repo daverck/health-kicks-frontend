@@ -375,7 +375,7 @@ describe('StudioInspectionComponent', () => {
     expect(compiled.querySelector('app-isb-guide')).not.toBeNull();
   });
 
-  it('should prevent label editing and display locked banner when session is validated', () => {
+  it('should prevent label editing and offer reopening beside the delete action', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();
 
@@ -389,10 +389,18 @@ describe('StudioInspectionComponent', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     const lockedBanner = compiled.querySelector('[data-testid="label-locked-banner"]');
-    expect(lockedBanner).toBeTruthy();
+    expect(lockedBanner).toBeNull();
 
     const updateBtn = compiled.querySelector('#update-label-btn');
     expect(updateBtn).toBeNull();
+    const reopenBtn = compiled.querySelector('[data-testid="unvalidate-session-btn"]');
+    const deleteBtn = compiled.querySelector('[data-testid="delete-session-btn"]');
+    expect(reopenBtn).not.toBeNull();
+    expect(reopenBtn?.parentElement).toBe(deleteBtn?.parentElement);
+
+    (reopenBtn as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(compiled.querySelector('[data-testid="unvalidate-confirmation"]')).not.toBeNull();
   });
 
   it('should allow label editing and hide locked banner when session is unvalidated', () => {
