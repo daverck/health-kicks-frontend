@@ -29,6 +29,21 @@ describe('DateFilterComponent', () => {
     expect(component.isOpen()).toBeFalse();
   });
 
+  it('uses readable dark theme styles for all date presets', () => {
+    component.openDropdown();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const presets = compiled.querySelectorAll<HTMLButtonElement>('[data-testid^="preset-"]');
+    expect(presets.length).toBe(4);
+    for (const preset of presets) {
+      expect(preset.classList.contains('dark:bg-gray-700')).toBeTrue();
+      expect(preset.classList.contains('dark:text-gray-200')).toBeTrue();
+      expect(preset.classList.contains('dark:hover:bg-gray-600')).toBeTrue();
+      expect(preset.classList.contains('dark:hover:text-white')).toBeTrue();
+    }
+  });
+
   it('should apply preset today correctly', () => {
     spyOn(component.dateChange, 'emit');
     component.openDropdown();
@@ -101,4 +116,3 @@ describe('DateFilterComponent', () => {
     expect(component.isOpen()).toBeFalse();
   });
 });
-
