@@ -508,6 +508,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private attachTrimInteractions(canvas: HTMLCanvasElement, chart: Chart): void {
     canvas.style.touchAction = this.trimSelectionEnabled ? 'none' : '';
+    const tooltipEnabledBeforeTrimDrag = chart.options.plugins?.tooltip?.enabled;
 
     const getTrimHandleAt = (event: PointerEvent): 'start' | 'end' | null => {
       if (
@@ -546,6 +547,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
         chart.options.plugins.tooltip.enabled = false;
       }
       chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
+      chart.update('none');
       if (typeof canvas.setPointerCapture === 'function') {
         canvas.setPointerCapture(event.pointerId);
       }
@@ -586,7 +588,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
       if (this.activeTrimHandle) {
         this.activeTrimHandle = null;
         if (chart.options.plugins?.tooltip) {
-          chart.options.plugins.tooltip.enabled = true;
+          chart.options.plugins.tooltip.enabled = tooltipEnabledBeforeTrimDrag;
         }
         chart.update('none');
         canvas.style.cursor = '';
