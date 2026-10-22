@@ -495,28 +495,30 @@
                   {{ 'studio_history.unvalidate_session_btn' | translate }}
                 </button>
               } @else {
-                <div class="flex flex-wrap items-center gap-2" data-testid="unvalidate-confirmation">
+                <div class="flex flex-col items-start gap-2" data-testid="unvalidate-confirmation">
                   <span class="text-xs text-amber-800 dark:text-amber-300">
                     {{ 'studio_history.unvalidate_confirm_warning' | translate }}
                   </span>
-                  <button
-                    type="button"
-                    (click)="reopenSession()"
-                    [disabled]="isUpdatingValidation()"
-                    data-testid="confirm-unvalidate-session-btn"
-                    class="rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
-                  >
-                    @if (isUpdatingValidation()) { ⏳ }
-                    {{ 'studio_history.unvalidate_session_btn' | translate }}
-                  </button>
-                  <button
-                    type="button"
-                    (click)="showUnvalidateConfirm.set(false)"
-                    [disabled]="isUpdatingValidation()"
-                    class="rounded-md border border-gray-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                  >
-                    {{ 'common.cancel' | translate }}
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="reopenSession()"
+                      [disabled]="isUpdatingValidation()"
+                      data-testid="confirm-unvalidate-session-btn"
+                      class="rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+                    >
+                      @if (isUpdatingValidation()) { ⏳ }
+                      {{ 'studio_history.unvalidate_session_btn' | translate }}
+                    </button>
+                    <button
+                      type="button"
+                      (click)="showUnvalidateConfirm.set(false)"
+                      [disabled]="isUpdatingValidation()"
+                      class="rounded-md border border-gray-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                    >
+                      {{ 'common.cancel' | translate }}
+                    </button>
+                  </div>
                 </div>
               }
 
