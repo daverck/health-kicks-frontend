@@ -198,7 +198,7 @@
         </div>
         <div class="rounded-xl border border-gray-100 bg-gray-50 p-3 col-span-2 sm:col-span-1 dark:border-gray-800 dark:bg-gray-800/60">
           <span class="text-gray-400 uppercase tracking-wider text-[10px]">{{ 'studio_history.col_duration' | translate }}</span>
-          <p class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ s.duration_sec }}s</p>
+          <p class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ s.duration_sec | number: '1.0-1' }}s</p>
         </div>
       </div>
 

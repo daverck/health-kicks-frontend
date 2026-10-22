@@ -109,6 +109,20 @@ describe('StudioHistoryComponent', () => {
     expect(component.devices().length).toBe(2);
   });
 
+  it('formats session durations to at most one decimal place in the history list', () => {
+    fixture.detectChanges();
+    component.sessions.update((sessions) =>
+      sessions.map((session, index) =>
+        index === 0 ? { ...session, duration_sec: 3.1999999999999997 } : session
+      )
+    );
+    fixture.detectChanges();
+
+    const content = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(content).toContain('3.2s');
+    expect(content).not.toContain('3.1999999999999997s');
+  });
+
   it('should NOT display author column or author filter when role is regular user', () => {
     currentUserSignal.set(regularUser);
     fixture.detectChanges();

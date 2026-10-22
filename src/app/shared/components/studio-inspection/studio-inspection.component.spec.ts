@@ -69,6 +69,19 @@ describe('StudioInspectionComponent', () => {
     expect(component.activeReadings().length).toBe(mockStudioSessionReadingsResponse.readings.length);
   });
 
+  it('displays session duration rounded to at most one decimal place', () => {
+    fixture.componentRef.setInput('session', {
+      ...mockStudioSessionSummaries[0],
+      duration_sec: 3.1999999999999997,
+    });
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('3.2s');
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain(
+      '3.1999999999999997s'
+    );
+  });
+
   it('should not reload readings when the same session is validated or updated', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
     fixture.detectChanges();
