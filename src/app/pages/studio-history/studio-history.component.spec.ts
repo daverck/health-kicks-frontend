@@ -291,25 +291,33 @@ describe('StudioHistoryComponent', () => {
   });
 
   it('should handle pagination: next page, previous page and page size change', () => {
-    // Mock response with total 50 to allow page 2
-    studioHistoryServiceSpy.getSessions.and.callFake((params) =>
-      of({
+    const page2Cursor = 'opaque-page-2-cursor';
+    const page1Sessions = mockStudioSessionSummaries.slice(0, 2);
+    const page2Sessions = [mockStudioSessionSummaries[2]];
+    studioHistoryServiceSpy.getSessions.and.callFake((params) => {
+      const isSecondPage = params?.cursor === page2Cursor;
+      return of({
         ...mockPaginatedSessionsResponse,
+        items: isSecondPage ? page2Sessions : page1Sessions,
         total: 50,
         page: params?.page ?? 1,
         size: params?.size ?? 20,
-      })
-    );
+        next_cursor: isSecondPage ? null : page2Cursor,
+      });
+    });
     fixture.detectChanges();
 
     expect(component.totalPages()).toBe(3);
+    expect(component.sessions()).toEqual(page1Sessions);
 
     component.goToPage(2);
     expect(component.page()).toBe(2);
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
       page: 2,
       size: 20,
+      cursor: page2Cursor,
     });
+    expect(component.sessions()).toEqual(page2Sessions);
 
     component.onPageSizeChange(50);
     expect(component.size()).toBe(50);
@@ -386,6 +394,9 @@ describe('StudioHistoryComponent', () => {
   });
 
   it('should navigate across pages when reaching the boundary of the current page list', () => {
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({ ...mockPaginatedSessionsResponse, next_cursor: 'cursor-page-2' })
+    );
     fixture.detectChanges();
 
     const page1Sessions = [mockStudioSessionSummaries[0], mockStudioSessionSummaries[1]];

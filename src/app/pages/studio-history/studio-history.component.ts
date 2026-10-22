@@ -57,6 +57,7 @@ import { StudioInspectionComponent } from '../../shared/components/studio-inspec
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioHistoryComponent implements OnInit, OnDestroy {
+  private readonly pageCursors = new Map<number, string | null>([[1, null]]);
   private readonly document = inject(DOCUMENT);
   readonly auth = inject(AuthService);
   private readonly studioHistoryService = inject(StudioHistoryService);
@@ -190,6 +191,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       page: this.page(),
       size: this.size(),
     };
+    const cursor = this.pageCursors.get(this.page());
+    if (cursor) {
+      params.cursor = cursor;
+    }
 
     if (this.selectedLabels().length > 0) {
       params.label = this.selectedLabels();
@@ -225,6 +230,14 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
     this.studioHistoryService.getSessions(params).subscribe({
       next: (res) => {
+        for (const cachedPage of this.pageCursors.keys()) {
+          if (cachedPage > res.page) {
+            this.pageCursors.delete(cachedPage);
+          }
+        }
+        if (res.next_cursor) {
+          this.pageCursors.set(res.page + 1, res.next_cursor);
+        }
         this.sessions.set(res.items);
         this.total.set(res.total);
         this.page.set(res.page);
@@ -250,6 +263,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange(): void {
+    this.resetPageCursors();
     this.page.set(1);
     this.loadSessions();
   }
@@ -282,12 +296,18 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.startDate.set('');
     this.endDate.set('');
     this.selectedValidated.set('all');
+    this.resetPageCursors();
     this.page.set(1);
     this.loadSessions();
   }
 
   goToPage(p: number): void {
-    if (p < 1 || p > this.totalPages() || p === this.page()) {
+    if (
+      p < 1 ||
+      p > this.totalPages() ||
+      p === this.page() ||
+      !this.pageCursors.has(p)
+    ) {
       return;
     }
     this.page.set(p);
@@ -296,8 +316,14 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   onPageSizeChange(newSize: number): void {
     this.size.set(newSize);
+    this.resetPageCursors();
     this.page.set(1);
     this.loadSessions();
+  }
+
+  private resetPageCursors(): void {
+    this.pageCursors.clear();
+    this.pageCursors.set(1, null);
   }
 
   // --- Inspection Drawer Controls ---

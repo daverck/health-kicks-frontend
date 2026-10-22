@@ -66,6 +66,15 @@ describe('StudioHistoryService', () => {
     req.flush(mockPaginatedSessionsResponse);
   });
 
+  it('should include the opaque cursor when requesting a later page', () => {
+    service.getSessions({ page: 2, size: 20, cursor: 'next-page-cursor' }).subscribe();
+
+    const req = httpMock.expectOne((r) => r.url === baseUrl);
+    expect(req.request.params.get('page')).toBe('2');
+    expect(req.request.params.get('cursor')).toBe('next-page-cursor');
+    req.flush(mockPaginatedSessionsResponse);
+  });
+
   it('should confirm session via PATCH /sessions/{id}/confirm', () => {
     const confirmed = { ...mockStudioSessionSummaries[1], is_validated: true };
 
