@@ -2790,6 +2790,14 @@ export interface operations {
                 start_date?: string | null;
                 /** @description Date/heure de fin (inclusive, ISO 8601) */
                 end_date?: string | null;
+                /** @description Minimum number of IMU samples */
+                sample_count_min?: number | null;
+                /** @description Maximum number of IMU samples */
+                sample_count_max?: number | null;
+                /** @description Minimum session duration in seconds */
+                duration_sec_min?: number | null;
+                /** @description Maximum session duration in seconds */
+                duration_sec_max?: number | null;
             };
             header?: never;
             path?: never;

@@ -14,6 +14,10 @@ export interface StudioHistoryFilterParams {
   user_id?: number | string | (number | string)[];
   start_date?: string;
   end_date?: string;
+  sample_count_min?: number;
+  sample_count_max?: number;
+  duration_sec_min?: number;
+  duration_sec_max?: number;
   is_validated?: boolean;
   cursor?: string | null;
 }

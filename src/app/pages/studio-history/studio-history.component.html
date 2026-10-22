@@ -135,6 +135,61 @@
           />
         </div>
 
+        <div class="grid grid-cols-2 gap-2">
+          <label class="block text-[11px] font-medium text-gray-600 dark:text-gray-300">
+            {{ 'studio_history.filter_min_samples' | translate }}
+            <input
+              type="number"
+              min="0"
+              step="1"
+              [ngModel]="sampleCountMin()"
+              (ngModelChange)="sampleCountMin.set($event)"
+              (change)="onFilterChange()"
+              class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+              data-testid="mobile-filter-sample-count-min"
+            />
+          </label>
+          <label class="block text-[11px] font-medium text-gray-600 dark:text-gray-300">
+            {{ 'studio_history.filter_max_samples' | translate }}
+            <input
+              type="number"
+              min="0"
+              step="1"
+              [ngModel]="sampleCountMax()"
+              (ngModelChange)="sampleCountMax.set($event)"
+              (change)="onFilterChange()"
+              class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+              data-testid="mobile-filter-sample-count-max"
+            />
+          </label>
+          <label class="block text-[11px] font-medium text-gray-600 dark:text-gray-300">
+            {{ 'studio_history.filter_min_duration' | translate }}
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              [ngModel]="durationMin()"
+              (ngModelChange)="durationMin.set($event)"
+              (change)="onFilterChange()"
+              class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+              data-testid="mobile-filter-duration-min"
+            />
+          </label>
+          <label class="block text-[11px] font-medium text-gray-600 dark:text-gray-300">
+            {{ 'studio_history.filter_max_duration' | translate }}
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              [ngModel]="durationMax()"
+              (ngModelChange)="durationMax.set($event)"
+              (change)="onFilterChange()"
+              class="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+              data-testid="mobile-filter-duration-max"
+            />
+          </label>
+        </div>
+
         @if (isAdmin()) {
           <!-- Author / User ID filter -->
           <div>
@@ -374,11 +429,65 @@
               />
             </th>
 
-            <!-- Samples: no filter -->
-            <th scope="col" class="px-2 py-1.5"></th>
+            <!-- Sample count range filters -->
+            <th scope="col" class="px-2 py-1.5 min-w-[100px]">
+              <div class="space-y-1">
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  [ngModel]="sampleCountMin()"
+                  (ngModelChange)="sampleCountMin.set($event)"
+                  (change)="onFilterChange()"
+                  [attr.aria-label]="'studio_history.filter_min_samples' | translate"
+                  [placeholder]="'studio_history.filter_minimum_placeholder' | translate"
+                  class="w-full min-w-0 rounded border border-gray-300 bg-white px-1.5 py-1 text-[11px] text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  data-testid="filter-sample-count-min"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  [ngModel]="sampleCountMax()"
+                  (ngModelChange)="sampleCountMax.set($event)"
+                  (change)="onFilterChange()"
+                  [attr.aria-label]="'studio_history.filter_max_samples' | translate"
+                  [placeholder]="'studio_history.filter_maximum_placeholder' | translate"
+                  class="w-full min-w-0 rounded border border-gray-300 bg-white px-1.5 py-1 text-[11px] text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  data-testid="filter-sample-count-max"
+                />
+              </div>
+            </th>
 
-            <!-- Duration: no filter -->
-            <th scope="col" class="px-2 py-1.5"></th>
+            <!-- Session duration range filters -->
+            <th scope="col" class="px-2 py-1.5 min-w-[100px]">
+              <div class="space-y-1">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  [ngModel]="durationMin()"
+                  (ngModelChange)="durationMin.set($event)"
+                  (change)="onFilterChange()"
+                  [attr.aria-label]="'studio_history.filter_min_duration' | translate"
+                  [placeholder]="'studio_history.filter_minimum_placeholder' | translate"
+                  class="w-full min-w-0 rounded border border-gray-300 bg-white px-1.5 py-1 text-[11px] text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  data-testid="filter-duration-min"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  [ngModel]="durationMax()"
+                  (ngModelChange)="durationMax.set($event)"
+                  (change)="onFilterChange()"
+                  [attr.aria-label]="'studio_history.filter_max_duration' | translate"
+                  [placeholder]="'studio_history.filter_maximum_placeholder' | translate"
+                  class="w-full min-w-0 rounded border border-gray-300 bg-white px-1.5 py-1 text-[11px] text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                  data-testid="filter-duration-max"
+                />
+              </div>
+            </th>
 
             <!-- Author: Admin multi-select filter -->
             @if (isAdmin()) {

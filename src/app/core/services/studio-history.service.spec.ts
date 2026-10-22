@@ -49,6 +49,10 @@ describe('StudioHistoryService', () => {
         label: 'fall_forward',
         device_id: 'hk-device-0001',
         user_id: 42,
+        sample_count_min: 100,
+        sample_count_max: 500,
+        duration_sec_min: 2.5,
+        duration_sec_max: 10,
         is_validated: true,
       })
       .subscribe((res) => {
@@ -62,6 +66,10 @@ describe('StudioHistoryService', () => {
     expect(req.request.params.get('label')).toBe('fall_forward');
     expect(req.request.params.get('device_id')).toBe('hk-device-0001');
     expect(req.request.params.get('user_id')).toBe('42');
+    expect(req.request.params.get('sample_count_min')).toBe('100');
+    expect(req.request.params.get('sample_count_max')).toBe('500');
+    expect(req.request.params.get('duration_sec_min')).toBe('2.5');
+    expect(req.request.params.get('duration_sec_max')).toBe('10');
     expect(req.request.params.get('is_validated')).toBe('true');
     req.flush(mockPaginatedSessionsResponse);
   });

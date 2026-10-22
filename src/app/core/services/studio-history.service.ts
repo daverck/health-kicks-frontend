@@ -60,6 +60,18 @@ export class StudioHistoryService {
       if (params.end_date && params.end_date.trim()) {
         httpParams = httpParams.set('end_date', params.end_date.trim());
       }
+      if (params.sample_count_min !== undefined && params.sample_count_min !== null) {
+        httpParams = httpParams.set('sample_count_min', params.sample_count_min.toString());
+      }
+      if (params.sample_count_max !== undefined && params.sample_count_max !== null) {
+        httpParams = httpParams.set('sample_count_max', params.sample_count_max.toString());
+      }
+      if (params.duration_sec_min !== undefined && params.duration_sec_min !== null) {
+        httpParams = httpParams.set('duration_sec_min', params.duration_sec_min.toString());
+      }
+      if (params.duration_sec_max !== undefined && params.duration_sec_max !== null) {
+        httpParams = httpParams.set('duration_sec_max', params.duration_sec_max.toString());
+      }
       if (params.is_validated !== undefined && params.is_validated !== null) {
         httpParams = httpParams.set('is_validated', params.is_validated.toString());
       }

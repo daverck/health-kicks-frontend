@@ -157,6 +157,10 @@ describe('StudioHistoryComponent', () => {
     component.filterUserId.set('2');
     component.startDate.set('2026-09-01');
     component.endDate.set('2026-09-10');
+    component.sampleCountMin.set(100);
+    component.sampleCountMax.set(500);
+    component.durationMin.set(2.5);
+    component.durationMax.set(10);
     component.selectedValidated.set('true');
     component.onFilterChange();
 
@@ -168,6 +172,10 @@ describe('StudioHistoryComponent', () => {
       user_id: '2',
       start_date: '2026-09-01',
       end_date: '2026-09-10',
+      sample_count_min: 100,
+      sample_count_max: 500,
+      duration_sec_min: 2.5,
+      duration_sec_max: 10,
       is_validated: true,
     });
   });
@@ -274,6 +282,10 @@ describe('StudioHistoryComponent', () => {
     component.selectedDeviceId.set('hk-device-0002');
     component.startDate.set('2026-09-01');
     component.endDate.set('2026-09-10');
+    component.sampleCountMin.set(100);
+    component.sampleCountMax.set(500);
+    component.durationMin.set(2.5);
+    component.durationMax.set(10);
     component.selectedValidated.set('true');
     component.resetFilters();
 
@@ -282,12 +294,32 @@ describe('StudioHistoryComponent', () => {
     expect(component.filterUserId()).toBe('');
     expect(component.startDate()).toBe('');
     expect(component.endDate()).toBe('');
+    expect(component.sampleCountMin()).toBeNull();
+    expect(component.sampleCountMax()).toBeNull();
+    expect(component.durationMin()).toBeNull();
+    expect(component.durationMax()).toBeNull();
     expect(component.selectedValidated()).toBe('all');
     expect(component.page()).toBe(1);
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
       page: 1,
       size: 20,
     });
+  });
+
+  it('renders IMU sample and duration range filters on desktop and mobile', () => {
+    fixture.detectChanges();
+    component.showMobileFilters.set(true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[data-testid="filter-sample-count-min"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="filter-sample-count-max"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="filter-duration-min"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="filter-duration-max"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="mobile-filter-sample-count-min"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="mobile-filter-sample-count-max"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="mobile-filter-duration-min"]')).not.toBeNull();
+    expect(compiled.querySelector('[data-testid="mobile-filter-duration-max"]')).not.toBeNull();
   });
 
   it('should handle pagination: next page, previous page and page size change', () => {

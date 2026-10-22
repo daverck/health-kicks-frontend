@@ -88,6 +88,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly authors = signal<StudioAuthorSummary[]>([]);
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
+  readonly sampleCountMin = signal<number | null>(null);
+  readonly sampleCountMax = signal<number | null>(null);
+  readonly durationMin = signal<number | null>(null);
+  readonly durationMax = signal<number | null>(null);
   readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
   readonly devices = signal<DeviceResponse[]>([]);
   readonly showMobileFilters = signal<boolean>(false);
@@ -111,6 +115,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       Boolean(this.filterUserId()) ||
       Boolean(this.startDate()) ||
       Boolean(this.endDate()) ||
+      this.sampleCountMin() !== null ||
+      this.sampleCountMax() !== null ||
+      this.durationMin() !== null ||
+      this.durationMax() !== null ||
       this.selectedValidated() !== 'all'
     );
   });
@@ -191,6 +199,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       page: this.page(),
       size: this.size(),
     };
+    const sampleCountMin = this.sampleCountMin();
+    const sampleCountMax = this.sampleCountMax();
+    const durationMin = this.durationMin();
+    const durationMax = this.durationMax();
     const cursor = this.pageCursors.get(this.page());
     if (cursor) {
       params.cursor = cursor;
@@ -221,6 +233,18 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     }
     if (this.endDate()) {
       params.end_date = this.endDate();
+    }
+    if (sampleCountMin !== null) {
+      params.sample_count_min = sampleCountMin;
+    }
+    if (sampleCountMax !== null) {
+      params.sample_count_max = sampleCountMax;
+    }
+    if (durationMin !== null) {
+      params.duration_sec_min = durationMin;
+    }
+    if (durationMax !== null) {
+      params.duration_sec_max = durationMax;
     }
     if (this.selectedValidated() === 'true') {
       params.is_validated = true;
@@ -295,6 +319,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.filterUserId.set('');
     this.startDate.set('');
     this.endDate.set('');
+    this.sampleCountMin.set(null);
+    this.sampleCountMax.set(null);
+    this.durationMin.set(null);
+    this.durationMax.set(null);
     this.selectedValidated.set('all');
     this.resetPageCursors();
     this.page.set(1);
