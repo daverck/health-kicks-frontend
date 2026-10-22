@@ -177,7 +177,6 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     );
     const roundedStart = Math.round(nextStart * 10) / 10;
     this.trimStartOffsetSec.set(roundedStart);
-    this.replayPlaybackTime.set(roundedStart);
   }
 
   onTrimEndChanged(offsetSec: number): void {
@@ -193,7 +192,6 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
       Math.round(nextEnd * 10) / 10
     );
     this.trimEndOffsetSec.set(roundedEnd);
-    this.replayPlaybackTime.set(roundedEnd);
   }
 
   ngOnInit(): void {

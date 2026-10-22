@@ -221,12 +221,14 @@ describe('StudioInspectionComponent', () => {
   it('routes a dragged chart marker to the matching trim boundary', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[1], is_validated: false });
     fixture.detectChanges();
+    const playbackTime = component.replayPlaybackTime();
 
     component.onTrimHandleChanged({ handle: 'start', timeSec: 0.4 });
     expect(component.trimStartOffsetSec()).toBe(0.4);
 
     component.onTrimHandleChanged({ handle: 'end', timeSec: 1.4 });
     expect(component.trimEndOffsetSec()).toBe(2.4);
+    expect(component.replayPlaybackTime()).toBe(playbackTime);
   });
 
   it('reverts a validated session to pending and emits the updated summary', () => {
