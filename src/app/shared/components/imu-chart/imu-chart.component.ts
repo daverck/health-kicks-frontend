@@ -300,10 +300,12 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
             ctx.textBaseline = 'middle';
             ctx.fillText(label, xPixel, yScale.top + 8);
           }
-          ctx.beginPath();
-          ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
-          ctx.fillStyle = color;
-          ctx.fill();
+          if (!this.trimSelectionEnabled || !label) {
+            ctx.beginPath();
+            ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+          }
           ctx.restore();
         };
 
