@@ -490,7 +490,7 @@
                   (click)="showUnvalidateConfirm.set(true)"
                   [disabled]="isUpdatingValidation()"
                   data-testid="unvalidate-session-btn"
-                  class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-emerald-800 shadow-2xs hover:bg-emerald-50 disabled:opacity-50 dark:border-emerald-700 dark:bg-gray-900 dark:text-emerald-200"
+                  class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-amber-800 shadow-2xs hover:bg-amber-50 disabled:opacity-50 dark:border-amber-700 dark:bg-gray-900 dark:text-amber-200"
                 >
                   {{ 'studio_history.unvalidate_session_btn' | translate }}
                 </button>
@@ -504,7 +504,7 @@
                     (click)="reopenSession()"
                     [disabled]="isUpdatingValidation()"
                     data-testid="confirm-unvalidate-session-btn"
-                    class="rounded-md bg-emerald-700 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+                    class="rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
                   >
                     @if (isUpdatingValidation()) { ⏳ }
                     {{ 'studio_history.unvalidate_session_btn' | translate }}
