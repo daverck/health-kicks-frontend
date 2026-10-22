@@ -468,7 +468,6 @@ export const en = {
     trim_preview_help: 'Drag the S (start) and E (end) markers directly on the IMU charts to select the interval to keep.',
     trim_frames_kept: 'Frames kept',
     trim_confirm_title: 'Confirm trim',
-    trim_confirm_warning: 'This will permanently delete IMU readings before {start} s and after {end} s. Retained duration: {duration} s.',
     trim_success: 'Session trimmed: kept interval {start}–{end} s ({duration} s).',
     trim_error: 'Could not trim the session.',
     inspect: 'Inspect',

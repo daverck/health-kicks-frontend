@@ -82,6 +82,24 @@ describe('StudioInspectionComponent', () => {
     );
   });
 
+  it('shows trim confirmation as actions without a warning box', () => {
+    fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
+    fixture.detectChanges();
+
+    component.showTrimConfirm.set(true);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const confirmation = compiled.querySelector('[data-testid="trim-confirmation"]');
+    expect(confirmation).not.toBeNull();
+    expect(confirmation?.className).toContain('flex');
+    expect(confirmation?.querySelector('[data-testid="confirm-trim-session-btn"]')?.textContent)
+      .toContain('studio_history.trim_confirm_title');
+    expect(confirmation?.textContent).toContain('common.cancel');
+    expect(confirmation?.textContent).not.toContain('trim_confirm_warning');
+    expect(confirmation?.className).not.toContain('border');
+  });
+
   it('should not reload readings when the same session is validated or updated', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
     fixture.detectChanges();

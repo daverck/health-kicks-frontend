@@ -436,7 +436,6 @@ export const fr = {
     trim_preview_help: 'Faites glisser les repères D (début) et F (fin) directement sur les graphiques IMU pour choisir l’intervalle à conserver.',
     trim_frames_kept: 'Trames conservées',
     trim_confirm_title: 'Confirmer le rognage',
-    trim_confirm_warning: 'Cette opération supprimera définitivement les points IMU avant {start} s et après {end} s. Durée conservée : {duration} s.',
     trim_success: 'Session rognée : intervalle {start}–{end} s conservé ({duration} s).',
     trim_error: 'Impossible d’écourter la session.',
     inspect: 'Examiner',
