@@ -267,7 +267,13 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
           ctx.restore();
         }
 
-        const drawMarker = (timeSec: number | null, color: string, lineWidth: number) => {
+        const drawMarker = (
+          timeSec: number | null,
+          color: string,
+          lineWidth: number,
+          lineDash: number[],
+          label?: string
+        ) => {
           if (timeSec === null) return;
           const xPixel = xScale.getPixelForValue(timeSec);
           if (xPixel < xScale.left || xPixel > xScale.right) return;
@@ -278,9 +284,9 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
           ctx.lineTo(xPixel, yScale.bottom);
           ctx.lineWidth = lineWidth;
           ctx.strokeStyle = color;
-          ctx.setLineDash([4, 4]);
+          ctx.setLineDash(lineDash);
           ctx.stroke();
-          if (this.trimSelectionEnabled && (color === '#059669' || color === '#e11d48')) {
+          if (this.trimSelectionEnabled && label) {
             ctx.beginPath();
             ctx.arc(xPixel, yScale.top + 8, 7, 0, 2 * Math.PI);
             ctx.fillStyle = '#ffffff';
@@ -292,7 +298,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
             ctx.font = 'bold 9px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(color === '#059669' ? 'D' : 'F', xPixel, yScale.top + 8);
+            ctx.fillText(label, xPixel, yScale.top + 8);
           }
           ctx.beginPath();
           ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
@@ -301,9 +307,9 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
           ctx.restore();
         };
 
-        drawMarker(this.trimStartTimeSec, '#059669', 2);
-        drawMarker(this.trimEndTimeSec, '#e11d48', 2);
-        drawMarker(this.playbackTimeSec, '#0284c7', 1.5);
+        drawMarker(this.trimStartTimeSec, '#059669', 2.5, [], 'D');
+        drawMarker(this.trimEndTimeSec, '#e11d48', 2.5, [], 'F');
+        drawMarker(this.playbackTimeSec, '#0284c7', 1.5, [4, 4]);
       },
     };
 
