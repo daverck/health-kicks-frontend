@@ -60,6 +60,7 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
   private chartAccel: Chart | null = null;
   private chartGyro: Chart | null = null;
   private activeTrimHandle: 'start' | 'end' | null = null;
+  private trimPointerStart: { pointerId: number; x: number; y: number } | null = null;
   private suppressNextClick = false;
   private trimInteractionCleanups: (() => void)[] = [];
 
@@ -530,16 +531,36 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
     };
 
     const onPointerDown = (event: PointerEvent): void => {
+      if (this.trimSelectionEnabled) {
+        this.trimPointerStart = {
+          pointerId: event.pointerId,
+          x: event.clientX,
+          y: event.clientY,
+        };
+      }
       this.activeTrimHandle = getTrimHandleAt(event);
       if (!this.activeTrimHandle) return;
       event.preventDefault();
       this.suppressNextClick = true;
+      if (chart.options.plugins?.tooltip) {
+        chart.options.plugins.tooltip.enabled = false;
+      }
+      chart.tooltip?.setActiveElements([], { x: 0, y: 0 });
       if (typeof canvas.setPointerCapture === 'function') {
         canvas.setPointerCapture(event.pointerId);
       }
       canvas.style.cursor = 'grabbing';
     };
     const onPointerMove = (event: PointerEvent): void => {
+      if (
+        this.trimPointerStart?.pointerId === event.pointerId &&
+        Math.hypot(
+          event.clientX - this.trimPointerStart.x,
+          event.clientY - this.trimPointerStart.y
+        ) > 4
+      ) {
+        this.suppressNextClick = true;
+      }
       if (!this.activeTrimHandle) {
         canvas.style.cursor = getTrimHandleAt(event) ? 'grab' : '';
         return;
@@ -558,14 +579,21 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
         this.trimHandleChanged.emit({ handle: this.activeTrimHandle, timeSec });
       }
     };
-    const onPointerUp = (): void => {
+    const onPointerUp = (event: PointerEvent): void => {
+      if (this.trimPointerStart?.pointerId === event.pointerId) {
+        this.trimPointerStart = null;
+      }
       if (this.activeTrimHandle) {
         this.activeTrimHandle = null;
+        if (chart.options.plugins?.tooltip) {
+          chart.options.plugins.tooltip.enabled = true;
+        }
+        chart.update('none');
         canvas.style.cursor = '';
       }
     };
-    const onPointerCancel = (): void => {
-      onPointerUp();
+    const onPointerCancel = (event: PointerEvent): void => {
+      onPointerUp(event);
       this.suppressNextClick = false;
     };
 

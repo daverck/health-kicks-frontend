@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SimpleChange } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Chart, ChartEvent } from 'chart.js';
 import { ImuChartComponent } from './imu-chart.component';
 import { mockImuReadings } from '../../../../testing/mocks/telemetry.mock';
 
@@ -86,22 +86,48 @@ describe('ImuChartComponent', () => {
     });
     Object.defineProperty(canvas, 'setPointerCapture', { value: () => undefined });
     const changed = vi.fn();
+    const selected = vi.fn();
     component.trimHandleChanged.subscribe(changed);
+    component.timeSelected.subscribe(selected);
     const dispatchPointer = (type: string, clientX: number): void => {
       const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX });
       Object.defineProperty(event, 'pointerId', { value: 1 });
       canvas.dispatchEvent(event);
     };
+    const triggerChartClick = (clientX: number): void => {
+      chart.options.onClick?.(
+        {
+          x: clientX,
+          y: 100,
+          native: new MouseEvent('click', { clientX }),
+        } as ChartEvent,
+        [],
+        chart
+      );
+    };
 
     dispatchPointer('pointerdown', 120);
     expect(canvas.style.cursor).toBe('grabbing');
+    expect(chart.options.plugins?.tooltip?.enabled).toBeFalse();
     dispatchPointer('pointermove', 240);
     dispatchPointer('pointerup', 240);
+    expect(chart.options.plugins?.tooltip?.enabled).toBeTrue();
+    triggerChartClick(240);
 
     expect(changed).toHaveBeenCalledWith(
       jasmine.objectContaining({ handle: 'start', timeSec: jasmine.any(Number) })
     );
     expect(changed.mock.calls[0][0].timeSec).toBeCloseTo(0.4, 1);
+    expect(selected).not.toHaveBeenCalled();
+
+    dispatchPointer('pointerdown', 300);
+    dispatchPointer('pointermove', 400);
+    dispatchPointer('pointerup', 400);
+    triggerChartClick(400);
+    expect(selected).not.toHaveBeenCalled();
+
+    triggerChartClick(450);
+    expect(selected).toHaveBeenCalledTimes(1);
   });
 
   it('should toggle individual acceleration axes and update signals', () => {
