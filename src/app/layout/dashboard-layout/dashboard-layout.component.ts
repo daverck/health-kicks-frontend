@@ -32,6 +32,7 @@ export class DashboardLayoutComponent implements OnInit {
     { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳' },
     { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
     { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓' },
+    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: '🚨' },
     { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬' },
     { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊' },
   ];

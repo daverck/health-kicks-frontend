@@ -1,0 +1,769 @@
+<div class="mx-auto max-w-6xl space-y-6">
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        {{ 'fall_alerts.title' | translate }}
+      </h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        {{ 'fall_alerts.subtitle' | translate }}
+      </p>
+    </div>
+    <button
+      type="button"
+      (click)="refresh()"
+      class="btn-secondary"
+      data-testid="refresh-fall-alerts-btn"
+    >
+      ↻ {{ 'common.refresh' | translate }}
+    </button>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="flex rounded-lg border border-gray-200 bg-white p-1 text-sm shadow-sm w-fit dark:border-gray-800 dark:bg-gray-900">
+    <button
+      id="tab-fall-history"
+      data-testid="tab-fall-history"
+      type="button"
+      (click)="setTab('history')"
+      class="flex items-center gap-2 rounded-md px-3.5 py-1.5 font-medium transition"
+      [class.bg-primary-600]="activeTab() === 'history'"
+      [class.text-white]="activeTab() === 'history'"
+      [class.text-gray-600]="activeTab() !== 'history'"
+      [class.dark:text-gray-400]="activeTab() !== 'history'"
+      [class.hover:text-gray-900]="activeTab() !== 'history'"
+      [class.dark:hover:text-white]="activeTab() !== 'history'"
+    >
+      <span>🚨 {{ 'fall_alerts.tab_history' | translate }}</span>
+      @if (total() !== null) {
+        <span
+          class="rounded-full px-2 py-0.5 text-xs font-semibold"
+          [class.bg-white]="activeTab() === 'history'"
+          [class.text-primary-700]="activeTab() === 'history'"
+          [class.dark:bg-gray-950]="activeTab() === 'history'"
+          [class.dark:text-primary-300]="activeTab() === 'history'"
+          [class.bg-gray-100]="activeTab() !== 'history'"
+          [class.text-gray-600]="activeTab() !== 'history'"
+          [class.dark:bg-gray-800]="activeTab() !== 'history'"
+          [class.dark:text-gray-300]="activeTab() !== 'history'"
+        >
+          {{ total() }}
+        </span>
+      }
+    </button>
+
+    <button
+      id="tab-emergency-contacts"
+      data-testid="tab-emergency-contacts"
+      type="button"
+      (click)="setTab('contacts')"
+      class="flex items-center gap-2 rounded-md px-3.5 py-1.5 font-medium transition"
+      [class.bg-primary-600]="activeTab() === 'contacts'"
+      [class.text-white]="activeTab() === 'contacts'"
+      [class.text-gray-600]="activeTab() !== 'contacts'"
+      [class.dark:text-gray-400]="activeTab() !== 'contacts'"
+      [class.hover:text-gray-900]="activeTab() !== 'contacts'"
+      [class.dark:hover:text-white]="activeTab() !== 'contacts'"
+    >
+      <span>👥 {{ 'fall_alerts.tab_contacts' | translate }}</span>
+      <span
+        class="rounded-full px-2 py-0.5 text-xs font-semibold"
+        [class.bg-white]="activeTab() === 'contacts'"
+        [class.text-primary-700]="activeTab() === 'contacts'"
+        [class.dark:bg-gray-950]="activeTab() === 'contacts'"
+        [class.dark:text-primary-300]="activeTab() === 'contacts'"
+        [class.bg-gray-100]="activeTab() !== 'contacts'"
+        [class.text-gray-600]="activeTab() !== 'contacts'"
+        [class.dark:bg-gray-800]="activeTab() !== 'contacts'"
+        [class.dark:text-gray-300]="activeTab() !== 'contacts'"
+      >
+        {{ contacts().length }}/5
+      </span>
+    </button>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- ONGLET 1 : HISTORIQUE DES ALERTES                        -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'history') {
+    <!-- Filters Bar -->
+    <div class="card flex flex-wrap items-end gap-4 p-4">
+      <!-- State filter -->
+      <div class="w-full sm:w-56">
+        <label
+          for="state-filter-select"
+          class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
+        >
+          {{ 'fall_alerts.filter_state' | translate }}
+        </label>
+        <select
+          id="state-filter-select"
+          data-testid="state-filter-select"
+          class="input text-sm"
+          [value]="selectedState()"
+          (change)="onStateChange($event)"
+        >
+          <option value="all">{{ 'fall_alerts.filter_all_states' | translate }}</option>
+          <option value="PENDING">{{ 'fall_alerts.state_PENDING' | translate }}</option>
+          <option value="ESCALATING">{{ 'fall_alerts.state_ESCALATING' | translate }}</option>
+          <option value="ACKNOWLEDGED">{{ 'fall_alerts.state_ACKNOWLEDGED' | translate }}</option>
+          <option value="CANCELLED">{{ 'fall_alerts.state_CANCELLED' | translate }}</option>
+          <option value="EXHAUSTED">{{ 'fall_alerts.state_EXHAUSTED' | translate }}</option>
+          <option value="SUPPRESSED">{{ 'fall_alerts.state_SUPPRESSED' | translate }}</option>
+        </select>
+      </div>
+
+      <!-- Date Range filter -->
+      <div class="w-full sm:w-auto">
+        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          Date
+        </label>
+        <app-date-filter
+          triggerId="fall-alerts-date-filter"
+          [(startDate)]="startDate"
+          [(endDate)]="endDate"
+          (dateChange)="onDateChange($event)"
+          size="sm"
+        />
+      </div>
+
+      <!-- Admin-only User ID filter -->
+      @if (isAdmin()) {
+        <div class="w-full sm:w-48">
+          <label
+            for="admin-user-id-filter"
+            class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
+          >
+            {{ 'fall_alerts.filter_user_id' | translate }}
+          </label>
+          <input
+            id="admin-user-id-filter"
+            data-testid="admin-user-id-filter"
+            type="text"
+            class="input text-sm"
+            [placeholder]="'fall_alerts.filter_user_placeholder' | translate"
+            [ngModel]="userIdFilter()"
+            (ngModelChange)="onUserIdFilterChange($event)"
+          />
+        </div>
+      }
+    </div>
+
+    <!-- Loading / Error / Table -->
+    @if (loadingAlerts()) {
+      <div class="card py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+        {{ 'common.loading' | translate }}
+      </div>
+    } @else if (alertsError()) {
+      <div class="card border-2 border-red-200 bg-red-50 p-6 text-center dark:border-red-900/50 dark:bg-red-950/30">
+        <h3 class="text-base font-semibold text-red-900 dark:text-red-300">
+          {{ 'fall_alerts.load_error_alerts' | translate }}
+        </h3>
+        <button
+          type="button"
+          (click)="loadAlerts()"
+          class="mt-4 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 shadow-sm transition"
+        >
+          {{ 'common.retry' | translate }}
+        </button>
+      </div>
+    } @else {
+      <!-- Mobile Cards -->
+      <section class="space-y-3 md:hidden">
+        @if (alerts().length === 0) {
+          <div class="card py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            {{ 'fall_alerts.empty_alerts' | translate }}
+          </div>
+        } @else {
+          @for (alert of alerts(); track alert.id) {
+            <div class="card space-y-3" data-testid="fall-alert-card">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {{ alert.detected_at | date:'medium' }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                  [ngClass]="getStateBadgeClass(alert.state)"
+                >
+                  {{ getStateLabel(alert.state) }}
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-bold text-gray-900 dark:text-white">
+                  🚨 {{ getFallTypeLabel(alert.event_type) }}
+                </span>
+                <span class="font-mono text-xs text-gray-500 dark:text-gray-400">
+                  {{ alert.device_id }}
+                </span>
+              </div>
+
+              <div class="text-xs text-gray-600 dark:text-gray-300 space-y-1">
+                @if (isAdmin()) {
+                  <div>
+                    <span class="text-gray-400">{{ 'fall_alerts.col_patient' | translate }} :</span>
+                    <strong class="ml-1">{{ alert.user_display_name }}</strong>
+                  </div>
+                }
+                <div>
+                  <span class="text-gray-400">{{ 'fall_alerts.col_resolution' | translate }} :</span>
+                  <span class="ml-1 font-medium">{{ getResolutionText(alert) }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-400">{{ 'fall_alerts.col_notified' | translate }} :</span>
+                  <span class="ml-1 font-semibold">{{ alert.notified_contacts_count }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  type="button"
+                  (click)="openAlertDetail(alert.id)"
+                  class="btn-secondary text-xs"
+                  data-testid="open-alert-detail-btn"
+                >
+                  {{ 'fall_alerts.details_btn' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+        }
+      </section>
+
+      <!-- Desktop Table -->
+      <section class="card hidden overflow-x-auto p-0 md:block">
+        <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
+          <thead class="bg-gray-50 dark:bg-gray-800/80">
+            <tr>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_detected_at' | translate }}
+              </th>
+              @if (isAdmin()) {
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                  {{ 'fall_alerts.col_patient' | translate }}
+                </th>
+              }
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_device' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_fall_type' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_state' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_resolution' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_notified' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_location' | translate }}
+              </th>
+              <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">
+                {{ 'fall_alerts.col_actions' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
+            @if (alerts().length === 0) {
+              <tr>
+                <td
+                  [attr.colspan]="isAdmin() ? 9 : 8"
+                  class="py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+                >
+                  {{ 'fall_alerts.empty_alerts' | translate }}
+                </td>
+              </tr>
+            } @else {
+              @for (alert of alerts(); track alert.id) {
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60" data-testid="fall-alert-row">
+                  <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
+                    {{ alert.detected_at | date:'medium' }}
+                  </td>
+                  @if (isAdmin()) {
+                    <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
+                      {{ alert.user_display_name }}
+                    </td>
+                  }
+                  <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+                    {{ alert.device_id }}
+                  </td>
+                  <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">
+                    🚨 {{ getFallTypeLabel(alert.event_type) }}
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                      [ngClass]="getStateBadgeClass(alert.state)"
+                      data-testid="fall-alert-state-badge"
+                    >
+                      {{ getStateLabel(alert.state) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                    {{ getResolutionText(alert) }}
+                  </td>
+                  <td class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">
+                    {{ alert.notified_contacts_count }}
+                  </td>
+                  <td class="px-4 py-3 text-xs">
+                    @if (alert.has_location) {
+                      <button
+                        type="button"
+                        (click)="openAlertDetail(alert.id)"
+                        class="inline-flex items-center gap-1 font-medium text-primary-600 hover:underline dark:text-primary-400"
+                      >
+                        📍 GPS
+                      </button>
+                    } @else {
+                      <span class="text-gray-400">{{ 'fall_alerts.no_location' | translate }}</span>
+                    }
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button
+                      type="button"
+                      (click)="openAlertDetail(alert.id)"
+                      class="btn-secondary px-3 py-1 text-xs"
+                      data-testid="open-alert-detail-btn"
+                    >
+                      {{ 'fall_alerts.details_btn' | translate }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between">
+        <button
+          type="button"
+          class="btn-secondary"
+          [disabled]="page() <= 1"
+          (click)="goToPage(page() - 1)"
+        >
+          ← {{ 'common.back' | translate }}
+        </button>
+        <span class="text-sm text-gray-600 dark:text-gray-400">
+          Page {{ page() }}{{ totalPages() > 0 ? ' / ' + totalPages() : '' }}
+        </span>
+        <button
+          type="button"
+          class="btn-secondary"
+          [disabled]="page() >= totalPages()"
+          (click)="goToPage(page() + 1)"
+        >
+          Suivant →
+        </button>
+      </div>
+    }
+  }
+
+  <!-- ======================================================== -->
+  <!-- ONGLET 2 : MES PROCHES D'URGENCE                         -->
+  <!-- ======================================================== -->
+  @if (activeTab() === 'contacts') {
+    <!-- Information Banner -->
+    <div
+      class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200"
+      data-testid="contacts-info-banner"
+    >
+      <div class="flex items-start gap-3">
+        <span class="text-lg">ℹ️</span>
+        <p class="leading-relaxed">
+          {{ 'fall_alerts.info_banner' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- Left 2 cols: Ordered List of Contacts -->
+      <div class="lg:col-span-2 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+            {{ 'fall_alerts.contacts_title' | translate }}
+          </h2>
+          <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+            {{ 'fall_alerts.contacts_count' | translate:{ count: contacts().length } }}
+          </span>
+        </div>
+
+        @if (loadingContacts()) {
+          <div class="card py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+            {{ 'common.loading' | translate }}
+          </div>
+        } @else if (contacts().length === 0) {
+          <div
+            class="card border-dashed py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+            data-testid="empty-contacts-message"
+          >
+            {{ 'fall_alerts.contacts_empty' | translate }}
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (contact of contacts(); track contact.id; let idx = $index; let first = $first; let last = $last) {
+              <div
+                class="card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4"
+                data-testid="contact-item"
+              >
+                <div class="flex items-start gap-3">
+                  <!-- Priority Badge -->
+                  <span
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-sm font-bold text-primary-700 dark:bg-primary-950/70 dark:text-primary-300"
+                    data-testid="contact-priority-badge"
+                  >
+                    #{{ contact.priority }}
+                  </span>
+
+                  <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h3 class="text-base font-bold text-gray-900 dark:text-white">
+                        {{ contact.first_name }} {{ contact.last_name }}
+                      </h3>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                      {{ contact.email }}
+                    </p>
+                    <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                      {{ 'fall_alerts.last_test_email' | translate }}
+                      @if (contact.last_test_email_at) {
+                        <span class="font-medium text-gray-600 dark:text-gray-300">
+                          {{ contact.last_test_email_at | date:'medium' }}
+                        </span>
+                      } @else {
+                        <span class="italic">{{ 'fall_alerts.never_tested' | translate }}</span>
+                      }
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Contact Actions -->
+                <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                  <!-- Move Up -->
+                  <button
+                    type="button"
+                    (click)="moveContactUp(idx)"
+                    [disabled]="first || reordering()"
+                    class="btn-secondary px-2.5 py-1.5 text-xs disabled:opacity-40"
+                    [title]="'fall_alerts.move_up' | translate"
+                    data-testid="move-up-btn"
+                  >
+                    ↑
+                  </button>
+
+                  <!-- Move Down -->
+                  <button
+                    type="button"
+                    (click)="moveContactDown(idx)"
+                    [disabled]="last || reordering()"
+                    class="btn-secondary px-2.5 py-1.5 text-xs disabled:opacity-40"
+                    [title]="'fall_alerts.move_down' | translate"
+                    data-testid="move-down-btn"
+                  >
+                    ↓
+                  </button>
+
+                  <!-- Send Test Email -->
+                  <button
+                    type="button"
+                    (click)="sendTestEmail(contact)"
+                    [disabled]="sendingTestContactId() === contact.id"
+                    class="btn-secondary px-3 py-1.5 text-xs"
+                    data-testid="send-test-email-btn"
+                  >
+                    @if (sendingTestContactId() === contact.id) {
+                      {{ 'fall_alerts.sending_test' | translate }}
+                    } @else {
+                      ✉️ {{ 'fall_alerts.send_test_email' | translate }}
+                    }
+                  </button>
+
+                  <!-- Edit -->
+                  <button
+                    type="button"
+                    (click)="startEditContact(contact)"
+                    class="btn-secondary px-3 py-1.5 text-xs"
+                    data-testid="edit-contact-btn"
+                  >
+                    {{ 'fall_alerts.edit_btn' | translate }}
+                  </button>
+
+                  <!-- Delete -->
+                  <button
+                    type="button"
+                    (click)="deleteContact(contact)"
+                    [disabled]="deletingContactId() === contact.id"
+                    class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
+                    data-testid="delete-contact-btn"
+                  >
+                    {{ 'fall_alerts.delete_btn' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Right col: Add / Edit Form -->
+      <div class="card h-fit space-y-4">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white">
+          @if (editingContact()) {
+            {{ 'fall_alerts.form_edit_title' | translate }}
+          } @else {
+            {{ 'fall_alerts.form_add_title' | translate }}
+          }
+        </h3>
+
+        @if (maxContactsReached()) {
+          <div
+            class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+            data-testid="max-contacts-warning"
+          >
+            {{ 'fall_alerts.form_max_reached' | translate }}
+          </div>
+        }
+
+        @if (contactFormError()) {
+          <div
+            class="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
+            data-testid="contact-form-error"
+          >
+            {{ contactFormError() }}
+          </div>
+        }
+
+        <form [formGroup]="contactForm" (ngSubmit)="onSubmitContact()" class="space-y-4">
+          <div>
+            <label
+              for="contact_first_name"
+              class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+            >
+              {{ 'fall_alerts.first_name' | translate }}
+            </label>
+            <input
+              id="contact_first_name"
+              data-testid="contact-first-name-input"
+              type="text"
+              formControlName="first_name"
+              class="input mt-1"
+              [disabled]="maxContactsReached()"
+            />
+          </div>
+
+          <div>
+            <label
+              for="contact_last_name"
+              class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+            >
+              {{ 'fall_alerts.last_name' | translate }}
+            </label>
+            <input
+              id="contact_last_name"
+              data-testid="contact-last-name-input"
+              type="text"
+              formControlName="last_name"
+              class="input mt-1"
+              [disabled]="maxContactsReached()"
+            />
+          </div>
+
+          <div>
+            <label
+              for="contact_email"
+              class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+            >
+              {{ 'fall_alerts.email' | translate }}
+            </label>
+            <input
+              id="contact_email"
+              data-testid="contact-email-input"
+              type="email"
+              formControlName="email"
+              class="input mt-1"
+              [disabled]="maxContactsReached()"
+            />
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-2">
+            @if (editingContact()) {
+              <button
+                type="button"
+                (click)="cancelEditContact()"
+                class="btn-secondary text-xs"
+                data-testid="cancel-edit-contact-btn"
+              >
+                {{ 'common.cancel' | translate }}
+              </button>
+            }
+            <button
+              type="submit"
+              [disabled]="contactForm.invalid || submittingContact() || maxContactsReached()"
+              class="btn-primary text-xs"
+              data-testid="submit-contact-btn"
+            >
+              @if (editingContact()) {
+                {{ 'fall_alerts.form_submit_edit' | translate }}
+              } @else {
+                {{ 'fall_alerts.form_submit_add' | translate }}
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ======================================================== -->
+<!-- MODAL : DÉTAILS D'UNE ALERTE & CHRONOLOGIE               -->
+<!-- ======================================================== -->
+@if (selectedAlertDetail(); as detail) {
+  <div
+    class="fixed inset-0 !m-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm"
+    data-testid="alert-detail-modal"
+  >
+    <div class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:border dark:border-gray-800 dark:bg-gray-900 max-h-[90vh] overflow-y-auto space-y-5">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🚨</span>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              {{ 'fall_alerts.modal_detail_title' | translate:{ id: detail.id } }}
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ detail.detected_at | date:'medium' }} · {{ detail.device_id }}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          (click)="closeAlertDetail()"
+          class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+          data-testid="close-alert-detail-btn"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Summary Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4 text-sm dark:bg-gray-800/50">
+        <div>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_state' | translate }}</span>
+          <div class="mt-1">
+            <span
+              class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+              [ngClass]="getStateBadgeClass(detail.state)"
+            >
+              {{ getStateLabel(detail.state) }}
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_fall_type' | translate }}</span>
+          <p class="mt-1 font-semibold text-gray-900 dark:text-white">
+            {{ getFallTypeLabel(detail.event_type) }} ({{ (detail.confidence * 100).toFixed(0) }}%)
+          </p>
+        </div>
+
+        <div>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_resolution' | translate }}</span>
+          <p class="mt-1 font-medium text-gray-800 dark:text-gray-200">
+            {{ getResolutionText(detail) }}
+          </p>
+        </div>
+
+        <div>
+          <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_location' | translate }}</span>
+          <div class="mt-1">
+            @if (detail.has_location && detail.location) {
+              <a
+                [href]="getGoogleMapsUrl(detail.location.lat, detail.location.lon)"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 font-semibold text-primary-600 hover:underline dark:text-primary-400"
+                data-testid="detail-google-maps-link"
+              >
+                📍 {{ 'fall_alerts.open_maps' | translate }}
+              </a>
+            } @else {
+              <span class="text-gray-400">{{ 'fall_alerts.no_location' | translate }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Timeline -->
+      <div class="space-y-3">
+        <h3 class="text-sm font-bold text-gray-900 dark:text-white">
+          {{ 'fall_alerts.modal_timeline_title' | translate }}
+        </h3>
+
+        @if (!detail.notifications || detail.notifications.length === 0) {
+          <p class="rounded-lg border border-gray-100 p-4 text-center text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+            {{ 'fall_alerts.modal_no_notifications' | translate }}
+          </p>
+        } @else {
+          <ol class="space-y-3">
+            @for (notif of detail.notifications; track notif.id) {
+              <li
+                class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl border border-gray-100 p-3 text-xs dark:border-gray-800"
+                data-testid="notification-timeline-item"
+              >
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-primary-600 dark:text-primary-400">
+                      #{{ notif.rank }}
+                    </span>
+                    <span class="font-semibold text-gray-900 dark:text-white">
+                      {{ notif.contact_first_name }} {{ notif.contact_last_name }}
+                    </span>
+                    <span class="text-gray-500 dark:text-gray-400">
+                      ({{ notif.contact_email }})
+                    </span>
+                  </div>
+                  <div class="text-gray-500 dark:text-gray-400">
+                    {{ 'fall_alerts.notif_sent_at' | translate }} : {{ notif.sent_at | date:'medium' }}
+                    @if (notif.acknowledged_at) {
+                      · {{ 'fall_alerts.notif_ack_at' | translate }} :
+                      <strong class="text-emerald-600 dark:text-emerald-400">
+                        {{ notif.acknowledged_at | date:'medium' }}
+                      </strong>
+                    }
+                  </div>
+                  @if (notif.error_message) {
+                    <p class="text-red-600 dark:text-red-400">{{ notif.error_message }}</p>
+                  }
+                </div>
+
+                <span
+                  class="inline-flex w-fit items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
+                  [ngClass]="getNotificationStatusBadgeClass(notif.status)"
+                >
+                  {{ ('fall_alerts.notif_status_' + notif.status) | translate }}
+                </span>
+              </li>
+            }
+          </ol>
+        }
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex justify-end border-t border-gray-100 dark:border-gray-800 pt-4">
+        <button
+          type="button"
+          (click)="closeAlertDetail()"
+          class="btn-secondary"
+        >
+          {{ 'common.close' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

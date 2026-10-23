@@ -25,6 +25,7 @@ export const routes: Routes = [
       { path: 'devices', loadComponent: () => import('./pages/devices/devices.component').then((m) => m.DevicesComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent) },
       { path: 'history', loadComponent: () => import('./pages/history/history.component').then((m) => m.HistoryComponent) },
+      { path: 'fall-alerts', loadComponent: () => import('./pages/fall-alerts/fall-alerts.component').then((m) => m.FallAlertsComponent) },
       { path: 'studio', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
       { path: 'studio/history', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-history/studio-history.component').then((m) => m.StudioHistoryComponent) },
       { path: 'studio/history/:id', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-session-detail/studio-session-detail.component').then((m) => m.StudioSessionDetailComponent) },

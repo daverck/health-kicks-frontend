@@ -4,7 +4,94 @@
  */
 
 export interface paths {
-    "/api/v1/devices/{device_id}/haptic/trigger": {
+    "/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Root */
+        get: operations["read_root__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/azure/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Azure Callback Get */
+        get: operations["azure_callback_get_api_v1_auth_azure_callback_get"];
+        put?: never;
+        /** Azure Callback */
+        post: operations["azure_callback_api_v1_auth_azure_callback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/azure/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Azure Login */
+        get: operations["azure_login_api_v1_auth_azure_login_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Google Callback Get */
+        get: operations["google_callback_get_api_v1_auth_google_callback_get"];
+        put?: never;
+        /** Google Callback */
+        post: operations["google_callback_api_v1_auth_google_callback_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Google Login */
+        get: operations["google_login_api_v1_auth_google_login_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/iot-credentials": {
         parameters: {
             query?: never;
             header?: never;
@@ -13,8 +100,129 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Trigger Haptic */
-        post: operations["trigger_haptic_api_v1_devices__device_id__haptic_trigger_post"];
+        /**
+         * Get Iot Credentials
+         * @description Exchange authenticated user session for temporary AWS STS IoT credentials.
+         */
+        post: operations["get_iot_credentials_api_v1_auth_iot_credentials_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Me */
+        get: operations["me_api_v1_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh */
+        post: operations["refresh_api_v1_auth_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/token/exchange": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Exchange Auth Ticket
+         * @description Atomically exchange a one-time OAuth ticket for access and refresh tokens.
+         */
+        post: operations["exchange_auth_ticket_api_v1_auth_token_exchange_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Devices
+         * @description List devices bound to the authenticated user (or all devices if admin).
+         */
+        get: operations["list_devices_api_v1_devices_get"];
+        put?: never;
+        /**
+         * Bind Device
+         * @description Bind a device to the authenticated user account.
+         */
+        post: operations["bind_device_api_v1_devices_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/{device_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Unbind Device
+         * @description Dissociate/unbind a device.
+         */
+        delete: operations["unbind_device_api_v1_devices__device_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/{device_id}/commands/studio/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start Studio Session
+         * @description Trigger a remote Studio IMU recording session on an edge device.
+         */
+        post: operations["start_studio_session_api_v1_devices__device_id__commands_studio_start_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -30,6 +238,26 @@ export interface paths {
         };
         /** List Activities */
         get: operations["list_activities_api_v1_devices__device_id__events_activities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/{device_id}/haptic/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Haptic History
+         * @description List haptic commands/vibrations history for a device or multiple devices.
+         */
+        get: operations["list_haptic_history_api_v1_devices__device_id__haptic_history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -58,7 +286,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/devices/{device_id}/haptic/history": {
+    "/api/v1/devices/{device_id}/haptic/trigger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Trigger Haptic */
+        post: operations["trigger_haptic_api_v1_devices__device_id__haptic_trigger_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/{device_id}/studio/stats": {
         parameters: {
             query?: never;
             header?: never;
@@ -66,10 +311,131 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List Haptic History
-         * @description List haptic commands/vibrations history for a device or multiple devices.
+         * Get Device Studio Stats
+         * @description Get dataset statistics (session counts and duration by label) for a specific device.
          */
-        get: operations["list_haptic_history_api_v1_devices__device_id__haptic_history_get"];
+        get: operations["get_device_studio_stats_api_v1_devices__device_id__studio_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/{device_id}/telemetry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Telemetry
+         * @description Query IMU telemetry by Studio session_id or by time range.
+         */
+        get: operations["get_telemetry_api_v1_devices__device_id__telemetry_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/devices/{device_id}/telemetry/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Session Telemetry
+         * @description Purge all telemetry points associated with a Studio session.
+         */
+        delete: operations["delete_session_telemetry_api_v1_devices__device_id__telemetry_sessions__session_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fall-alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Fall Alerts
+         * @description List fall alerts with pagination, state/date filtering, RBAC isolation, and GDPR pseudonymization.
+         */
+        get: operations["list_fall_alerts_api_v1_fall_alerts_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fall-alerts/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fall Alert Ack Page
+         * @description Render the read-only confirmation landing page for an emergency contact (no DB mutation).
+         */
+        get: operations["get_fall_alert_ack_page_api_v1_fall_alerts_ack_get"];
+        put?: never;
+        /**
+         * Confirm Fall Alert Ack
+         * @description Confirm acknowledgment of a fall alert via form submission or JSON body.
+         */
+        post: operations["confirm_fall_alert_ack_api_v1_fall_alerts_ack_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fall-alerts/{alert_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fall Alert Detail
+         * @description Retrieve full details and notification log for a single fall alert.
+         */
+        get: operations["get_fall_alert_detail_api_v1_fall_alerts__alert_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/firmware/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get latest ESP32-S3 firmware release pre-signed download URL */
+        get: operations["get_latest_firmware_api_v1_firmware_latest_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -136,254 +502,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/api/v1/metrics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Metrics
-         * @description Operational metrics and request latency breakdown.
-         */
-        get: operations["get_metrics_api_v1_metrics_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/google/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Google Login */
-        get: operations["google_login_api_v1_auth_google_login_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/google/callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Google Callback Get */
-        get: operations["google_callback_get_api_v1_auth_google_callback_get"];
-        put?: never;
-        /** Google Callback */
-        post: operations["google_callback_api_v1_auth_google_callback_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/azure/login": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Azure Login */
-        get: operations["azure_login_api_v1_auth_azure_login_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/azure/callback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Azure Callback Get */
-        get: operations["azure_callback_get_api_v1_auth_azure_callback_get"];
-        put?: never;
-        /** Azure Callback */
-        post: operations["azure_callback_api_v1_auth_azure_callback_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/token/exchange": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Exchange Auth Ticket
-         * @description Atomically exchange a one-time OAuth ticket for access and refresh tokens.
-         */
-        post: operations["exchange_auth_ticket_api_v1_auth_token_exchange_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/refresh": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Refresh */
-        post: operations["refresh_api_v1_auth_refresh_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Me */
-        get: operations["me_api_v1_auth_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/auth/iot-credentials": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Get Iot Credentials
-         * @description Exchange authenticated user session for temporary AWS STS IoT credentials.
-         */
-        post: operations["get_iot_credentials_api_v1_auth_iot_credentials_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/devices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Devices
-         * @description List devices bound to the authenticated user (or all devices if admin).
-         */
-        get: operations["list_devices_api_v1_devices_get"];
-        put?: never;
-        /**
-         * Bind Device
-         * @description Bind a device to the authenticated user account.
-         */
-        post: operations["bind_device_api_v1_devices_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/devices/{device_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Unbind Device
-         * @description Dissociate/unbind a device.
-         */
-        delete: operations["unbind_device_api_v1_devices__device_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List Users
-         * @description List all users (administrator only).
-         */
-        get: operations["list_users_api_v1_users_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/users/{user_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update User
-         * @description Update user profile. Users can only update their own profile; admins can update anyone.
-         */
-        patch: operations["update_user_api_v1_users__user_id__patch"];
         trace?: never;
     };
     "/api/v1/ingest/event": {
@@ -457,47 +575,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/devices/{device_id}/telemetry": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Telemetry
-         * @description Query IMU telemetry by Studio session_id or by time range.
-         */
-        get: operations["get_telemetry_api_v1_devices__device_id__telemetry_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/devices/{device_id}/telemetry/sessions/{session_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete Session Telemetry
-         * @description Purge all telemetry points associated with a Studio session.
-         */
-        delete: operations["delete_session_telemetry_api_v1_devices__device_id__telemetry_sessions__session_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/devices/{device_id}/commands/studio/start": {
+    "/api/v1/internal/fall-alerts": {
         parameters: {
             query?: never;
             header?: never;
@@ -507,17 +585,17 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Start Studio Session
-         * @description Trigger a remote Studio IMU recording session on an edge device.
+         * Ingest Fall Alert
+         * @description Ingest a fall alert uplink event (DETECTED, CONFIRM, CANCEL) relayed from AWS IoT Core.
          */
-        post: operations["start_studio_session_api_v1_devices__device_id__commands_studio_start_post"];
+        post: operations["ingest_fall_alert_api_v1_internal_fall_alerts_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/v1/devices/{device_id}/studio/stats": {
+    "/api/v1/metrics": {
         parameters: {
             query?: never;
             header?: never;
@@ -525,10 +603,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Device Studio Stats
-         * @description Get dataset statistics (session counts and duration by label) for a specific device.
+         * Get Metrics
+         * @description Operational metrics and request latency breakdown.
          */
-        get: operations["get_device_studio_stats_api_v1_devices__device_id__studio_stats_get"];
+        get: operations["get_metrics_api_v1_metrics_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -537,7 +615,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/studio/stats": {
+    "/api/v1/steps/history": {
         parameters: {
             query?: never;
             header?: never;
@@ -545,12 +623,52 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get Global Studio Stats
-         * @description Get dataset statistics (session counts and duration by label) across all devices.
+         * Retrieve daily step counts and activity breakdown for a device
+         * @description Fetch step counts history grouped by day and activity type.
          */
-        get: operations["get_global_studio_stats_api_v1_studio_stats_get"];
+        get: operations["get_history_api_v1_steps_history_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/steps/hourly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieve 24-hour step counts breakdown for a device on a specific date
+         * @description Fetch hourly step counts breakdown distributed across the 24 hours of a target date.
+         */
+        get: operations["get_hourly_api_v1_steps_hourly_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/steps/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Idempotently synchronize daily step counts broken down by activity
+         * @description Upsert daily activity step snapshots recorded by the edge device or mobile application.
+         */
+        post: operations["sync_steps_api_v1_steps_sync_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -625,6 +743,26 @@ export interface paths {
         patch: operations["update_session_api_v1_studio_sessions__session_id__patch"];
         trace?: never;
     };
+    "/api/v1/studio/sessions/{session_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Confirm Session
+         * @description Confirm and validate a studio session for dataset inclusion.
+         */
+        patch: operations["confirm_session_api_v1_studio_sessions__session_id__confirm_patch"];
+        trace?: never;
+    };
     "/api/v1/studio/sessions/{session_id}/readings": {
         parameters: {
             query?: never;
@@ -665,7 +803,135 @@ export interface paths {
         patch: operations["trim_session_api_v1_studio_sessions__session_id__trim_patch"];
         trace?: never;
     };
-    "/api/v1/studio/sessions/{session_id}/confirm": {
+    "/api/v1/studio/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Global Studio Stats
+         * @description Get dataset statistics (session counts and duration by label) across all devices.
+         */
+        get: operations["get_global_studio_stats_api_v1_studio_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Users
+         * @description List all users (administrator only).
+         */
+        get: operations["list_users_api_v1_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/alert-contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Alert Contacts
+         * @description List emergency contacts for the authenticated user ordered by priority.
+         */
+        get: operations["get_my_alert_contacts_api_v1_users_me_alert_contacts_get"];
+        put?: never;
+        /**
+         * Add My Alert Contact
+         * @description Add a new emergency contact at the lowest priority slot (max 5).
+         */
+        post: operations["add_my_alert_contact_api_v1_users_me_alert_contacts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/alert-contacts/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder My Alert Contacts
+         * @description Reorder emergency contacts priorities (1..N).
+         */
+        put: operations["reorder_my_alert_contacts_api_v1_users_me_alert_contacts_order_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me/alert-contacts/{contact_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove My Alert Contact
+         * @description Delete an emergency contact and re-compact remaining priorities.
+         */
+        delete: operations["remove_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Patch My Alert Contact
+         * @description Update first_name, last_name, or email of an emergency contact.
+         */
+        patch: operations["patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/users/me/alert-contacts/{contact_id}/test-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send My Alert Contact Test Email
+         * @description Send a verification email to an emergency contact (rate-limited to 3/hour per user).
+         */
+        post: operations["send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_id__test_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -679,104 +945,10 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * Confirm Session
-         * @description Confirm and validate a studio session for dataset inclusion.
+         * Update User
+         * @description Update user profile. Users can only update their own profile; admins can update anyone.
          */
-        patch: operations["confirm_session_api_v1_studio_sessions__session_id__confirm_patch"];
-        trace?: never;
-    };
-    "/api/v1/steps/sync": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Idempotently synchronize daily step counts broken down by activity
-         * @description Upsert daily activity step snapshots recorded by the edge device or mobile application.
-         */
-        post: operations["sync_steps_api_v1_steps_sync_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/steps/history": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve daily step counts and activity breakdown for a device
-         * @description Fetch step counts history grouped by day and activity type.
-         */
-        get: operations["get_history_api_v1_steps_history_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/steps/hourly": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Retrieve 24-hour step counts breakdown for a device on a specific date
-         * @description Fetch hourly step counts breakdown distributed across the 24 hours of a target date.
-         */
-        get: operations["get_hourly_api_v1_steps_hourly_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/firmware/latest": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get latest ESP32-S3 firmware release pre-signed download URL */
-        get: operations["get_latest_firmware_api_v1_firmware_latest_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read Root */
-        get: operations["read_root__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
+        patch: operations["update_user_api_v1_users__user_id__patch"];
         trace?: never;
     };
     "/health": {
@@ -827,19 +999,19 @@ export interface components {
         ActivityEventPage: {
             /** Items */
             items: components["schemas"]["ActivityEventResponse"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
             /** Page */
             page: number;
             /** Page Size */
             page_size: number;
             /** Total */
             total: number;
-            /** Next Cursor */
-            next_cursor?: string | null;
         };
         /** ActivityEventResponse */
         ActivityEventResponse: {
-            /** Id */
-            id: number;
+            /** Confidence Score */
+            confidence_score?: number | null;
             /** Device Id */
             device_id: string;
             /**
@@ -847,18 +1019,96 @@ export interface components {
              * @default walk
              */
             event_type: string;
-            /**
-             * Timestamp Utc
-             * Format: date-time
-             */
-            timestamp_utc: string;
-            /** Confidence Score */
-            confidence_score?: number | null;
+            /** Id */
+            id: number;
             /**
              * Is Pseudonymized
              * @default false
              */
             is_pseudonymized: boolean;
+            /**
+             * Timestamp Utc
+             * Format: date-time
+             */
+            timestamp_utc: string;
+        };
+        /**
+         * AlertContactCreate
+         * @description Request body for adding an emergency contact.
+         */
+        AlertContactCreate: {
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+        };
+        /**
+         * AlertContactResponse
+         * @description Serialized emergency contact.
+         */
+        AlertContactResponse: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Email */
+            email: string;
+            /** First Name */
+            first_name: string;
+            /** Id */
+            id: number;
+            /** Last Name */
+            last_name: string;
+            /** Last Test Email At */
+            last_test_email_at?: string | null;
+            /** Priority */
+            priority: number;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * AlertContactTestEmailResponse
+         * @description Response after sending a test email to an emergency contact.
+         */
+        AlertContactTestEmailResponse: {
+            /** Contact Id */
+            contact_id: number;
+            /**
+             * Sent At
+             * Format: date-time
+             */
+            sent_at: string;
+            /**
+             * Status
+             * @default sent
+             */
+            status: string;
+        };
+        /**
+         * AlertContactUpdate
+         * @description Request body for updating an emergency contact.
+         */
+        AlertContactUpdate: {
+            /** Email */
+            email?: string | null;
+            /** First Name */
+            first_name?: string | null;
+            /** Last Name */
+            last_name?: string | null;
+        };
+        /**
+         * AlertContactsOrderPayload
+         * @description Request body for reordering emergency contacts priority.
+         */
+        AlertContactsOrderPayload: {
+            /** Contact Ids */
+            contact_ids: number[];
         };
         /**
          * DailyStepsHistoryResponse
@@ -877,22 +1127,29 @@ export interface components {
              */
             from_date: string;
             /**
+             * History
+             * @description Chronological list of daily step summaries
+             */
+            history?: components["schemas"]["DailyStepsSummary"][];
+            /**
              * To Date
              * Format: date
              * @description End of the query window (inclusive)
              */
             to_date: string;
-            /**
-             * History
-             * @description Chronological list of daily step summaries
-             */
-            history?: components["schemas"]["DailyStepsSummary"][];
         };
         /**
          * DailyStepsSummary
          * @description Daily step summary including dynamic total and per-activity breakdown.
          */
         DailyStepsSummary: {
+            /**
+             * By Activity
+             * @description Mapping of activity types to their corresponding step counts
+             */
+            by_activity?: {
+                [key: string]: number;
+            };
             /**
              * Date
              * Format: date
@@ -904,13 +1161,6 @@ export interface components {
              * @description Dynamically computed sum of steps across all activities
              */
             total_steps: number;
-            /**
-             * By Activity
-             * @description Mapping of activity types to their corresponding step counts
-             */
-            by_activity?: {
-                [key: string]: number;
-            };
         };
         /**
          * DailyStepsSyncPayload
@@ -918,16 +1168,16 @@ export interface components {
          */
         DailyStepsSyncPayload: {
             /**
-             * Device Id
-             * @description Unique identifier of the IoT footwear device
-             */
-            device_id: string;
-            /**
              * Date
              * Format: date
              * @description Calendar date of the recorded steps (YYYY-MM-DD)
              */
             date: string;
+            /**
+             * Device Id
+             * @description Unique identifier of the IoT footwear device
+             */
+            device_id: string;
             /**
              * Hourly Steps
              * @description Fine-grained hourly step counts recorded throughout the day
@@ -953,14 +1203,14 @@ export interface components {
         };
         /** DatabasePoolStatus */
         DatabasePoolStatus: {
-            /** Size */
-            size: number;
             /** Checked In */
             checked_in: number;
             /** Checked Out */
             checked_out: number;
             /** Overflow */
             overflow: number;
+            /** Size */
+            size: number;
         };
         /**
          * DeviceCreate
@@ -981,61 +1231,61 @@ export interface components {
         DevicePresencePayload: {
             /** Device Id */
             device_id?: string | null;
-            /** User Id */
-            user_id?: number | string | null;
-            /** Status */
-            status?: string | null;
             /** State */
             state?: string | null;
+            /** Status */
+            status?: string | null;
             /** Timestamp */
             timestamp?: string | null;
+            /** User Id */
+            user_id?: number | string | null;
         };
         /**
          * DevicePresenceResponse
          * @description Response returned after processing device presence update.
          */
         DevicePresenceResponse: {
-            /** Status */
-            status: string;
             /** Device Id */
             device_id?: string | null;
             device_status?: components["schemas"]["DeviceStatus"] | null;
+            /** Status */
+            status: string;
         };
         /**
          * DeviceResponse
          * @description A device bound to a user, including connectivity and hardware health metadata.
          */
         DeviceResponse: {
-            /** Id */
-            id: number;
-            /** Device Id */
-            device_id: string;
-            /** Name */
-            name?: string | null;
-            status: components["schemas"]["DeviceStatus"];
-            /**
-             * Is Online
-             * @default false
-             */
-            is_online: boolean;
-            /** Last Seen */
-            last_seen?: string | null;
-            /** Last Seen Utc */
-            last_seen_utc?: string | null;
-            /** Firmware Version */
-            firmware_version?: string | null;
-            /** Last Calibration Time */
-            last_calibration_time?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
             /**
              * Bound At Utc
              * Format: date-time
              */
             bound_at_utc: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Device Id */
+            device_id: string;
+            /** Firmware Version */
+            firmware_version?: string | null;
+            /** Id */
+            id: number;
+            /**
+             * Is Online
+             * @default false
+             */
+            is_online: boolean;
+            /** Last Calibration Time */
+            last_calibration_time?: string | null;
+            /** Last Seen */
+            last_seen?: string | null;
+            /** Last Seen Utc */
+            last_seen_utc?: string | null;
+            /** Name */
+            name?: string | null;
+            status: components["schemas"]["DeviceStatus"];
         };
         /**
          * DeviceStatus
@@ -1043,28 +1293,233 @@ export interface components {
          * @enum {string}
          */
         DeviceStatus: "online" | "offline";
+        /**
+         * FallAlertAcknowledgedBy
+         * @description Summary of the emergency contact who acknowledged the alert.
+         */
+        FallAlertAcknowledgedBy: {
+            /** First Name */
+            first_name: string;
+            /** Last Name */
+            last_name: string;
+        };
+        /**
+         * FallAlertAction
+         * @description Uplink MQTT actions for fall alert ingestion.
+         * @enum {string}
+         */
+        FallAlertAction: "DETECTED" | "CONFIRM" | "CANCEL";
+        /**
+         * FallAlertCancelReason
+         * @description Reasons why a fall alert was cancelled.
+         * @enum {string}
+         */
+        FallAlertCancelReason: "user_cancel" | "fall_recovery";
+        /**
+         * FallAlertDelivery
+         * @description Delivery mode indicating live active monitoring vs offline replay.
+         * @enum {string}
+         */
+        FallAlertDelivery: "live" | "replayed";
+        /**
+         * FallAlertDetail
+         * @description Detailed fall alert view including GPS coordinates and notification timeline.
+         */
+        FallAlertDetail: {
+            acknowledged_by?: components["schemas"]["FallAlertAcknowledgedBy"] | null;
+            /** Cancel Reason */
+            cancel_reason?: string | null;
+            /** Closed At */
+            closed_at?: string | null;
+            /** Confidence */
+            confidence: number;
+            /** Delivery */
+            delivery: string;
+            /**
+             * Detected At
+             * Format: date-time
+             */
+            detected_at: string;
+            /** Device Id */
+            device_id: string;
+            /** Escalation Started At */
+            escalation_started_at?: string | null;
+            /** Event Id */
+            event_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Has Location */
+            has_location: boolean;
+            /** Id */
+            id: number;
+            /** Is Pseudonymized */
+            is_pseudonymized: boolean;
+            location?: components["schemas"]["FallAlertLocationResponse"] | null;
+            /** Notifications */
+            notifications?: components["schemas"]["FallAlertNotificationResponse"][];
+            /** Notified Contacts Count */
+            notified_contacts_count: number;
+            /** State */
+            state: string;
+            /** Subject Pseudonym */
+            subject_pseudonym: string;
+            /** User Display Name */
+            user_display_name: string;
+            /** User Id */
+            user_id: number;
+        };
+        /**
+         * FallAlertIngestPayload
+         * @description Webhook payload relayed by AWS IoT Core Lambda on fall alert events.
+         */
+        FallAlertIngestPayload: {
+            action: components["schemas"]["FallAlertAction"];
+            cancel_reason?: components["schemas"]["FallAlertCancelReason"] | null;
+            /** Confidence */
+            confidence?: number | null;
+            delivery?: components["schemas"]["FallAlertDelivery"] | null;
+            /** Detected At */
+            detected_at?: number | null;
+            /** Device Id */
+            device_id?: string | null;
+            /** Event Id */
+            event_id: string;
+            /** Event Type */
+            event_type?: string | null;
+            location?: components["schemas"]["FallAlertLocationPayload"] | null;
+            /** Sent At */
+            sent_at?: number | null;
+            /** User Id */
+            user_id: number | string;
+        };
+        /**
+         * FallAlertIngestResponse
+         * @description Response returned by the internal fall alert ingestion endpoint.
+         */
+        FallAlertIngestResponse: {
+            /** Alert Id */
+            alert_id: number | null;
+            /**
+             * Duplicate
+             * @default false
+             */
+            duplicate: boolean;
+            /** Event Id */
+            event_id: string;
+            /** State */
+            state: string;
+            /**
+             * Status
+             * @default ok
+             */
+            status: string;
+        };
+        /**
+         * FallAlertLocationPayload
+         * @description GPS coordinates attached to a fall alert.
+         */
+        FallAlertLocationPayload: {
+            /** Accuracy M */
+            accuracy_m?: number | null;
+            /** Captured At */
+            captured_at?: number | null;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+        };
+        /**
+         * FallAlertLocationResponse
+         * @description Serialized GPS coordinates in fall alert detail.
+         */
+        FallAlertLocationResponse: {
+            /** Accuracy M */
+            accuracy_m?: number | null;
+            /** Captured At */
+            captured_at?: string | null;
+            /** Lat */
+            lat: number;
+            /** Lon */
+            lon: number;
+        };
+        /**
+         * FallAlertNotificationResponse
+         * @description Serialized email notification entry in fall alert detail.
+         */
+        FallAlertNotificationResponse: {
+            /** Acknowledged At */
+            acknowledged_at?: string | null;
+            /** Contact Email */
+            contact_email: string;
+            /** Contact First Name */
+            contact_first_name: string;
+            /** Contact Last Name */
+            contact_last_name: string;
+            /** Error Message */
+            error_message?: string | null;
+            /** Id */
+            id: number;
+            /** Rank */
+            rank: number;
+            /**
+             * Sent At
+             * Format: date-time
+             */
+            sent_at: string;
+            /** Status */
+            status: string;
+        };
+        /**
+         * FallAlertSummary
+         * @description Summary item for paginated fall alert history.
+         */
+        FallAlertSummary: {
+            acknowledged_by?: components["schemas"]["FallAlertAcknowledgedBy"] | null;
+            /** Cancel Reason */
+            cancel_reason?: string | null;
+            /** Closed At */
+            closed_at?: string | null;
+            /** Confidence */
+            confidence: number;
+            /** Delivery */
+            delivery: string;
+            /**
+             * Detected At
+             * Format: date-time
+             */
+            detected_at: string;
+            /** Device Id */
+            device_id: string;
+            /** Escalation Started At */
+            escalation_started_at?: string | null;
+            /** Event Id */
+            event_id: string;
+            /** Event Type */
+            event_type: string;
+            /** Has Location */
+            has_location: boolean;
+            /** Id */
+            id: number;
+            /** Is Pseudonymized */
+            is_pseudonymized: boolean;
+            /** Notified Contacts Count */
+            notified_contacts_count: number;
+            /** State */
+            state: string;
+            /** Subject Pseudonym */
+            subject_pseudonym: string;
+            /** User Display Name */
+            user_display_name: string;
+            /** User Id */
+            user_id: number;
+        };
         /** FirmwareLatestResponse */
         FirmwareLatestResponse: {
-            /**
-             * Version
-             * @description Firmware semantic version string
-             */
-            version: string;
             /**
              * Download Url
              * @description Temporary AWS S3 pre-signed download URL
              */
             download_url: string;
-            /**
-             * Sha256
-             * @description SHA-256 digest of the firmware binary in lowercase hex
-             */
-            sha256: string;
-            /**
-             * Size Bytes
-             * @description Size of the firmware binary in bytes
-             */
-            size_bytes: number;
             /**
              * Expires In Seconds
              * @description Pre-signed URL validity duration in seconds
@@ -1076,6 +1531,21 @@ export interface components {
              * @description Release or build timestamp in UTC
              */
             release_date: string;
+            /**
+             * Sha256
+             * @description SHA-256 digest of the firmware binary in lowercase hex
+             */
+            sha256: string;
+            /**
+             * Size Bytes
+             * @description Size of the firmware binary in bytes
+             */
+            size_bytes: number;
+            /**
+             * Version
+             * @description Firmware semantic version string
+             */
+            version: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1086,25 +1556,25 @@ export interface components {
         HapticLogPage: {
             /** Items */
             items: components["schemas"]["HapticLogResponse"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
             /** Page */
             page: number;
             /** Page Size */
             page_size: number;
             /** Total */
             total: number;
-            /** Next Cursor */
-            next_cursor?: string | null;
         };
         /** HapticLogResponse */
         HapticLogResponse: {
-            /** Id */
-            id: number;
             /** Device Id */
             device_id: string;
-            /** Intensity */
-            intensity: number;
             /** Duration Ms */
             duration_ms: number;
+            /** Id */
+            id: number;
+            /** Intensity */
+            intensity: number;
             /**
              * Triggered At Utc
              * Format: date-time
@@ -1115,29 +1585,29 @@ export interface components {
         };
         /** HapticTrigger */
         HapticTrigger: {
-            /** Intensity */
-            intensity: number;
             /**
              * Duration Ms
              * @default 500
              */
             duration_ms: number;
+            /** Intensity */
+            intensity: number;
         };
         /** HealthResponse */
         HealthResponse: {
-            /** Status */
-            status: string;
             /** Database */
             database: string;
-            /** Uptime Seconds */
-            uptime_seconds?: number | null;
             /** Database Latency Ms */
             database_latency_ms?: number | null;
-            /** Version */
-            version?: string | null;
+            database_pool?: components["schemas"]["DatabasePoolStatus"] | null;
             /** Environment */
             environment?: string | null;
-            database_pool?: components["schemas"]["DatabasePoolStatus"] | null;
+            /** Status */
+            status: string;
+            /** Uptime Seconds */
+            uptime_seconds?: number | null;
+            /** Version */
+            version?: string | null;
         };
         /**
          * HourlyActivityStepItem
@@ -1145,15 +1615,15 @@ export interface components {
          */
         HourlyActivityStepItem: {
             /**
-             * Hour
-             * @description Hour of the day (0 to 23)
-             */
-            hour: number;
-            /**
              * Activity Type
              * @description Activity type name (e.g., 'walk', 'run', 'stairs', 'unclassified')
              */
             activity_type: string;
+            /**
+             * Hour
+             * @description Hour of the day (0 to 23)
+             */
+            hour: number;
             /**
              * Step Count
              * @description Non-negative accumulated step count for this hour and activity
@@ -1166,6 +1636,13 @@ export interface components {
          */
         HourlyStepItem: {
             /**
+             * By Activity
+             * @description Steps breakdown by activity
+             */
+            by_activity?: {
+                [key: string]: number;
+            };
+            /**
              * Hour
              * @description Hour of the day 0 to 23
              */
@@ -1176,13 +1653,6 @@ export interface components {
              * @default 0
              */
             total_steps: number;
-            /**
-             * By Activity
-             * @description Steps breakdown by activity
-             */
-            by_activity?: {
-                [key: string]: number;
-            };
         };
         /**
          * HourlyStepsResponse
@@ -1190,16 +1660,16 @@ export interface components {
          */
         HourlyStepsResponse: {
             /**
-             * Device Id
-             * @description Target device identifier
-             */
-            device_id: string;
-            /**
              * Date
              * Format: date
              * @description Calendar date (YYYY-MM-DD)
              */
             date: string;
+            /**
+             * Device Id
+             * @description Target device identifier
+             */
+            device_id: string;
             /**
              * Hourly Data
              * @description 24-hour step breakdown
@@ -1211,13 +1681,6 @@ export interface components {
          * @description Normalized IMU reading point from DynamoDB.
          */
         ImuReadingResponse: {
-            /** Timestamp Epoch Us */
-            timestamp_epoch_us: number;
-            /**
-             * Timestamp Iso
-             * Format: date-time
-             */
-            timestamp_iso: string;
             /** Ax */
             ax: number;
             /** Ay */
@@ -1230,10 +1693,17 @@ export interface components {
             gy: number;
             /** Gz */
             gz: number;
-            /** Session Id */
-            session_id?: string | null;
             /** Label */
             label?: string | null;
+            /** Session Id */
+            session_id?: string | null;
+            /** Timestamp Epoch Us */
+            timestamp_epoch_us: number;
+            /**
+             * Timestamp Iso
+             * Format: date-time
+             */
+            timestamp_iso: string;
         };
         /** IngestionEvent */
         IngestionEvent: {
@@ -1254,10 +1724,10 @@ export interface components {
         };
         /** IngestionPayload */
         IngestionPayload: {
-            /** Event Type */
-            event_type: string;
             /** Confidence Score */
             confidence_score: number;
+            /** Event Type */
+            event_type: string;
             /** Raw Imu Snapshot */
             raw_imu_snapshot: {
                 [key: string]: number;
@@ -1265,12 +1735,12 @@ export interface components {
         };
         /** IngestionResponse */
         IngestionResponse: {
-            /** Status */
-            status: string;
-            /** Msg Id */
-            msg_id: string;
             /** Duplicate */
             duplicate: boolean;
+            /** Msg Id */
+            msg_id: string;
+            /** Status */
+            status: string;
         };
         /**
          * IoTCredentialsRequest
@@ -1287,10 +1757,6 @@ export interface components {
         IoTCredentialsResponse: {
             /** Access Key Id */
             access_key_id: string;
-            /** Secret Access Key */
-            secret_access_key: string;
-            /** Session Token */
-            session_token: string;
             /**
              * Expiration
              * Format: date-time
@@ -1300,6 +1766,10 @@ export interface components {
             iot_endpoint: string;
             /** Region */
             region: string;
+            /** Secret Access Key */
+            secret_access_key: string;
+            /** Session Token */
+            session_token: string;
             /** User Id */
             user_id?: string | null;
         };
@@ -1310,10 +1780,10 @@ export interface components {
         OAuthCallbackRequest: {
             /** Code */
             code: string;
-            /** State */
-            state: string;
             /** Code Verifier */
             code_verifier?: string | null;
+            /** State */
+            state: string;
         };
         /**
          * OAuthLoginResponse
@@ -1330,10 +1800,24 @@ export interface components {
          * @description Request payload for exchanging a one-time OAuth ticket for session tokens.
          */
         OAuthTicketExchangeRequest: {
-            /** Ticket */
-            ticket: string;
             /** Code Verifier */
             code_verifier?: string | null;
+            /** Ticket */
+            ticket: string;
+        };
+        /**
+         * PaginatedFallAlertsResponse
+         * @description Paginated response of fall alert summaries.
+         */
+        PaginatedFallAlertsResponse: {
+            /** Items */
+            items: components["schemas"]["FallAlertSummary"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
         };
         /**
          * PaginatedSessionsResponse
@@ -1342,48 +1826,48 @@ export interface components {
         PaginatedSessionsResponse: {
             /** Items */
             items: components["schemas"]["StudioSessionSummary"][];
-            /** Total */
-            total: number;
-            /** Page */
-            page: number;
-            /** Size */
-            size: number;
             /**
              * Next Cursor
              * @description Opaque cursor for keyset pagination of next page
              */
             next_cursor?: string | null;
+            /** Page */
+            page: number;
             /**
              * Prev Cursor
              * @description Opaque cursor for keyset pagination of previous page
              */
             prev_cursor?: string | null;
+            /** Size */
+            size: number;
+            /** Total */
+            total: number;
         };
         /** RawTelemetryIngestionRequest */
         RawTelemetryIngestionRequest: {
             /** Device Id */
             device_id?: string | null;
-            /** Session Id */
-            session_id: string;
-            /**
-             * Label
-             * @default unlabeled
-             */
-            label: string | null;
-            /**
-             * Sample Count
-             * @default 0
-             */
-            sample_count: number | null;
             /**
              * Duration Sec
              * @default 5
              */
             duration_sec: number | null;
+            /**
+             * Label
+             * @default unlabeled
+             */
+            label: string | null;
             /** Readings */
             readings?: {
                 [key: string]: unknown;
             }[] | null;
+            /**
+             * Sample Count
+             * @default 0
+             */
+            sample_count: number | null;
+            /** Session Id */
+            session_id: string;
         };
         /**
          * RefreshTokenRequest
@@ -1399,15 +1883,21 @@ export interface components {
          */
         StudioAuthorSummary: {
             /**
+             * Email
+             * @description User email address
+             */
+            email: string;
+            /**
              * Id
              * @description Unique user identifier
              */
             id: number;
             /**
-             * Email
-             * @description User email address
+             * Is Pseudonymized
+             * @description True if author PII has been pseudonymized for privacy
+             * @default false
              */
-            email: string;
+            is_pseudonymized: boolean;
             /**
              * Name
              * @description User full display name
@@ -1418,22 +1908,18 @@ export interface components {
              * @description Deterministic pseudonymized subject identifier (GDPR)
              */
             subject_pseudonym?: string | null;
-            /**
-             * Is Pseudonymized
-             * @description True if author PII has been pseudonymized for privacy
-             * @default false
-             */
-            is_pseudonymized: boolean;
         };
         /**
          * StudioDatasetStatsResponse
          * @description Aggregated session counts for Studio dataset training.
          */
         StudioDatasetStatsResponse: {
+            /** By Label */
+            by_label: {
+                [key: string]: number;
+            };
             /** Device Id */
             device_id?: string | null;
-            /** Total Sessions */
-            total_sessions: number;
             /**
              * Total Duration Sec
              * @default 0
@@ -1444,36 +1930,43 @@ export interface components {
              * @default 0
              */
             total_samples: number;
-            /** By Label */
-            by_label: {
-                [key: string]: number;
-            };
+            /** Total Sessions */
+            total_sessions: number;
         };
         /**
          * StudioSessionDetail
          * @description Detailed metadata view of a Studio capture session.
          */
         StudioSessionDetail: {
+            /** Author Name */
+            author_name?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Device Id */
+            device_id: string;
+            /**
+             * Duration Sec
+             * @default 5
+             */
+            duration_sec: number;
             /**
              * Id
              * Format: uuid
              */
             id: string;
-            /** Device Id */
-            device_id: string;
-            /** User Id */
-            user_id: number;
-            /** User Email */
-            user_email?: string | null;
-            /** Author Name */
-            author_name?: string | null;
-            /** Subject Pseudonym */
-            subject_pseudonym?: string | null;
             /**
              * Is Pseudonymized
              * @default false
              */
             is_pseudonymized: boolean;
+            /**
+             * Is Validated
+             * @default false
+             */
+            is_validated: boolean;
             /** Label */
             label: string;
             /**
@@ -1481,21 +1974,12 @@ export interface components {
              * @default 0
              */
             sample_count: number;
-            /**
-             * Duration Sec
-             * @default 5
-             */
-            duration_sec: number;
-            /**
-             * Is Validated
-             * @default false
-             */
-            is_validated: boolean;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
+            /** Subject Pseudonym */
+            subject_pseudonym?: string | null;
+            /** User Email */
+            user_email?: string | null;
+            /** User Id */
+            user_id: number;
         };
         /**
          * StudioSessionReadingsResponse
@@ -1504,40 +1988,49 @@ export interface components {
         StudioSessionReadingsResponse: {
             /** Device Id */
             device_id: string;
-            /** Session Id */
-            session_id: string;
             /** Label */
             label?: string | null;
-            /** Sample Count */
-            sample_count: number;
             /** Readings */
             readings: components["schemas"]["ImuReadingResponse"][];
+            /** Sample Count */
+            sample_count: number;
+            /** Session Id */
+            session_id: string;
         };
         /**
          * StudioSessionSummary
          * @description Metadata summary of a Studio capture session for dataset curation.
          */
         StudioSessionSummary: {
+            /** Author Name */
+            author_name?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Device Id */
+            device_id: string;
+            /**
+             * Duration Sec
+             * @default 5
+             */
+            duration_sec: number;
             /**
              * Id
              * Format: uuid
              */
             id: string;
-            /** Device Id */
-            device_id: string;
-            /** User Id */
-            user_id: number;
-            /** User Email */
-            user_email?: string | null;
-            /** Author Name */
-            author_name?: string | null;
-            /** Subject Pseudonym */
-            subject_pseudonym?: string | null;
             /**
              * Is Pseudonymized
              * @default false
              */
             is_pseudonymized: boolean;
+            /**
+             * Is Validated
+             * @default false
+             */
+            is_validated: boolean;
             /** Label */
             label: string;
             /**
@@ -1545,33 +2038,18 @@ export interface components {
              * @default 0
              */
             sample_count: number;
-            /**
-             * Duration Sec
-             * @default 5
-             */
-            duration_sec: number;
-            /**
-             * Is Validated
-             * @default false
-             */
-            is_validated: boolean;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
+            /** Subject Pseudonym */
+            subject_pseudonym?: string | null;
+            /** User Email */
+            user_email?: string | null;
+            /** User Id */
+            user_id: number;
         };
         /**
          * StudioSessionTrimPayload
          * @description Payload to keep a time interval from an unvalidated Studio recording.
          */
         StudioSessionTrimPayload: {
-            /**
-             * Start Offset Sec
-             * @description Start offset of the retained session interval in seconds
-             * @default 0
-             */
-            start_offset_sec: number;
             /**
              * End Offset Sec
              * @description End offset of the retained session interval in seconds
@@ -1583,6 +2061,12 @@ export interface components {
              * @description Legacy end offset for trimming from the beginning
              */
             new_duration_sec?: number | null;
+            /**
+             * Start Offset Sec
+             * @description Start offset of the retained session interval in seconds
+             * @default 0
+             */
+            start_offset_sec: number;
         };
         /**
          * StudioSessionUpdatePayload
@@ -1590,15 +2074,15 @@ export interface components {
          */
         StudioSessionUpdatePayload: {
             /**
-             * Label
-             * @description Reclassified activity label (e.g. idle, walk, fall_forward)
-             */
-            label?: string | null;
-            /**
              * Is Validated
              * @description Validation flag for the capture session
              */
             is_validated?: boolean | null;
+            /**
+             * Label
+             * @description Reclassified activity label (e.g. idle, walk, fall_forward)
+             */
+            label?: string | null;
         };
         /**
          * StudioStartRequest
@@ -1606,15 +2090,15 @@ export interface components {
          */
         StudioStartRequest: {
             /**
-             * Label
-             * @description Label d'activité (ex: walk, idle, fall_forward)
-             */
-            label: string;
-            /**
              * Duration Sec
              * @default 5
              */
             duration_sec: number;
+            /**
+             * Label
+             * @description Label d'activité (ex: walk, idle, fall_forward)
+             */
+            label: string;
             /**
              * Pulse Count
              * @default 3
@@ -1626,35 +2110,35 @@ export interface components {
              */
             pulse_duration_ms: number;
             /**
-             * Pulse Pause Ms
-             * @default 350
-             */
-            pulse_pause_ms: number;
-            /**
              * Pulse Intensity
              * @default 210
              */
             pulse_intensity: number;
+            /**
+             * Pulse Pause Ms
+             * @default 350
+             */
+            pulse_pause_ms: number;
         };
         /**
          * StudioStartResponse
          * @description Response returned upon successful dispatch of a Studio recording command.
          */
         StudioStartResponse: {
+            /** Device Id */
+            device_id: string;
+            /** Duration Sec */
+            duration_sec: number;
+            /** Label */
+            label: string;
+            /** Session Id */
+            session_id: string;
             /**
              * Status
              * @default command_dispatched
              * @constant
              */
             status: "command_dispatched";
-            /** Device Id */
-            device_id: string;
-            /** Session Id */
-            session_id: string;
-            /** Label */
-            label: string;
-            /** Duration Sec */
-            duration_sec: number;
             /** Topic */
             topic: string;
         };
@@ -1679,18 +2163,18 @@ export interface components {
          * @description User profile response.
          */
         UserResponse: {
-            /** Id */
-            id: number;
-            /** Email */
-            email: string;
-            /** Name */
-            name?: string | null;
             /** Avatar Url */
             avatar_url?: string | null;
-            /** Role */
-            role: string;
+            /** Email */
+            email: string;
+            /** Id */
+            id: number;
             /** Is Active */
             is_active: boolean;
+            /** Name */
+            name?: string | null;
+            /** Role */
+            role: string;
         };
         /**
          * UserRole
@@ -1705,26 +2189,26 @@ export interface components {
          *     Modifying email is strictly forbidden to maintain consistency with the OIDC IdP.
          */
         UserUpdate: {
-            /** Name */
-            name?: string | null;
             /** Avatar Url */
             avatar_url?: string | null;
-            role?: components["schemas"]["UserRole"] | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Name */
+            name?: string | null;
+            role?: components["schemas"]["UserRole"] | null;
         };
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */
             msg: string;
             /** Error Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -1735,186 +2219,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    trigger_haptic_api_v1_devices__device_id__haptic_trigger_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                device_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["HapticTrigger"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: string | number;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_activities_api_v1_devices__device_id__events_activities_get: {
-        parameters: {
-            query?: {
-                /** @description Filtre par type d'activité (ex: 'walk', 'run', ou 'falls' pour toutes les chutes) */
-                event_type?: string | null;
-                /** @description Date/heure de début (inclusive, ISO 8601) */
-                start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
-                end_date?: string | null;
-                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
-                cursor?: string | null;
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path: {
-                device_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityEventPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_haptic_history_api_v1_devices__device_id__haptic_logs_get: {
-        parameters: {
-            query?: {
-                /** @description Date/heure de début (inclusive, ISO 8601) */
-                start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
-                end_date?: string | null;
-                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
-                cursor?: string | null;
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path: {
-                device_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HapticLogPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    list_haptic_history_api_v1_devices__device_id__haptic_history_get: {
-        parameters: {
-            query?: {
-                /** @description Date/heure de début (inclusive, ISO 8601) */
-                start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
-                end_date?: string | null;
-                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
-                cursor?: string | null;
-                page?: number;
-                page_size?: number;
-            };
-            header?: never;
-            path: {
-                device_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HapticLogPage"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    health_api_v1_health_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HealthResponse"];
-                };
-            };
-        };
-    };
-    health_liveness_api_v1_health_liveness_get: {
+    read_root__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1936,30 +2241,13 @@ export interface operations {
             };
         };
     };
-    health_readiness_api_v1_health_readiness_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HealthResponse"];
-                };
-            };
-        };
-    };
-    get_metrics_api_v1_metrics_get: {
+    azure_callback_get_api_v1_auth_azure_callback_get: {
         parameters: {
             query?: {
-                format?: string | null;
+                code?: string | null;
+                state?: string | null;
+                error?: string | null;
+                error_description?: string | null;
             };
             header?: never;
             path?: never;
@@ -1987,7 +2275,40 @@ export interface operations {
             };
         };
     };
-    google_login_api_v1_auth_google_login_get: {
+    azure_callback_api_v1_auth_azure_callback_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OAuthCallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    azure_login_api_v1_auth_azure_login_get: {
         parameters: {
             query?: {
                 redirect?: boolean;
@@ -2007,7 +2328,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["OAuthLoginResponse"];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -2088,7 +2409,7 @@ export interface operations {
             };
         };
     };
-    azure_login_api_v1_auth_azure_login_get: {
+    google_login_api_v1_auth_google_login_get: {
         parameters: {
             query?: {
                 redirect?: boolean;
@@ -2108,7 +2429,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["OAuthLoginResponse"];
                 };
             };
             /** @description Validation Error */
@@ -2122,14 +2443,44 @@ export interface operations {
             };
         };
     };
-    azure_callback_get_api_v1_auth_azure_callback_get: {
+    get_iot_credentials_api_v1_auth_iot_credentials_post: {
         parameters: {
             query?: {
-                code?: string | null;
-                state?: string | null;
-                error?: string | null;
-                error_description?: string | null;
+                device_id?: string | null;
             };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["IoTCredentialsRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IoTCredentialsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    me_api_v1_auth_me_get: {
+        parameters: {
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -2142,21 +2493,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["UserResponse"];
                 };
             };
         };
     };
-    azure_callback_api_v1_auth_azure_callback_post: {
+    refresh_api_v1_auth_refresh_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -2165,7 +2507,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["OAuthCallbackRequest"];
+                "application/json": components["schemas"]["RefreshTokenRequest"];
             };
         };
         responses: {
@@ -2209,94 +2551,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TokenResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    refresh_api_v1_auth_refresh_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshTokenRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    me_api_v1_auth_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserResponse"];
-                };
-            };
-        };
-    };
-    get_iot_credentials_api_v1_auth_iot_credentials_post: {
-        parameters: {
-            query?: {
-                device_id?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["IoTCredentialsRequest"] | null;
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IoTCredentialsResponse"];
                 };
             };
             /** @description Validation Error */
@@ -2408,7 +2662,458 @@ export interface operations {
             };
         };
     };
-    list_users_api_v1_users_get: {
+    start_studio_session_api_v1_devices__device_id__commands_studio_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudioStartRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioStartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_activities_api_v1_devices__device_id__events_activities_get: {
+        parameters: {
+            query?: {
+                /** @description Filtre par type d'activité (ex: 'walk', 'run', ou 'falls' pour toutes les chutes) */
+                event_type?: string | null;
+                /** @description Date/heure de début (inclusive, ISO 8601) */
+                start_date?: string | null;
+                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                end_date?: string | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityEventPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_haptic_history_api_v1_devices__device_id__haptic_history_get: {
+        parameters: {
+            query?: {
+                /** @description Date/heure de début (inclusive, ISO 8601) */
+                start_date?: string | null;
+                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                end_date?: string | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HapticLogPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_haptic_history_api_v1_devices__device_id__haptic_logs_get: {
+        parameters: {
+            query?: {
+                /** @description Date/heure de début (inclusive, ISO 8601) */
+                start_date?: string | null;
+                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                end_date?: string | null;
+                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                cursor?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HapticLogPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trigger_haptic_api_v1_devices__device_id__haptic_trigger_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HapticTrigger"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string | number;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_device_studio_stats_api_v1_devices__device_id__studio_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioDatasetStatsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_telemetry_api_v1_devices__device_id__telemetry_get: {
+        parameters: {
+            query?: {
+                session_id?: string | null;
+                start_time?: string | null;
+                end_time?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioSessionReadingsResponse"] | components["schemas"]["ImuReadingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_session_telemetry_api_v1_devices__device_id__telemetry_sessions__session_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_fall_alerts_api_v1_fall_alerts_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                /** @description Single state, comma-separated states (e.g. ACKNOWLEDGED,EXHAUSTED), or 'all' */
+                state?: string | null;
+                start_date?: string | null;
+                end_date?: string | null;
+                /** @description Filter by user_id (taken into account only for admin role) */
+                user_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedFallAlertsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_fall_alert_ack_page_api_v1_fall_alerts_ack_get: {
+        parameters: {
+            query?: {
+                token?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_fall_alert_ack_api_v1_fall_alerts_ack_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
+    get_fall_alert_detail_api_v1_fall_alerts__alert_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alert_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FallAlertDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_firmware_api_v1_firmware_latest_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FirmwareLatestResponse"];
+                };
+            };
+        };
+    };
+    health_api_v1_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    health_liveness_api_v1_health_liveness_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -2424,26 +3129,20 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                        [key: string]: string;
+                    };
                 };
             };
         };
     };
-    update_user_api_v1_users__user_id__patch: {
+    health_readiness_api_v1_health_readiness_get: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                user_id: number;
-            };
+            path?: never;
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserUpdate"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
@@ -2451,18 +3150,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["HealthResponse"];
                 };
             };
         };
@@ -2619,84 +3307,19 @@ export interface operations {
             };
         };
     };
-    get_telemetry_api_v1_devices__device_id__telemetry_get: {
-        parameters: {
-            query?: {
-                session_id?: string | null;
-                start_time?: string | null;
-                end_time?: string | null;
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                device_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioSessionReadingsResponse"] | components["schemas"]["ImuReadingResponse"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_session_telemetry_api_v1_devices__device_id__telemetry_sessions__session_id__delete: {
+    ingest_fall_alert_api_v1_internal_fall_alerts_post: {
         parameters: {
             query?: never;
-            header?: never;
-            path: {
-                device_id: string;
-                session_id: string;
+            header?: {
+                "X-HealthKicks-Ingest-Token"?: string | null;
+                "X-Ingest-Token"?: string | null;
             };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    start_studio_session_api_v1_devices__device_id__commands_studio_start_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                device_id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StudioStartRequest"];
+                "application/json": components["schemas"]["FallAlertIngestPayload"];
             };
         };
         responses: {
@@ -2706,7 +3329,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StudioStartResponse"];
+                    "application/json": components["schemas"]["FallAlertIngestResponse"];
                 };
             };
             /** @description Validation Error */
@@ -2720,40 +3343,11 @@ export interface operations {
             };
         };
     };
-    get_device_studio_stats_api_v1_devices__device_id__studio_stats_get: {
+    get_metrics_api_v1_metrics_get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                device_id: string;
+            query?: {
+                format?: string | null;
             };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioDatasetStatsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_global_studio_stats_api_v1_studio_stats_get: {
-        parameters: {
-            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -2766,7 +3360,121 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StudioDatasetStatsResponse"];
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_history_api_v1_steps_history_get: {
+        parameters: {
+            query: {
+                /** @description Target device ID */
+                device_id: string;
+                /** @description Start date (YYYY-MM-DD) */
+                from_date?: string | null;
+                /** @description End date (YYYY-MM-DD) */
+                to_date?: string | null;
+                /** @description Number of past days (used if from_date is omitted) */
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyStepsHistoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_hourly_api_v1_steps_hourly_get: {
+        parameters: {
+            query: {
+                /** @description Target device ID */
+                device_id: string;
+                /** @description Calendar date (YYYY-MM-DD) */
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HourlyStepsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sync_steps_api_v1_steps_sync_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DailyStepsSyncPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyStepsSyncResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2940,6 +3648,37 @@ export interface operations {
             };
         };
     };
+    confirm_session_api_v1_studio_sessions__session_id__confirm_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioSessionSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_session_readings_api_v1_studio_sessions__session_id__readings_get: {
         parameters: {
             query?: never;
@@ -3006,143 +3745,7 @@ export interface operations {
             };
         };
     };
-    confirm_session_api_v1_studio_sessions__session_id__confirm_patch: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                session_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioSessionSummary"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sync_steps_api_v1_steps_sync_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DailyStepsSyncPayload"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyStepsSyncResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_history_api_v1_steps_history_get: {
-        parameters: {
-            query: {
-                /** @description Target device ID */
-                device_id: string;
-                /** @description Start date (YYYY-MM-DD) */
-                from_date?: string | null;
-                /** @description End date (YYYY-MM-DD) */
-                to_date?: string | null;
-                /** @description Number of past days (used if from_date is omitted) */
-                days?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DailyStepsHistoryResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_hourly_api_v1_steps_hourly_get: {
-        parameters: {
-            query: {
-                /** @description Target device ID */
-                device_id: string;
-                /** @description Calendar date (YYYY-MM-DD) */
-                date: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HourlyStepsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_latest_firmware_api_v1_firmware_latest_get: {
+    get_global_studio_stats_api_v1_studio_stats_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -3157,12 +3760,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FirmwareLatestResponse"];
+                    "application/json": components["schemas"]["StudioDatasetStatsResponse"];
                 };
             };
         };
     };
-    read_root__get: {
+    list_users_api_v1_users_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -3178,8 +3781,226 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        [key: string]: string;
+                        [key: string]: unknown;
+                    }[];
+                };
+            };
+        };
+    };
+    get_my_alert_contacts_api_v1_users_me_alert_contacts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertContactResponse"][];
+                };
+            };
+        };
+    };
+    add_my_alert_contact_api_v1_users_me_alert_contacts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertContactCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertContactResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorder_my_alert_contacts_api_v1_users_me_alert_contacts_order_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertContactsOrderPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertContactResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contact_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contact_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertContactUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertContactResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_id__test_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                contact_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertContactTestEmailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_user_api_v1_users__user_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

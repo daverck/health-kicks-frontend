@@ -50,6 +50,34 @@ export type ActivityEventPage = components['schemas']['ActivityEventPage'];
 export type FallEventResponse = ActivityEvent;
 export type FallEventPage = ActivityEventPage;
 
+// ---------- Fall Alerting & Emergency Contacts ----------
+
+export type AlertContactCreate = components['schemas']['AlertContactCreate'];
+export type AlertContactUpdate = components['schemas']['AlertContactUpdate'];
+export type AlertContactsOrderPayload = components['schemas']['AlertContactsOrderPayload'];
+export type AlertContactResponse = components['schemas']['AlertContactResponse'];
+export type AlertContactTestEmailResponse = components['schemas']['AlertContactTestEmailResponse'];
+
+export type FallAlertState =
+  | 'PENDING'
+  | 'ESCALATING'
+  | 'ACKNOWLEDGED'
+  | 'CANCELLED'
+  | 'EXHAUSTED'
+  | 'SUPPRESSED';
+
+export type FallAlertAction = components['schemas']['FallAlertAction'];
+export type FallAlertCancelReason = components['schemas']['FallAlertCancelReason'];
+export type FallAlertDelivery = components['schemas']['FallAlertDelivery'];
+export type FallAlertNotificationStatus = 'SENT' | 'ACKNOWLEDGED' | 'FAILED';
+
+export type FallAlertAcknowledgedBy = components['schemas']['FallAlertAcknowledgedBy'];
+export type FallAlertLocationResponse = components['schemas']['FallAlertLocationResponse'];
+export type FallAlertNotificationResponse = components['schemas']['FallAlertNotificationResponse'];
+export type FallAlertSummary = components['schemas']['FallAlertSummary'];
+export type FallAlertDetail = components['schemas']['FallAlertDetail'];
+export type PaginatedFallAlertsResponse = components['schemas']['PaginatedFallAlertsResponse'];
+
 // ---------- Health & Ingestion ----------
 
 export type HealthResponse = components['schemas']['HealthResponse'];
@@ -73,4 +101,3 @@ export interface ApiValidationErrorItem {
 export interface ApiErrorPayload {
   detail: string | ApiValidationErrorItem[];
 }
-
