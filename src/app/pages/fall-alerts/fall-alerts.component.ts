@@ -89,6 +89,7 @@ export class FallAlertsComponent implements OnInit {
     first_name: ['', [Validators.required, Validators.maxLength(100)]],
     last_name: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(320)]],
+    phone: ['', [Validators.maxLength(32), Validators.pattern(/^\s*(\+?[0-9\s().\-]{6,32})?\s*$/)]],
   });
 
   ngOnInit(): void {
@@ -229,6 +230,8 @@ export class FallAlertsComponent implements OnInit {
     switch (status) {
       case 'ACKNOWLEDGED':
         return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300';
+      case 'PENDING_SMS':
+        return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300';
       case 'SENT':
         return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300';
       case 'FAILED':
@@ -282,6 +285,7 @@ export class FallAlertsComponent implements OnInit {
       first_name: contact.first_name,
       last_name: contact.last_name,
       email: contact.email,
+      phone: contact.phone ?? '',
     });
   }
 
@@ -292,6 +296,7 @@ export class FallAlertsComponent implements OnInit {
       first_name: '',
       last_name: '',
       email: '',
+      phone: '',
     });
   }
 
@@ -306,6 +311,7 @@ export class FallAlertsComponent implements OnInit {
       first_name: raw.first_name.trim(),
       last_name: raw.last_name.trim(),
       email: raw.email.trim().toLowerCase(),
+      phone: raw.phone.trim() || null,
     };
 
     this.submittingContact.set(true);
@@ -317,6 +323,7 @@ export class FallAlertsComponent implements OnInit {
         first_name: payload.first_name,
         last_name: payload.last_name,
         email: payload.email,
+        phone: payload.phone ?? null,
       };
       this.fallAlertService.updateAlertContact(editing.id, updatePayload).subscribe({
         next: () => {
@@ -335,7 +342,7 @@ export class FallAlertsComponent implements OnInit {
       this.fallAlertService.addAlertContact(payload).subscribe({
         next: () => {
           this.submittingContact.set(false);
-          this.contactForm.reset({ first_name: '', last_name: '', email: '' });
+          this.contactForm.reset({ first_name: '', last_name: '', email: '', phone: '' });
           this.toast.success(this.translation.translate('fall_alerts.toast_contact_added'));
           this.loadContacts();
         },
@@ -414,7 +421,15 @@ export class FallAlertsComponent implements OnInit {
         this.contacts.update((list) =>
           list.map((c) => (c.id === contact.id ? { ...c, last_test_email_at: res.sent_at } : c))
         );
-        this.toast.success(this.translation.translate('fall_alerts.toast_test_email_sent'));
+        this.toast.success(
+          res.sms_dispatched
+            ? this.translation.translate('fall_alerts.toast_test_email_and_sms_sent', {
+                name: contact.first_name,
+              })
+            : this.translation.translate('fall_alerts.toast_test_email_sent_to', {
+                email: contact.email,
+              })
+        );
       },
       error: (err) => {
         this.sendingTestContactId.set(null);

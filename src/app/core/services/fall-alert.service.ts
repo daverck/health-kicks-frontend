@@ -3,14 +3,32 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
+  AlertContact,
   AlertContactCreate,
   AlertContactResponse,
   AlertContactsOrderPayload,
   AlertContactTestEmailResponse,
   AlertContactUpdate,
   FallAlertDetail,
+  FallAlertNotification,
+  FallAlertNotificationResponse,
+  FallAlertSummary,
   PaginatedFallAlertsResponse,
 } from '../../models/api.models';
+
+export type {
+  AlertContact,
+  AlertContactCreate,
+  AlertContactResponse,
+  AlertContactsOrderPayload,
+  AlertContactTestEmailResponse,
+  AlertContactUpdate,
+  FallAlertDetail,
+  FallAlertNotification,
+  FallAlertNotificationResponse,
+  FallAlertSummary,
+  PaginatedFallAlertsResponse,
+};
 
 export interface FallAlertsQuery {
   page?: number;
@@ -32,6 +50,10 @@ export class FallAlertService {
 
   addAlertContact(payload: AlertContactCreate): Observable<AlertContactResponse> {
     return this.http.post<AlertContactResponse>(`${this.base}/users/me/alert-contacts`, payload);
+  }
+
+  createContact(payload: AlertContactCreate): Observable<AlertContactResponse> {
+    return this.addAlertContact(payload);
   }
 
   reorderAlertContacts(

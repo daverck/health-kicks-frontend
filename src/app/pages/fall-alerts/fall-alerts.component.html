@@ -428,6 +428,24 @@
                     <p class="text-sm text-gray-600 dark:text-gray-300">
                       {{ contact.email }}
                     </p>
+                    <p class="mt-0.5 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                      @if (contact.phone) {
+                        <span data-testid="contact-phone">📱 {{ contact.phone }}</span>
+                        <span
+                          class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                          data-testid="sms-enabled-badge"
+                        >
+                          {{ 'fall_alerts.sms_enabled_badge' | translate }}
+                        </span>
+                      } @else {
+                        <span
+                          class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                          data-testid="email-only-badge"
+                        >
+                          {{ 'fall_alerts.email_only_badge' | translate }}
+                        </span>
+                      }
+                    </p>
                     <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
                       {{ 'fall_alerts.last_test_email' | translate }}
                       @if (contact.last_test_email_at) {
@@ -588,6 +606,24 @@
               [disabled]="maxContactsReached()"
             />
           </div>
+          <div>
+            <label
+              for="contact_phone"
+              class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+            >
+              {{ 'fall_alerts.phone' | translate }}
+            </label>
+            <input
+              id="contact_phone"
+              data-testid="contact-phone-input"
+              type="tel"
+              autocomplete="tel"
+              formControlName="phone"
+              [placeholder]="'fall_alerts.phone_placeholder' | translate"
+              class="input mt-1"
+              [disabled]="maxContactsReached()"
+            />
+          </div>
 
           <div class="flex items-center justify-end gap-2 pt-2">
             @if (editingContact()) {
@@ -724,8 +760,17 @@
                     <span class="font-semibold text-gray-900 dark:text-white">
                       {{ notif.contact_first_name }} {{ notif.contact_last_name }}
                     </span>
+                    <span
+                      class="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                      [ngClass]="notif.channel === 'sms'
+                        ? 'border-violet-200 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-900/30 dark:text-violet-300'
+                        : 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-800 dark:bg-sky-900/30 dark:text-sky-300'"
+                      data-testid="notification-channel-badge"
+                    >
+                      {{ (notif.channel === 'sms' ? 'fall_alerts.notif_channel_sms' : 'fall_alerts.notif_channel_email') | translate }}
+                    </span>
                     <span class="text-gray-500 dark:text-gray-400">
-                      ({{ notif.contact_email }})
+                      ({{ notif.channel === 'sms' ? notif.contact_phone : notif.contact_email }})
                     </span>
                   </div>
                   <div class="text-gray-500 dark:text-gray-400">

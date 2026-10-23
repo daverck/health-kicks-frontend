@@ -906,7 +906,7 @@ export interface paths {
         head?: never;
         /**
          * Patch My Alert Contact
-         * @description Update first_name, last_name, or email of an emergency contact.
+         * @description Update first_name, last_name, email, or phone of an emergency contact.
          */
         patch: operations["patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__patch"];
         trace?: never;
@@ -922,7 +922,7 @@ export interface paths {
         put?: never;
         /**
          * Send My Alert Contact Test Email
-         * @description Send a verification email to an emergency contact (rate-limited to 3/hour per user).
+         * @description Send a verification email (and optional test SMS) to an emergency contact (rate-limited to 3/hour per user).
          */
         post: operations["send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_id__test_email_post"];
         delete?: never;
@@ -1043,6 +1043,8 @@ export interface components {
             first_name: string;
             /** Last Name */
             last_name: string;
+            /** Phone */
+            phone?: string | null;
         };
         /**
          * AlertContactResponse
@@ -1064,6 +1066,8 @@ export interface components {
             last_name: string;
             /** Last Test Email At */
             last_test_email_at?: string | null;
+            /** Phone */
+            phone?: string | null;
             /** Priority */
             priority: number;
             /**
@@ -1074,7 +1078,7 @@ export interface components {
         };
         /**
          * AlertContactTestEmailResponse
-         * @description Response after sending a test email to an emergency contact.
+         * @description Response after sending a test email (and optional test SMS) to an emergency contact.
          */
         AlertContactTestEmailResponse: {
             /** Contact Id */
@@ -1084,6 +1088,11 @@ export interface components {
              * Format: date-time
              */
             sent_at: string;
+            /**
+             * Sms Dispatched
+             * @default false
+             */
+            sms_dispatched: boolean;
             /**
              * Status
              * @default sent
@@ -1101,6 +1110,8 @@ export interface components {
             first_name?: string | null;
             /** Last Name */
             last_name?: string | null;
+            /** Phone */
+            phone?: string | null;
         };
         /**
          * AlertContactsOrderPayload
@@ -1308,7 +1319,7 @@ export interface components {
          * @description Uplink MQTT actions for fall alert ingestion.
          * @enum {string}
          */
-        FallAlertAction: "DETECTED" | "CONFIRM" | "CANCEL";
+        FallAlertAction: "DETECTED" | "CONFIRM" | "CANCEL" | "SMS_STATUS";
         /**
          * FallAlertCancelReason
          * @description Reasons why a fall alert was cancelled.
@@ -1382,13 +1393,19 @@ export interface components {
             detected_at?: number | null;
             /** Device Id */
             device_id?: string | null;
+            /** Error Message */
+            error_message?: string | null;
             /** Event Id */
             event_id: string;
             /** Event Type */
             event_type?: string | null;
             location?: components["schemas"]["FallAlertLocationPayload"] | null;
+            /** Notification Id */
+            notification_id?: number | null;
             /** Sent At */
             sent_at?: number | null;
+            /** Sms Status */
+            sms_status?: ("SENT" | "FAILED") | null;
             /** User Id */
             user_id: number | string;
         };
@@ -1444,17 +1461,25 @@ export interface components {
         };
         /**
          * FallAlertNotificationResponse
-         * @description Serialized email notification entry in fall alert detail.
+         * @description Serialized notification entry (email or SMS) in fall alert detail.
          */
         FallAlertNotificationResponse: {
             /** Acknowledged At */
             acknowledged_at?: string | null;
+            /**
+             * Channel
+             * @default email
+             * @enum {string}
+             */
+            channel: "email" | "sms";
             /** Contact Email */
             contact_email: string;
             /** Contact First Name */
             contact_first_name: string;
             /** Contact Last Name */
             contact_last_name: string;
+            /** Contact Phone */
+            contact_phone?: string | null;
             /** Error Message */
             error_message?: string | null;
             /** Id */
@@ -1467,7 +1492,7 @@ export interface components {
              */
             sent_at: string;
             /** Status */
-            status: string;
+            status: ("SENT" | "PENDING_SMS" | "ACKNOWLEDGED" | "FAILED") | string;
         };
         /**
          * FallAlertSummary

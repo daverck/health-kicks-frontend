@@ -56,6 +56,7 @@ export type AlertContactCreate = components['schemas']['AlertContactCreate'];
 export type AlertContactUpdate = components['schemas']['AlertContactUpdate'];
 export type AlertContactsOrderPayload = components['schemas']['AlertContactsOrderPayload'];
 export type AlertContactResponse = components['schemas']['AlertContactResponse'];
+export type AlertContact = AlertContactResponse;
 export type AlertContactTestEmailResponse = components['schemas']['AlertContactTestEmailResponse'];
 
 export type FallAlertState =
@@ -69,11 +70,13 @@ export type FallAlertState =
 export type FallAlertAction = components['schemas']['FallAlertAction'];
 export type FallAlertCancelReason = components['schemas']['FallAlertCancelReason'];
 export type FallAlertDelivery = components['schemas']['FallAlertDelivery'];
-export type FallAlertNotificationStatus = 'SENT' | 'ACKNOWLEDGED' | 'FAILED';
+export type FallAlertNotificationChannel = 'email' | 'sms';
+export type FallAlertNotificationStatus = 'SENT' | 'PENDING_SMS' | 'ACKNOWLEDGED' | 'FAILED';
 
 export type FallAlertAcknowledgedBy = components['schemas']['FallAlertAcknowledgedBy'];
 export type FallAlertLocationResponse = components['schemas']['FallAlertLocationResponse'];
 export type FallAlertNotificationResponse = components['schemas']['FallAlertNotificationResponse'];
+export type FallAlertNotification = FallAlertNotificationResponse;
 export type FallAlertSummary = components['schemas']['FallAlertSummary'];
 export type FallAlertDetail = components['schemas']['FallAlertDetail'];
 export type PaginatedFallAlertsResponse = components['schemas']['PaginatedFallAlertsResponse'];
