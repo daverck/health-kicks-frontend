@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { StudioInspectionComponent } from './studio-inspection.component';
+import { ImuChartComponent } from '../imu-chart/imu-chart.component';
 import { StudioHistoryService } from '../../../core/services/studio-history.service';
 import { StudioService } from '../../../core/services/studio.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -168,6 +170,31 @@ describe('StudioInspectionComponent', () => {
     expect(fixture.nativeElement.querySelector('[data-testid="trim-session-control"]')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="trim-start-slider"]')).toBeNull();
     expect(fixture.nativeElement.querySelector('[data-testid="trim-end-slider"]')).toBeNull();
+
+    const chart = fixture.debugElement.query(By.directive(ImuChartComponent))
+      .componentInstance as ImuChartComponent;
+    const enterTrimModeButton = fixture.nativeElement.querySelector(
+      '[data-testid="trim-session-btn"]'
+    ) as HTMLButtonElement;
+    expect(enterTrimModeButton.disabled).toBeFalse();
+    expect(chart.trimStartTimeSec).toBeNull();
+    expect(chart.trimEndTimeSec).toBeNull();
+    expect(chart.trimSelectionEnabled).toBeFalse();
+
+    enterTrimModeButton.click();
+    fixture.detectChanges();
+    expect(chart.trimStartTimeSec).toBe(0);
+    expect(chart.trimEndTimeSec).toBe(5);
+    expect(chart.trimSelectionEnabled).toBeTrue();
+
+    const cancelButton = fixture.nativeElement.querySelector(
+      '[data-testid="trim-confirmation"] button:last-child'
+    ) as HTMLButtonElement;
+    cancelButton.click();
+    fixture.detectChanges();
+    expect(chart.trimStartTimeSec).toBeNull();
+    expect(chart.trimEndTimeSec).toBeNull();
+    expect(chart.trimSelectionEnabled).toBeFalse();
 
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: true });
     fixture.detectChanges();

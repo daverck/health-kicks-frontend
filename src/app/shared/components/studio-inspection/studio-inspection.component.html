@@ -235,9 +235,9 @@
             <app-imu-chart
               [readings]="activeReadings()"
               [playbackTimeSec]="replayPlaybackTime()"
-              [trimStartTimeSec]="s.is_validated ? null : trimStartOffsetSec()"
-              [trimEndTimeSec]="s.is_validated ? null : trimEndOffsetSec()"
-              [trimSelectionEnabled]="!s.is_validated && !isTrimmingSession()"
+              [trimStartTimeSec]="!s.is_validated && showTrimConfirm() ? trimStartOffsetSec() : null"
+              [trimEndTimeSec]="!s.is_validated && showTrimConfirm() ? trimEndOffsetSec() : null"
+              [trimSelectionEnabled]="!s.is_validated && showTrimConfirm() && !isTrimmingSession()"
               [showIsbGuideSection]="false"
               (timeSelected)="onReplayTimeSelected($event)"
               (trimHandleChanged)="onTrimHandleChanged($event)"
@@ -267,7 +267,7 @@
                 <button
                   type="button"
                   (click)="showTrimConfirm.set(true)"
-                  [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession() || !hasTrimChanges()"
+                  [disabled]="isLoadingReadings() || activeReadings().length === 0 || isTrimmingSession()"
                   data-testid="trim-session-btn"
                   class="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-amber-700 transition disabled:opacity-50"
                 >
