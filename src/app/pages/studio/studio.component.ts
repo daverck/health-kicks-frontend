@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DeviceService } from '../../core/services/device.service';
@@ -122,6 +122,12 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly selectedLabel = signal<string>('walk');
   /** Custom activity name when 'custom' label is active. */
   readonly customLabel = signal<string>('');
+  readonly customLabelInput = viewChild<ElementRef<HTMLInputElement>>('customLabelInput');
+  readonly isCustomInputFocused = signal<boolean>(false);
+
+  readonly isCustomCardActive = computed(() => {
+    return isCustomStudioLabel(this.effectiveLabel()) || this.isCustomInputFocused();
+  });
 
   readonly effectiveLabel = computed(() => {
     const custom = this.customLabel().trim();
@@ -275,6 +281,29 @@ export class StudioComponent implements OnInit, OnDestroy {
   selectLabel(labelId: string): void {
     this.selectedLabel.set(labelId);
     this.customLabel.set('');
+  }
+
+  selectCustomCard(): void {
+    this.focusCustomInput();
+  }
+
+  focusCustomInput(): void {
+    const inputEl = this.customLabelInput()?.nativeElement;
+    if (inputEl) {
+      inputEl.focus();
+    }
+  }
+
+  onCustomLabelChange(value: string): void {
+    this.customLabel.set(value);
+  }
+
+  clearCustomLabel(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.customLabel.set('');
+    this.focusCustomInput();
   }
 
   startCapture(): void {

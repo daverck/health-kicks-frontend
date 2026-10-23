@@ -599,6 +599,62 @@ describe('StudioComponent', () => {
     expect(toastSpy.success).toHaveBeenCalledWith(jasmine.stringMatching(/Télémétrie actualisée/));
     expect(component.isRefreshingReadings()).toBeFalse();
   });
+
+  describe('Custom Label Card', () => {
+    it('should render the custom label card in the grid with dedicated input', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const customCard = compiled.querySelector('[data-testid="studio-custom-label-card"]');
+      expect(customCard).toBeTruthy();
+
+      const input = customCard?.querySelector('input#custom-label') as HTMLInputElement;
+      expect(input).toBeTruthy();
+      expect(input.placeholder).toBeTruthy();
+    });
+
+    it('should focus the custom input and toggle isCustomCardActive', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+      const input = compiled.querySelector('input#custom-label') as HTMLInputElement;
+      const focusSpy = spyOn(input, 'focus').and.callThrough();
+
+      component.selectCustomCard();
+      expect(focusSpy).toHaveBeenCalled();
+
+      component.isCustomInputFocused.set(true);
+      expect(component.isCustomCardActive()).toBeTrue();
+
+      component.isCustomInputFocused.set(false);
+      expect(component.isCustomCardActive()).toBeFalse();
+    });
+
+    it('should update custom label and clear it with clearCustomLabel', () => {
+      fixture.detectChanges();
+      component.onCustomLabelChange('sprint_court');
+      expect(component.customLabel()).toBe('sprint_court');
+      expect(component.effectiveLabel()).toBe('sprint_court');
+      expect(component.isCustomCardActive()).toBeTrue();
+
+      const event = new MouseEvent('click');
+      const stopPropSpy = spyOn(event, 'stopPropagation');
+      component.clearCustomLabel(event);
+
+      expect(stopPropSpy).toHaveBeenCalled();
+      expect(component.customLabel()).toBe('');
+      expect(component.effectiveLabel()).toBe(component.selectedLabel());
+    });
+
+    it('should clear custom label when a predefined activity is selected', () => {
+      fixture.detectChanges();
+      component.customLabel.set('pivot_dance');
+      expect(component.effectiveLabel()).toBe('pivot_dance');
+
+      component.selectLabel('sit_down');
+      expect(component.selectedLabel()).toBe('sit_down');
+      expect(component.customLabel()).toBe('');
+      expect(component.effectiveLabel()).toBe('sit_down');
+    });
+  });
 });
 
 

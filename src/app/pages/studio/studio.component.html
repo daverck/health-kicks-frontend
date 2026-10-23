@@ -191,38 +191,108 @@
               </span>
             </button>
           }
-        </div>
 
-        <!-- Custom Label input -->
-        <div class="mt-6 border-t border-gray-100 pt-4 dark:border-gray-800">
-          <label for="custom-label" class="block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-            {{ 'studio.custom_label' | translate }}
-          </label>
-          <div class="mt-2 flex max-w-md items-center gap-2">
-            <input
-              id="custom-label"
-              type="text"
-              [placeholder]="'studio.custom_label_placeholder' | translate"
-              [ngModel]="customLabel()"
-              (ngModelChange)="customLabel.set($event)"
-              class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-            />
-            @if (customLabel()) {
-              <button
-                type="button"
-                (click)="customLabel.set('')"
-                class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          <!-- Custom Activity Card -->
+          <div
+            data-testid="studio-custom-label-card"
+            (click)="selectCustomCard()"
+            class="relative flex flex-col items-center justify-between rounded-xl border p-4 text-center transition hover:shadow-md cursor-pointer"
+            [class.border-purple-600]="isCustomCardActive()"
+            [class.dark:border-purple-500]="isCustomCardActive()"
+            [class.bg-purple-50/70]="isCustomCardActive()"
+            [class.dark:bg-purple-950/50]="isCustomCardActive()"
+            [class.text-purple-900]="isCustomCardActive()"
+            [class.dark:text-purple-200]="isCustomCardActive()"
+            [class.border-gray-200]="!isCustomCardActive()"
+            [class.dark:border-gray-800]="!isCustomCardActive()"
+            [class.bg-white]="!isCustomCardActive()"
+            [class.dark:bg-gray-800]="!isCustomCardActive()"
+            [class.text-gray-700]="!isCustomCardActive()"
+            [class.dark:text-gray-200]="!isCustomCardActive()"
+          >
+            <div class="flex flex-col items-center w-full">
+              <!-- Icon -->
+              <div
+                class="mt-1 flex h-12 w-12 items-center justify-center rounded-2xl transition duration-200"
+                [class.bg-purple-100]="isCustomCardActive()"
+                [class.text-purple-700]="isCustomCardActive()"
+                [class.dark:bg-purple-950/60]="isCustomCardActive()"
+                [class.dark:text-purple-300]="isCustomCardActive()"
+                [class.bg-gray-100]="!isCustomCardActive()"
+                [class.text-gray-600]="!isCustomCardActive()"
+                [class.dark:bg-gray-800]="!isCustomCardActive()"
+                [class.dark:text-gray-300]="!isCustomCardActive()"
               >
-                {{ 'studio.clear' | translate }}
-              </button>
-            }
+                <app-activity-icon [activityId]="customLabel() || 'custom'" [size]="28" />
+              </div>
+
+              <!-- Title & Desc -->
+              <label for="custom-label" class="mt-2 text-sm font-semibold cursor-pointer block">
+                {{ 'studio.custom_label' | translate }}
+              </label>
+              <span class="mt-0.5 text-[11px] text-gray-400 dark:text-gray-400">
+                {{ 'studio.custom_label_desc' | translate }}
+              </span>
+
+              <!-- Embedded Input Field -->
+              <div class="mt-2.5 w-full relative" (click)="$event.stopPropagation()">
+                <input
+                  #customLabelInput
+                  id="custom-label"
+                  type="text"
+                  [placeholder]="'studio.custom_label_placeholder' | translate"
+                  [ngModel]="customLabel()"
+                  (ngModelChange)="onCustomLabelChange($event)"
+                  (focus)="isCustomInputFocused.set(true)"
+                  (blur)="isCustomInputFocused.set(false)"
+                  class="w-full rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs text-center shadow-sm transition placeholder:text-gray-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:border-purple-400"
+                />
+                @if (customLabel()) {
+                  <button
+                    type="button"
+                    (click)="clearCustomLabel($event)"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    [attr.aria-label]="'studio.clear' | translate"
+                  >
+                    ✕
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Bottom Badge & Experimental Hint -->
+            <div class="mt-2.5 flex flex-col items-center w-full">
+              @if (isCustomStudioLabel(effectiveLabel())) {
+                <span
+                  class="label-exact-count inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold transition"
+                  [class.bg-emerald-50]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+                  [class.text-emerald-700]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+                  [class.border-emerald-200]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+                  [class.dark:bg-emerald-950/40]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+                  [class.dark:text-emerald-300]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+                  [class.dark:border-emerald-800]="getCountForLabel(effectiveLabel()) >= targetPerClass"
+                  [class.bg-purple-100]="getCountForLabel(effectiveLabel()) < targetPerClass"
+                  [class.text-purple-800]="getCountForLabel(effectiveLabel()) < targetPerClass"
+                  [class.border-purple-200]="getCountForLabel(effectiveLabel()) < targetPerClass"
+                  [class.dark:bg-purple-950/40]="getCountForLabel(effectiveLabel()) < targetPerClass"
+                  [class.dark:text-purple-300]="getCountForLabel(effectiveLabel()) < targetPerClass"
+                  [class.dark:border-purple-800]="getCountForLabel(effectiveLabel()) < targetPerClass"
+                >
+                  <span class="font-bold">{{ getCountForLabel(effectiveLabel()) }}</span> / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
+                </span>
+
+                <p class="mt-1.5 text-[10px] leading-tight font-medium text-purple-700 dark:text-purple-300 text-center" data-testid="custom-label-experimental-hint">
+                  <span>🧪 {{ 'studio.custom_label_experimental_hint' | translate }}</span>
+                </p>
+              } @else {
+                <span
+                  class="inline-flex items-center gap-1 rounded-md border border-dashed border-gray-300 px-2 py-0.5 text-[11px] font-medium text-gray-400 dark:border-gray-700 dark:text-gray-500"
+                >
+                  <span>🧪</span> {{ 'studio.label_experimental_badge' | translate }}
+                </span>
+              }
+            </div>
           </div>
-          @if (customLabel()) {
-            <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-purple-700 dark:text-purple-300" data-testid="custom-label-experimental-hint">
-              <span>🧪</span>
-              <span>{{ 'studio.custom_label_experimental_hint' | translate }}</span>
-            </p>
-          }
         </div>
       </div>
 
