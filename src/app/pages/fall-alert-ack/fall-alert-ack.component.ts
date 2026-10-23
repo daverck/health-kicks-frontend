@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common/dynamic-imports';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FallAlertService } from '../../core/services/fall-alert.service';
 import { FallAlertAckInfo, FallAlertAckResult } from '../../models/api.models';
@@ -137,4 +136,3 @@ export class FallAlertAckComponent implements OnInit {
     });
   }
 }
-
