@@ -5,6 +5,8 @@ import { FallAlertService } from './fall-alert.service';
 import { environment } from '../../../environments/environment';
 import {
   AlertContactResponse,
+  FallAlertAckInfo,
+  FallAlertAckResult,
   FallAlertDetail,
   PaginatedFallAlertsResponse,
 } from '../../models/api.models';
@@ -179,5 +181,56 @@ describe('FallAlertService', () => {
     const req = httpMock.expectOne(`${base}/fall-alerts/42`);
     expect(req.request.method).toBe('GET');
     req.flush(mockDetail);
+  });
+
+  it('should fetch acknowledgment info via GET /fall-alerts/ack/info', () => {
+    const mockAckInfo: FallAlertAckInfo = {
+      alert_id: 42,
+      patient_name: 'Jean Martin',
+      contact_name: 'Marie Dupont',
+      detected_at: '2026-10-23T15:30:00Z',
+      detected_at_paris: '23/10/2026 à 17:30:00',
+      event_type: 'fall_forward',
+      event_type_label: "Chute vers l'avant",
+      confidence_pct: 92,
+      state: 'ESCALATING',
+      lat: 50.85,
+      lon: 4.35,
+      accuracy_m: 10,
+      maps_url: 'https://www.google.com/maps?q=50.850000,4.350000',
+      already_acknowledged_by: null,
+      cancel_reason: null,
+    };
+
+    service.getAckInfo('sample-token-123').subscribe((info) => {
+      expect(info).toEqual(mockAckInfo);
+      expect(info.patient_name).toBe('Jean Martin');
+      expect(info.state).toBe('ESCALATING');
+    });
+
+    const req = httpMock.expectOne(`${base}/fall-alerts/ack/info?token=sample-token-123`);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('token')).toBe('sample-token-123');
+    req.flush(mockAckInfo);
+  });
+
+  it('should confirm acknowledgment via POST /fall-alerts/ack', () => {
+    const mockResult: FallAlertAckResult = {
+      status: 'ok',
+      state: 'ACKNOWLEDGED',
+      alert_id: 42,
+      acknowledged_by: 'Marie Dupont',
+      message: 'Prise en charge enregistrée avec succès.',
+    };
+
+    service.confirmAck('sample-token-123').subscribe((res) => {
+      expect(res).toEqual(mockResult);
+      expect(res.state).toBe('ACKNOWLEDGED');
+    });
+
+    const req = httpMock.expectOne(`${base}/fall-alerts/ack`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ token: 'sample-token-123' });
+    req.flush(mockResult);
   });
 });

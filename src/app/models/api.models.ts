@@ -81,6 +81,32 @@ export type FallAlertSummary = components['schemas']['FallAlertSummary'];
 export type FallAlertDetail = components['schemas']['FallAlertDetail'];
 export type PaginatedFallAlertsResponse = components['schemas']['PaginatedFallAlertsResponse'];
 
+export interface FallAlertAckInfo {
+  alert_id: number;
+  patient_name: string;
+  contact_name: string;
+  detected_at: string;
+  detected_at_paris: string;
+  event_type: string;
+  event_type_label: string;
+  confidence_pct: number;
+  state: FallAlertState | string;
+  lat?: number | null;
+  lon?: number | null;
+  accuracy_m?: number | null;
+  maps_url?: string | null;
+  already_acknowledged_by?: string | null;
+  cancel_reason?: string | null;
+}
+
+export interface FallAlertAckResult {
+  status: string;
+  state: string;
+  alert_id: number;
+  acknowledged_by: string;
+  message: string;
+}
+
 // ---------- Health & Ingestion ----------
 
 export type HealthResponse = components['schemas']['HealthResponse'];

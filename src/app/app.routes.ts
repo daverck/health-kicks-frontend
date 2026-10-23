@@ -13,6 +13,13 @@ export const routes: Routes = [
         (m) => m.OAuthCallbackComponent
       ),
   },
+  {
+    path: 'fall-alerts/ack',
+    loadComponent: () =>
+      import('./pages/fall-alert-ack/fall-alert-ack.component').then(
+        (m) => m.FallAlertAckComponent
+      ),
+  },
 
   {
     path: 'dashboard',

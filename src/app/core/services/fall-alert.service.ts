@@ -9,6 +9,8 @@ import {
   AlertContactsOrderPayload,
   AlertContactTestEmailResponse,
   AlertContactUpdate,
+  FallAlertAckInfo,
+  FallAlertAckResult,
   FallAlertDetail,
   FallAlertNotification,
   FallAlertNotificationResponse,
@@ -23,6 +25,8 @@ export type {
   AlertContactsOrderPayload,
   AlertContactTestEmailResponse,
   AlertContactUpdate,
+  FallAlertAckInfo,
+  FallAlertAckResult,
   FallAlertDetail,
   FallAlertNotification,
   FallAlertNotificationResponse,
@@ -113,5 +117,22 @@ export class FallAlertService {
 
   getFallAlertDetail(alertId: number): Observable<FallAlertDetail> {
     return this.http.get<FallAlertDetail>(`${this.base}/fall-alerts/${alertId}`);
+  }
+
+  /**
+   * Safe read-only fetch of alert metadata for emergency contact acknowledgment landing page.
+   * Does NOT mutate state (safe against SMS / mail link pre-fetchers).
+   */
+  getAckInfo(token: string): Observable<FallAlertAckInfo> {
+    return this.http.get<FallAlertAckInfo>(`${this.base}/fall-alerts/ack/info`, {
+      params: { token },
+    });
+  }
+
+  /**
+   * Explicit user confirmation of alert acknowledgment. Transitions state to ACKNOWLEDGED.
+   */
+  confirmAck(token: string): Observable<FallAlertAckResult> {
+    return this.http.post<FallAlertAckResult>(`${this.base}/fall-alerts/ack`, { token });
   }
 }
