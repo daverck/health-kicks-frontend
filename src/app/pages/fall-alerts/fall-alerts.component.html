@@ -309,11 +309,23 @@
                     {{ alert.notified_contacts_count }}
                   </td>
                   <td class="px-4 py-3 text-xs">
-                    @if (alert.has_location) {
+                    @if (alert.has_location && alert.location) {
+                      <a
+                        [href]="getGoogleMapsUrl(alert.location.lat, alert.location.lon)"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        (click)="$event.stopPropagation()"
+                        class="inline-flex items-center gap-1 font-semibold text-primary-600 hover:underline dark:text-primary-400"
+                        data-testid="alert-google-maps-link"
+                      >
+                        📍 GPS
+                      </a>
+                    } @else if (alert.has_location) {
                       <button
                         type="button"
-                        (click)="openAlertDetail(alert.id)"
-                        class="inline-flex items-center gap-1 font-medium text-primary-600 hover:underline dark:text-primary-400"
+                        (click)="openGoogleMapsForAlert(alert, $event)"
+                        class="inline-flex items-center gap-1 font-semibold text-primary-600 hover:underline dark:text-primary-400"
+                        data-testid="alert-google-maps-link"
                       >
                         📍 GPS
                       </button>

@@ -42,6 +42,12 @@ describe('FallAlertsComponent', () => {
     cancel_reason: null,
     delivery: 'live',
     has_location: true,
+    location: {
+      lat: 50.8466,
+      lon: 4.3528,
+      accuracy_m: 12.5,
+      captured_at: '2026-10-23T08:39:01Z',
+    },
     detected_at: '2026-10-23T08:39:03Z',
     escalation_started_at: '2026-10-23T08:40:03Z',
     closed_at: '2026-10-23T08:44:51Z',
@@ -216,6 +222,37 @@ describe('FallAlertsComponent', () => {
 
     component.closeAlertDetail();
     expect(component.selectedAlertDetail()).toBeNull();
+  });
+
+  it('should render a direct Google Maps link in the alerts table and open google maps without opening detail modal', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const gpsLink = compiled.querySelector('[data-testid="alert-google-maps-link"]') as HTMLAnchorElement;
+
+    expect(gpsLink).toBeTruthy();
+    expect(gpsLink.tagName.toLowerCase()).toBe('a');
+    expect(gpsLink.getAttribute('href')).toBe('https://www.google.com/maps?q=50.8466,4.3528');
+    expect(gpsLink.getAttribute('target')).toBe('_blank');
+
+    const openModalSpy = spyOn(component, 'openAlertDetail');
+    gpsLink.click();
+    expect(openModalSpy).not.toHaveBeenCalled();
+    expect(component.selectedAlertDetail()).toBeNull();
+  });
+
+  it('should support openGoogleMapsForAlert fallback when location is not yet present on summary', () => {
+    const windowOpenSpy = spyOn(window, 'open');
+    const alertWithoutLoc: FallAlertSummary = {
+      ...mockAlertSummary,
+      location: null,
+    };
+
+    fallAlertServiceSpy.getFallAlertDetail.and.returnValue(of(mockAlertDetail));
+
+    component.openGoogleMapsForAlert(alertWithoutLoc);
+
+    expect(fallAlertServiceSpy.getFallAlertDetail).toHaveBeenCalledWith(42);
+    expect(windowOpenSpy).toHaveBeenCalledWith('https://www.google.com/maps?q=50.8466,4.3528', '_blank', 'noopener,noreferrer');
   });
 
   it('should display phone and SMS/email-only badges in the contacts list', () => {

@@ -258,6 +258,28 @@ export class FallAlertsComponent implements OnInit {
     return `https://www.google.com/maps?q=${lat},${lon}`;
   }
 
+  openGoogleMapsForAlert(alert: FallAlertSummary, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (alert.location) {
+      window.open(this.getGoogleMapsUrl(alert.location.lat, alert.location.lon), '_blank', 'noopener,noreferrer');
+      return;
+    }
+    this.fallAlertService.getFallAlertDetail(alert.id).subscribe({
+      next: (detail) => {
+        if (detail.location) {
+          window.open(this.getGoogleMapsUrl(detail.location.lat, detail.location.lon), '_blank', 'noopener,noreferrer');
+        } else {
+          this.toast.info(this.translation.translate('fall_alerts.no_location'));
+        }
+      },
+      error: () => {
+        this.toast.error(this.translation.translate('fall_alerts.load_error_alerts'));
+      },
+    });
+  }
+
   // ---------- Emergency Contacts Methods ----------
 
   loadContacts(): void {

@@ -1527,6 +1527,7 @@ export interface components {
             id: number;
             /** Is Pseudonymized */
             is_pseudonymized: boolean;
+            location?: components["schemas"]["FallAlertLocationResponse"] | null;
             /** Notified Contacts Count */
             notified_contacts_count: number;
             /** State */
