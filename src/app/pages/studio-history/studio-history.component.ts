@@ -93,6 +93,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly durationMin = signal<number | null>(null);
   readonly durationMax = signal<number | null>(null);
   readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
+  readonly selectedHitl = signal<'all' | 'true' | 'false'>('all');
   readonly devices = signal<DeviceResponse[]>([]);
   readonly showMobileFilters = signal<boolean>(false);
 
@@ -119,7 +120,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       this.sampleCountMax() !== null ||
       this.durationMin() !== null ||
       this.durationMax() !== null ||
-      this.selectedValidated() !== 'all'
+      this.selectedValidated() !== 'all' ||
+      this.selectedHitl() !== 'all'
     );
   });
 
@@ -251,6 +253,11 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     } else if (this.selectedValidated() === 'false') {
       params.is_validated = false;
     }
+    if (this.selectedHitl() === 'true') {
+      params.is_hitl = true;
+    } else if (this.selectedHitl() === 'false') {
+      params.is_hitl = false;
+    }
 
     this.studioHistoryService.getSessions(params).subscribe({
       next: (res) => {
@@ -324,6 +331,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.durationMin.set(null);
     this.durationMax.set(null);
     this.selectedValidated.set('all');
+    this.selectedHitl.set('all');
     this.resetPageCursors();
     this.page.set(1);
     this.loadSessions();

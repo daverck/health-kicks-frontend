@@ -226,6 +226,19 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
+  it('should filter by is_hitl=true when HITL only is selected', () => {
+    fixture.detectChanges();
+
+    component.selectedHitl.set('true');
+    component.onFilterChange();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      is_hitl: true,
+    });
+  });
+
   it('should display status badges in table and drawer', () => {
     fixture.detectChanges();
 
@@ -299,6 +312,7 @@ describe('StudioHistoryComponent', () => {
     expect(component.durationMin()).toBeNull();
     expect(component.durationMax()).toBeNull();
     expect(component.selectedValidated()).toBe('all');
+    expect(component.selectedHitl()).toBe('all');
     expect(component.page()).toBe(1);
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
       page: 1,

@@ -74,6 +74,17 @@ describe('StudioHistoryService', () => {
     req.flush(mockPaginatedSessionsResponse);
   });
 
+  it('should pass is_hitl filter param when provided', () => {
+    service.getSessions({ is_hitl: true }).subscribe((res) => {
+      expect(res).toEqual(mockPaginatedSessionsResponse);
+    });
+
+    const req = httpMock.expectOne((r) => r.url === baseUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('is_hitl')).toBe('true');
+    req.flush(mockPaginatedSessionsResponse);
+  });
+
   it('should include the opaque cursor when requesting a later page', () => {
     service.getSessions({ page: 2, size: 20, cursor: 'next-page-cursor' }).subscribe();
 

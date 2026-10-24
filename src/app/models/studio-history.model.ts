@@ -1,6 +1,8 @@
 import type { components } from './generated-api.types';
 
-export type StudioSessionSummary = components['schemas']['StudioSessionSummary'];
+export type StudioSessionSummary = components['schemas']['StudioSessionSummary'] & {
+  is_hitl?: boolean;
+};
 export type PaginatedSessionsResponse = components['schemas']['PaginatedSessionsResponse'];
 export type StudioAuthorSummary = components['schemas']['StudioAuthorSummary'];
 export type StudioSessionUpdatePayload = components['schemas']['StudioSessionUpdatePayload'];
@@ -19,5 +21,6 @@ export interface StudioHistoryFilterParams {
   duration_sec_min?: number;
   duration_sec_max?: number;
   is_validated?: boolean;
+  is_hitl?: boolean;
   cursor?: string | null;
 }
