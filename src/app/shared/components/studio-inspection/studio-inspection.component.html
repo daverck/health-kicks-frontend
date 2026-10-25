@@ -67,6 +67,17 @@
               <span>{{ 'studio_history.status_pending' | translate }}</span>
             </span>
           }
+
+          @if (s.is_hitl) {
+            <span
+              class="inline-flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-0.5 text-xs font-semibold text-teal-700 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-300 shrink-0"
+              [title]="'studio_history.badge_hitl_title' | translate"
+              data-testid="inspection-badge-hitl"
+            >
+              <span>🤖</span>
+              <span>HITL</span>
+            </span>
+          }
         </div>
         <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 font-mono">
           <span class="break-all">
@@ -200,6 +211,25 @@
           <span class="text-gray-400 uppercase tracking-wider text-[10px]">{{ 'studio_history.col_duration' | translate }}</span>
           <p class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ s.duration_sec | number: '1.0-1' }}s</p>
         </div>
+
+        @if (s.is_hitl) {
+          <div class="rounded-xl border border-teal-200 bg-teal-50/70 p-3 col-span-2 sm:col-span-3 dark:border-teal-800 dark:bg-teal-950/30 flex items-center justify-between" data-testid="inspection-hitl-card">
+            <div class="flex items-center gap-2.5">
+              <span class="text-lg">🤖</span>
+              <div>
+                <span class="text-teal-700 dark:text-teal-300 uppercase tracking-wider text-[10px] font-bold">
+                  {{ 'studio_history.filter_hitl' | translate }}
+                </span>
+                <p class="text-xs text-teal-800 dark:text-teal-200 font-medium">
+                  {{ 'studio_history.badge_hitl_title' | translate }}
+                </p>
+              </div>
+            </div>
+            <span class="rounded-full bg-teal-200/70 dark:bg-teal-900/60 px-2.5 py-0.5 text-[11px] font-bold text-teal-800 dark:text-teal-200">
+              HITL
+            </span>
+          </div>
+        }
       </div>
 
       <!-- Telemetry Visualisation Section -->

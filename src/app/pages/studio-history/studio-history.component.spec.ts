@@ -239,6 +239,42 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
+  it('should filter by is_hitl=false when standard only is selected', () => {
+    fixture.detectChanges();
+
+    component.selectedHitl.set('false');
+    component.onFilterChange();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      is_hitl: false,
+    });
+  });
+
+  it('should display HITL badges in mobile cards and table rows', () => {
+    const sessionsWithHitl: StudioSessionSummary[] = [
+      { ...mockStudioSessionSummaries[0], is_hitl: false },
+      { ...mockStudioSessionSummaries[1], is_hitl: true },
+    ];
+    studioHistoryServiceSpy.getSessions.and.returnValue(of({
+      items: sessionsWithHitl,
+      total: 2,
+      page: 1,
+      size: 20,
+    }));
+
+    component.loadSessions();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const hitlBadges = compiled.querySelectorAll('[data-testid="badge-hitl"]');
+    const mobileHitlBadges = compiled.querySelectorAll('[data-testid="mobile-badge-hitl"]');
+
+    expect(hitlBadges.length).toBe(1);
+    expect(mobileHitlBadges.length).toBe(1);
+  });
+
   it('should display status badges in table and drawer', () => {
     fixture.detectChanges();
 

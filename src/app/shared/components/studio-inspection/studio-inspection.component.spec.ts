@@ -482,4 +482,19 @@ describe('StudioInspectionComponent', () => {
     const updateBtn = compiled.querySelector('#update-label-btn');
     expect(updateBtn).toBeTruthy();
   });
+  it('should render HITL badge and info card when session is recorded in HITL mode', () => {
+    fixture.componentRef.setInput('session', {
+      ...mockStudioSessionSummaries[1],
+      is_hitl: true,
+    });
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const hitlBadge = compiled.querySelector('[data-testid="inspection-badge-hitl"]');
+    const hitlCard = compiled.querySelector('[data-testid="inspection-hitl-card"]');
+
+    expect(hitlBadge).not.toBeNull();
+    expect(hitlBadge?.textContent).toContain('HITL');
+    expect(hitlCard).not.toBeNull();
+  });
 });
