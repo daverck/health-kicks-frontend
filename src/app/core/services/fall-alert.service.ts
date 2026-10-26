@@ -41,6 +41,7 @@ export interface FallAlertsQuery {
   startDate?: string;
   endDate?: string;
   userId?: number | string | null;
+  user_id?: number | string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -108,11 +109,16 @@ export class FallAlertService {
     if (query.endDate) {
       params['end_date'] = query.endDate;
     }
-    if (query.userId !== undefined && query.userId !== null && String(query.userId).trim() !== '') {
-      params['user_id'] = String(query.userId).trim();
+    const targetUserId = query.user_id !== undefined ? query.user_id : query.userId;
+    if (targetUserId !== undefined && targetUserId !== null && String(targetUserId).trim() !== '') {
+      params['user_id'] = String(targetUserId).trim();
     }
 
     return this.http.get<PaginatedFallAlertsResponse>(`${this.base}/fall-alerts`, { params });
+  }
+
+  listAlerts(query: FallAlertsQuery = {}): Observable<PaginatedFallAlertsResponse> {
+    return this.listFallAlerts(query);
   }
 
   getFallAlertDetail(alertId: number): Observable<FallAlertDetail> {

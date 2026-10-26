@@ -201,7 +201,8 @@
                 @if (isAdmin()) {
                   <div>
                     <span class="text-gray-400">{{ 'fall_alerts.col_patient' | translate }} :</span>
-                    <strong class="ml-1">{{ alert.user_display_name }}</strong>
+                    <strong class="ml-1">Patient {{ alert.subject_pseudonym || alert.user_display_name }}</strong>
+                    <span class="ml-1 text-[10px] text-gray-400 font-mono">(#{{ alert.user_id }})</span>
                   </div>
                 }
                 <div>
@@ -350,7 +351,8 @@
                   </td>
                   @if (isAdmin()) {
                     <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
-                      {{ alert.user_display_name }}
+                      <span>Patient {{ alert.subject_pseudonym || alert.user_display_name }}</span>
+                      <span class="ml-1.5 inline-block text-[11px] font-mono text-gray-400 dark:text-gray-500">(#{{ alert.user_id }})</span>
                     </td>
                   }
                   <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
@@ -767,6 +769,16 @@
 
       <!-- Summary Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4 text-sm dark:bg-gray-800/50">
+        @if (isAdmin()) {
+          <div>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_patient' | translate }}</span>
+            <p class="mt-1 font-semibold text-gray-900 dark:text-white">
+              Patient {{ detail.subject_pseudonym || detail.user_display_name }}
+              <span class="text-xs font-mono text-gray-400 font-normal">(#{{ detail.user_id }})</span>
+            </p>
+          </div>
+        }
+
         <div>
           <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_state' | translate }}</span>
           <div class="mt-1">
