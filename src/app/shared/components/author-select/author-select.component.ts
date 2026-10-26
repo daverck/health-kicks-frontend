@@ -34,6 +34,7 @@ export class AuthorSelectComponent {
   readonly disabled = input<boolean>(false);
   readonly size = input<'sm' | 'md'>('md');
   readonly fullWidth = input<boolean>(false);
+  readonly customClass = input<string>('');
   readonly triggerId = input<string>('author-select-trigger');
 
   // Outputs
@@ -85,7 +86,7 @@ export class AuthorSelectComponent {
 
   readonly triggerSizeClasses = computed<string>(() => {
     return this.size() === 'sm'
-      ? 'rounded-lg px-3 py-1.5 text-xs'
+      ? 'h-9 rounded-lg px-3 py-1.5 text-xs'
       : 'rounded-xl px-4 py-2.5 text-sm';
   });
 

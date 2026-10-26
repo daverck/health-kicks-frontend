@@ -31,6 +31,7 @@ export class DateFilterComponent {
   // Styling & Options
   readonly size = input<'sm' | 'md'>('sm');
   readonly fullWidth = input<boolean>(false);
+  readonly customClass = input<string>('');
   readonly placeholder = input<string>('');
   readonly triggerId = input<string>('date-filter-trigger');
   readonly dropdownAlign = input<'left' | 'right'>('left');
@@ -74,8 +75,8 @@ export class DateFilterComponent {
 
   readonly triggerSizeClasses = computed<string>(() => {
     return this.size() === 'sm'
-      ? 'rounded-lg px-2.5 py-1.5 text-xs'
-      : 'rounded-xl px-4 py-2 text-sm';
+      ? 'h-9 rounded-lg px-2.5 py-1.5 text-xs'
+      : 'h-10 rounded-xl px-4 py-2 text-sm';
   });
 
   readonly dropdownAlignmentClass = computed<string>(() => {

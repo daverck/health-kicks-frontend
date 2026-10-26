@@ -86,20 +86,19 @@
   <!-- ONGLET 1 : HISTORIQUE DES ALERTES                        -->
   <!-- ======================================================== -->
   @if (activeTab() === 'history') {
-    <!-- Filters Bar -->
-    <div class="card flex flex-wrap items-end gap-4 p-4">
+    <!-- Filters Bar (Mobile only) -->
+    <div class="card flex flex-wrap items-end gap-3 p-4 md:hidden">
       <!-- State filter -->
       <div class="w-full sm:w-56">
         <label
-          for="state-filter-select"
+          for="mobile-state-filter-select"
           class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
         >
           {{ 'fall_alerts.filter_state' | translate }}
         </label>
         <select
-          id="state-filter-select"
-          data-testid="state-filter-select"
-          class="input text-sm"
+          id="mobile-state-filter-select"
+          class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
           [value]="selectedState()"
           (change)="onStateChange($event)"
         >
@@ -119,11 +118,12 @@
           Date
         </label>
         <app-date-filter
-          triggerId="fall-alerts-date-filter"
+          triggerId="mobile-fall-alerts-date-filter"
           [(startDate)]="startDate"
           [(endDate)]="endDate"
           (dateChange)="onDateChange($event)"
           size="sm"
+          [fullWidth]="true"
         />
       </div>
 
@@ -131,16 +131,15 @@
       @if (isAdmin()) {
         <div class="w-full sm:w-48">
           <label
-            for="admin-user-id-filter"
+            for="mobile-admin-user-id-filter"
             class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
           >
             {{ 'fall_alerts.filter_user_id' | translate }}
           </label>
           <input
-            id="admin-user-id-filter"
-            data-testid="admin-user-id-filter"
+            id="mobile-admin-user-id-filter"
             type="text"
-            class="input text-sm"
+            class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
             [placeholder]="'fall_alerts.filter_user_placeholder' | translate"
             [ngModel]="userIdFilter()"
             (ngModelChange)="onUserIdFilterChange($event)"
@@ -234,36 +233,103 @@
       <section class="card hidden overflow-x-auto p-0 md:block">
         <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
           <thead class="bg-gray-50 dark:bg-gray-800/80">
+            <!-- Row 1: Column Titles -->
             <tr>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[170px]">
                 {{ 'fall_alerts.col_detected_at' | translate }}
               </th>
               @if (isAdmin()) {
-                <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">
                   {{ 'fall_alerts.col_patient' | translate }}
                 </th>
               }
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
                 {{ 'fall_alerts.col_device' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">
                 {{ 'fall_alerts.col_fall_type' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[170px]">
                 {{ 'fall_alerts.col_state' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[160px]">
                 {{ 'fall_alerts.col_resolution' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
                 {{ 'fall_alerts.col_notified' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[110px]">
                 {{ 'fall_alerts.col_location' | translate }}
               </th>
-              <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">
+              <th scope="col" class="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
                 {{ 'fall_alerts.col_actions' | translate }}
               </th>
+            </tr>
+            <!-- Row 2: Filters directly above corresponding columns -->
+            <tr class="border-t border-gray-200 bg-gray-50/70 font-normal dark:border-gray-750 dark:bg-gray-800/50">
+              <!-- Detected at: Date Filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <app-date-filter
+                  triggerId="fall-alerts-date-filter"
+                  [(startDate)]="startDate"
+                  [(endDate)]="endDate"
+                  (dateChange)="onDateChange($event)"
+                  size="sm"
+                  [fullWidth]="true"
+                />
+              </th>
+
+              <!-- Patient (Admin only): User ID filter -->
+              @if (isAdmin()) {
+                <th scope="col" class="px-4 py-2 text-left">
+                  <input
+                    id="admin-user-id-filter"
+                    data-testid="admin-user-id-filter"
+                    type="text"
+                    class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
+                    [placeholder]="'fall_alerts.filter_user_placeholder' | translate"
+                    [ngModel]="userIdFilter()"
+                    (ngModelChange)="onUserIdFilterChange($event)"
+                  />
+                </th>
+              }
+
+              <!-- Device: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Fall type: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- State: State filter -->
+              <th scope="col" class="px-4 py-2 text-left">
+                <select
+                  id="state-filter-select"
+                  data-testid="state-filter-select"
+                  class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  [value]="selectedState()"
+                  (change)="onStateChange($event)"
+                >
+                  <option value="all">{{ 'fall_alerts.filter_all_states' | translate }}</option>
+                  <option value="PENDING">{{ 'fall_alerts.state_PENDING' | translate }}</option>
+                  <option value="ESCALATING">{{ 'fall_alerts.state_ESCALATING' | translate }}</option>
+                  <option value="ACKNOWLEDGED">{{ 'fall_alerts.state_ACKNOWLEDGED' | translate }}</option>
+                  <option value="CANCELLED">{{ 'fall_alerts.state_CANCELLED' | translate }}</option>
+                  <option value="EXHAUSTED">{{ 'fall_alerts.state_EXHAUSTED' | translate }}</option>
+                  <option value="SUPPRESSED">{{ 'fall_alerts.state_SUPPRESSED' | translate }}</option>
+                </select>
+              </th>
+
+              <!-- Resolution: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Notified contacts: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Location: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
+
+              <!-- Actions: no filter -->
+              <th scope="col" class="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-50 dark:divide-gray-800">

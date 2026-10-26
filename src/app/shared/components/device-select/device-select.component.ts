@@ -36,6 +36,7 @@ export class DeviceSelectComponent implements OnInit {
   readonly disabled = input<boolean>(false);
   readonly size = input<'sm' | 'md'>('md');
   readonly fullWidth = input<boolean>(false);
+  readonly customClass = input<string>('');
   readonly placeholder = input<string>('');
   readonly triggerId = input<string>('device-select-trigger');
   readonly autoSelectFirst = input<boolean>(false);
@@ -140,7 +141,7 @@ export class DeviceSelectComponent implements OnInit {
 
   readonly triggerSizeClasses = computed<string>(() => {
     return this.size() === 'sm'
-      ? 'rounded-lg px-3 py-1.5 text-xs'
+      ? 'h-9 rounded-lg px-3 py-1.5 text-xs'
       : 'rounded-xl px-4 py-3 text-sm';
   });
 

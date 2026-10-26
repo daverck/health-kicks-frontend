@@ -5,7 +5,7 @@
     type="button"
     (click)="toggleDropdown()"
     class="flex items-center justify-between gap-2 border text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-    [class]="triggerSizeClasses()"
+    [class]="triggerSizeClasses() + (customClass() ? ' ' + customClass() : '')"
     [class.w-full]="fullWidth()"
     [class.min-w-36]="!fullWidth()"
     [class.border-primary-400]="hasActiveFilter()"

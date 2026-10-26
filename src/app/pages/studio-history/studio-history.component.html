@@ -93,7 +93,7 @@
             id="mobile-filter-validated"
             [ngModel]="selectedValidated()"
             (ngModelChange)="selectedValidated.set($event); onFilterChange()"
-            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+            class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
           >
             <option value="all">{{ 'studio_history.filter_all_statuses' | translate }}</option>
             <option value="true">✅ {{ 'studio_history.status_validated' | translate }}</option>
@@ -110,7 +110,7 @@
             id="mobile-filter-hitl"
             [ngModel]="selectedHitl()"
             (ngModelChange)="selectedHitl.set($event); onFilterChange()"
-            class="w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+            class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
             data-testid="mobile-filter-hitl-select"
           >
             <option value="all">{{ 'studio_history.filter_all_hitl' | translate }}</option>
@@ -419,7 +419,7 @@
                 id="filter-validated"
                 [ngModel]="selectedValidated()"
                 (ngModelChange)="selectedValidated.set($event); onFilterChange()"
-                class="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                 data-testid="filter-validated-select"
               >
                 <option value="all">{{ 'studio_history.filter_all_statuses' | translate }}</option>
@@ -549,7 +549,7 @@
                   id="reset-filters-header-btn"
                   type="button"
                   (click)="resetFilters()"
-                  class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary-600 hover:bg-primary-50 hover:text-primary-800 transition"
+                  class="inline-flex h-9 items-center gap-1 rounded-md px-2.5 text-xs font-semibold text-primary-600 hover:bg-primary-50 hover:text-primary-800 transition"
                   [title]="'studio_history.reset_filters' | translate"
                 >
                   ✕ <span class="hidden xl:inline">{{ 'studio_history.reset_filters' | translate }}</span>
