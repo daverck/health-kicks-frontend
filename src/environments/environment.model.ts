@@ -1,7 +1,9 @@
 import { UserRole } from '../app/models/api.models';
 
 export interface MockUserConfig {
-  id: number;
+  id?: number;
+  uuid?: string;
+  pseudonym?: string;
   email: string;
   role: UserRole;
   name: string;

@@ -224,9 +224,9 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
     if (this.isAdmin()) {
       if (this.selectedUserIds().length > 0) {
-        params.user_id = this.selectedUserIds();
+        params.pseudonym = this.selectedUserIds().map(String);
       } else if (this.filterUserId().trim()) {
-        params.user_id = this.filterUserId().trim();
+        params.pseudonym = this.filterUserId().trim();
       }
     }
 

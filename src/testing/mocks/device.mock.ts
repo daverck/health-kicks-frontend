@@ -17,7 +17,7 @@ export const mockDeviceCreate: DeviceCreate = {
 };
 
 export const mockBoundDevice: DeviceResponse = {
-  id: 3,
+  uuid: 'd0000000-0000-0000-0000-000000000003',
   device_id: 'HK-SHOE-001',
   name: 'Chaussure Droite',
   status: 'offline',
@@ -31,7 +31,7 @@ export const mockBoundDevice: DeviceResponse = {
 
 export const mockDevices: DeviceResponse[] = [
   {
-    id: 1,
+    uuid: 'd0000000-0000-0000-0000-000000000001',
     device_id: 'hk-device-0001',
     name: 'Bracelet Démo — Marie D.',
     status: 'online',
@@ -43,7 +43,7 @@ export const mockDevices: DeviceResponse[] = [
     last_calibration_time: '2026-09-01T11:45:00Z',
   },
   {
-    id: 2,
+    uuid: 'd0000000-0000-0000-0000-000000000002',
     device_id: 'hk-device-0002',
     name: 'Bracelet Test — Salle 4',
     status: 'offline',

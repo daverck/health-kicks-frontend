@@ -13,12 +13,12 @@ export class UserService {
     return this.http.get<UserResponse>(`${this.base}/auth/me`);
   }
 
-  updateUser(userId: number, payload: UserUpdate): Observable<UserResponse> {
-    return this.http.patch<UserResponse>(`${this.base}/users/${userId}`, payload);
+  updateUser(userUuid: string, payload: UserUpdate): Observable<UserResponse> {
+    return this.http.patch<UserResponse>(`${this.base}/users/${userUuid}`, payload);
   }
 
-  /** Local profile update (name/email) — falls back to PATCH /users/{id}. */
-  updateProfile(userId: number, payload: { name?: string; email?: string }): Observable<UserResponse> {
-    return this.http.patch<UserResponse>(`${this.base}/users/${userId}`, payload);
+  /** Local profile update (name/email) — falls back to PATCH /users/{user_uuid}. */
+  updateProfile(userUuid: string, payload: { name?: string; email?: string }): Observable<UserResponse> {
+    return this.http.patch<UserResponse>(`${this.base}/users/${userUuid}`, payload);
   }
 }

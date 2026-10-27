@@ -21,7 +21,8 @@ describe('FallAlertsComponent', () => {
   let userSignal: WritableSignal<UserResponse | null>;
 
   const mockUser: UserResponse = {
-    id: 3,
+    uuid: '00000000-0000-0000-0000-000000000003',
+    pseudonym: 'SUBJ-ADM-0003',
     email: 'admin@example.com',
     name: 'Admin Clinician',
     role: 'admin',

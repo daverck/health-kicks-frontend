@@ -87,7 +87,7 @@ export class ProfileComponent implements OnInit {
     this.errorMessage.set(null);
 
     const payload = this.form.value;
-    this.userService.updateProfile(user.id, payload).subscribe({
+    this.userService.updateProfile(user.uuid, payload).subscribe({
       next: (updated) => {
         this.saving.set(false);
         this.toast.success('Profil mis à jour !');

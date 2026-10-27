@@ -44,7 +44,8 @@ describe('MockAuthService', () => {
   it('devrait exposer un profil utilisateur par défaut valide', () => {
     const user = service.user();
     expect(user).not.toBeNull();
-    expect(user?.id).toBe(1);
+    expect(user?.uuid).toBe('00000000-0000-0000-0000-000000000001');
+    expect(user?.pseudonym).toBe('SUBJ-DEV-0001');
     expect(user?.email).toBe('serckdavid@gmail.com');
     expect(user?.role).toBe('admin');
     expect(user?.name).toBe('David Serck');
@@ -54,7 +55,7 @@ describe('MockAuthService', () => {
   it('devrait retourner le profil mocké via loadMe sans appel HTTP', () => {
     return new Promise<void>((resolve) => {
       service.loadMe().subscribe((user) => {
-        expect(user.id).toBe(1);
+        expect(user.uuid).toBe('00000000-0000-0000-0000-000000000001');
         expect(user.email).toBe('serckdavid@gmail.com');
         expect(user.role).toBe('admin');
         resolve();
@@ -69,7 +70,7 @@ describe('MockAuthService', () => {
     return new Promise<void>((resolve) => {
       service.login('autre@healthkicks.local', 'password').subscribe((res) => {
         expect(res.access_token).toBe('mock-dev-jwt-token');
-        expect(res.user?.id).toBe(1);
+        expect(res.user?.uuid).toBe('00000000-0000-0000-0000-000000000001');
         resolve();
       });
 

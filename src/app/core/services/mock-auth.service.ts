@@ -11,7 +11,8 @@ import { AuthService, OAuthProvider } from './auth.service';
 @Injectable()
 export class MockAuthService extends AuthService {
   private readonly mockUser: UserResponse = {
-    id: environment.mockUser?.id ?? 1,
+    uuid: environment.mockUser?.uuid ?? '00000000-0000-0000-0000-000000000001',
+    pseudonym: environment.mockUser?.pseudonym ?? 'SUBJ-DEV-0001',
     email: environment.mockUser?.email ?? 'serckdavid@gmail.com',
     name: environment.mockUser?.name ?? 'David Serck',
     role: environment.mockUser?.role ?? 'admin',

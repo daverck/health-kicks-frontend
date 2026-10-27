@@ -3,7 +3,8 @@ import { UserResponse } from '../../app/models/api.models';
 export const MOCK_TOKEN = 'mock-jwt-token-xyz123';
 
 export const mockUser: UserResponse = {
-  id: 1,
+  uuid: '00000000-0000-0000-0000-000000000001',
+  pseudonym: 'SUBJ-USR-0001',
   email: 'test@healthkicks.local',
   name: 'Testeur HealthKicks',
   avatar_url: null,
@@ -12,7 +13,8 @@ export const mockUser: UserResponse = {
 };
 
 export const mockAdminUser: UserResponse = {
-  id: 2,
+  uuid: '00000000-0000-0000-0000-000000000002',
+  pseudonym: 'SUBJ-ADM-0002',
   email: 'admin@healthkicks.local',
   name: 'Admin HealthKicks',
   avatar_url: null,

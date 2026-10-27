@@ -5,7 +5,7 @@ import { DeviceResponse } from '../../../models/api.models';
 
 const mockDevices: DeviceResponse[] = [
   {
-    id: 1,
+    uuid: 'd0000000-0000-0000-0000-000000000001',
     device_id: 'hk-dev-001',
     name: 'Clip Gauche Sport',
     status: 'online',
@@ -13,7 +13,7 @@ const mockDevices: DeviceResponse[] = [
     created_at: '2026-01-01T00:00:00Z',
   },
   {
-    id: 2,
+    uuid: 'd0000000-0000-0000-0000-000000000002',
     device_id: 'hk-dev-002',
     name: 'Clip Droit Confort',
     status: 'offline',
@@ -21,7 +21,7 @@ const mockDevices: DeviceResponse[] = [
     created_at: '2026-01-01T00:00:00Z',
   },
   {
-    id: 3,
+    uuid: 'd0000000-0000-0000-0000-000000000003',
     device_id: 'hk-dev-003',
     name: 'Prototype Clinique',
     status: 'online',

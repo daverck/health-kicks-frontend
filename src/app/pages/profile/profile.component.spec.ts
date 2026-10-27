@@ -79,9 +79,9 @@ describe('ProfileComponent', () => {
     component.save();
 
     expect(userServiceSpy.updateProfile).toHaveBeenCalled();
-    const [calledUserId, payload] = userServiceSpy.updateProfile.calls.mostRecent().args;
+    const [calledUserUuid, payload] = userServiceSpy.updateProfile.calls.mostRecent().args;
 
-    expect(calledUserId).toBe(mockUser.id);
+    expect(calledUserUuid).toBe(mockUser.uuid);
     expect(payload).toEqual({ name: 'Nouveau Nom' });
     expect('email' in payload).toBeFalse();
     expect(toastServiceSpy.success).toHaveBeenCalledWith('Profil mis à jour !');

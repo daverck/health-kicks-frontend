@@ -24,7 +24,8 @@ describe('StudioHistoryComponent', () => {
   let toastSpy: jasmine.SpyObj<ToastService>;
 
   const regularUser: UserResponse = {
-    id: 42,
+    uuid: '00000000-0000-0000-0000-000000000042',
+    pseudonym: 'SUBJ-USR-0042',
     email: 'user@test.com',
     name: 'Normal User',
     role: 'user',
@@ -32,7 +33,8 @@ describe('StudioHistoryComponent', () => {
   };
 
   const adminUser: UserResponse = {
-    id: 1,
+    uuid: '00000000-0000-0000-0000-000000000001',
+    pseudonym: 'SUBJ-ADM-0001',
     email: 'admin@test.com',
     name: 'Admin Boss',
     role: 'admin',
@@ -169,7 +171,7 @@ describe('StudioHistoryComponent', () => {
       size: 20,
       label: 'fall_forward',
       device_id: 'hk-device-0001',
-      user_id: '2',
+      pseudonym: '2',
       start_date: '2026-09-01',
       end_date: '2026-09-10',
       sample_count_min: 100,
@@ -209,7 +211,7 @@ describe('StudioHistoryComponent', () => {
       size: 20,
       label: ['walk', 'run'],
       device_id: ['HK-1', 'HK-2'],
-      user_id: [1, 2],
+      pseudonym: ['1', '2'],
     });
   });
 

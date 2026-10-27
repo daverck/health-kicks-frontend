@@ -48,7 +48,7 @@ describe('StudioHistoryService', () => {
         size: 10,
         label: 'fall_forward',
         device_id: 'hk-device-0001',
-        user_id: 42,
+        pseudonym: 'SUBJ-USR-0042',
         sample_count_min: 100,
         sample_count_max: 500,
         duration_sec_min: 2.5,
@@ -65,7 +65,7 @@ describe('StudioHistoryService', () => {
     expect(req.request.params.get('size')).toBe('10');
     expect(req.request.params.get('label')).toBe('fall_forward');
     expect(req.request.params.get('device_id')).toBe('hk-device-0001');
-    expect(req.request.params.get('user_id')).toBe('42');
+    expect(req.request.params.get('pseudonym')).toBe('SUBJ-USR-0042');
     expect(req.request.params.get('sample_count_min')).toBe('100');
     expect(req.request.params.get('sample_count_max')).toBe('500');
     expect(req.request.params.get('duration_sec_min')).toBe('2.5');
@@ -158,7 +158,7 @@ describe('StudioHistoryService', () => {
       .getSessions({
         label: ['walk', 'run'],
         device_id: ['HK-1', 'HK-2'],
-        user_id: [1, 2],
+        pseudonym: ['SUBJ-001', 'SUBJ-002'],
       })
       .subscribe((res) => {
         expect(res).toEqual(mockPaginatedSessionsResponse);
@@ -168,7 +168,7 @@ describe('StudioHistoryService', () => {
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('label')).toBe('walk,run');
     expect(req.request.params.get('device_id')).toBe('HK-1,HK-2');
-    expect(req.request.params.get('user_id')).toBe('1,2');
+    expect(req.request.params.get('pseudonym')).toBe('SUBJ-001,SUBJ-002');
     req.flush(mockPaginatedSessionsResponse);
   });
 

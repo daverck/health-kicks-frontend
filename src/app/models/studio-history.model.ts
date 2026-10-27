@@ -3,6 +3,9 @@ import type { components } from './generated-api.types';
 export type StudioSessionSummary = components['schemas']['StudioSessionSummary'] & {
   is_hitl?: boolean;
 };
+export type StudioSessionDetail = components['schemas']['StudioSessionDetail'] & {
+  is_hitl?: boolean;
+};
 export type PaginatedSessionsResponse = components['schemas']['PaginatedSessionsResponse'];
 export type StudioAuthorSummary = components['schemas']['StudioAuthorSummary'];
 export type StudioSessionUpdatePayload = components['schemas']['StudioSessionUpdatePayload'];
@@ -13,6 +16,7 @@ export interface StudioHistoryFilterParams {
   size?: number;
   label?: string | string[];
   device_id?: string | string[];
+  pseudonym?: string | string[];
   user_id?: number | string | (number | string)[];
   start_date?: string;
   end_date?: string;

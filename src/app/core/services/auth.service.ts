@@ -290,7 +290,8 @@ export class AuthService {
       const payload = JSON.parse(jsonStr);
       if (payload && payload.role && payload.sub) {
         return {
-          id: Number(payload.sub),
+          uuid: String(payload.sub),
+          pseudonym: payload.pseudonym || '',
           email: payload.email || '',
           name: payload.name || null,
           role: payload.role,

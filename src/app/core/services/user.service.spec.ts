@@ -40,13 +40,13 @@ describe('UserService', () => {
     req.flush(mockUser);
   });
 
-  it('should update user via PATCH /users/{id}', () => {
+  it('should update user via PATCH /users/{user_uuid}', () => {
     const updated = { ...mockUser, is_active: false };
-    service.updateUser(1, { is_active: false }).subscribe((user) => {
+    service.updateUser(mockUser.uuid, { is_active: false }).subscribe((user) => {
       expect(user.is_active).toBeFalse();
     });
 
-    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/1`);
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/${mockUser.uuid}`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ is_active: false });
     req.flush(updated);
@@ -54,11 +54,11 @@ describe('UserService', () => {
 
   it('should update profile via updateProfile()', () => {
     const updated = { ...mockUser, name: 'Nom Modifié' };
-    service.updateProfile(1, { name: 'Nom Modifié' }).subscribe((user) => {
+    service.updateProfile(mockUser.uuid, { name: 'Nom Modifié' }).subscribe((user) => {
       expect(user.name).toBe('Nom Modifié');
     });
 
-    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/1`);
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/${mockUser.uuid}`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ name: 'Nom Modifié' });
     req.flush(updated);

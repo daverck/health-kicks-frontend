@@ -18,9 +18,13 @@ export class DeviceService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/v1`;
 
-  listDevices(skip = 0, limit = 100): Observable<DeviceResponse[]> {
+  listDevices(skip = 0, limit = 100, userUuid?: string): Observable<DeviceResponse[]> {
+    const params: Record<string, string> = { skip: String(skip), limit: String(limit) };
+    if (userUuid) {
+      params['user_uuid'] = userUuid;
+    }
     return this.http.get<DeviceResponse[]>(`${this.base}/devices`, {
-      params: { skip: String(skip), limit: String(limit) },
+      params,
     });
   }
 
@@ -28,8 +32,8 @@ export class DeviceService {
     return this.http.post<DeviceResponse>(`${this.base}/devices`, payload);
   }
 
-  unbindDevice(deviceId: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/devices/${deviceId}`);
+  unbindDevice(deviceIdentifier: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/devices/${deviceIdentifier}`);
   }
 
   getBindErrorMessage(err: unknown): string {

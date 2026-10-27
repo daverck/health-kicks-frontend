@@ -13,7 +13,8 @@ describe('DashboardLayoutComponent', () => {
   let userSignal: WritableSignal<UserResponse | null>;
 
   const mockUser: UserResponse = {
-    id: 1,
+    uuid: '00000000-0000-0000-0000-000000000001',
+    pseudonym: 'SUBJ-USR-0001',
     email: 'user@test.com',
     name: 'Jane Doe',
     role: 'user',
@@ -21,7 +22,8 @@ describe('DashboardLayoutComponent', () => {
   };
 
   const mockClinician: UserResponse = {
-    id: 2,
+    uuid: '00000000-0000-0000-0000-000000000002',
+    pseudonym: 'SUBJ-CLI-0002',
     email: 'clinician@test.com',
     name: 'Dr. House',
     role: 'clinician',
@@ -29,7 +31,8 @@ describe('DashboardLayoutComponent', () => {
   };
 
   const mockAdmin: UserResponse = {
-    id: 3,
+    uuid: '00000000-0000-0000-0000-000000000003',
+    pseudonym: 'SUBJ-ADM-0003',
     email: 'admin@test.com',
     name: 'Admin Boss',
     role: 'admin',

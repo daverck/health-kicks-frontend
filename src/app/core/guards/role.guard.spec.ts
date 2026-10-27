@@ -16,21 +16,24 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
   let router: Router;
 
   const mockAdmin: UserResponse = {
-    id: 1,
+    uuid: '00000000-0000-0000-0000-000000000001',
+    pseudonym: 'SUBJ-ADM-0001',
     email: 'admin@test.com',
     role: 'admin',
     is_active: true,
   };
 
   const mockClinician: UserResponse = {
-    id: 2,
+    uuid: '00000000-0000-0000-0000-000000000002',
+    pseudonym: 'SUBJ-CLI-0002',
     email: 'clinician@test.com',
     role: 'clinician',
     is_active: true,
   };
 
   const mockUser: UserResponse = {
-    id: 3,
+    uuid: '00000000-0000-0000-0000-000000000003',
+    pseudonym: 'SUBJ-USR-0003',
     email: 'user@test.com',
     role: 'user',
     is_active: true,

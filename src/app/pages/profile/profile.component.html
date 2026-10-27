@@ -47,7 +47,7 @@
         </div>
       </div>
       <dl class="mt-6 grid gap-4 border-t border-gray-100 dark:border-gray-800 pt-6 text-sm sm:grid-cols-3">
-        <div><dt class="text-gray-500 dark:text-gray-400">{{ 'profile.user_id' | translate }}</dt><dd class="mt-0.5 font-mono text-gray-800 dark:text-gray-200">{{ user.id }}</dd></div>
+        <div><dt class="text-gray-500 dark:text-gray-400">{{ 'profile.user_id' | translate }}</dt><dd class="mt-0.5 font-mono text-gray-800 dark:text-gray-200">{{ user.pseudonym || user.uuid }}</dd></div>
         <div><dt class="text-gray-500 dark:text-gray-400">{{ 'profile.role' | translate }}</dt><dd id="profile-role-field" class="mt-0.5 font-semibold text-gray-800 dark:text-gray-200">{{ roleLabel(user.role) }}</dd></div>
         <div><dt class="text-gray-500 dark:text-gray-400">{{ 'profile.provider' | translate }}</dt><dd class="mt-0.5 text-gray-800 dark:text-gray-200">{{ user.avatar_url ? 'Google SSO' : 'Email / mot de passe' }}</dd></div>
       </dl>

@@ -46,12 +46,13 @@ export class StudioHistoryService {
           httpParams = httpParams.set('device_id', val);
         }
       }
-      if (params.user_id !== undefined && params.user_id !== null) {
-        const val = Array.isArray(params.user_id)
-          ? params.user_id.map(String).filter((u) => u && u !== 'all').join(',')
-          : String(params.user_id).trim();
+      const targetUser = params.pseudonym ?? params.user_id;
+      if (targetUser !== undefined && targetUser !== null) {
+        const val = Array.isArray(targetUser)
+          ? targetUser.map(String).filter((u) => u && u !== 'all').join(',')
+          : String(targetUser).trim();
         if (val && val !== 'all') {
-          httpParams = httpParams.set('user_id', val);
+          httpParams = httpParams.set('pseudonym', val);
         }
       }
       if (params.start_date && params.start_date.trim()) {

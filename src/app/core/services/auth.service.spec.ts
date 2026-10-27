@@ -425,7 +425,7 @@ describe('AuthService', () => {
 
       const newService = TestBed.runInInjectionContext(() => new AuthService());
       expect(newService.user()).toEqual(jasmine.objectContaining({
-        id: 42,
+        uuid: '42',
         email: 'doc@hk.local',
         role: 'clinician',
       }));
@@ -435,7 +435,7 @@ describe('AuthService', () => {
       const payloadBase64 = btoa(JSON.stringify({ sub: '99', email: 'tamper@hk.local', role: 'user' }));
       const jwtToken = `header.${payloadBase64}.signature`;
       localStorage.setItem('hk_access_token', jwtToken);
-      localStorage.setItem('hk_user', JSON.stringify({ id: 99, email: 'tamper@hk.local', role: 'admin', is_active: true }));
+      localStorage.setItem('hk_user', JSON.stringify({ uuid: '99', pseudonym: 'SUBJ-99', email: 'tamper@hk.local', role: 'admin', is_active: true }));
 
       const newService = TestBed.runInInjectionContext(() => new AuthService());
       expect(newService.user()?.role).toBe('user');

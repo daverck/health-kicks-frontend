@@ -931,7 +931,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users/{user_id}": {
+    "/api/v1/users/{user_uuid}": {
         parameters: {
             query?: never;
             header?: never;
@@ -948,7 +948,7 @@ export interface paths {
          * Update User
          * @description Update user profile. Users can only update their own profile; admins can update anyone.
          */
-        patch: operations["update_user_api_v1_users__user_id__patch"];
+        patch: operations["update_user_api_v1_users__user_uuid__patch"];
         trace?: never;
     };
     "/health": {
@@ -1229,11 +1229,14 @@ export interface components {
          */
         DeviceCreate: {
             /** Device Id */
-            device_id: string;
+            device_id?: string | null;
             /** Name */
             name?: string | null;
-            /** User Id */
-            user_id?: number | null;
+            /**
+             * User Uuid
+             * Format: uuid
+             */
+            user_uuid?: string | null;
         };
         /**
          * DevicePresencePayload
@@ -1281,8 +1284,6 @@ export interface components {
             device_id: string;
             /** Firmware Version */
             firmware_version?: string | null;
-            /** Id */
-            id: number;
             /**
              * Is Online
              * @default false
@@ -1297,6 +1298,11 @@ export interface components {
             /** Name */
             name?: string | null;
             status: components["schemas"]["DeviceStatus"];
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
         };
         /**
          * DeviceStatus
@@ -1909,6 +1915,17 @@ export interface components {
          */
         StudioAuthorSummary: {
             /**
+             * Author Pseudonym
+             * @description Deterministic author pseudonym
+             */
+            author_pseudonym?: string | null;
+            /**
+             * Author Uuid
+             * Format: uuid
+             * @description Unique author UUID
+             */
+            author_uuid?: string | null;
+            /**
              * Email
              * @description User email address
              */
@@ -1966,6 +1983,13 @@ export interface components {
         StudioSessionDetail: {
             /** Author Name */
             author_name?: string | null;
+            /** Author Pseudonym */
+            author_pseudonym?: string | null;
+            /**
+             * Author Uuid
+             * Format: uuid
+             */
+            author_uuid?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -2030,6 +2054,13 @@ export interface components {
         StudioSessionSummary: {
             /** Author Name */
             author_name?: string | null;
+            /** Author Pseudonym */
+            author_pseudonym?: string | null;
+            /**
+             * Author Uuid
+             * Format: uuid
+             */
+            author_uuid?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -2191,16 +2222,25 @@ export interface components {
         UserResponse: {
             /** Avatar Url */
             avatar_url?: string | null;
+            /** Created At */
+            created_at?: string;
             /** Email */
             email: string;
-            /** Id */
-            id: number;
             /** Is Active */
             is_active: boolean;
+            /** Last Login Utc */
+            last_login_utc?: string | null;
             /** Name */
             name?: string | null;
+            /** Pseudonym */
+            pseudonym: string;
             /** Role */
             role: string;
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
         };
         /**
          * UserRole
@@ -2593,8 +2633,8 @@ export interface operations {
     list_devices_api_v1_devices_get: {
         parameters: {
             query?: {
-                /** @description Optional user ID filter for admins */
-                user_id?: number | null;
+                /** @description Optional user UUID filter for admins */
+                user_uuid?: string | null;
                 /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
                 cursor?: string | null;
                 skip?: number;
@@ -3516,8 +3556,8 @@ export interface operations {
                 label?: string | null;
                 /** @description Single device ID or comma-separated list of device IDs */
                 device_id?: string | null;
-                /** @description Single user ID or comma-separated list of user IDs */
-                user_id?: string | null;
+                /** @description Filtrer par pseudonyme de l'auteur (admin) */
+                pseudonym?: string | null;
                 /** @description Filtrer par statut de validation de la session */
                 is_validated?: boolean | null;
                 /** @description Date/heure de début (inclusive, ISO 8601) */
@@ -3994,12 +4034,16 @@ export interface operations {
             };
         };
     };
-    update_user_api_v1_users__user_id__patch: {
+    update_user_api_v1_users__user_uuid__patch: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                user_id: number;
+                /**
+                 * User Uuid
+                 * Format: uuid
+                 */
+                user_uuid: string;
             };
             cookie?: never;
         };
