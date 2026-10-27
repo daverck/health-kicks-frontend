@@ -5,6 +5,7 @@ import {
 
 export const mockStudioSessionSummaries: StudioSessionSummary[] = [
   {
+    uuid: 'sess-001',
     id: 'sess-001',
     device_id: 'hk-device-0001',
     user_id: 1,
@@ -18,6 +19,7 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     is_validated: true,
   },
   {
+    uuid: 'sess-002',
     id: 'sess-002',
     device_id: 'hk-device-0001',
     user_id: 2,
@@ -31,6 +33,7 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     is_validated: false,
   },
   {
+    uuid: 'sess-003',
     id: 'sess-003',
     device_id: 'hk-device-0002',
     user_id: 1,

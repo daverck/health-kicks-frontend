@@ -84,7 +84,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly selectedDeviceId = signal<string>('');
   readonly selectedDeviceIds = signal<string[]>([]);
   readonly filterUserId = signal<string>('');
-  readonly selectedUserIds = signal<number[]>([]);
+  readonly selectedUserIds = signal<(string | number)[]>([]);
   readonly authors = signal<StudioAuthorSummary[]>([]);
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
@@ -311,7 +311,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.onFilterChange();
   }
 
-  onUserIdsChange(userIds: number[]): void {
+  onUserIdsChange(userIds: (string | number)[]): void {
     this.selectedUserIds.set(userIds);
     this.filterUserId.set(userIds.join(','));
     this.onFilterChange();
@@ -406,7 +406,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
-    const previous = this.sessions().find((session) => session.id === updated.id);
+    const previous = this.sessions().find((session) => (session.uuid ?? session.id) === (updated.uuid ?? updated.id));
     this.inspectingSession.set(updated);
     const statusFilter = this.selectedValidated();
     if (
@@ -431,10 +431,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   onSessionDeletedFromInspection(sessionId: string): void {
-    this.sessions.update((items) => items.filter((it) => it.id !== sessionId));
+    this.sessions.update((items) => items.filter((it) => (it.uuid ?? it.id) !== sessionId && it.id !== sessionId));
     this.total.update((t) => Math.max(0, t - 1));
 
-    if (this.inspectingSession()?.id === sessionId) {
+    if ((this.inspectingSession()?.uuid ?? this.inspectingSession()?.id) === sessionId) {
       this.closeInspection();
     }
 
@@ -469,11 +469,11 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   executeDeleteSession(sessionId: string): void {
     // Immediately dismiss confirmation popup and remove from list
     this.sessionToDelete.set(null);
-    this.sessions.update((items) => items.filter((it) => it.id !== sessionId));
+    this.sessions.update((items) => items.filter((it) => (it.uuid ?? it.id) !== sessionId && it.id !== sessionId));
     this.total.update((t) => Math.max(0, t - 1));
 
     // Close inspection drawer if the deleted session was open
-    if (this.inspectingSession()?.id === sessionId) {
+    if ((this.inspectingSession()?.uuid ?? this.inspectingSession()?.id) === sessionId) {
       this.closeInspection();
     }
 

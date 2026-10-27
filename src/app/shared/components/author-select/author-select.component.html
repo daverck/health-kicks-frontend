@@ -58,7 +58,7 @@
         <div class="flex items-center gap-1.5 truncate">
           <span class="text-xs">👤</span>
           <span class="font-semibold text-gray-900 dark:text-gray-100 truncate">
-            {{ author.name || author.email }}
+            {{ author.name || author.author_pseudonym || author.email }}
           </span>
         </div>
         <svg
@@ -170,29 +170,29 @@
             {{ 'studio_history.no_author_found' | translate }}
           </div>
         } @else {
-          @for (author of filteredAuthors(); track author.id) {
+          @for (author of filteredAuthors(); track getAuthorKey(author)) {
             <button
               type="button"
               (click)="toggleAuthor(author)"
               class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition hover:bg-gray-50 dark:hover:bg-gray-700"
-              [class.bg-primary-50]="isAuthorSelected(author.id)"
-              [class.text-primary-900]="isAuthorSelected(author.id)"
-              [class.dark:bg-primary-950/60]="isAuthorSelected(author.id)"
-              [class.dark:text-primary-300]="isAuthorSelected(author.id)"
-              [attr.data-testid]="'author-option-' + author.id"
+              [class.bg-primary-50]="isAuthorSelected(author)"
+              [class.text-primary-900]="isAuthorSelected(author)"
+              [class.dark:bg-primary-950/60]="isAuthorSelected(author)"
+              [class.dark:text-primary-300]="isAuthorSelected(author)"
+              [attr.data-testid]="'author-option-' + getAuthorKey(author)"
             >
               <div class="flex items-center gap-2.5 truncate pr-2">
                 @if (multiple()) {
                   <input
                     type="checkbox"
-                    [checked]="isAuthorSelected(author.id)"
+                    [checked]="isAuthorSelected(author)"
                     class="h-3.5 w-3.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 pointer-events-none dark:border-gray-600"
                   />
                 }
                 <span class="text-xs">👤</span>
                 <div class="truncate">
                   <span class="font-medium text-gray-900 dark:text-gray-100 truncate">
-                    {{ author.name || author.email }}
+                    {{ author.name || author.author_pseudonym || author.email }}
                   </span>
                   @if (author.name && author.email) {
                     <span class="text-[10px] text-gray-400 dark:text-gray-400 ml-1.5 font-mono">
@@ -202,7 +202,7 @@
                 </div>
               </div>
 
-              @if (!multiple() && isAuthorSelected(author.id)) {
+              @if (!multiple() && isAuthorSelected(author)) {
                 <span class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
               }
             </button>
@@ -212,4 +212,3 @@
     </div>
   }
 </div>
-

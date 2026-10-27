@@ -66,8 +66,20 @@ describe('StudioHistoryComponent', () => {
     studioHistoryServiceSpy.deleteSession.and.returnValue(of(undefined));
     studioHistoryServiceSpy.getAuthors.and.returnValue(
       of([
-        { id: 1, email: 'admin@healthkicks.org', name: 'Admin Boss' },
-        { id: 2, email: 'clinician@healthkicks.org', name: 'Dr. Clinician' },
+        {
+          author_uuid: '00000000-0000-0000-0000-000000000001',
+          author_pseudonym: 'SUBJ-USR-0001',
+          email: 'admin@healthkicks.org',
+          name: 'Admin Boss',
+          is_pseudonymized: false,
+        },
+        {
+          author_uuid: '00000000-0000-0000-0000-000000000002',
+          author_pseudonym: 'SUBJ-USR-0002',
+          email: 'clinician@healthkicks.org',
+          name: 'Dr. Clinician',
+          is_pseudonymized: false,
+        },
       ])
     );
 
@@ -718,6 +730,7 @@ describe('StudioHistoryComponent', () => {
     // In rendered table
     component.sessions.set([
       {
+        uuid: 'sess-custom',
         id: 'sess-custom',
         device_id: 'hk-esp32-001',
         user_id: 1,
@@ -796,6 +809,7 @@ describe('StudioHistoryComponent', () => {
   it('should render experimental tag for custom sessions in mobile cards and desktop table', () => {
     const customSession = {
       ...mockStudioSessionSummaries[0],
+      uuid: 'sess-custom-99',
       id: 'sess-custom-99',
       label: 'breakdance',
     };

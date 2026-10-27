@@ -4,9 +4,27 @@ import { AuthorSelectComponent } from './author-select.component';
 import { StudioAuthorSummary } from '../../../models/studio-history.model';
 
 const mockAuthors: StudioAuthorSummary[] = [
-  { id: 1, email: 'alice@example.com', name: 'Dr. Alice' },
-  { id: 2, email: 'bob@example.com', name: 'Dr. Bob' },
-  { id: 3, email: 'charlie@example.com', name: null },
+  {
+    author_uuid: '11111111-1111-1111-1111-111111111111',
+    author_pseudonym: 'HK-ALICE',
+    email: 'alice@example.com',
+    name: 'Dr. Alice',
+    is_pseudonymized: false,
+  },
+  {
+    author_uuid: '22222222-2222-2222-2222-222222222222',
+    author_pseudonym: 'HK-BOB',
+    email: 'bob@example.com',
+    name: 'Dr. Bob',
+    is_pseudonymized: false,
+  },
+  {
+    author_uuid: '33333333-3333-3333-3333-333333333333',
+    author_pseudonym: 'HK-CHARLIE',
+    email: 'charlie@example.com',
+    name: null,
+    is_pseudonymized: false,
+  },
 ];
 
 @Component({
@@ -29,8 +47,8 @@ const mockAuthors: StudioAuthorSummary[] = [
 })
 class HostComponent {
   readonly authors = signal<StudioAuthorSummary[]>(mockAuthors);
-  readonly selectedUserId = signal<number | null>(null);
-  readonly selectedUserIds = signal<number[]>([]);
+  readonly selectedUserId = signal<string | number | null>(null);
+  readonly selectedUserIds = signal<(string | number)[]>([]);
   readonly multiple = signal<boolean>(true);
   readonly allowAll = signal<boolean>(true);
   readonly disabled = signal<boolean>(false);
@@ -38,7 +56,7 @@ class HostComponent {
   readonly fullWidth = signal<boolean>(false);
 
   lastAuthorChange: StudioAuthorSummary | null = null;
-  lastUserIdsChange: number[] = [];
+  lastUserIdsChange: (string | number)[] = [];
 }
 
 describe('AuthorSelectComponent', () => {
@@ -89,7 +107,7 @@ describe('AuthorSelectComponent', () => {
     component.searchQuery.set('Bob');
     fixture.detectChanges();
     expect(component.filteredAuthors().length).toBe(1);
-    expect(component.filteredAuthors()[0].id).toBe(2);
+    expect(component.filteredAuthors()[0].author_pseudonym).toBe('HK-BOB');
 
     component.searchQuery.set('xyz');
     fixture.detectChanges();
@@ -100,19 +118,19 @@ describe('AuthorSelectComponent', () => {
     component.toggleDropdown();
     fixture.detectChanges();
 
-    const opt1: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-1"]');
+    const opt1: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-HK-ALICE"]');
     opt1.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual([1]);
-    expect(host.lastUserIdsChange).toEqual([1]);
+    expect(host.selectedUserIds()).toEqual(['HK-ALICE']);
+    expect(host.lastUserIdsChange).toEqual(['HK-ALICE']);
     expect(component.selectedCount()).toBe(1);
 
-    const opt2: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-2"]');
+    const opt2: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-HK-BOB"]');
     opt2.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual([1, 2]);
+    expect(host.selectedUserIds()).toEqual(['HK-ALICE', 'HK-BOB']);
     expect(component.selectedCount()).toBe(2);
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#author-select-trigger');
@@ -122,12 +140,12 @@ describe('AuthorSelectComponent', () => {
     opt1.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual([2]);
+    expect(host.selectedUserIds()).toEqual(['HK-BOB']);
     expect(component.selectedCount()).toBe(1);
   });
 
   it('should reset to all when selectAll() is clicked in multiple mode', () => {
-    host.selectedUserIds.set([1, 2]);
+    host.selectedUserIds.set(['HK-ALICE', 'HK-BOB']);
     fixture.detectChanges();
     expect(component.isAllSelected()).toBeFalse();
 
@@ -150,13 +168,12 @@ describe('AuthorSelectComponent', () => {
     component.toggleDropdown();
     fixture.detectChanges();
 
-    const opt1: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-1"]');
+    const opt1: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-HK-ALICE"]');
     opt1.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserId()).toBe(1);
-    expect(host.lastAuthorChange?.id).toBe(1);
+    expect(host.selectedUserId()).toBe('HK-ALICE');
+    expect(host.lastAuthorChange?.author_pseudonym).toBe('HK-ALICE');
     expect(component.isOpen()).toBeFalse();
   });
 });
-

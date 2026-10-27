@@ -70,10 +70,10 @@ describe('DeviceService', () => {
     req.flush(mockBoundDevice);
   });
 
-  it('should unbind a device via DELETE /devices/{device_id}', () => {
-    service.unbindDevice('HK-SHOE-001').subscribe();
+  it('should unbind a device via DELETE /devices/{device_uuid}', () => {
+    service.unbindDevice('d0000000-0000-0000-0000-000000000001').subscribe();
 
-    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices/HK-SHOE-001`);
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices/d0000000-0000-0000-0000-000000000001`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null, { status: 204, statusText: 'No Content' });
   });

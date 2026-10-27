@@ -1931,11 +1931,6 @@ export interface components {
              */
             email: string;
             /**
-             * Id
-             * @description Unique user identifier
-             */
-            id: number;
-            /**
              * Is Pseudonymized
              * @description True if author PII has been pseudonymized for privacy
              * @default false
@@ -2006,7 +2001,12 @@ export interface components {
              * Id
              * Format: uuid
              */
-            id: string;
+            id?: string;
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
             /**
              * Is Pseudonymized
              * @default false
@@ -2077,7 +2077,12 @@ export interface components {
              * Id
              * Format: uuid
              */
-            id: string;
+            id?: string;
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
             /**
              * Is Pseudonymized
              * @default false

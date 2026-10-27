@@ -597,6 +597,7 @@ export class StudioComponent implements OnInit, OnDestroy {
     }
     const sessionSummary: StudioSessionSummary | null = session
       ? {
+          uuid: session.session_id,
           id: session.session_id,
           device_id: session.device_id,
           user_id: 0,

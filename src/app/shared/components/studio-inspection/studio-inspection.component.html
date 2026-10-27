@@ -253,7 +253,7 @@
             <p class="font-medium">{{ readingsError() }}</p>
             <button
               type="button"
-              (click)="loadReadings(s.id)"
+              (click)="loadReadings(s.uuid || s.id || '')"
               class="mt-2.5 rounded-md bg-red-100 px-3 py-1 font-semibold text-red-800 hover:bg-red-200 transition"
             >
               {{ 'studio_history.retry' | translate }}

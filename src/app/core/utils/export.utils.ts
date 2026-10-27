@@ -44,14 +44,14 @@ export function exportSessionToJson(
   readings: ImuReading[],
   customFilename?: string
 ): void {
-  const sessionId = session?.id || 'session';
+  const sessionId = session?.uuid || session?.id || 'session';
   const label = session?.label || 'recording';
   const filename = customFilename || `recording_${sessionId}_${label}.json`;
 
   const payload: ExportedSessionJson = {
     session: session
       ? {
-          id: session.id,
+          id: session.uuid || session.id || '',
           device_id: session.device_id,
           label: session.label,
           sample_count: session.sample_count,

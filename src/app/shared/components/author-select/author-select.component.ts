@@ -25,8 +25,8 @@ export class AuthorSelectComponent {
 
   // Inputs & Two-way models
   readonly authors = input<StudioAuthorSummary[]>([]);
-  readonly selectedUserId = model<number | null>(null);
-  readonly selectedUserIds = model<number[]>([]);
+  readonly selectedUserId = model<string | number | null>(null);
+  readonly selectedUserIds = model<(string | number)[]>([]);
   readonly multiple = input<boolean>(true);
   readonly allowAll = input<boolean>(true);
   readonly allLabel = input<string>('');
@@ -39,7 +39,7 @@ export class AuthorSelectComponent {
 
   // Outputs
   readonly authorChange = output<StudioAuthorSummary | null>();
-  readonly userIdsChange = output<number[]>();
+  readonly userIdsChange = output<(string | number)[]>();
 
   // Internal state
   readonly isOpen = signal<boolean>(false);
@@ -59,17 +59,48 @@ export class AuthorSelectComponent {
     return this.selectedUserIds().length;
   });
 
-  isAuthorSelected(id: number): boolean {
+  getAuthorKey(author: StudioAuthorSummary): string {
+    return author.author_pseudonym || author.author_uuid || author.email;
+  }
+
+  isAuthorSelected(authorOrKey: StudioAuthorSummary | string | number): boolean {
+    const key =
+      typeof authorOrKey === 'object' && authorOrKey !== null
+        ? this.getAuthorKey(authorOrKey)
+        : String(authorOrKey);
+    const author = typeof authorOrKey === 'object' && authorOrKey !== null ? authorOrKey : null;
+
     if (this.multiple()) {
-      return this.selectedUserIds().includes(id);
+      return this.selectedUserIds().some((id) => {
+        const idStr = String(id);
+        if (idStr === key) return true;
+        if (author?.author_uuid && idStr === author.author_uuid) return true;
+        if (author?.author_pseudonym && idStr === author.author_pseudonym) return true;
+        return false;
+      });
     }
-    return this.selectedUserId() === id;
+    const current = this.selectedUserId();
+    if (current === null) return false;
+    const curStr = String(current);
+    if (curStr === key) return true;
+    if (author?.author_uuid && curStr === author.author_uuid) return true;
+    if (author?.author_pseudonym && curStr === author.author_pseudonym) return true;
+    return false;
   }
 
   readonly currentAuthor = computed<StudioAuthorSummary | null>(() => {
-    const id = this.selectedUserId();
-    if (id === null) return null;
-    return this.authors().find((a) => a.id === id) ?? null;
+    const selected = this.selectedUserId();
+    if (selected === null) return null;
+    const str = String(selected);
+    return (
+      this.authors().find(
+        (a) =>
+          this.getAuthorKey(a) === str ||
+          (a.author_uuid && a.author_uuid === str) ||
+          (a.author_pseudonym && a.author_pseudonym === str) ||
+          a.email === str
+      ) ?? null
+    );
   });
 
   readonly filteredAuthors = computed<StudioAuthorSummary[]>(() => {
@@ -80,7 +111,8 @@ export class AuthorSelectComponent {
       (a) =>
         a.email.toLowerCase().includes(query) ||
         (a.name && a.name.toLowerCase().includes(query)) ||
-        String(a.id).includes(query)
+        (a.author_pseudonym && a.author_pseudonym.toLowerCase().includes(query)) ||
+        (a.author_uuid && a.author_uuid.toLowerCase().includes(query))
     );
   });
 
@@ -116,7 +148,8 @@ export class AuthorSelectComponent {
   }
 
   selectAuthor(author: StudioAuthorSummary): void {
-    this.selectedUserId.set(author.id);
+    const key = this.getAuthorKey(author);
+    this.selectedUserId.set(key);
     this.authorChange.emit(author);
     this.closeDropdown();
   }
@@ -126,13 +159,21 @@ export class AuthorSelectComponent {
       this.selectAuthor(author);
       return;
     }
+    const key = this.getAuthorKey(author);
     const current = this.selectedUserIds();
-    const index = current.indexOf(author.id);
-    let updated: number[];
-    if (index >= 0) {
-      updated = current.filter((id) => id !== author.id);
+    const isSelected = this.isAuthorSelected(author);
+    let updated: (string | number)[];
+    if (isSelected) {
+      updated = current.filter((id) => {
+        const idStr = String(id);
+        return (
+          idStr !== key &&
+          (!author.author_uuid || idStr !== author.author_uuid) &&
+          (!author.author_pseudonym || idStr !== author.author_pseudonym)
+        );
+      });
     } else {
-      updated = [...current, author.id];
+      updated = [...current, key];
     }
     this.selectedUserIds.set(updated);
     this.userIdsChange.emit(updated);
@@ -142,7 +183,10 @@ export class AuthorSelectComponent {
     if (author.name) {
       return `${author.name} (${author.email})`;
     }
-    return author.email || `User #${author.id}`;
+    if (author.author_pseudonym) {
+      return `${author.author_pseudonym} (${author.email})`;
+    }
+    return author.email || (author.author_uuid ? `User ${author.author_uuid}` : 'User');
   }
 
   @HostListener('document:keydown.escape')
@@ -152,4 +196,3 @@ export class AuthorSelectComponent {
     }
   }
 }
-

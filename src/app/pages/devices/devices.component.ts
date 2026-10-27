@@ -123,7 +123,7 @@ export class DevicesComponent implements OnInit {
 
     this.unbinding.set(true);
 
-    this.deviceService.unbindDevice(device.device_id).subscribe({
+    this.deviceService.unbindDevice(device.uuid).subscribe({
       next: () => {
         this.unbinding.set(false);
         this.deviceToUnbind.set(null);

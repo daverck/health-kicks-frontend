@@ -32,8 +32,8 @@ export class DeviceService {
     return this.http.post<DeviceResponse>(`${this.base}/devices`, payload);
   }
 
-  unbindDevice(deviceIdentifier: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/devices/${deviceIdentifier}`);
+  unbindDevice(deviceUuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/devices/${deviceUuid}`);
   }
 
   getBindErrorMessage(err: unknown): string {

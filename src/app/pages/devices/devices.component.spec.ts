@@ -161,7 +161,7 @@ describe('DevicesComponent', () => {
 
     component.confirmUnbind();
 
-    expect(deviceServiceSpy.unbindDevice).toHaveBeenCalledWith(mockDevices[0].device_id);
+    expect(deviceServiceSpy.unbindDevice).toHaveBeenCalledWith(mockDevices[0].uuid);
     expect(toastServiceSpy.success).toHaveBeenCalledWith(
       `L'équipement ${mockDevices[0].name} a été dissocié.`
     );

@@ -8,6 +8,7 @@ import { ImuReading } from '../../models/telemetry.models';
 
 describe('export.utils', () => {
   const mockSession: StudioSessionSummary = {
+    uuid: 'sess-test-01',
     id: 'sess-test-01',
     device_id: 'hk-esp32-001',
     label: 'walk',

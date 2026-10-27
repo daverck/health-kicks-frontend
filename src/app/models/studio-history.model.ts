@@ -2,9 +2,13 @@ import type { components } from './generated-api.types';
 
 export type StudioSessionSummary = components['schemas']['StudioSessionSummary'] & {
   is_hitl?: boolean;
+  uuid: string;
+  id?: string;
 };
 export type StudioSessionDetail = components['schemas']['StudioSessionDetail'] & {
   is_hitl?: boolean;
+  uuid: string;
+  id?: string;
 };
 export type PaginatedSessionsResponse = components['schemas']['PaginatedSessionsResponse'];
 export type StudioAuthorSummary = components['schemas']['StudioAuthorSummary'];
