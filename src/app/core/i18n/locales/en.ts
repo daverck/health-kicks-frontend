@@ -317,6 +317,8 @@ export const en = {
     filter_all_states: 'All states',
     filter_user_id: 'Patient / ID (Admin)',
     filter_user_placeholder: 'SUBJ-... or ID',
+    filter_pseudonym: 'Subject pseudonym (Admin)',
+    filter_pseudonym_placeholder: 'Ex: SUBJ-A8F19C2D',
     col_detected_at: 'Date & Time',
     col_device: 'Device',
     col_patient: 'Patient',

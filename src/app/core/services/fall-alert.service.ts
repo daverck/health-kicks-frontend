@@ -40,6 +40,7 @@ export interface FallAlertsQuery {
   state?: string;
   startDate?: string;
   endDate?: string;
+  pseudonym?: string | null;
   userId?: number | string | null;
   user_id?: number | string | null;
 }
@@ -74,7 +75,7 @@ export class FallAlertService {
   }
 
   updateAlertContact(
-    contactId: number,
+    contactId: number | string,
     payload: AlertContactUpdate
   ): Observable<AlertContactResponse> {
     return this.http.patch<AlertContactResponse>(
@@ -83,11 +84,11 @@ export class FallAlertService {
     );
   }
 
-  deleteAlertContact(contactId: number): Observable<void> {
+  deleteAlertContact(contactId: number | string): Observable<void> {
     return this.http.delete<void>(`${this.base}/users/me/alert-contacts/${contactId}`);
   }
 
-  sendTestEmail(contactId: number): Observable<AlertContactTestEmailResponse> {
+  sendTestEmail(contactId: number | string): Observable<AlertContactTestEmailResponse> {
     return this.http.post<AlertContactTestEmailResponse>(
       `${this.base}/users/me/alert-contacts/${contactId}/test-email`,
       {}
@@ -109,6 +110,9 @@ export class FallAlertService {
     if (query.endDate) {
       params['end_date'] = query.endDate;
     }
+    if (query.pseudonym && query.pseudonym.trim() !== '') {
+      params['pseudonym'] = query.pseudonym.trim();
+    }
     const targetUserId = query.user_id !== undefined ? query.user_id : query.userId;
     if (targetUserId !== undefined && targetUserId !== null && String(targetUserId).trim() !== '') {
       params['user_id'] = String(targetUserId).trim();
@@ -121,7 +125,7 @@ export class FallAlertService {
     return this.listFallAlerts(query);
   }
 
-  getFallAlertDetail(alertId: number): Observable<FallAlertDetail> {
+  getFallAlertDetail(alertId: number | string): Observable<FallAlertDetail> {
     return this.http.get<FallAlertDetail>(`${this.base}/fall-alerts/${alertId}`);
   }
 

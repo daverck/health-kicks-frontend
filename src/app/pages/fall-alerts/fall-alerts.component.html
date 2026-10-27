@@ -127,22 +127,22 @@
         />
       </div>
 
-      <!-- Admin-only User ID filter -->
+      <!-- Admin-only Pseudonym filter -->
       @if (isAdmin()) {
         <div class="w-full sm:w-48">
           <label
-            for="mobile-admin-user-id-filter"
+            for="mobile-admin-pseudonym-filter"
             class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1"
           >
-            {{ 'fall_alerts.filter_user_id' | translate }}
+            {{ 'fall_alerts.filter_pseudonym' | translate }}
           </label>
           <input
-            id="mobile-admin-user-id-filter"
+            id="mobile-admin-pseudonym-filter"
             type="text"
             class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
-            [placeholder]="'fall_alerts.filter_user_placeholder' | translate"
-            [ngModel]="userIdFilter()"
-            (ngModelChange)="onUserIdFilterChange($event)"
+            [placeholder]="'fall_alerts.filter_pseudonym_placeholder' | translate"
+            [ngModel]="pseudonymFilter()"
+            (ngModelChange)="onPseudonymFilterChange($event)"
           />
         </div>
       }
@@ -201,8 +201,7 @@
                 @if (isAdmin()) {
                   <div>
                     <span class="text-gray-400">{{ 'fall_alerts.col_patient' | translate }} :</span>
-                    <strong class="ml-1">Patient {{ alert.subject_pseudonym || alert.user_display_name }}</strong>
-                    <span class="ml-1 text-[10px] text-gray-400 font-mono">(#{{ alert.user_id }})</span>
+                    <strong class="ml-1">{{ getSubjectPseudonym(alert) }}</strong>
                   </div>
                 }
                 <div>
@@ -280,17 +279,17 @@
                 />
               </th>
 
-              <!-- Patient (Admin only): User ID filter -->
+              <!-- Patient (Admin only): Pseudonym filter -->
               @if (isAdmin()) {
                 <th scope="col" class="px-4 py-2 text-left">
                   <input
-                    id="admin-user-id-filter"
-                    data-testid="admin-user-id-filter"
+                    id="admin-pseudonym-filter"
+                    data-testid="admin-pseudonym-filter"
                     type="text"
                     class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-900 placeholder-gray-400 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500"
-                    [placeholder]="'fall_alerts.filter_user_placeholder' | translate"
-                    [ngModel]="userIdFilter()"
-                    (ngModelChange)="onUserIdFilterChange($event)"
+                    [placeholder]="'fall_alerts.filter_pseudonym_placeholder' | translate"
+                    [ngModel]="pseudonymFilter()"
+                    (ngModelChange)="onPseudonymFilterChange($event)"
                   />
                 </th>
               }
@@ -351,8 +350,7 @@
                   </td>
                   @if (isAdmin()) {
                     <td class="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
-                      <span>Patient {{ alert.subject_pseudonym || alert.user_display_name }}</span>
-                      <span class="ml-1.5 inline-block text-[11px] font-mono text-gray-400 dark:text-gray-500">(#{{ alert.user_id }})</span>
+                      <span>{{ getSubjectPseudonym(alert) }}</span>
                     </td>
                   }
                   <td class="px-4 py-3 font-mono text-xs text-gray-500 dark:text-gray-400">
@@ -773,8 +771,7 @@
           <div>
             <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'fall_alerts.col_patient' | translate }}</span>
             <p class="mt-1 font-semibold text-gray-900 dark:text-white">
-              Patient {{ detail.subject_pseudonym || detail.user_display_name }}
-              <span class="text-xs font-mono text-gray-400 font-normal">(#{{ detail.user_id }})</span>
+              {{ getSubjectPseudonym(detail) }}
             </p>
           </div>
         }

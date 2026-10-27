@@ -55,7 +55,21 @@ export type FallEventPage = ActivityEventPage;
 export type AlertContactCreate = components['schemas']['AlertContactCreate'];
 export type AlertContactUpdate = components['schemas']['AlertContactUpdate'];
 export type AlertContactsOrderPayload = components['schemas']['AlertContactsOrderPayload'];
-export type AlertContactResponse = components['schemas']['AlertContactResponse'];
+
+export interface AlertContactResponse {
+  id: number;
+  uuid?: string | null;
+  user_uuid?: string | null;
+  user_pseudonym?: string | null;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string | null;
+  priority: number;
+  last_test_email_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
 export type AlertContact = AlertContactResponse;
 export type AlertContactTestEmailResponse = components['schemas']['AlertContactTestEmailResponse'];
 
@@ -77,8 +91,36 @@ export type FallAlertAcknowledgedBy = components['schemas']['FallAlertAcknowledg
 export type FallAlertLocationResponse = components['schemas']['FallAlertLocationResponse'];
 export type FallAlertNotificationResponse = components['schemas']['FallAlertNotificationResponse'];
 export type FallAlertNotification = FallAlertNotificationResponse;
-export type FallAlertSummary = components['schemas']['FallAlertSummary'];
-export type FallAlertDetail = components['schemas']['FallAlertDetail'];
+
+export interface FallAlertSummary {
+  id: number;
+  uuid?: string | null;
+  event_id: string;
+  user_id: number;
+  user_uuid?: string | null;
+  user_pseudonym?: string | null;
+  user_display_name: string;
+  subject_pseudonym: string;
+  is_pseudonymized: boolean;
+  device_id: string;
+  event_type: string;
+  confidence: number;
+  state: FallAlertState | string;
+  cancel_reason?: string | null;
+  delivery: string;
+  has_location: boolean;
+  location?: FallAlertLocationResponse | null;
+  detected_at: string;
+  escalation_started_at?: string | null;
+  closed_at?: string | null;
+  acknowledged_by?: FallAlertAcknowledgedBy | null;
+  notified_contacts_count: number;
+}
+
+export interface FallAlertDetail extends FallAlertSummary {
+  notifications: FallAlertNotificationResponse[];
+}
+
 export type PaginatedFallAlertsResponse = components['schemas']['PaginatedFallAlertsResponse'];
 
 export interface FallAlertAckInfo {

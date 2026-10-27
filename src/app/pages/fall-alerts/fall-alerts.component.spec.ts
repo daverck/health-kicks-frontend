@@ -22,19 +22,22 @@ describe('FallAlertsComponent', () => {
 
   const mockUser: UserResponse = {
     id: 3,
-    email: 'jean@example.com',
-    name: 'Jean Martin',
-    role: 'user',
+    email: 'admin@example.com',
+    name: 'Admin Clinician',
+    role: 'admin',
     is_active: true,
   };
 
   const mockAlertSummary: FallAlertSummary = {
     id: 42,
+    uuid: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     event_id: '0b6f4b1e-6a51-4c1f-9a3e-2d7f1c9b8e10',
     user_id: 3,
-    user_display_name: 'Jean Martin',
+    user_uuid: '11111111-2222-3333-4444-555555555555',
+    user_pseudonym: 'SUBJ-A8F19C2D',
+    user_display_name: 'Patient SUBJ-A8F19C2D',
     subject_pseudonym: 'SUBJ-A8F19C2D',
-    is_pseudonymized: false,
+    is_pseudonymized: true,
     device_id: 'HK-1',
     event_type: 'fall_forward',
     confidence: 0.91,
@@ -109,6 +112,9 @@ describe('FallAlertsComponent', () => {
   const mockContacts: AlertContactResponse[] = [
     {
       id: 7,
+      uuid: '77777777-8888-9999-aaaa-bbbbbbbbbbbb',
+      user_uuid: '11111111-2222-3333-4444-555555555555',
+      user_pseudonym: 'SUBJ-A8F19C2D',
       first_name: 'Marie',
       last_name: 'Dupont',
       email: 'marie.dupont@example.com',
@@ -120,6 +126,9 @@ describe('FallAlertsComponent', () => {
     },
     {
       id: 9,
+      uuid: '99999999-8888-7777-6666-555555555555',
+      user_uuid: '11111111-2222-3333-4444-555555555555',
+      user_pseudonym: 'SUBJ-A8F19C2D',
       first_name: 'Paul',
       last_name: 'Martin',
       email: 'paul.martin@example.com',
@@ -182,6 +191,38 @@ describe('FallAlertsComponent', () => {
     expect(fallAlertServiceSpy.listAlertContacts).toHaveBeenCalled();
     expect(component.alerts().length).toBe(1);
     expect(component.contacts().length).toBe(2);
+  });
+
+  it('should display the subject pseudonym in the table and modal without numeric user ID or plain name', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    // Check table row displays pseudonym
+    const patientCell = compiled.querySelector('tbody tr td:nth-child(2)');
+    expect(patientCell?.textContent?.trim()).toContain('SUBJ-A8F19C2D');
+    expect(patientCell?.textContent).not.toContain('(#3)');
+
+    // Open modal
+    component.openAlertDetail('f47ac10b-58cc-4372-a567-0e02b2c3d479');
+    fixture.detectChanges();
+
+    const modal = compiled.querySelector('[data-testid="alert-detail-modal"]');
+    expect(modal).toBeTruthy();
+    expect(modal?.textContent).toContain('SUBJ-A8F19C2D');
+    expect(modal?.textContent).not.toContain('(#3)');
+  });
+
+  it('should filter alerts by pseudonym and trigger fallAlertService with pseudonym query', () => {
+    component.onPseudonymFilterChange('SUBJ-A8F19C2D');
+    expect(component.pseudonymFilter()).toBe('SUBJ-A8F19C2D');
+    expect(fallAlertServiceSpy.listFallAlerts).toHaveBeenCalledWith(
+      jasmine.objectContaining({ pseudonym: 'SUBJ-A8F19C2D', page: 1 })
+    );
+
+    // Verify 36px/h-9 input is present in the table header
+    const input: HTMLInputElement | null = fixture.nativeElement.querySelector('[data-testid="admin-pseudonym-filter"]');
+    expect(input).toBeTruthy();
+    expect(input?.classList.contains('h-9')).toBeTrue();
   });
 
   it('should filter alerts by state and open detail modal with email/SMS notification timeline', () => {
@@ -251,7 +292,7 @@ describe('FallAlertsComponent', () => {
 
     component.openGoogleMapsForAlert(alertWithoutLoc);
 
-    expect(fallAlertServiceSpy.getFallAlertDetail).toHaveBeenCalledWith(42);
+    expect(fallAlertServiceSpy.getFallAlertDetail).toHaveBeenCalledWith('f47ac10b-58cc-4372-a567-0e02b2c3d479');
     expect(windowOpenSpy).toHaveBeenCalledWith('https://www.google.com/maps?q=50.8466,4.3528', '_blank', 'noopener,noreferrer');
   });
 
@@ -278,6 +319,7 @@ describe('FallAlertsComponent', () => {
     fallAlertServiceSpy.addAlertContact.and.returnValue(
       of({
         id: 12,
+        uuid: '12121212-3434-5656-7878-909090909090',
         first_name: 'Claire',
         last_name: 'Bernard',
         email: 'claire.bernard@example.com',
@@ -341,7 +383,7 @@ describe('FallAlertsComponent', () => {
       of({ ...mockContacts[0], last_name: 'Dupont-Martin', phone: null })
     );
     component.onSubmitContact();
-    expect(fallAlertServiceSpy.updateAlertContact).toHaveBeenCalledWith(7, {
+    expect(fallAlertServiceSpy.updateAlertContact).toHaveBeenCalledWith('77777777-8888-9999-aaaa-bbbbbbbbbbbb', {
       first_name: 'Marie',
       last_name: 'Dupont-Martin',
       email: 'marie.dupont@example.com',
@@ -365,7 +407,7 @@ describe('FallAlertsComponent', () => {
       of({ status: 'sent', contact_id: 9, sent_at: '2026-10-23T09:15:00Z', sms_dispatched: false })
     );
     component.sendTestEmail(mockContacts[1]);
-    expect(fallAlertServiceSpy.sendTestEmail).toHaveBeenCalledWith(9);
+    expect(fallAlertServiceSpy.sendTestEmail).toHaveBeenCalledWith('99999999-8888-7777-6666-555555555555');
     expect(toastServiceSpy.success).toHaveBeenCalledWith(
       jasmine.stringMatching('paul.martin@example.com')
     );
@@ -373,7 +415,7 @@ describe('FallAlertsComponent', () => {
     // Delete
     fallAlertServiceSpy.deleteAlertContact.and.returnValue(of(void 0));
     component.deleteContact(mockContacts[0]);
-    expect(fallAlertServiceSpy.deleteAlertContact).toHaveBeenCalledWith(7);
+    expect(fallAlertServiceSpy.deleteAlertContact).toHaveBeenCalledWith('77777777-8888-9999-aaaa-bbbbbbbbbbbb');
   });
 
   it('should show the email + SMS toast when the test SMS was dispatched', () => {

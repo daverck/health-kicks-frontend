@@ -18,6 +18,9 @@ describe('FallAlertService', () => {
 
   const mockContact: AlertContactResponse = {
     id: 7,
+    uuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    user_uuid: '11111111-2222-3333-4444-555555555555',
+    user_pseudonym: 'SUBJ-A8F19C2D',
     first_name: 'Marie',
     last_name: 'Dupont',
     email: 'marie.dupont@example.com',
@@ -42,6 +45,8 @@ describe('FallAlertService', () => {
   it('should list emergency contacts via GET /users/me/alert-contacts', () => {
     service.listAlertContacts().subscribe((contacts) => {
       expect(contacts).toEqual([mockContact]);
+      expect(contacts[0].uuid).toBe('a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+      expect(contacts[0].user_pseudonym).toBe('SUBJ-A8F19C2D');
     });
 
     const req = httpMock.expectOne(`${base}/users/me/alert-contacts`);
@@ -77,35 +82,35 @@ describe('FallAlertService', () => {
     req.flush([mockContact]);
   });
 
-  it('should update an emergency contact via PATCH /users/me/alert-contacts/{id}', () => {
+  it('should update an emergency contact via PATCH /users/me/alert-contacts/{id} (numeric or UUID)', () => {
     const updatePayload = { last_name: 'Dupont-Martin' };
 
-    service.updateAlertContact(7, updatePayload).subscribe((updated) => {
+    service.updateAlertContact('a1b2c3d4-e5f6-7890-abcd-ef1234567890', updatePayload).subscribe((updated) => {
       expect(updated.last_name).toBe('Dupont-Martin');
     });
 
-    const req = httpMock.expectOne(`${base}/users/me/alert-contacts/7`);
+    const req = httpMock.expectOne(`${base}/users/me/alert-contacts/a1b2c3d4-e5f6-7890-abcd-ef1234567890`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual(updatePayload);
     req.flush({ ...mockContact, last_name: 'Dupont-Martin' });
   });
 
-  it('should delete an emergency contact via DELETE /users/me/alert-contacts/{id}', () => {
-    service.deleteAlertContact(7).subscribe();
+  it('should delete an emergency contact via DELETE /users/me/alert-contacts/{id} (numeric or UUID)', () => {
+    service.deleteAlertContact('a1b2c3d4-e5f6-7890-abcd-ef1234567890').subscribe();
 
-    const req = httpMock.expectOne(`${base}/users/me/alert-contacts/7`);
+    const req = httpMock.expectOne(`${base}/users/me/alert-contacts/a1b2c3d4-e5f6-7890-abcd-ef1234567890`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
 
-  it('should send a test email via POST /users/me/alert-contacts/{id}/test-email', () => {
+  it('should send a test email via POST /users/me/alert-contacts/{id}/test-email (numeric or UUID)', () => {
     const mockRes = { status: 'sent', contact_id: 7, sent_at: '2026-10-23T08:10:00Z' };
 
-    service.sendTestEmail(7).subscribe((res) => {
+    service.sendTestEmail('a1b2c3d4-e5f6-7890-abcd-ef1234567890').subscribe((res) => {
       expect(res).toEqual(mockRes);
     });
 
-    const req = httpMock.expectOne(`${base}/users/me/alert-contacts/7/test-email`);
+    const req = httpMock.expectOne(`${base}/users/me/alert-contacts/a1b2c3d4-e5f6-7890-abcd-ef1234567890/test-email`);
     expect(req.request.method).toBe('POST');
     req.flush(mockRes);
   });
@@ -145,14 +150,42 @@ describe('FallAlertService', () => {
     req.flush(mockPage);
   });
 
-  it('should fetch fall alert detail via GET /fall-alerts/{id}', () => {
+  it('should filter fall alerts by pseudonym via GET /fall-alerts', () => {
+    const mockPage: PaginatedFallAlertsResponse = {
+      items: [],
+      total: 0,
+      page: 1,
+      page_size: 20,
+    };
+
+    service
+      .listFallAlerts({
+        pseudonym: 'SUBJ-A8F19C2D',
+      })
+      .subscribe((page) => {
+        expect(page).toEqual(mockPage);
+      });
+
+    const req = httpMock.expectOne(
+      (r) =>
+        r.url === `${base}/fall-alerts` &&
+        r.params.get('pseudonym') === 'SUBJ-A8F19C2D'
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush(mockPage);
+  });
+
+  it('should fetch fall alert detail via GET /fall-alerts/{id} (numeric or UUID)', () => {
     const mockDetail: FallAlertDetail = {
       id: 42,
+      uuid: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
       event_id: '0b6f4b1e-6a51-4c1f-9a3e-2d7f1c9b8e10',
       user_id: 3,
-      user_display_name: 'Jean Martin',
+      user_uuid: '11111111-2222-3333-4444-555555555555',
+      user_pseudonym: 'SUBJ-A8F19C2D',
+      user_display_name: 'Patient SUBJ-A8F19C2D',
       subject_pseudonym: 'SUBJ-A8F19C2D',
-      is_pseudonymized: false,
+      is_pseudonymized: true,
       device_id: 'HK-1',
       event_type: 'fall_forward',
       confidence: 0.91,
@@ -174,11 +207,13 @@ describe('FallAlertService', () => {
       notifications: [],
     };
 
-    service.getFallAlertDetail(42).subscribe((detail) => {
+    service.getFallAlertDetail('f47ac10b-58cc-4372-a567-0e02b2c3d479').subscribe((detail) => {
       expect(detail).toEqual(mockDetail);
+      expect(detail.uuid).toBe('f47ac10b-58cc-4372-a567-0e02b2c3d479');
+      expect(detail.user_pseudonym).toBe('SUBJ-A8F19C2D');
     });
 
-    const req = httpMock.expectOne(`${base}/fall-alerts/42`);
+    const req = httpMock.expectOne(`${base}/fall-alerts/f47ac10b-58cc-4372-a567-0e02b2c3d479`);
     expect(req.request.method).toBe('GET');
     req.flush(mockDetail);
   });
@@ -186,7 +221,7 @@ describe('FallAlertService', () => {
   it('should fetch acknowledgment info via GET /fall-alerts/ack/info', () => {
     const mockAckInfo: FallAlertAckInfo = {
       alert_id: 42,
-      patient_name: 'Jean Martin',
+      patient_name: 'Patient SUBJ-A8F19C2D',
       contact_name: 'Marie Dupont',
       detected_at: '2026-10-23T15:30:00Z',
       detected_at_paris: '23/10/2026 à 17:30:00',
@@ -204,7 +239,7 @@ describe('FallAlertService', () => {
 
     service.getAckInfo('sample-token-123').subscribe((info) => {
       expect(info).toEqual(mockAckInfo);
-      expect(info.patient_name).toBe('Jean Martin');
+      expect(info.patient_name).toBe('Patient SUBJ-A8F19C2D');
       expect(info.state).toBe('ESCALATING');
     });
 

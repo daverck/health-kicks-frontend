@@ -58,13 +58,18 @@ export class FallAlertsComponent implements OnInit {
   readonly selectedState = signal<string>('all');
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
-  readonly userIdFilter = signal<string>('');
+  readonly pseudonymFilter = signal<string>('');
   readonly page = signal<number>(1);
   readonly pageSize = 20;
   readonly total = signal<number | null>(null);
   readonly totalPages = signal<number>(0);
   readonly loadingAlerts = signal<boolean>(true);
   readonly alertsError = signal<boolean>(false);
+
+  // Backward compatibility alias for userIdFilter
+  get userIdFilter() {
+    return this.pseudonymFilter;
+  }
 
   // Detail modal
   readonly selectedAlertDetail = signal<FallAlertDetail | null>(null);
@@ -77,8 +82,8 @@ export class FallAlertsComponent implements OnInit {
   readonly editingContact = signal<AlertContactResponse | null>(null);
   readonly submittingContact = signal<boolean>(false);
   readonly reordering = signal<boolean>(false);
-  readonly sendingTestContactId = signal<number | null>(null);
-  readonly deletingContactId = signal<number | null>(null);
+  readonly sendingTestContactId = signal<number | string | null>(null);
+  readonly deletingContactId = signal<number | string | null>(null);
   readonly contactFormError = signal<string | null>(null);
 
   readonly maxContactsReached = computed(
@@ -89,7 +94,7 @@ export class FallAlertsComponent implements OnInit {
     first_name: ['', [Validators.required, Validators.maxLength(100)]],
     last_name: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(320)]],
-    phone: ['', [Validators.maxLength(32), Validators.pattern(/^\s*(\+?[0-9\s().\-]{6,32})?\s*$/)]],
+    phone: ['', [Validators.maxLength(32), Validators.pattern(/^\s*(\+?[0-9\s().-]{6,32})?\s*$/)]],
   });
 
   ngOnInit(): void {
@@ -131,10 +136,14 @@ export class FallAlertsComponent implements OnInit {
     this.loadAlerts();
   }
 
-  onUserIdFilterChange(value: string): void {
-    this.userIdFilter.set(value);
+  onPseudonymFilterChange(value: string): void {
+    this.pseudonymFilter.set(value);
     this.page.set(1);
     this.loadAlerts();
+  }
+
+  onUserIdFilterChange(value: string): void {
+    this.onPseudonymFilterChange(value);
   }
 
   goToPage(p: number): void {
@@ -146,6 +155,8 @@ export class FallAlertsComponent implements OnInit {
     this.loadingAlerts.set(true);
     this.alertsError.set(false);
 
+    const filterVal = this.isAdmin() ? this.pseudonymFilter() : undefined;
+
     this.fallAlertService
       .listFallAlerts({
         page: this.page(),
@@ -153,7 +164,7 @@ export class FallAlertsComponent implements OnInit {
         state: this.selectedState(),
         startDate: this.startDate(),
         endDate: this.endDate(),
-        userId: this.isAdmin() ? this.userIdFilter() : undefined,
+        pseudonym: filterVal,
       })
       .subscribe({
         next: (res) => {
@@ -173,7 +184,7 @@ export class FallAlertsComponent implements OnInit {
       });
   }
 
-  openAlertDetail(alertId: number): void {
+  openAlertDetail(alertId: number | string): void {
     this.loadingDetail.set(true);
     this.fallAlertService.getFallAlertDetail(alertId).subscribe({
       next: (detail) => {
@@ -254,6 +265,11 @@ export class FallAlertsComponent implements OnInit {
     return '—';
   }
 
+  getSubjectPseudonym(alert: FallAlertSummary | FallAlertDetail | null | undefined): string {
+    if (!alert) return '—';
+    return alert.user_pseudonym || alert.subject_pseudonym || alert.user_display_name || '—';
+  }
+
   getGoogleMapsUrl(lat: number, lon: number): string {
     return `https://www.google.com/maps?q=${lat},${lon}`;
   }
@@ -266,7 +282,8 @@ export class FallAlertsComponent implements OnInit {
       window.open(this.getGoogleMapsUrl(alert.location.lat, alert.location.lon), '_blank', 'noopener,noreferrer');
       return;
     }
-    this.fallAlertService.getFallAlertDetail(alert.id).subscribe({
+    const alertId = alert.uuid ?? alert.id;
+    this.fallAlertService.getFallAlertDetail(alertId).subscribe({
       next: (detail) => {
         if (detail.location) {
           window.open(this.getGoogleMapsUrl(detail.location.lat, detail.location.lon), '_blank', 'noopener,noreferrer');
@@ -347,7 +364,8 @@ export class FallAlertsComponent implements OnInit {
         email: payload.email,
         phone: payload.phone ?? null,
       };
-      this.fallAlertService.updateAlertContact(editing.id, updatePayload).subscribe({
+      const contactIdentifier = editing.uuid ?? editing.id;
+      this.fallAlertService.updateAlertContact(contactIdentifier, updatePayload).subscribe({
         next: () => {
           this.submittingContact.set(false);
           this.cancelEditContact();
@@ -378,13 +396,14 @@ export class FallAlertsComponent implements OnInit {
   }
 
   deleteContact(contact: AlertContactResponse): void {
+    const contactIdentifier = contact.uuid ?? contact.id;
     if (this.deletingContactId() !== null) return;
-    this.deletingContactId.set(contact.id);
+    this.deletingContactId.set(contactIdentifier);
 
-    this.fallAlertService.deleteAlertContact(contact.id).subscribe({
+    this.fallAlertService.deleteAlertContact(contactIdentifier).subscribe({
       next: () => {
         this.deletingContactId.set(null);
-        if (this.editingContact()?.id === contact.id) {
+        if (this.editingContact()?.id === contact.id || (contact.uuid && this.editingContact()?.uuid === contact.uuid)) {
           this.cancelEditContact();
         }
         this.toast.success(this.translation.translate('fall_alerts.toast_contact_deleted'));
@@ -434,10 +453,11 @@ export class FallAlertsComponent implements OnInit {
   }
 
   sendTestEmail(contact: AlertContactResponse): void {
+    const contactIdentifier = contact.uuid ?? contact.id;
     if (this.sendingTestContactId() !== null) return;
-    this.sendingTestContactId.set(contact.id);
+    this.sendingTestContactId.set(contactIdentifier);
 
-    this.fallAlertService.sendTestEmail(contact.id).subscribe({
+    this.fallAlertService.sendTestEmail(contactIdentifier).subscribe({
       next: (res) => {
         this.sendingTestContactId.set(null);
         this.contacts.update((list) =>

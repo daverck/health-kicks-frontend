@@ -285,6 +285,8 @@ export const fr = {
     filter_all_states: 'Tous les états',
     filter_user_id: 'Patient / ID (Admin)',
     filter_user_placeholder: 'SUBJ-... ou ID',
+    filter_pseudonym: 'Pseudonyme sujet (Admin)',
+    filter_pseudonym_placeholder: 'Ex: SUBJ-A8F19C2D',
     col_detected_at: 'Date & Heure',
     col_device: 'Équipement',
     col_patient: 'Patient',
