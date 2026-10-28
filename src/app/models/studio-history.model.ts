@@ -2,11 +2,13 @@ import type { components } from './generated-api.types';
 
 export type StudioSessionSummary = components['schemas']['StudioSessionSummary'] & {
   is_hitl?: boolean;
+  classification?: 'all' | 'edge_ai' | 'research';
   uuid: string;
   id?: string;
 };
 export type StudioSessionDetail = components['schemas']['StudioSessionDetail'] & {
   is_hitl?: boolean;
+  classification?: 'all' | 'edge_ai' | 'research';
   uuid: string;
   id?: string;
 };
@@ -30,5 +32,6 @@ export interface StudioHistoryFilterParams {
   duration_sec_max?: number;
   is_validated?: boolean;
   is_hitl?: boolean;
+  classification?: 'all' | 'edge_ai' | 'research';
   cursor?: string | null;
 }

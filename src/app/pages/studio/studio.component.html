@@ -149,6 +149,27 @@
               [class.dark:text-gray-200]="selectedLabel() !== label.id || customLabel()"
             >
 
+              <!-- Activity Classification Badge -->
+              <span
+                class="absolute top-2 right-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold border"
+                [class.bg-emerald-50]="isEdgeAiActivity(label.id)"
+                [class.text-emerald-700]="isEdgeAiActivity(label.id)"
+                [class.border-emerald-200]="isEdgeAiActivity(label.id)"
+                [class.dark:bg-emerald-950/50]="isEdgeAiActivity(label.id)"
+                [class.dark:text-emerald-300]="isEdgeAiActivity(label.id)"
+                [class.dark:border-emerald-800]="isEdgeAiActivity(label.id)"
+                [class.bg-purple-50]="!isEdgeAiActivity(label.id)"
+                [class.text-purple-700]="!isEdgeAiActivity(label.id)"
+                [class.border-purple-200]="!isEdgeAiActivity(label.id)"
+                [class.dark:bg-purple-950/50]="!isEdgeAiActivity(label.id)"
+                [class.dark:text-purple-300]="!isEdgeAiActivity(label.id)"
+                [class.dark:border-purple-800]="!isEdgeAiActivity(label.id)"
+                data-testid="studio-activity-classification-badge"
+              >
+                <span>{{ isEdgeAiActivity(label.id) ? '⚡' : '🧪' }}</span>
+                <span>{{ (isEdgeAiActivity(label.id) ? 'studio_history.badge_edge_ai' : 'studio_history.badge_research') | translate }}</span>
+              </span>
+
               <div
                 class="mt-1 flex h-12 w-12 items-center justify-center rounded-2xl transition duration-200"
                 [class.bg-primary-100]="selectedLabel() === label.id && !customLabel()"
@@ -210,6 +231,14 @@
             [class.text-gray-700]="!isCustomCardActive()"
             [class.dark:text-gray-200]="!isCustomCardActive()"
           >
+              <!-- Activity Classification Badge -->
+              <span
+                class="absolute top-2 right-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold border bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800"
+                data-testid="studio-custom-classification-badge"
+              >
+                <span>🧪</span>
+                <span>{{ 'studio_history.badge_research' | translate }}</span>
+              </span>
             <div class="flex flex-col items-center w-full">
               <!-- Icon -->
               <div

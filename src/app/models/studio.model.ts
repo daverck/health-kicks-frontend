@@ -141,3 +141,28 @@ export const CUSTOM_LABEL_ICON = '🧪';
 
 export const CUSTOM_LABEL_BADGE_CLASS =
   'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800';
+
+
+export const EDGE_AI_ACTIVITY_IDS = new Set<string>([
+  'idle',
+  'walk',
+  'run',
+  'stairs',
+  'stairs_up',
+  'stairs_down',
+  'sit_down',
+  'stand_up',
+  'fall_forward',
+  'fall_backward',
+  'fall_lateral',
+  'fall_recovery',
+  'stumble_recover',
+  'fall_generic',
+]);
+
+export function isEdgeAiActivity(labelId: string | null | undefined): boolean {
+  if (!labelId) return false;
+  return EDGE_AI_ACTIVITY_IDS.has(labelId.toLowerCase().trim());
+}
+
+export type ActivityClassificationType = 'all' | 'edge_ai' | 'research';

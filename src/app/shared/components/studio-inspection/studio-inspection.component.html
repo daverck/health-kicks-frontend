@@ -39,6 +39,24 @@
             <span>{{ getLabelDisplayName(s.label) }}</span>
           </span>
 
+          @if (isEdgeAiActivity(s.label)) {
+            <span
+              class="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800 shrink-0"
+              data-testid="inspection-badge-edge-ai"
+            >
+              <span>⚡</span>
+              <span>{{ 'studio_history.badge_edge_ai' | translate }}</span>
+            </span>
+          } @else {
+            <span
+              class="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800 shrink-0"
+              data-testid="inspection-badge-research"
+            >
+              <span>🧪</span>
+              <span>{{ 'studio_history.badge_research' | translate }}</span>
+            </span>
+          }
+
           @if (isCustomStudioLabel(s.label)) {
             <span
               class="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-semibold text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800 shrink-0"
@@ -128,7 +146,7 @@
         @if (!isStandalone()) {
           <!-- Open in Full Page Link -->
           <a
-            [routerLink]="['/dashboard/studio/history', s.id]"
+            [routerLink]="['/dashboard/studio/history', s.uuid]"
             class="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1.5 sm:px-2.5 sm:py-1.5 text-xs font-medium text-gray-700 shadow-2xs hover:bg-gray-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
             [title]="'studio_history.open_full_page' | translate"
             [attr.aria-label]="'studio_history.open_full_page' | translate"

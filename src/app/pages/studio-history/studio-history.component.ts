@@ -28,6 +28,8 @@ import {
   PredefinedLabel,
   isStandardStudioLabel,
   isCustomStudioLabel,
+  isEdgeAiActivity,
+  ActivityClassificationType,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from '../../models/studio.model';
@@ -68,6 +70,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly predefinedLabels: PredefinedLabel[] = PREDEFINED_LABELS;
   readonly isStandardStudioLabel = isStandardStudioLabel;
   readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly isEdgeAiActivity = isEdgeAiActivity;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   // Pagination & List State
@@ -94,6 +97,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly durationMax = signal<number | null>(null);
   readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
   readonly selectedHitl = signal<'all' | 'true' | 'false'>('all');
+  readonly selectedClassification = signal<ActivityClassificationType>('all');
   readonly devices = signal<DeviceResponse[]>([]);
   readonly showMobileFilters = signal<boolean>(false);
 
@@ -121,7 +125,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       this.durationMin() !== null ||
       this.durationMax() !== null ||
       this.selectedValidated() !== 'all' ||
-      this.selectedHitl() !== 'all'
+      this.selectedHitl() !== 'all' ||
+      this.selectedClassification() !== 'all'
     );
   });
 
@@ -262,6 +267,9 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     } else if (this.selectedHitl() === 'false') {
       params.is_hitl = false;
     }
+    if (this.selectedClassification() !== 'all') {
+      params.classification = this.selectedClassification();
+    }
 
     this.studioHistoryService.getSessions(params).subscribe({
       next: (res) => {
@@ -336,6 +344,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.durationMax.set(null);
     this.selectedValidated.set('all');
     this.selectedHitl.set('all');
+    this.selectedClassification.set('all');
     this.resetPageCursors();
     this.page.set(1);
     this.loadSessions();

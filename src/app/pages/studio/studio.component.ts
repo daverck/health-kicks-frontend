@@ -19,6 +19,7 @@ import {
   STANDARD_STUDIO_LABEL_IDS,
   isStandardStudioLabel,
   isCustomStudioLabel,
+  isEdgeAiActivity,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from '../../models/studio.model';
@@ -31,6 +32,7 @@ export {
   STANDARD_STUDIO_LABEL_IDS,
   isStandardStudioLabel,
   isCustomStudioLabel,
+  isEdgeAiActivity,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 };
@@ -74,6 +76,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly predefinedLabels = PREDEFINED_LABELS;
   readonly isStandardStudioLabel = isStandardStudioLabel;
   readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly isEdgeAiActivity = isEdgeAiActivity;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   /** List of all footwear devices provisioned in the user's account. */

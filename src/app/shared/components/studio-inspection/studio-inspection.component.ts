@@ -28,6 +28,7 @@ import {
   PredefinedLabel,
   isStandardStudioLabel,
   isCustomStudioLabel,
+  isEdgeAiActivity,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from '../../../models/studio.model';
@@ -69,6 +70,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly predefinedLabels: PredefinedLabel[] = PREDEFINED_LABELS;
   readonly isStandardStudioLabel = isStandardStudioLabel;
   readonly isCustomStudioLabel = isCustomStudioLabel;
+  readonly isEdgeAiActivity = isEdgeAiActivity;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
   // Inputs
