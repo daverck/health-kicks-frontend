@@ -523,12 +523,14 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
       if (rect.width === 0) return null;
       const xPixel = ((event.clientX - rect.left) / rect.width) * chart.width;
       const xScale = chart.scales['x'];
-      if (!xScale || xPixel < xScale.left || xPixel > xScale.right) return null;
+      // Allow pointer events to extend beyond chart plot area boundaries by up to 24px (for marker headers and ends)
+      const hitMargin = 24;
+      if (!xScale || xPixel < xScale.left - hitMargin || xPixel > xScale.right + hitMargin) return null;
 
       const startDistance = Math.abs(xPixel - xScale.getPixelForValue(this.trimStartTimeSec));
       const endDistance = Math.abs(xPixel - xScale.getPixelForValue(this.trimEndTimeSec));
       const nearest = startDistance <= endDistance ? 'start' : 'end';
-      return Math.min(startDistance, endDistance) <= 14 ? nearest : null;
+      return Math.min(startDistance, endDistance) <= 20 ? nearest : null;
     };
 
     const onPointerDown = (event: PointerEvent): void => {
