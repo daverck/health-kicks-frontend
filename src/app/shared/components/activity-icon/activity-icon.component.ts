@@ -49,6 +49,41 @@ import { CommonModule } from '@angular/common';
           <path d="M9 20l3-6 3 6" />
         </svg>
       }
+      @case ('lie_down') {
+        <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
+          <path d="M2 19h20" />
+          <path d="M4 19v-4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4" />
+          <circle cx="8" cy="10" r="2" />
+          <path d="M12 11l4 2" />
+        </svg>
+      }
+      @case ('lying_supine') {
+        <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
+          <path d="M2 19h20" />
+          <path d="M3 15h18" />
+          <circle cx="6" cy="11.5" r="2" />
+          <path d="M10 13h9" />
+          <path d="M19 13v2" />
+        </svg>
+      }
+      @case ('lying_prone') {
+        <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
+          <path d="M2 19h20" />
+          <path d="M3 15h18" />
+          <circle cx="6" cy="12.5" r="2" />
+          <path d="M10 13h9" />
+          <path d="M4 14l2 1" />
+        </svg>
+      }
+      @case ('lying_lateral') {
+        <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
+          <path d="M2 19h20" />
+          <path d="M3 15h18" />
+          <circle cx="6" cy="11" r="2" />
+          <path d="M10 12h8" />
+          <path d="M14 12l2 3" />
+        </svg>
+      }
       @case ('stairs') {
         <svg [attr.width]="size()" [attr.height]="size()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class]="className()">
           <path d="M4 19h4v-4h4v-4h4V7h4" />

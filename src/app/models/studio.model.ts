@@ -6,6 +6,10 @@ export type StudioActivityCode =
   | 'idle'
   | 'sit_down'
   | 'stand_up'
+  | 'lie_down'
+  | 'lying_supine'
+  | 'lying_prone'
+  | 'lying_lateral'
   | 'walk'
   | 'run'
   | 'stairs'
@@ -57,6 +61,34 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
     icon: '🧍',
     description: 'Transition assis vers debout (chaise, fauteuil, canapé)',
     badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40',
+  },
+  {
+    id: 'lie_down',
+    name: "S'allonger (Transition)",
+    icon: '🛏️',
+    description: 'Transition debout/assis vers couché',
+    badgeColor: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/40',
+  },
+  {
+    id: 'lying_supine',
+    name: 'Couché dorsal',
+    icon: '🛌',
+    description: 'Allongé sur le dos (lit, sol, canapé)',
+    badgeColor: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/40',
+  },
+  {
+    id: 'lying_prone',
+    name: 'Couché frontal',
+    icon: '🛌',
+    description: 'Allongé sur le ventre',
+    badgeColor: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/40',
+  },
+  {
+    id: 'lying_lateral',
+    name: 'Couché latéral',
+    icon: '🛌',
+    description: 'Allongé sur le côté (gauche ou droit)',
+    badgeColor: 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/40',
   },
   {
     id: 'run',
