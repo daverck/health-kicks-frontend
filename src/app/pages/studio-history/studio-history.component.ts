@@ -137,7 +137,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly currentSessionIndex = computed<number>(() => {
     const current = this.inspectingSession();
     if (!current) return -1;
-    return this.sessions().findIndex((s) => s.id === current.id);
+    return this.sessions().findIndex((s) => (s.uuid ?? s.id) === (current.uuid ?? current.id));
   });
 
   readonly hasPreviousSession = computed<boolean>(() => {
@@ -463,14 +463,25 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       return;
     }
     this.sessions.update((items) =>
-      items.map((it) => (it.id === updated.id ? updated : it))
+      items.map((it) => ((it.uuid ?? it.id) === (updated.uuid ?? updated.id) ? updated : it))
     );
   }
 
   onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
+    const previous = this.sessions().find((session) => (session.uuid ?? session.id) === (confirmed.uuid ?? confirmed.id));
     this.inspectingSession.set(confirmed);
+    const statusFilter = this.selectedValidated();
+    if (
+      previous &&
+      previous.is_validated !== confirmed.is_validated &&
+      ((statusFilter === 'true' && !confirmed.is_validated) ||
+        (statusFilter === 'false' && confirmed.is_validated))
+    ) {
+      this.loadSessions();
+      return;
+    }
     this.sessions.update((items) =>
-      items.map((it) => (it.id === confirmed.id ? confirmed : it))
+      items.map((it) => ((it.uuid ?? it.id) === (confirmed.uuid ?? confirmed.id) ? confirmed : it))
     );
   }
 
