@@ -46,6 +46,7 @@ export class Shoe3dViewerComponent
   // Inputs
   readonly readings = input<ImuReading[]>([]);
   readonly externalTimeSec = input<number | null>(null);
+  readonly autoPlay = input<boolean>(false);
 
   // Outputs
   readonly timeSelected = output<number>();
@@ -99,12 +100,18 @@ export class Shoe3dViewerComponent
   ngAfterViewInit(): void {
     this.sceneService.init(this.canvasContainer.nativeElement, this.theme.isDark());
     this.updateShoePose(0);
+    if (this.autoPlay() && this.trajectory.length > 0) {
+      this.play();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['readings']) {
       this.processReadings();
       this.resetPlayback();
+      if (this.autoPlay() && this.trajectory.length > 0) {
+        this.play();
+      }
     }
     if (changes['externalTimeSec'] && this.externalTimeSec() !== null) {
       const extTime = this.externalTimeSec()!;

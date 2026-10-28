@@ -621,7 +621,7 @@
 
           @if (show3dViewer()) {
             <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 animate-fadeIn" data-testid="shoe-3d-content">
-              <app-shoe-3d-viewer [readings]="readings()" />
+              <app-shoe-3d-viewer [readings]="readings()" [autoPlay]="true" />
             </div>
           }
         </div>

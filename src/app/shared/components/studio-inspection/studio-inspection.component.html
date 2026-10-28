@@ -367,6 +367,7 @@
               <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 animate-fadeIn" data-testid="shoe-3d-content">
                 <app-shoe-3d-viewer
                   [readings]="activeReadings()"
+                  [autoPlay]="true"
                   [externalTimeSec]="replayPlaybackTime()"
                   (timeSelected)="onReplayTimeSelected($event)"
                 />
