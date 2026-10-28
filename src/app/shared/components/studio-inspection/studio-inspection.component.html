@@ -100,7 +100,7 @@
         <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 font-mono">
           <span class="break-all">
             <span class="text-gray-400 dark:text-gray-500">{{ 'studio_history.session_id_label' | translate }}</span>
-            <span class="font-medium text-gray-700 dark:text-gray-300 select-all ml-1">{{ s.id }}</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300 select-all ml-1">{{ s.uuid }}</span>
           </span>
           <span class="text-gray-300 dark:text-gray-600 hidden sm:inline">·</span>
           <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">
@@ -271,7 +271,7 @@
             <p class="font-medium">{{ readingsError() }}</p>
             <button
               type="button"
-              (click)="loadReadings(s.uuid || s.id || '')"
+              (click)="loadReadings(s.uuid)"
               class="mt-2.5 rounded-md bg-red-100 px-3 py-1 font-semibold text-red-800 hover:bg-red-200 transition"
             >
               {{ 'studio_history.retry' | translate }}

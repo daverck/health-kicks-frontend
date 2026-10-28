@@ -198,7 +198,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     const current = this.session();
-    if (current && this.currentSessionId !== current.id) {
+    if (current && this.currentSessionId !== current.uuid) {
       this.initSessionState(current);
     }
   }
@@ -207,7 +207,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     if (changes['session']) {
       const current = this.session();
       if (current) {
-        if (this.currentSessionId === current.id) {
+        if (this.currentSessionId === current.uuid) {
           this.syncLabelState(current);
         } else {
           this.initSessionState(current);
@@ -233,7 +233,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   }
 
   private initSessionState(session: StudioSessionSummary): void {
-    this.currentSessionId = session.uuid || session.id || '';
+    this.currentSessionId = session.uuid;
     this.syncLabelState(session);
     this.activeReadings.set([]);
     this.replayPlaybackTime.set(0);
@@ -276,7 +276,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     if (!current) return;
 
     this.isValidatingSession.set(true);
-    this.studioHistoryService.confirmSession(current.uuid || current.id || '').subscribe({
+    this.studioHistoryService.confirmSession(current.uuid).subscribe({
       next: (updated) => {
         this.isValidatingSession.set(false);
         this.toast.success(this.translation.translate('studio_history.session_confirmed_success'));
@@ -307,7 +307,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     }
 
     this.isTrimmingSession.set(true);
-    this.studioService.trimSession(current.uuid || current.id || '', startOffsetSec, endOffsetSec).subscribe({
+    this.studioService.trimSession(current.uuid, startOffsetSec, endOffsetSec).subscribe({
       next: (updated) => {
         this.isTrimmingSession.set(false);
         this.showTrimConfirm.set(false);
@@ -338,7 +338,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     if (!current?.is_validated || this.isUpdatingValidation()) return;
 
     this.isUpdatingValidation.set(true);
-    this.studioHistoryService.updateSessionValidation(current.uuid || current.id || '', false).subscribe({
+    this.studioHistoryService.updateSessionValidation(current.uuid, false).subscribe({
       next: (updated) => {
         this.isUpdatingValidation.set(false);
         this.showUnvalidateConfirm.set(false);
@@ -365,7 +365,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     }
 
     this.isUpdatingLabel.set(true);
-    this.studioHistoryService.updateSessionLabel(current.uuid || current.id || '', newLabel).subscribe({
+    this.studioHistoryService.updateSessionLabel(current.uuid, newLabel).subscribe({
       next: (updated) => {
         this.isUpdatingLabel.set(false);
         this.toast.success(
@@ -396,10 +396,10 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
 
     // Immediately dismiss confirmation banner and notify parent component
     this.showDeleteConfirm.set(false);
-    this.sessionDeleted.emit(current.uuid || current.id || '');
+    this.sessionDeleted.emit(current.uuid);
 
     this.isDeletingSession.set(true);
-    this.studioHistoryService.deleteSession(current.uuid || current.id || '').subscribe({
+    this.studioHistoryService.deleteSession(current.uuid).subscribe({
       next: () => {
         this.isDeletingSession.set(false);
         this.toast.info(
@@ -419,7 +419,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     const current = this.session();
     if (!current) return;
 
-    const url = `${window.location.origin}/dashboard/studio/history/${current.id}`;
+    const url = `${window.location.origin}/dashboard/studio/history/${current.uuid}`;
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(url).then(() => {
         this.linkCopied.set(true);
