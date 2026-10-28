@@ -9,10 +9,10 @@ import {
 } from './studio.model';
 
 describe('Studio Model Definitions', () => {
-  it('should define exactly 13 standard studio labels', () => {
-    expect(PREDEFINED_LABELS.length).toBe(13);
-    expect(STANDARD_STUDIO_LABELS.length).toBe(13);
-    expect(STANDARD_STUDIO_LABEL_IDS.size).toBe(13);
+  it('should define exactly 14 standard studio labels', () => {
+    expect(PREDEFINED_LABELS.length).toBe(14);
+    expect(STANDARD_STUDIO_LABELS.length).toBe(14);
+    expect(STANDARD_STUDIO_LABEL_IDS.size).toBe(14);
   });
 
   it('should identify standard labels accurately', () => {
@@ -20,6 +20,7 @@ describe('Studio Model Definitions', () => {
       'walk',
       'idle',
       'sit_down',
+      'stand_up',
       'run',
       'stairs',
       'stairs_up',

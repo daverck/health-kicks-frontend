@@ -425,6 +425,8 @@ export const fr = {
       idle_desc: 'Capteur posé sur une table ou personne immobile',
       sit_down: "S'asseoir (Transition)",
       sit_down_desc: 'Transition debout vers assis (chaise, fauteuil, canapé)',
+      stand_up: 'Se lever (Transition)',
+      stand_up_desc: 'Transition assis vers debout (chaise, fauteuil, canapé)',
       walk: 'Marche',
       walk_desc: 'Pas réguliers sur sol plat',
       run: 'Course',

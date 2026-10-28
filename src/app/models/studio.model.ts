@@ -52,6 +52,13 @@ export const PREDEFINED_LABELS: PredefinedLabel[] = [
     badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40',
   },
   {
+    id: 'stand_up',
+    name: 'Se lever (Transition)',
+    icon: '🧍',
+    description: 'Transition assis vers debout (chaise, fauteuil, canapé)',
+    badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/40',
+  },
+  {
     id: 'run',
     name: 'Course',
     icon: '🏃',

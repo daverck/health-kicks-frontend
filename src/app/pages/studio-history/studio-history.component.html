@@ -417,6 +417,7 @@
             <th scope="col" class="px-2.5 py-2.5 min-w-[95px]">{{ 'studio_history.col_status' | translate }}</th>
             <th scope="col" class="px-2.5 py-2.5 min-w-[130px]">{{ 'studio_history.col_device' | translate }}</th>
             <th scope="col" class="px-2.5 py-2.5 min-w-[130px]">{{ 'studio_history.col_label' | translate }}</th>
+            <th scope="col" class="px-2.5 py-2.5 min-w-[120px]">{{ 'studio_history.col_category' | translate }}</th>
             <th scope="col" class="px-2.5 py-2.5 min-w-[65px]">{{ 'studio_history.col_samples' | translate }}</th>
             <th scope="col" class="px-2.5 py-2.5 min-w-[60px]">{{ 'studio_history.col_duration' | translate }}</th>
             @if (isAdmin()) {
@@ -491,6 +492,22 @@
                 size="sm"
                 [fullWidth]="true"
               />
+            </th>
+
+            <!-- Classification Filter -->
+            <th scope="col" class="px-2 py-1.5">
+              <select
+                id="filter-classification"
+                [ngModel]="selectedClassification()"
+                (ngModelChange)="selectedClassification.set($event); onFilterChange()"
+                class="h-9 w-full rounded-lg border border-gray-300 bg-white px-2.5 text-xs text-gray-800 shadow-2xs focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                data-testid="filter-classification-select"
+                [title]="'studio_history.col_category' | translate"
+              >
+                <option value="all">{{ 'studio_history.filter_all_types' | translate }}</option>
+                <option value="edge_ai">⚡ {{ 'studio_history.badge_edge_ai' | translate }}</option>
+                <option value="research">🧪 {{ 'studio_history.badge_research' | translate }}</option>
+              </select>
             </th>
 
             <!-- Sample count range filters -->
