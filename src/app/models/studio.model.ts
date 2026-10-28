@@ -5,6 +5,7 @@
 export type StudioActivityCode =
   | 'idle'
   | 'sit_down'
+  | 'stand_up'
   | 'walk'
   | 'run'
   | 'stairs'

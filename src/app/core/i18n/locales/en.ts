@@ -457,6 +457,8 @@ export const en = {
       idle_desc: 'Sensor resting on table or person standing/sitting still',
       sit_down: 'Sit Down (Transition)',
       sit_down_desc: 'Transition from standing to sitting (chair, armchair, sofa)',
+      stand_up: 'Stand Up (Transition)',
+      stand_up_desc: 'Transition from sitting to standing (chair, armchair, sofa)',
       walk: 'Walking',
       walk_desc: 'Regular steps on flat ground',
       run: 'Running',
