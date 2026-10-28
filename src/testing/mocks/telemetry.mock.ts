@@ -85,5 +85,12 @@ export const mockStudioDatasetStats: StudioDatasetStats = {
     fall_lateral: 1,
     fall_recovery: 0,
   },
+  by_label_validated: {
+    walk: 20,
+    run: 25,
+  },
+  by_label_pending: {
+    walk: 8,
+  },
 };
 

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { StudioHistoryService } from '../../core/services/studio-history.service';
@@ -66,6 +66,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   private readonly deviceService = inject(DeviceService);
   private readonly toast = inject(ToastService);
   readonly translation = inject(TranslationService);
+  private readonly route = inject(ActivatedRoute);
 
   readonly predefinedLabels: PredefinedLabel[] = PREDEFINED_LABELS;
   readonly isStandardStudioLabel = isStandardStudioLabel;
@@ -173,6 +174,36 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const qp = this.route.snapshot.queryParams;
+    if (qp['label']) {
+      const labels = String(qp['label']).split(',').map((l) => l.trim()).filter(Boolean);
+      if (labels.length > 0) {
+        this.selectedLabels.set(labels);
+        this.selectedLabel.set(labels.join(','));
+      }
+    }
+    if (qp['is_validated'] !== undefined) {
+      const val = String(qp['is_validated']).toLowerCase();
+      if (val === 'true') {
+        this.selectedValidated.set('true');
+      } else if (val === 'false') {
+        this.selectedValidated.set('false');
+      }
+    }
+    if (qp['device_id']) {
+      const devs = String(qp['device_id']).split(',').map((d) => d.trim()).filter(Boolean);
+      if (devs.length > 0) {
+        this.selectedDeviceIds.set(devs);
+        this.selectedDeviceId.set(devs.join(','));
+      }
+    }
+    if (qp['classification']) {
+      const c = String(qp['classification']).toLowerCase();
+      if (c === 'edge_ai' || c === 'research') {
+        this.selectedClassification.set(c);
+      }
+    }
+
     this.loadDevices();
     if (this.isAdmin()) {
       this.loadAuthors();

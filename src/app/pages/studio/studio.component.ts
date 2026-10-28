@@ -189,6 +189,25 @@ export class StudioComponent implements OnInit, OnDestroy {
     return this.datasetStats().by_label[label] ?? 0;
   }
 
+  getValidatedCountForLabel(label: string): number {
+    return this.datasetStats().by_label_validated?.[label] ?? 0;
+  }
+
+  getPendingCountForLabel(label: string): number {
+    return this.datasetStats().by_label_pending?.[label] ?? 0;
+  }
+
+  navigateToHistoryWithFilter(event: Event, label: string, isValidated: boolean): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.router.navigate(['/dashboard/studio/history'], {
+      queryParams: {
+        label,
+        is_validated: isValidated,
+      },
+    });
+  }
+
   loadStats(): void {
     this.isLoadingStats.set(true);
     const deviceId = this.selectedDeviceId();
