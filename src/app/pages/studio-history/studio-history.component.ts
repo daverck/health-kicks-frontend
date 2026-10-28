@@ -134,11 +134,18 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   // Inspection Drawer State
   readonly inspectingSession = signal<StudioSessionSummary | null>(null);
 
+  // Index of inspecting session or fallback index when session is evicted by status filter
   readonly currentSessionIndex = computed<number>(() => {
     const current = this.inspectingSession();
     if (!current) return -1;
-    return this.sessions().findIndex((s) => (s.uuid ?? s.id) === (current.uuid ?? current.id));
+    const foundIdx = this.sessions().findIndex((s) => (s.uuid ?? s.id) === (current.uuid ?? current.id));
+    if (foundIdx >= 0) {
+      return foundIdx;
+    }
+    return this.lastInspectedIndex();
   });
+
+  private readonly lastInspectedIndex = signal<number>(-1);
 
   readonly hasPreviousSession = computed<boolean>(() => {
     if (this.isLoading()) return false;
@@ -410,10 +417,15 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   openInspection(session: StudioSessionSummary): void {
     this.inspectingSession.set(session);
+    const idx = this.sessions().findIndex((s) => (s.uuid ?? s.id) === (session.uuid ?? session.id));
+    if (idx >= 0) {
+      this.lastInspectedIndex.set(idx);
+    }
   }
 
   closeInspection(): void {
     this.inspectingSession.set(null);
+    this.lastInspectedIndex.set(-1);
   }
 
   goToPreviousSession(): void {
@@ -450,39 +462,31 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
-    const previous = this.sessions().find((session) => (session.uuid ?? session.id) === (updated.uuid ?? updated.id));
     this.inspectingSession.set(updated);
-    const statusFilter = this.selectedValidated();
-    if (
-      previous &&
-      previous.is_validated !== updated.is_validated &&
-      ((statusFilter === 'true' && !updated.is_validated) ||
-        (statusFilter === 'false' && updated.is_validated))
-    ) {
-      this.loadSessions();
-      return;
-    }
     this.sessions.update((items) =>
       items.map((it) => ((it.uuid ?? it.id) === (updated.uuid ?? updated.id) ? updated : it))
     );
+    const statusFilter = this.selectedValidated();
+    if (
+      (statusFilter === 'true' && !updated.is_validated) ||
+      (statusFilter === 'false' && updated.is_validated)
+    ) {
+      this.loadSessions();
+    }
   }
 
   onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
-    const previous = this.sessions().find((session) => (session.uuid ?? session.id) === (confirmed.uuid ?? confirmed.id));
     this.inspectingSession.set(confirmed);
-    const statusFilter = this.selectedValidated();
-    if (
-      previous &&
-      previous.is_validated !== confirmed.is_validated &&
-      ((statusFilter === 'true' && !confirmed.is_validated) ||
-        (statusFilter === 'false' && confirmed.is_validated))
-    ) {
-      this.loadSessions();
-      return;
-    }
     this.sessions.update((items) =>
       items.map((it) => ((it.uuid ?? it.id) === (confirmed.uuid ?? confirmed.id) ? confirmed : it))
     );
+    const statusFilter = this.selectedValidated();
+    if (
+      (statusFilter === 'true' && !confirmed.is_validated) ||
+      (statusFilter === 'false' && confirmed.is_validated)
+    ) {
+      this.loadSessions();
+    }
   }
 
   onSessionDeletedFromInspection(sessionId: string): void {
