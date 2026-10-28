@@ -543,6 +543,7 @@ export const en = {
     sessions_found: '{count} session(s)',
     col_datetime: 'Date & Time',
     col_status: 'Status',
+    col_hitl: 'Mode',
     col_device: 'Device',
     col_label: 'Activity Types',
     col_samples: 'IMU Samples',

@@ -511,6 +511,7 @@ export const fr = {
     sessions_found: '{count} session(s)',
     col_datetime: 'Date & Heure',
     col_status: 'Statut',
+    col_hitl: 'Mode',
     col_device: 'Équipement',
     col_label: 'Types d’activités',
     col_samples: 'Points IMU',
