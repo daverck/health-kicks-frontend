@@ -370,6 +370,17 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
+  it('triggers refresh and reload sessions when clicking the refresh button', () => {
+    fixture.detectChanges();
+    studioHistoryServiceSpy.getSessions.mockClear();
+
+    const refreshBtn = fixture.nativeElement.querySelector('[data-testid="refresh-studio-history-btn"]');
+    expect(refreshBtn).toBeTruthy();
+    refreshBtn.click();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalled();
+  });
+
   it('renders IMU sample and duration range filters on desktop and mobile', () => {
     fixture.detectChanges();
     component.showMobileFilters.set(true);

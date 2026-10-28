@@ -8,6 +8,14 @@
       </p>
     </div>
     <div class="flex items-center gap-3">
+      <button
+        type="button"
+        (click)="refresh()"
+        class="btn-secondary"
+        data-testid="refresh-studio-history-btn"
+      >
+        ↻ {{ 'common.refresh' | translate }}
+      </button>
       <a
         routerLink="/dashboard/studio"
         class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
@@ -36,17 +44,6 @@
           <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
         }
       </button>
-
-      @if (hasActiveFilters()) {
-        <button
-          id="reset-filters-btn"
-          type="button"
-          (click)="resetFilters()"
-          class="font-semibold text-primary-600 hover:text-primary-800 transition"
-        >
-          ✕ {{ 'studio_history.reset_filters' | translate }}
-        </button>
-      }
     </div>
   </div>
 

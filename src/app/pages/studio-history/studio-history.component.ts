@@ -186,6 +186,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
+  refresh(): void {
+    this.loadSessions();
+  }
+
   loadAuthors(): void {
     this.studioHistoryService.getAuthors().subscribe({
       next: (authors) => this.authors.set(authors),
