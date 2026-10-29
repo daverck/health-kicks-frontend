@@ -397,6 +397,18 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.loadSessions();
   }
 
+  onPageInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const val = parseInt(input.value, 10);
+    if (!isNaN(val) && val >= 1 && val <= this.totalPages()) {
+      if (val !== this.page()) {
+        this.goToPage(val);
+      }
+    } else {
+      input.value = this.page().toString();
+    }
+  }
+
   onPageSizeChange(newSize: number): void {
     this.size.set(newSize);
     this.resetPageCursors();

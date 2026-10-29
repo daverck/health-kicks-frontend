@@ -588,6 +588,8 @@ export const en = {
     no_sessions_desc: 'Adjust your filters or record a new session in the Studio.',
     per_page: 'Per page',
     page_info: 'Page {page} of {totalPages} ({total} sessions)',
+    page_label: 'Page',
+    of_pages: 'of {totalPages}',
     first: 'First',
     prev: 'Previous',
     next: 'Next',

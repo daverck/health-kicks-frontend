@@ -556,6 +556,8 @@ export const fr = {
     no_sessions_desc: 'Modifiez vos filtres ou effectuez une nouvelle capture dans le Studio.',
     per_page: 'Par page',
     page_info: 'Page {page} sur {totalPages} ({total} sessions)',
+    page_label: 'Page',
+    of_pages: 'sur {totalPages}',
     first: 'Premier',
     prev: 'Précédent',
     next: 'Suivant',

@@ -484,6 +484,46 @@ describe('StudioHistoryComponent', () => {
     expect(lastBtn.disabled).toBeFalse();
   });
 
+  it('should navigate to page when user inputs page number directly', () => {
+    studioHistoryServiceSpy.getSessions.and.callFake((params) => {
+      return of({
+        ...mockPaginatedSessionsResponse,
+        items: mockStudioSessionSummaries,
+        total: 100,
+        page: params?.page ?? 1,
+        size: params?.size ?? 20,
+      });
+    });
+
+    fixture.detectChanges();
+    expect(component.page()).toBe(1);
+    expect(component.totalPages()).toBe(5);
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const pageInput = compiled.querySelector('#direct-page-input') as HTMLInputElement;
+    expect(pageInput).toBeTruthy();
+    expect(pageInput.value).toBe('1');
+
+    // Enter page 4
+    pageInput.value = '4';
+    pageInput.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(component.page()).toBe(4);
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 4,
+      size: 20,
+    });
+
+    // Enter out-of-bounds page: should revert to current page
+    pageInput.value = '999';
+    pageInput.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    expect(pageInput.value).toBe('4');
+    expect(component.page()).toBe(4);
+  });
+
   it('should open inspection drawer and render inspection component with active session', () => {
     fixture.detectChanges();
 
