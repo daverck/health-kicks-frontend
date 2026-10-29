@@ -73,6 +73,7 @@ export class Shoe3dViewerComponent
   readonly isModelLoading = this.sceneService.isModelLoading;
   readonly showAxes = this.sceneService.showAxes;
   readonly showAccelVectors = this.sceneService.showAccelVectors;
+  readonly isZoomEnabled = this.sceneService.isZoomEnabled;
 
   // Playback speeds
   readonly speedOptions: number[] = [0.25, 0.5, 1.0, 2.0];
@@ -136,6 +137,18 @@ export class Shoe3dViewerComponent
 
   resetCameraView(): void {
     this.sceneService.resetCameraView();
+  }
+
+  enableZoom(): void {
+    this.sceneService.enableZoom();
+  }
+
+  disableZoom(): void {
+    this.sceneService.disableZoom();
+  }
+
+  onWheel(event: WheelEvent): void {
+    this.sceneService.handleWheelZoom(event);
   }
 
   // --- Biomechanical Trajectory Calculation ---

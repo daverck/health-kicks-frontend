@@ -75,7 +75,20 @@
   </div>
 
   <!-- 3D Canvas Viewport Container -->
-  <div class="relative w-full h-72 sm:h-80 rounded-lg overflow-hidden border border-gray-100 bg-slate-50 select-none">
+  <div
+    data-testid="canvas-viewport"
+    (click)="enableZoom()"
+    (mouseleave)="disableZoom()"
+    (wheel)="onWheel($event)"
+    [class.border-primary-500]="isZoomEnabled()"
+    [class.ring-2]="isZoomEnabled()"
+    [class.ring-primary-500/30]="isZoomEnabled()"
+    [class.dark:border-primary-400]="isZoomEnabled()"
+    [class.dark:ring-primary-400/30]="isZoomEnabled()"
+    [class.border-gray-100]="!isZoomEnabled()"
+    [class.dark:border-gray-800]="!isZoomEnabled()"
+    class="relative w-full h-72 sm:h-80 rounded-lg overflow-hidden border bg-slate-50 select-none transition-shadow"
+  >
     <div #canvasContainer class="w-full h-full cursor-grab active:cursor-grabbing"></div>
 
     @if (hasWebGlError()) {
@@ -176,8 +189,19 @@
     </div>
 
     <!-- Mouse / Drag hint badge -->
-    <div class="absolute bottom-2.5 right-2.5 rounded bg-black/40 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur-xs pointer-events-none">
-      🖱️ Glisser pour pivoter · Molette pour zoomer
+    <div
+      data-testid="zoom-hint-badge"
+      [class.bg-primary-600/85]="isZoomEnabled()"
+      [class.text-white]="isZoomEnabled()"
+      [class.bg-black/40]="!isZoomEnabled()"
+      [class.text-white/90]="!isZoomEnabled()"
+      class="absolute bottom-2.5 right-2.5 rounded px-2 py-0.5 text-[10px] backdrop-blur-xs pointer-events-none transition-colors"
+    >
+      @if (isZoomEnabled()) {
+        🖱️ Glisser pour pivoter · Molette pour zoomer
+      } @else {
+        🖱️ Glisser pour pivoter · Cliquer pour activer le zoom
+      }
     </div>
   </div>
 

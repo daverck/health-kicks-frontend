@@ -16,6 +16,7 @@ export class Shoe3dSceneService {
   readonly isModelLoading = signal<boolean>(false);
   readonly showAxes = signal<boolean>(true);
   readonly showAccelVectors = signal<boolean>(true);
+  readonly isZoomEnabled = signal<boolean>(false);
 
   private scene: THREE.Scene | null = null;
   private camera: THREE.PerspectiveCamera | null = null;
@@ -131,6 +132,32 @@ export class Shoe3dSceneService {
       this.accelVectorsGroup.visible = this.showAccelVectors();
     }
     this.render();
+  }
+
+  enableZoom(): void {
+    this.isZoomEnabled.set(true);
+  }
+
+  disableZoom(): void {
+    this.isZoomEnabled.set(false);
+  }
+
+  handleWheelZoom(e: WheelEvent): void {
+    if (!this.isZoomEnabled()) return;
+
+    e.preventDefault();
+    this.cameraSpherical.radius = Math.max(
+      2.0,
+      Math.min(7.0, this.cameraSpherical.radius + e.deltaY * 0.003)
+    );
+    if (!this.camera) return;
+
+    this.updateCameraPosition();
+    this.render();
+  }
+
+  getCameraRadius(): number {
+    return this.cameraSpherical.radius;
   }
 
   resetCameraView(): void {
@@ -535,20 +562,6 @@ export class Shoe3dSceneService {
     container.addEventListener('pointerup', stopDrag);
     container.addEventListener('pointercancel', stopDrag);
 
-    // Wheel zoom
-    container.addEventListener(
-      'wheel',
-      (e: WheelEvent) => {
-        e.preventDefault();
-        this.cameraSpherical.radius = Math.max(
-          2.0,
-          Math.min(7.0, this.cameraSpherical.radius + e.deltaY * 0.003)
-        );
-        this.updateCameraPosition();
-        this.render();
-      },
-      { passive: false }
-    );
   }
 
   private updateCameraPosition(): void {
@@ -577,4 +590,3 @@ export class Shoe3dSceneService {
     this.resizeObserver.observe(container);
   }
 }
-

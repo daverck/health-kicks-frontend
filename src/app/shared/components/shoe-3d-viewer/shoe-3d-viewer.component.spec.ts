@@ -158,8 +158,56 @@ describe('Shoe3dViewerComponent', () => {
     expect(playBtn).toBeTruthy();
     expect(playBtn.textContent).toContain('Lecture');
 
-    const canvasViewport = compiled.querySelector('.relative.w-full.h-72');
+    const canvasViewport = compiled.querySelector('[data-testid="canvas-viewport"]');
     expect(canvasViewport).toBeTruthy();
     expect(canvasViewport?.contains(playBtn)).toBeFalse();
+  });
+
+  it('should require clicking the 3D viewport before allowing wheel zoom and disable zoom on mouseleave', () => {
+    fixture.componentRef.setInput('readings', mockReadings);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const viewport = compiled.querySelector('[data-testid="canvas-viewport"]') as HTMLElement;
+    const hintBadge = compiled.querySelector('[data-testid="zoom-hint-badge"]') as HTMLElement;
+
+    expect(viewport).toBeTruthy();
+    expect(hintBadge).toBeTruthy();
+
+    // Initially zoom is disabled
+    expect(component.isZoomEnabled()).toBeFalse();
+    expect(hintBadge.textContent).toContain('Cliquer pour activer le zoom');
+    expect(viewport.classList.contains('border-primary-500')).toBeFalse();
+
+    const initialRadius = component.sceneService.getCameraRadius();
+
+    // Wheel event while disabled should NOT preventDefault and should NOT change radius
+    const wheelBeforeClick = new WheelEvent('wheel', { deltaY: -100, cancelable: true });
+    viewport.dispatchEvent(wheelBeforeClick);
+    expect(wheelBeforeClick.defaultPrevented).toBeFalse();
+    expect(component.sceneService.getCameraRadius()).toBe(initialRadius);
+
+    // Click on viewport activates zoom
+    viewport.click();
+    fixture.detectChanges();
+
+    expect(component.isZoomEnabled()).toBeTrue();
+    expect(hintBadge.textContent).toContain('Molette pour zoomer');
+    expect(viewport.classList.contains('border-primary-500')).toBeTrue();
+    expect(viewport.classList.contains('ring-2')).toBeTrue();
+
+    // Wheel event while enabled SHOULD preventDefault and update camera radius
+    const wheelAfterClick = new WheelEvent('wheel', { deltaY: -100, cancelable: true });
+    viewport.dispatchEvent(wheelAfterClick);
+    expect(wheelAfterClick.defaultPrevented).toBeTrue();
+    expect(component.sceneService.getCameraRadius()).toBeLessThan(initialRadius);
+
+    // Mouseleave disables zoom again
+    viewport.dispatchEvent(new MouseEvent('mouseleave'));
+    fixture.detectChanges();
+
+    expect(component.isZoomEnabled()).toBeFalse();
+    expect(hintBadge.textContent).toContain('Cliquer pour activer le zoom');
+    expect(viewport.classList.contains('border-primary-500')).toBeFalse();
   });
 });
