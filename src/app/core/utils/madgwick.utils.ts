@@ -206,7 +206,8 @@ function rotateVectorByQuat(
 
 /**
  * Pre-computes orientation quaternions, biomechanical angles, and 3D spatial trajectory
- * from tri-axial accelerations (AX, AY, AZ).
+ * from tri-axial accelerations (AX, AY, AZ) using ZUPT and linear velocity de-drifting
+ * between stance phases (preserving negative/positive Y for stair descent/ascent).
  */
 export function computeOrientationTrajectory(
   readings: ImuReading[],
@@ -231,19 +232,18 @@ export function computeOrientationTrajectory(
   let qInitInv: { w: number; x: number; y: number; z: number } | null = null;
   let baselineWorldAccel = { x: 0, y: 1.0, z: 0 };
 
-  let posX = 0;
-  let posY = 0;
-  let posZ = 0;
-  let velX = 0;
-  let velY = 0;
-  let velZ = 0;
-
   // Visual scale factor converting g (9.81 m/s^2) into Three.js scene units/s^2
   // (where the sneaker length is 2.0 units)
   const ACCEL_SCENE_SCALE = 14.0;
   const DEADZONE_G = 0.04;
 
-  for (let i = 0; i < readings.length; i++) {
+  const n = readings.length;
+  const dts = new Array<number>(n).fill(0.02);
+  const linAccels = new Array<{ x: number; y: number; z: number }>(n);
+  const isZuptFlags = new Array<boolean>(n).fill(false);
+
+  // Pass 1: Orientation estimation, world-frame linear acceleration & ZUPT detection
+  for (let i = 0; i < n; i++) {
     const r = readings[i];
     const timeSec = (r.timestamp_epoch_us - t0) / 1_000_000;
 
@@ -255,6 +255,7 @@ export function computeOrientationTrajectory(
         dt = deltaUs / 1_000_000;
       }
     }
+    dts[i] = dt;
 
     // Readings from MPU-6050 are in deg/s; Madgwick expects rad/s
     const gx = r.gx * toRad;
@@ -281,7 +282,10 @@ export function computeOrientationTrajectory(
       baselineWorldAccel = { x: r.ay, y: r.az, z: r.ax };
     }
 
-    if (i > 0) {
+    if (i === 0) {
+      linAccels[i] = { x: 0, y: 0, z: 0 };
+      isZuptFlags[i] = true;
+    } else {
       const qRel = multiplyQuat(qInitInv, qScene);
       const localAccelScene = { x: r.ay, y: r.az, z: r.ax };
       const worldAccel = rotateVectorByQuat(localAccelScene, qRel);
@@ -294,13 +298,11 @@ export function computeOrientationTrajectory(
       if (Math.abs(linY) < DEADZONE_G) linY = 0;
       if (Math.abs(linZ) < DEADZONE_G) linZ = 0;
 
-      velX += linX * ACCEL_SCENE_SCALE * dt;
-      velY += linY * ACCEL_SCENE_SCALE * dt;
-      velZ += linZ * ACCEL_SCENE_SCALE * dt;
-
-      posX += velX * dt;
-      posY += velY * dt;
-      posZ += velZ * dt;
+      linAccels[i] = { x: linX, y: linY, z: linZ };
+      isZuptFlags[i] =
+        (gaitPhase === 'flat_foot' || gaitPhase === 'neutral') &&
+        Math.abs(accelMag - 1.0) < 0.12 &&
+        gyroMag < 0.6;
     }
 
     trajectory.push({
@@ -311,8 +313,77 @@ export function computeOrientationTrajectory(
       accelMag,
       gyroMag,
       accel: { ax: r.ax, ay: r.ay, az: r.az },
-      position: { x: posX, y: posY, z: posZ },
+      position: { x: 0, y: 0, z: 0 },
     });
+  }
+
+  // Pass 2: Velocity integration with ZUPT and linear velocity de-drifting per movement segment
+  const velocities = new Array<{ x: number; y: number; z: number }>(n);
+  for (let i = 0; i < n; i++) {
+    velocities[i] = { x: 0, y: 0, z: 0 };
+  }
+
+  let idx = 0;
+  while (idx < n) {
+    if (isZuptFlags[idx]) {
+      velocities[idx] = { x: 0, y: 0, z: 0 };
+      idx++;
+      continue;
+    }
+
+    // Start of a movement segment: the anchor is the last stationary frame (idx - 1)
+    const startIdx = Math.max(0, idx - 1);
+    let endIdx = idx;
+    while (endIdx < n && !isZuptFlags[endIdx]) {
+      endIdx++;
+    }
+
+    // Integrate raw velocity across the movement segment without artificial decay
+    let vx = 0;
+    let vy = 0;
+    let vz = 0;
+    for (let k = idx; k <= Math.min(endIdx, n - 1); k++) {
+      const dt = dts[k];
+      const a = linAccels[k];
+      vx += a.x * ACCEL_SCENE_SCALE * dt;
+      vy += a.y * ACCEL_SCENE_SCALE * dt;
+      vz += a.z * ACCEL_SCENE_SCALE * dt;
+      velocities[k] = { x: vx, y: vy, z: vz };
+    }
+
+    // If the movement segment ends at a stationary ZUPT frame (endIdx < n),
+    // linearly remove residual impact velocity drift over [startIdx, endIdx]
+    if (endIdx < n && isZuptFlags[endIdx]) {
+      const tStart = trajectory[startIdx].timeSec;
+      const tEnd = trajectory[endIdx].timeSec;
+      const duration = tEnd - tStart;
+      const errVel = velocities[endIdx];
+
+      if (duration > 1e-6) {
+        for (let k = idx; k < endIdx; k++) {
+          const alpha = (trajectory[k].timeSec - tStart) / duration;
+          velocities[k].x -= errVel.x * alpha;
+          velocities[k].y -= errVel.y * alpha;
+          velocities[k].z -= errVel.z * alpha;
+        }
+      }
+      velocities[endIdx] = { x: 0, y: 0, z: 0 };
+      idx = endIdx + 1;
+    } else {
+      idx = endIdx;
+    }
+  }
+
+  // Pass 3: Integrate corrected velocities into 3D positions (keeping Y < 0 and Y > 0 unrestricted)
+  let posX = 0;
+  let posY = 0;
+  let posZ = 0;
+  for (let i = 1; i < n; i++) {
+    const dt = dts[i];
+    posX += velocities[i].x * dt;
+    posY += velocities[i].y * dt;
+    posZ += velocities[i].z * dt;
+    trajectory[i].position = { x: posX, y: posY, z: posZ };
   }
 
   return trajectory;

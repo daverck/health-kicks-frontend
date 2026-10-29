@@ -187,5 +187,78 @@ describe('MadgwickUtils', () => {
       expect(heightAtLanding).toBeGreaterThan(0.05);
       expect(heightAfterStance).toBeCloseTo(heightAtLanding, 4);
     });
+
+    it('should cancel residual downward velocity via ZUPT + linear de-drifting after a jump with undersampled landing shock and allow Y < 0 on stair descent', () => {
+      const jumpReadings: ImuReading[] = [];
+      let tUs = 1000000;
+      const pushFrame = (ax: number, ay: number, az: number) => {
+        jumpReadings.push({
+          timestamp_epoch_us: tUs,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax,
+          ay,
+          az,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 52631; // ~19Hz (52.6ms)
+      };
+
+      pushFrame(0, 0, 1.0); // Initial stance
+      // Take-off push (+1.2g linear vertical)
+      for (let i = 0; i < 3; i++) pushFrame(0, 0, 2.2);
+      // Free-fall flight (-1.0g linear vertical for 6 frames -> raw velocity becomes strongly negative)
+      for (let i = 0; i < 6; i++) pushFrame(0, 0, 0.0);
+      // Undersampled landing shock at 19Hz (+1.4g for 1 frame -> raw velocity would remain negative without ZUPT de-drifting)
+      pushFrame(0, 0, 2.4);
+      const landingStanceIdx = jumpReadings.length;
+      // Stationary on floor after landing (ZUPT active)
+      for (let i = 0; i < 5; i++) pushFrame(0, 0, 1.0);
+
+      const jumpTrajectory = computeOrientationTrajectory(jumpReadings);
+      const yAtLandingStance = jumpTrajectory[landingStanceIdx].position.y;
+      const yAtEnd = jumpTrajectory[jumpTrajectory.length - 1].position.y;
+
+      // After landing stance is reached, velocity must be zeroed (no continued downward inertia)
+      expect(yAtEnd).toBeCloseTo(yAtLandingStance, 5);
+      expect(yAtLandingStance).toBeGreaterThan(-0.05);
+
+      // Verify stair descent (Y < 0) remains unrestricted
+      const descentReadings: ImuReading[] = [];
+      tUs = 1000000;
+      const pushDescent = (az: number) => {
+        descentReadings.push({
+          timestamp_epoch_us: tUs,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax: 0.3,
+          ay: 0,
+          az,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 20000;
+      };
+      pushDescent(1.0);
+      for (let i = 0; i < 4; i++) pushDescent(0.2); // Downward acceleration (-0.8g)
+      for (let i = 0; i < 4; i++) pushDescent(1.8); // Braking on lower step (+0.8g)
+      for (let i = 0; i < 3; i++) {
+        descentReadings.push({
+          timestamp_epoch_us: tUs,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax: 0,
+          ay: 0,
+          az: 1.0,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 20000;
+      }
+
+      const descentTrajectory = computeOrientationTrajectory(descentReadings);
+      expect(descentTrajectory[descentTrajectory.length - 1].position.y).toBeLessThan(-0.05);
+    });
   });
 });
