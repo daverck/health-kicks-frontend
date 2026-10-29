@@ -206,7 +206,7 @@ function rotateVectorByQuat(
 
 /**
  * Pre-computes orientation quaternions, biomechanical angles, and 3D spatial trajectory
- * from tri-axial accelerations (AX, AY, AZ) with ZUPT and drift damping.
+ * from tri-axial accelerations (AX, AY, AZ).
  */
 export function computeOrientationTrajectory(
   readings: ImuReading[],
@@ -294,35 +294,13 @@ export function computeOrientationTrajectory(
       if (Math.abs(linY) < DEADZONE_G) linY = 0;
       if (Math.abs(linZ) < DEADZONE_G) linZ = 0;
 
-      const isZupt =
-        (gaitPhase === 'flat_foot' || gaitPhase === 'neutral') &&
-        Math.abs(accelMag - 1.0) < 0.12 &&
-        gyroMag < 0.6;
+      velX += linX * ACCEL_SCENE_SCALE * dt;
+      velY += linY * ACCEL_SCENE_SCALE * dt;
+      velZ += linZ * ACCEL_SCENE_SCALE * dt;
 
-      if (isZupt) {
-        velX *= 0.2;
-        velY *= 0.2;
-        velZ *= 0.2;
-        posY *= 0.7;
-      } else {
-        const decay = Math.pow(0.92, dt / 0.02);
-        velX = velX * decay + linX * ACCEL_SCENE_SCALE * dt;
-        velY = velY * decay + linY * ACCEL_SCENE_SCALE * dt;
-        velZ = velZ * decay + linZ * ACCEL_SCENE_SCALE * dt;
-      }
-
-      posX = Math.max(-8.0, Math.min(8.0, posX + velX * dt));
-      posZ = Math.max(-8.0, Math.min(8.0, posZ + velZ * dt));
-
-      let phaseLift = 0;
-      if (gaitPhase === 'heel_strike') phaseLift = 0.05;
-      else if (gaitPhase === 'toe_off') phaseLift = 0.08;
-      else if (gaitPhase === 'swing') phaseLift = 0.12;
-
-      posY = Math.max(0, Math.min(2.5, posY + velY * dt));
-      if (posY < phaseLift) {
-        posY = posY * 0.6 + phaseLift * 0.4;
-      }
+      posX += velX * dt;
+      posY += velY * dt;
+      posZ += velZ * dt;
     }
 
     trajectory.push({

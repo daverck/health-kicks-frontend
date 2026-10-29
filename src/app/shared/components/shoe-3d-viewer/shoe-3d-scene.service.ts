@@ -15,6 +15,8 @@ export class Shoe3dSceneService {
   static readonly DEFAULT_CAMERA_RADIUS = 4.8;
   static readonly SCENE_BASE_Y = -0.35;
   static readonly CAMERA_LOOKAT_Y_OFFSET = 0.65;
+  static readonly CAMERA_FOLLOW_LERP = 0.15;
+  static readonly MIN_GRID_SIZE = 16;
 
   readonly hasWebGlError = signal<boolean>(false);
   readonly isModelLoading = signal<boolean>(false);
@@ -38,6 +40,9 @@ export class Shoe3dSceneService {
   private gridHelper: THREE.GridHelper | null = null;
   private resizeObserver: ResizeObserver | null = null;
 
+  private isDarkTheme = false;
+  private gridSize = Shoe3dSceneService.MIN_GRID_SIZE;
+  private gridCenter = { x: 0, z: 0 };
   private isPointerDown = false;
   private prevPointerX = 0;
   private prevPointerY = 0;
@@ -53,6 +58,7 @@ export class Shoe3dSceneService {
   private static cachedSneakerMesh: THREE.Group | null = null;
 
   init(container: HTMLElement, isDark: boolean): void {
+    this.isDarkTheme = isDark;
     const width = container.clientWidth || 400;
     const height = container.clientHeight || 280;
 
@@ -61,7 +67,7 @@ export class Shoe3dSceneService {
       this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
 
       // Camera
-      this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 80);
+      this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 500);
       this.updateCameraPosition();
 
       // Renderer
@@ -92,15 +98,8 @@ export class Shoe3dSceneService {
       this.scene.add(this.dirLight);
       this.scene.add(this.dirLight.target);
 
-      // Floor Grid and Shadow Receiver (lowered by SCENE_BASE_Y)
-      this.gridHelper = new THREE.GridHelper(
-        16,
-        32,
-        isDark ? 0x38bdf8 : 0x0284c7,
-        isDark ? 0x334155 : 0xe2e8f0
-      );
-      this.gridHelper.position.y = Shoe3dSceneService.SCENE_BASE_Y - 0.01;
-      this.scene.add(this.gridHelper);
+      // Floor Grid and Shadow Receiver (strictly at Y = 0 in scene base coordinates)
+      this.rebuildGrid();
 
       const floorGeo = new THREE.PlaneGeometry(24, 24);
       const floorMat = new THREE.ShadowMaterial({ opacity: isDark ? 0.35 : 0.15 });
@@ -196,6 +195,18 @@ export class Shoe3dSceneService {
     };
   }
 
+  getGridSize(): number {
+    return this.gridSize;
+  }
+
+  getGridPosition(): { x: number; y: number; z: number } {
+    return {
+      x: this.gridCenter.x,
+      y: Shoe3dSceneService.SCENE_BASE_Y - 0.01,
+      z: this.gridCenter.z,
+    };
+  }
+
   resetCameraView(): void {
     this.cameraSpherical = {
       radius: Shoe3dSceneService.DEFAULT_CAMERA_RADIUS,
@@ -207,27 +218,77 @@ export class Shoe3dSceneService {
   }
 
   updateTheme(isDark: boolean): void {
+    this.isDarkTheme = isDark;
     if (!this.scene) return;
     this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
+    this.rebuildGrid();
+    this.render();
+  }
+
+  private updateAdaptiveGridMetrics(frames: OrientationFrame[]): void {
+    let minX = 0;
+    let maxX = 0;
+    let minZ = 0;
+    let maxZ = 0;
+
+    for (const f of frames) {
+      const p = f.position;
+      if (!p) continue;
+      if (p.x < minX) minX = p.x;
+      if (p.x > maxX) maxX = p.x;
+      if (p.z < minZ) minZ = p.z;
+      if (p.z > maxZ) maxZ = p.z;
+    }
+
+    // Snap grid center to 0.5-unit cell increments so grid lines stay anchored at (0, 0)
+    const centerX = Math.round(((minX + maxX) / 2) / 0.5) * 0.5;
+    const centerZ = Math.round(((minZ + maxZ) / 2) / 0.5) * 0.5;
+
+    const halfSpan =
+      Math.max(
+        Math.abs(maxX - centerX),
+        Math.abs(minX - centerX),
+        Math.abs(maxZ - centerZ),
+        Math.abs(minZ - centerZ)
+      ) + 6;
+
+    const rawSize = Math.max(Shoe3dSceneService.MIN_GRID_SIZE, Math.ceil(halfSpan * 2));
+    // Ensure even integer size
+    this.gridSize = rawSize % 2 === 0 ? rawSize : rawSize + 1;
+    this.gridCenter = { x: centerX, z: centerZ };
+  }
+
+  private rebuildGrid(): void {
+    if (!this.scene) return;
+
     if (this.gridHelper) {
       this.scene.remove(this.gridHelper);
       this.gridHelper.geometry.dispose();
       (this.gridHelper.material as THREE.Material).dispose();
-      this.gridHelper = new THREE.GridHelper(
-        16,
-        32,
-        isDark ? 0x38bdf8 : 0x0284c7,
-        isDark ? 0x334155 : 0xe2e8f0
-      );
-      this.gridHelper.position.y = Shoe3dSceneService.SCENE_BASE_Y - 0.01;
-      this.scene.add(this.gridHelper);
+      this.gridHelper = null;
     }
-    this.render();
+
+    const divisions = Math.min(400, Math.max(32, Math.round(this.gridSize * 2)));
+    this.gridHelper = new THREE.GridHelper(
+      this.gridSize,
+      divisions,
+      this.isDarkTheme ? 0x38bdf8 : 0x0284c7,
+      this.isDarkTheme ? 0x334155 : 0xe2e8f0
+    );
+    this.gridHelper.position.set(
+      this.gridCenter.x,
+      Shoe3dSceneService.SCENE_BASE_Y - 0.01,
+      this.gridCenter.z
+    );
+    this.scene.add(this.gridHelper);
   }
 
   setTrajectory(frames: OrientationFrame[]): void {
     this.pendingTrajectoryFrames = frames;
+    this.updateAdaptiveGridMetrics(frames ?? []);
     if (!this.scene) return;
+
+    this.rebuildGrid();
 
     if (this.trajectoryLine) {
       this.scene.remove(this.trajectoryLine);
@@ -280,12 +341,12 @@ export class Shoe3dSceneService {
 
     this.shoePosition.set(worldX, worldY, worldZ);
 
-    // Camera target tracks the shoe's 3D displacement (smoothing vertical jitter)
-    this.cameraTarget.set(
-      worldX,
-      Shoe3dSceneService.SCENE_BASE_Y + pos.y * 0.6,
-      worldZ
-    );
+    // Smooth camera tracking: snap on initial/reset frame (frameIndex === 0), smooth lerp afterwards
+    if (frameIndex <= 0) {
+      this.cameraTarget.copy(this.shoePosition);
+    } else {
+      this.cameraTarget.lerp(this.shoePosition, Shoe3dSceneService.CAMERA_FOLLOW_LERP);
+    }
     this.updateCameraPosition();
 
     if (!this.shoeGroup) return;
@@ -308,8 +369,8 @@ export class Shoe3dSceneService {
 
     // Keep shadow directional light and floor following the shoe
     if (this.dirLight) {
-      this.dirLight.position.set(worldX + 4, 8, worldZ + 4);
-      this.dirLight.target.position.set(worldX, Shoe3dSceneService.SCENE_BASE_Y, worldZ);
+      this.dirLight.position.set(worldX + 4, worldY + 8, worldZ + 4);
+      this.dirLight.target.position.set(worldX, worldY, worldZ);
       this.dirLight.target.updateMatrixWorld();
     }
     if (this.floorMesh) {

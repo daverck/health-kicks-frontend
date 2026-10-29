@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Shoe3dViewerComponent } from './shoe-3d-viewer.component';
+import { Shoe3dSceneService } from './shoe-3d-scene.service';
 import { ImuReading } from '../../../models/telemetry.models';
 
 describe('Shoe3dViewerComponent', () => {
@@ -211,7 +212,7 @@ describe('Shoe3dViewerComponent', () => {
     expect(viewport.classList.contains('border-primary-500')).toBeFalse();
   });
 
-  it('should use zoomed-out initial camera radius (4.8), lower base plane (-0.35), and track shoe 3D displacement with camera', () => {
+  it('should use zoomed-out initial camera radius (4.8), lower base plane (-0.35), smoothly track shoe 3D displacement with camera, and adapt grid size to trajectory', () => {
     const dynamicReadings: ImuReading[] = [
       {
         timestamp_epoch_us: 1000000,
@@ -255,7 +256,7 @@ describe('Shoe3dViewerComponent', () => {
     expect(initialShoePos.y).toBeCloseTo(-0.35, 3);
     expect(initialShoePos.z).toBeCloseTo(0, 3);
 
-    // Seek to end of dynamic movement: shoe and camera target must both move
+    // Seek to end of dynamic movement: shoe moves and camera target smoothly lerps toward it
     component.seekTo(0.1, false);
     const movedShoePos = component.sceneService.getShoePosition();
     const movedCamTarget = component.sceneService.getCameraTarget();
@@ -264,7 +265,41 @@ describe('Shoe3dViewerComponent', () => {
     expect(movedShoePos.x).toBeGreaterThan(0);
     expect(movedShoePos.y).toBeGreaterThan(-0.35);
 
-    expect(movedCamTarget.x).toBeCloseTo(movedShoePos.x, 4);
-    expect(movedCamTarget.z).toBeCloseTo(movedShoePos.z, 4);
+    expect(movedCamTarget.x).toBeCloseTo(
+      movedShoePos.x * Shoe3dSceneService.CAMERA_FOLLOW_LERP,
+      4
+    );
+    expect(movedCamTarget.z).toBeCloseTo(
+      movedShoePos.z * Shoe3dSceneService.CAMERA_FOLLOW_LERP,
+      4
+    );
+
+    // Verify adaptive grid sizing when a large trajectory is set while keeping grid at Y = 0
+    component.sceneService.setTrajectory([
+      {
+        timeSec: 0,
+        q: { w: 1, x: 0, y: 0, z: 0 },
+        euler: { roll: 0, pitch: 0, yaw: 0 },
+        gaitPhase: 'neutral',
+        accelMag: 1,
+        gyroMag: 0,
+        position: { x: 0, y: 0, z: 0 },
+      },
+      {
+        timeSec: 1,
+        q: { w: 1, x: 0, y: 0, z: 0 },
+        euler: { roll: 0, pitch: 0, yaw: 0 },
+        gaitPhase: 'swing',
+        accelMag: 1.5,
+        gyroMag: 1,
+        position: { x: 4, y: -3.2, z: 25 },
+      },
+    ]);
+
+    expect(component.sceneService.getGridSize()).toBeGreaterThan(16);
+    expect(component.sceneService.getGridPosition().y).toBeCloseTo(
+      Shoe3dSceneService.SCENE_BASE_Y - 0.01,
+      4
+    );
   });
 });

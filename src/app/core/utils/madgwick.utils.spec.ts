@@ -122,46 +122,70 @@ describe('MadgwickUtils', () => {
       expect(trajectory[0].position).toEqual({ x: 0, y: 0, z: 0 });
     });
 
-    it('should integrate 3D position from tri-axial accelerations and damp velocity during ZUPT', () => {
-      const dynamicReadings: ImuReading[] = [
-        {
-          timestamp_epoch_us: 1000000,
+    it('should integrate 3D position from tri-axial accelerations without backward reversal on a symmetric walking step', () => {
+      // Simulate a walking step: rest -> 5 frames of +0.8g forward accel -> 5 frames of -0.8g braking decel -> 3 frames of rest
+      const stepReadings: ImuReading[] = [];
+      let tUs = 1000000;
+      const pushFrame = (ax: number, ay: number, az: number) => {
+        stepReadings.push({
+          timestamp_epoch_us: tUs,
           timestamp_iso: '2026-10-07T00:00:01.000Z',
-          ax: 0.0,
-          ay: 0.0,
-          az: 1.0,
-          gx: 0.0,
-          gy: 0.0,
-          gz: 0.0,
-        },
-        {
-          timestamp_epoch_us: 1050000,
-          timestamp_iso: '2026-10-07T00:00:01.050Z',
-          ax: 0.8,
-          ay: 0.4,
-          az: 1.5,
-          gx: 20.0,
-          gy: 10.0,
-          gz: 5.0,
-        },
-        {
-          timestamp_epoch_us: 1100000,
-          timestamp_iso: '2026-10-07T00:00:01.100Z',
-          ax: 0.9,
-          ay: 0.3,
-          az: 1.3,
-          gx: 15.0,
-          gy: 5.0,
-          gz: 2.0,
-        },
-      ];
+          ax,
+          ay,
+          az,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 20000; // 20ms (50Hz)
+      };
 
-      const trajectory = computeOrientationTrajectory(dynamicReadings);
-      expect(trajectory.length).toBe(3);
-      expect(trajectory[0].position).toEqual({ x: 0, y: 0, z: 0 });
-      expect(trajectory[2].position.z).toBeGreaterThan(0);
-      expect(trajectory[2].position.x).toBeGreaterThan(0);
-      expect(trajectory[2].position.y).toBeGreaterThan(0);
+      pushFrame(0, 0, 1.0); // Initial stationary reference
+      for (let i = 0; i < 5; i++) pushFrame(0.8, 0, 1.0); // Forward push-off
+      for (let i = 0; i < 5; i++) pushFrame(-0.8, 0, 1.0); // Equal braking deceleration
+      for (let i = 0; i < 3; i++) pushFrame(0, 0, 1.0); // Stance phase
+
+      const trajectory = computeOrientationTrajectory(stepReadings);
+      // Forward position z must never move backward during or after braking
+      for (let i = 1; i < trajectory.length; i++) {
+        expect(trajectory[i].position.z).toBeGreaterThanOrEqual(
+          trajectory[i - 1].position.z - 1e-6
+        );
+      }
+      expect(trajectory[trajectory.length - 1].position.z).toBeGreaterThan(0.1);
+    });
+
+    it('should preserve vertical height (Y) during stair climbing and allow negative Y for descent without clamping', () => {
+      const stairReadings: ImuReading[] = [];
+      let tUs = 1000000;
+      const pushFrame = (ax: number, ay: number, az: number) => {
+        stairReadings.push({
+          timestamp_epoch_us: tUs,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax,
+          ay,
+          az,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 20000;
+      };
+
+      pushFrame(0, 0, 1.0);
+      // Upward acceleration then equal downward deceleration to land on a higher step
+      for (let i = 0; i < 4; i++) pushFrame(0.5, 0, 1.8);
+      for (let i = 0; i < 4; i++) pushFrame(-0.5, 0, 0.2);
+      // Stationary on the stair step: height Y must be preserved and not pulled back toward 0
+      const stepLandIndex = stairReadings.length - 1;
+      for (let i = 0; i < 5; i++) pushFrame(0, 0, 1.0);
+
+      const trajectory = computeOrientationTrajectory(stairReadings);
+      const heightAtLanding = trajectory[stepLandIndex].position.y;
+      const heightAfterStance = trajectory[trajectory.length - 1].position.y;
+
+      expect(heightAtLanding).toBeGreaterThan(0.05);
+      expect(heightAfterStance).toBeCloseTo(heightAtLanding, 4);
     });
   });
 });
