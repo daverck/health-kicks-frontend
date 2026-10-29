@@ -435,6 +435,55 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
+  it('should navigate to first and last page via first and last buttons', () => {
+    studioHistoryServiceSpy.getSessions.and.callFake((params) => {
+      return of({
+        ...mockPaginatedSessionsResponse,
+        items: mockStudioSessionSummaries,
+        total: 60,
+        page: params?.page ?? 1,
+        size: params?.size ?? 20,
+      });
+    });
+
+    fixture.detectChanges();
+    component.goToPage(2);
+    fixture.detectChanges();
+
+    expect(component.page()).toBe(2);
+    expect(component.totalPages()).toBe(3);
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const firstBtn = compiled.querySelector('#first-page-btn') as HTMLButtonElement;
+    const lastBtn = compiled.querySelector('#last-page-btn') as HTMLButtonElement;
+    expect(firstBtn).toBeTruthy();
+    expect(lastBtn).toBeTruthy();
+    expect(firstBtn.disabled).toBeFalse();
+    expect(lastBtn.disabled).toBeFalse();
+
+    // Click last page button
+    lastBtn.click();
+    fixture.detectChanges();
+    expect(component.page()).toBe(3);
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 3,
+      size: 20,
+    });
+    expect(lastBtn.disabled).toBeTrue();
+    expect(firstBtn.disabled).toBeFalse();
+
+    // Click first page button
+    firstBtn.click();
+    fixture.detectChanges();
+    expect(component.page()).toBe(1);
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+    });
+    expect(firstBtn.disabled).toBeTrue();
+    expect(lastBtn.disabled).toBeFalse();
+  });
+
   it('should open inspection drawer and render inspection component with active session', () => {
     fixture.detectChanges();
 

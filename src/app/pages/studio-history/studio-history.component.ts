@@ -389,14 +389,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   goToPage(p: number): void {
-    if (
-      p < 1 ||
-      p > this.totalPages() ||
-      p === this.page() ||
-      !this.pageCursors.has(p)
-    ) {
+    if (p < 1 || p > this.totalPages() || p === this.page()) {
       return;
     }
+    // Keyset cursor exists for p? If not, fallback to direct offset page jump
     this.page.set(p);
     this.loadSessions();
   }
