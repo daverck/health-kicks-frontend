@@ -210,4 +210,61 @@ describe('Shoe3dViewerComponent', () => {
     expect(hintBadge.textContent).toContain('Cliquer pour activer le zoom');
     expect(viewport.classList.contains('border-primary-500')).toBeFalse();
   });
+
+  it('should use zoomed-out initial camera radius (4.8), lower base plane (-0.35), and track shoe 3D displacement with camera', () => {
+    const dynamicReadings: ImuReading[] = [
+      {
+        timestamp_epoch_us: 1000000,
+        timestamp_iso: '2026-10-07T00:00:01.000Z',
+        ax: 0.0,
+        ay: 0.0,
+        az: 1.0,
+        gx: 0.0,
+        gy: 0.0,
+        gz: 0.0,
+      },
+      {
+        timestamp_epoch_us: 1050000,
+        timestamp_iso: '2026-10-07T00:00:01.050Z',
+        ax: 0.85,
+        ay: 0.35,
+        az: 1.4,
+        gx: 25.0,
+        gy: 10.0,
+        gz: 0.0,
+      },
+      {
+        timestamp_epoch_us: 1100000,
+        timestamp_iso: '2026-10-07T00:00:01.100Z',
+        ax: 0.9,
+        ay: 0.4,
+        az: 1.3,
+        gx: 20.0,
+        gy: 8.0,
+        gz: 0.0,
+      },
+    ];
+
+    fixture.componentRef.setInput('readings', dynamicReadings);
+    fixture.detectChanges();
+
+    // Initial zoomed-out radius and lowered base plane
+    expect(component.sceneService.getCameraRadius()).toBeCloseTo(4.8, 2);
+    const initialShoePos = component.sceneService.getShoePosition();
+    expect(initialShoePos.x).toBeCloseTo(0, 3);
+    expect(initialShoePos.y).toBeCloseTo(-0.35, 3);
+    expect(initialShoePos.z).toBeCloseTo(0, 3);
+
+    // Seek to end of dynamic movement: shoe and camera target must both move
+    component.seekTo(0.1, false);
+    const movedShoePos = component.sceneService.getShoePosition();
+    const movedCamTarget = component.sceneService.getCameraTarget();
+
+    expect(movedShoePos.z).toBeGreaterThan(0);
+    expect(movedShoePos.x).toBeGreaterThan(0);
+    expect(movedShoePos.y).toBeGreaterThan(-0.35);
+
+    expect(movedCamTarget.x).toBeCloseTo(movedShoePos.x, 4);
+    expect(movedCamTarget.z).toBeCloseTo(movedShoePos.z, 4);
+  });
 });

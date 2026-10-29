@@ -119,6 +119,49 @@ describe('MadgwickUtils', () => {
       expect(trajectory[0].q.w).toBeDefined();
       expect(trajectory[0].euler.pitch).toBeDefined();
       expect(trajectory[0].gaitPhase).toBeDefined();
+      expect(trajectory[0].position).toEqual({ x: 0, y: 0, z: 0 });
+    });
+
+    it('should integrate 3D position from tri-axial accelerations and damp velocity during ZUPT', () => {
+      const dynamicReadings: ImuReading[] = [
+        {
+          timestamp_epoch_us: 1000000,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax: 0.0,
+          ay: 0.0,
+          az: 1.0,
+          gx: 0.0,
+          gy: 0.0,
+          gz: 0.0,
+        },
+        {
+          timestamp_epoch_us: 1050000,
+          timestamp_iso: '2026-10-07T00:00:01.050Z',
+          ax: 0.8,
+          ay: 0.4,
+          az: 1.5,
+          gx: 20.0,
+          gy: 10.0,
+          gz: 5.0,
+        },
+        {
+          timestamp_epoch_us: 1100000,
+          timestamp_iso: '2026-10-07T00:00:01.100Z',
+          ax: 0.9,
+          ay: 0.3,
+          az: 1.3,
+          gx: 15.0,
+          gy: 5.0,
+          gz: 2.0,
+        },
+      ];
+
+      const trajectory = computeOrientationTrajectory(dynamicReadings);
+      expect(trajectory.length).toBe(3);
+      expect(trajectory[0].position).toEqual({ x: 0, y: 0, z: 0 });
+      expect(trajectory[2].position.z).toBeGreaterThan(0);
+      expect(trajectory[2].position.x).toBeGreaterThan(0);
+      expect(trajectory[2].position.y).toBeGreaterThan(0);
     });
   });
 });

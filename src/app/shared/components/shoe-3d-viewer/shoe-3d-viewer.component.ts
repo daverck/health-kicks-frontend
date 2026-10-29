@@ -157,12 +157,14 @@ export class Shoe3dViewerComponent
     const list = this.readings();
     if (!list || list.length === 0) {
       this.trajectory = [];
+      this.sceneService.setTrajectory([]);
       this.totalDurationSec.set(0);
       this.currentTimeSec.set(0);
       return;
     }
 
     this.trajectory = computeOrientationTrajectory(list, 0.25);
+    this.sceneService.setTrajectory(this.trajectory);
     const duration =
       this.trajectory.length > 0
         ? this.trajectory[this.trajectory.length - 1].timeSec
@@ -294,10 +296,30 @@ export class Shoe3dViewerComponent
     let idx = this.trajectory.findIndex((f) => f.timeSec >= timeSec);
     if (idx === -1) idx = this.trajectory.length - 1;
 
-    const frame = this.trajectory[idx];
+    let frame = this.trajectory[idx];
     if (!frame) return;
 
-    this.sceneService.updatePose(frame, this.baseInverseQuat);
+    if (idx > 0 && timeSec < frame.timeSec) {
+      const prev = this.trajectory[idx - 1];
+      const span = frame.timeSec - prev.timeSec;
+      const alpha = span > 1e-5 ? Math.max(0, Math.min(1, (timeSec - prev.timeSec) / span)) : 1;
+
+      const qPrev = new THREE.Quaternion(prev.q.x, prev.q.y, prev.q.z, prev.q.w);
+      const qNext = new THREE.Quaternion(frame.q.x, frame.q.y, frame.q.z, frame.q.w);
+      qPrev.slerp(qNext, alpha);
+
+      frame = {
+        ...frame,
+        q: { w: qPrev.w, x: qPrev.x, y: qPrev.y, z: qPrev.z },
+        position: {
+          x: prev.position.x + (frame.position.x - prev.position.x) * alpha,
+          y: prev.position.y + (frame.position.y - prev.position.y) * alpha,
+          z: prev.position.z + (frame.position.z - prev.position.z) * alpha,
+        },
+      };
+    }
+
+    this.sceneService.updatePose(frame, this.baseInverseQuat, idx);
 
     const ax = frame.accel?.ax ?? 0;
     const ay = frame.accel?.ay ?? 0;

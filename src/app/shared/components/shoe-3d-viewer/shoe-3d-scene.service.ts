@@ -7,11 +7,15 @@ import { OrientationFrame } from '../../../core/utils/madgwick.utils';
  * Service encapsulating the Three.js 3D rendering pipeline for the biomechanical shoe viewer:
  * - Scene graph, perspective camera, WebGL renderer, lights, shadow receiver floor, and grid.
  * - Procedural/GLTF sneaker model loading, caching, and centering.
- * - ISB standard coordinate axes (X red, Y emerald, Z blue) and dynamic 3D acceleration vectors.
- * - Orbit interaction controls (pointer rotation and wheel zoom) and viewport resizing.
+ * - ISB standard coordinate axes (X red, Y emerald, Z blue), 3D trajectory trail, and dynamic 3D acceleration vectors.
+ * - Orbit interaction controls (pointer rotation and wheel zoom), camera tracking, and viewport resizing.
  */
 @Injectable()
 export class Shoe3dSceneService {
+  static readonly DEFAULT_CAMERA_RADIUS = 4.8;
+  static readonly SCENE_BASE_Y = -0.35;
+  static readonly CAMERA_LOOKAT_Y_OFFSET = 0.65;
+
   readonly hasWebGlError = signal<boolean>(false);
   readonly isModelLoading = signal<boolean>(false);
   readonly showAxes = signal<boolean>(true);
@@ -21,6 +25,8 @@ export class Shoe3dSceneService {
   private scene: THREE.Scene | null = null;
   private camera: THREE.PerspectiveCamera | null = null;
   private renderer: THREE.WebGLRenderer | null = null;
+  private dirLight: THREE.DirectionalLight | null = null;
+  private floorMesh: THREE.Mesh | null = null;
   private shoeGroup: THREE.Group | null = null;
   private axesGroup: THREE.Group | null = null;
   private accelVectorsGroup: THREE.Group | null = null;
@@ -28,13 +34,21 @@ export class Shoe3dSceneService {
   private accelAxArrow: THREE.ArrowHelper | null = null;
   private accelAyArrow: THREE.ArrowHelper | null = null;
   private accelAzArrow: THREE.ArrowHelper | null = null;
+  private trajectoryLine: THREE.Line | null = null;
   private gridHelper: THREE.GridHelper | null = null;
   private resizeObserver: ResizeObserver | null = null;
 
   private isPointerDown = false;
   private prevPointerX = 0;
   private prevPointerY = 0;
-  private cameraSpherical = { radius: 3.8, theta: Math.PI / 4, phi: Math.PI / 3 };
+  private cameraSpherical = {
+    radius: Shoe3dSceneService.DEFAULT_CAMERA_RADIUS,
+    theta: Math.PI / 4,
+    phi: Math.PI / 3,
+  };
+  private cameraTarget = new THREE.Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
+  private shoePosition = new THREE.Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
+  private pendingTrajectoryFrames: OrientationFrame[] = [];
 
   private static cachedSneakerMesh: THREE.Group | null = null;
 
@@ -47,7 +61,7 @@ export class Shoe3dSceneService {
       this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
 
       // Camera
-      this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
+      this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 80);
       this.updateCameraPosition();
 
       // Renderer
@@ -67,38 +81,44 @@ export class Shoe3dSceneService {
       hemiLight.position.set(0, 10, 0);
       this.scene.add(hemiLight);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-      dirLight.position.set(4, 8, 4);
-      dirLight.castShadow = true;
-      dirLight.shadow.mapSize.width = 1024;
-      dirLight.shadow.mapSize.height = 1024;
-      dirLight.shadow.camera.near = 0.5;
-      dirLight.shadow.camera.far = 20;
-      dirLight.shadow.bias = -0.001;
-      this.scene.add(dirLight);
+      this.dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      this.dirLight.position.set(4, 8, 4);
+      this.dirLight.castShadow = true;
+      this.dirLight.shadow.mapSize.width = 1024;
+      this.dirLight.shadow.mapSize.height = 1024;
+      this.dirLight.shadow.camera.near = 0.5;
+      this.dirLight.shadow.camera.far = 25;
+      this.dirLight.shadow.bias = -0.001;
+      this.scene.add(this.dirLight);
+      this.scene.add(this.dirLight.target);
 
-      // Floor Grid and Shadow Receiver
+      // Floor Grid and Shadow Receiver (lowered by SCENE_BASE_Y)
       this.gridHelper = new THREE.GridHelper(
-        5,
-        10,
+        16,
+        32,
         isDark ? 0x38bdf8 : 0x0284c7,
         isDark ? 0x334155 : 0xe2e8f0
       );
-      this.gridHelper.position.y = -0.01;
+      this.gridHelper.position.y = Shoe3dSceneService.SCENE_BASE_Y - 0.01;
       this.scene.add(this.gridHelper);
 
-      const floorGeo = new THREE.PlaneGeometry(8, 8);
+      const floorGeo = new THREE.PlaneGeometry(24, 24);
       const floorMat = new THREE.ShadowMaterial({ opacity: isDark ? 0.35 : 0.15 });
-      const floor = new THREE.Mesh(floorGeo, floorMat);
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = -0.02;
-      floor.receiveShadow = true;
-      this.scene.add(floor);
+      this.floorMesh = new THREE.Mesh(floorGeo, floorMat);
+      this.floorMesh.rotation.x = -Math.PI / 2;
+      this.floorMesh.position.y = Shoe3dSceneService.SCENE_BASE_Y - 0.02;
+      this.floorMesh.receiveShadow = true;
+      this.scene.add(this.floorMesh);
 
       // Shoe Group
       this.shoeGroup = new THREE.Group();
+      this.shoeGroup.position.copy(this.shoePosition);
       this.rebuildModel();
       this.scene.add(this.shoeGroup);
+
+      if (this.pendingTrajectoryFrames.length > 0) {
+        this.setTrajectory(this.pendingTrajectoryFrames);
+      }
 
       // Setup Mouse/Touch Orbit Controls & Resize Observer
       this.setupOrbitHandlers(container);
@@ -148,7 +168,7 @@ export class Shoe3dSceneService {
     e.preventDefault();
     this.cameraSpherical.radius = Math.max(
       2.0,
-      Math.min(7.0, this.cameraSpherical.radius + e.deltaY * 0.003)
+      Math.min(9.0, this.cameraSpherical.radius + e.deltaY * 0.003)
     );
     if (!this.camera) return;
 
@@ -160,8 +180,28 @@ export class Shoe3dSceneService {
     return this.cameraSpherical.radius;
   }
 
+  getCameraTarget(): { x: number; y: number; z: number } {
+    return {
+      x: this.cameraTarget.x,
+      y: this.cameraTarget.y,
+      z: this.cameraTarget.z,
+    };
+  }
+
+  getShoePosition(): { x: number; y: number; z: number } {
+    return {
+      x: this.shoePosition.x,
+      y: this.shoePosition.y,
+      z: this.shoePosition.z,
+    };
+  }
+
   resetCameraView(): void {
-    this.cameraSpherical = { radius: 3.8, theta: Math.PI / 4, phi: Math.PI / 3 };
+    this.cameraSpherical = {
+      radius: Shoe3dSceneService.DEFAULT_CAMERA_RADIUS,
+      theta: Math.PI / 4,
+      phi: Math.PI / 3,
+    };
     this.updateCameraPosition();
     this.render();
   }
@@ -174,19 +214,81 @@ export class Shoe3dSceneService {
       this.gridHelper.geometry.dispose();
       (this.gridHelper.material as THREE.Material).dispose();
       this.gridHelper = new THREE.GridHelper(
-        5,
-        10,
+        16,
+        32,
         isDark ? 0x38bdf8 : 0x0284c7,
         isDark ? 0x334155 : 0xe2e8f0
       );
-      this.gridHelper.position.y = -0.01;
+      this.gridHelper.position.y = Shoe3dSceneService.SCENE_BASE_Y - 0.01;
       this.scene.add(this.gridHelper);
     }
     this.render();
   }
 
-  updatePose(frame: OrientationFrame | null, baseInverseQuat: THREE.Quaternion): void {
-    if (!this.shoeGroup || !frame) return;
+  setTrajectory(frames: OrientationFrame[]): void {
+    this.pendingTrajectoryFrames = frames;
+    if (!this.scene) return;
+
+    if (this.trajectoryLine) {
+      this.scene.remove(this.trajectoryLine);
+      this.trajectoryLine.geometry.dispose();
+      (this.trajectoryLine.material as THREE.Material).dispose();
+      this.trajectoryLine = null;
+    }
+
+    if (!frames || frames.length < 2) return;
+
+    const points: THREE.Vector3[] = frames.map((f) => {
+      const p = f.position ?? { x: 0, y: 0, z: 0 };
+      return new THREE.Vector3(
+        p.x,
+        Shoe3dSceneService.SCENE_BASE_Y + p.y + 0.05,
+        p.z
+      );
+    });
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    geometry.setDrawRange(0, 1);
+
+    const material = new THREE.LineBasicMaterial({
+      color: 0x0ea5e9,
+      transparent: true,
+      opacity: 0.75,
+    });
+
+    this.trajectoryLine = new THREE.Line(geometry, material);
+    this.trajectoryLine.name = 'shoe-trajectory-line';
+    this.scene.add(this.trajectoryLine);
+  }
+
+  updatePose(
+    frame: OrientationFrame | null,
+    baseInverseQuat: THREE.Quaternion,
+    frameIndex = 0
+  ): void {
+    if (!frame) return;
+
+    const ax = frame.accel?.ax ?? 0;
+    const ay = frame.accel?.ay ?? 0;
+    const az = frame.accel?.az ?? 1.0;
+
+    // Position from integrated tri-axial acceleration trajectory
+    const pos = frame.position ?? { x: 0, y: 0, z: 0 };
+    const worldX = pos.x;
+    const worldY = Shoe3dSceneService.SCENE_BASE_Y + pos.y;
+    const worldZ = pos.z;
+
+    this.shoePosition.set(worldX, worldY, worldZ);
+
+    // Camera target tracks the shoe's 3D displacement (smoothing vertical jitter)
+    this.cameraTarget.set(
+      worldX,
+      Shoe3dSceneService.SCENE_BASE_Y + pos.y * 0.6,
+      worldZ
+    );
+    this.updateCameraPosition();
+
+    if (!this.shoeGroup) return;
 
     // Convert raw frame quaternion to Three.js orientation space
     // Sensor ISB Frame -> Three.js Cyclic Permutation:
@@ -202,26 +304,23 @@ export class Shoe3dSceneService {
 
     const targetQ = baseInverseQuat.clone().multiply(qRaw);
     this.shoeGroup.quaternion.copy(targetQ);
+    this.shoeGroup.position.copy(this.shoePosition);
 
-    const ax = frame.accel?.ax ?? 0;
-    const ay = frame.accel?.ay ?? 0;
-    const az = frame.accel?.az ?? 1.0;
-
-    // Elevation bobbing according to gait phase & vertical acceleration compliance
-    let verticalOffset = 0;
-    if (frame.gaitPhase === 'heel_strike') {
-      verticalOffset = 0.08;
-    } else if (frame.gaitPhase === 'toe_off') {
-      verticalOffset = 0.12;
-    } else if (frame.gaitPhase === 'swing') {
-      verticalOffset = 0.16;
+    // Keep shadow directional light and floor following the shoe
+    if (this.dirLight) {
+      this.dirLight.position.set(worldX + 4, 8, worldZ + 4);
+      this.dirLight.target.position.set(worldX, Shoe3dSceneService.SCENE_BASE_Y, worldZ);
+      this.dirLight.target.updateMatrixWorld();
+    }
+    if (this.floorMesh) {
+      this.floorMesh.position.x = worldX;
+      this.floorMesh.position.z = worldZ;
     }
 
-    const vertDynamic = Math.max(-0.06, Math.min((az - 1.0) * 0.06, 0.14));
-    const forwardDynamic = Math.max(-0.12, Math.min(ax * 0.05, 0.12));
-    const lateralDynamic = Math.max(-0.08, Math.min(ay * 0.04, 0.08));
-
-    this.shoeGroup.position.set(lateralDynamic, verticalOffset + vertDynamic, forwardDynamic);
+    // Update 3D trajectory trail progress
+    if (this.trajectoryLine) {
+      this.trajectoryLine.geometry.setDrawRange(0, Math.max(1, frameIndex + 1));
+    }
 
     // Update dynamic acceleration vectors:
     if (this.accelVectorsGroup && this.showAccelVectors()) {
@@ -288,7 +387,10 @@ export class Shoe3dSceneService {
     }
     this.scene = null;
     this.camera = null;
+    this.dirLight = null;
+    this.floorMesh = null;
     this.shoeGroup = null;
+    this.trajectoryLine = null;
   }
 
   private rebuildModel(): void {
@@ -561,17 +663,25 @@ export class Shoe3dSceneService {
 
     container.addEventListener('pointerup', stopDrag);
     container.addEventListener('pointercancel', stopDrag);
-
   }
 
   private updateCameraPosition(): void {
     if (!this.camera) return;
     const { radius, theta, phi } = this.cameraSpherical;
-    const x = radius * Math.sin(phi) * Math.sin(theta);
-    const y = radius * Math.cos(phi);
-    const z = radius * Math.sin(phi) * Math.cos(theta);
-    this.camera.position.set(x, y, z);
-    this.camera.lookAt(0, 0.35, 0);
+    const offsetX = radius * Math.sin(phi) * Math.sin(theta);
+    const offsetY = radius * Math.cos(phi);
+    const offsetZ = radius * Math.sin(phi) * Math.cos(theta);
+
+    const lookAtX = this.cameraTarget.x;
+    const lookAtY = this.cameraTarget.y + Shoe3dSceneService.CAMERA_LOOKAT_Y_OFFSET;
+    const lookAtZ = this.cameraTarget.z;
+
+    this.camera.position.set(
+      lookAtX + offsetX,
+      lookAtY + offsetY,
+      lookAtZ + offsetZ
+    );
+    this.camera.lookAt(lookAtX, lookAtY, lookAtZ);
   }
 
   private setupResizeObserver(container: HTMLElement): void {

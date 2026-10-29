@@ -10,6 +10,7 @@ export interface OrientationFrame {
   accelMag: number;
   gyroMag: number;
   accel?: { ax: number; ay: number; az: number };
+  position: { x: number; y: number; z: number };
 }
 
 /**
@@ -177,8 +178,35 @@ export function classifyGaitPhase(
   return 'neutral';
 }
 
+function multiplyQuat(
+  a: { w: number; x: number; y: number; z: number },
+  b: { w: number; x: number; y: number; z: number }
+): { w: number; x: number; y: number; z: number } {
+  return {
+    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+  };
+}
+
+function rotateVectorByQuat(
+  v: { x: number; y: number; z: number },
+  q: { w: number; x: number; y: number; z: number }
+): { x: number; y: number; z: number } {
+  const tx = 2 * (q.y * v.z - q.z * v.y);
+  const ty = 2 * (q.z * v.x - q.x * v.z);
+  const tz = 2 * (q.x * v.y - q.y * v.x);
+  return {
+    x: v.x + q.w * tx + (q.y * tz - q.z * ty),
+    y: v.y + q.w * ty + (q.z * tx - q.x * tz),
+    z: v.z + q.w * tz + (q.x * ty - q.y * tx),
+  };
+}
+
 /**
- * Pre-computes orientation quaternions and biomechanical angles for a complete IMU session.
+ * Pre-computes orientation quaternions, biomechanical angles, and 3D spatial trajectory
+ * from tri-axial accelerations (AX, AY, AZ) with ZUPT and drift damping.
  */
 export function computeOrientationTrajectory(
   readings: ImuReading[],
@@ -200,6 +228,20 @@ export function computeOrientationTrajectory(
   }
 
   const toRad = Math.PI / 180;
+  let qInitInv: { w: number; x: number; y: number; z: number } | null = null;
+  let baselineWorldAccel = { x: 0, y: 1.0, z: 0 };
+
+  let posX = 0;
+  let posY = 0;
+  let posZ = 0;
+  let velX = 0;
+  let velY = 0;
+  let velZ = 0;
+
+  // Visual scale factor converting g (9.81 m/s^2) into Three.js scene units/s^2
+  // (where the sneaker length is 2.0 units)
+  const ACCEL_SCENE_SCALE = 14.0;
+  const DEADZONE_G = 0.04;
 
   for (let i = 0; i < readings.length; i++) {
     const r = readings[i];
@@ -223,8 +265,6 @@ export function computeOrientationTrajectory(
     const gyroMag = Math.sqrt(gx * gx + gy * gy + gz * gz);
 
     // Dynamic gravity gating: only apply accelerometer correction when close to 1.0g
-    // During impact shocks or high dynamics (> 1.25g or < 0.75g), rely purely on gyro integration
-    // to prevent violent orientation flips
     const isStationaryOrSteady = Math.abs(accelMag - 1.0) < 0.25;
     const ax = isStationaryOrSteady ? r.ax : 0;
     const ay = isStationaryOrSteady ? r.ay : 0;
@@ -234,6 +274,57 @@ export function computeOrientationTrajectory(
     const euler = quaternionToEulerDeg(q);
     const gaitPhase = classifyGaitPhase(euler.pitch, accelMag, gyroMag);
 
+    // Map quaternion to Three.js scene space (X <- q.y, Y <- q.z, Z <- q.x)
+    const qScene = { w: q.w, x: q.y, y: q.z, z: q.x };
+    if (!qInitInv) {
+      qInitInv = { w: qScene.w, x: -qScene.x, y: -qScene.y, z: -qScene.z };
+      baselineWorldAccel = { x: r.ay, y: r.az, z: r.ax };
+    }
+
+    if (i > 0) {
+      const qRel = multiplyQuat(qInitInv, qScene);
+      const localAccelScene = { x: r.ay, y: r.az, z: r.ax };
+      const worldAccel = rotateVectorByQuat(localAccelScene, qRel);
+
+      let linX = worldAccel.x - baselineWorldAccel.x;
+      let linY = worldAccel.y - baselineWorldAccel.y;
+      let linZ = worldAccel.z - baselineWorldAccel.z;
+
+      if (Math.abs(linX) < DEADZONE_G) linX = 0;
+      if (Math.abs(linY) < DEADZONE_G) linY = 0;
+      if (Math.abs(linZ) < DEADZONE_G) linZ = 0;
+
+      const isZupt =
+        (gaitPhase === 'flat_foot' || gaitPhase === 'neutral') &&
+        Math.abs(accelMag - 1.0) < 0.12 &&
+        gyroMag < 0.6;
+
+      if (isZupt) {
+        velX *= 0.2;
+        velY *= 0.2;
+        velZ *= 0.2;
+        posY *= 0.7;
+      } else {
+        const decay = Math.pow(0.92, dt / 0.02);
+        velX = velX * decay + linX * ACCEL_SCENE_SCALE * dt;
+        velY = velY * decay + linY * ACCEL_SCENE_SCALE * dt;
+        velZ = velZ * decay + linZ * ACCEL_SCENE_SCALE * dt;
+      }
+
+      posX = Math.max(-8.0, Math.min(8.0, posX + velX * dt));
+      posZ = Math.max(-8.0, Math.min(8.0, posZ + velZ * dt));
+
+      let phaseLift = 0;
+      if (gaitPhase === 'heel_strike') phaseLift = 0.05;
+      else if (gaitPhase === 'toe_off') phaseLift = 0.08;
+      else if (gaitPhase === 'swing') phaseLift = 0.12;
+
+      posY = Math.max(0, Math.min(2.5, posY + velY * dt));
+      if (posY < phaseLift) {
+        posY = posY * 0.6 + phaseLift * 0.4;
+      }
+    }
+
     trajectory.push({
       timeSec,
       q: { ...q },
@@ -242,6 +333,7 @@ export function computeOrientationTrajectory(
       accelMag,
       gyroMag,
       accel: { ax: r.ax, ay: r.ay, az: r.az },
+      position: { x: posX, y: posY, z: posZ },
     });
   }
 
