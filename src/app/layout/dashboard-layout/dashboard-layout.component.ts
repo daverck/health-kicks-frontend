@@ -28,13 +28,13 @@ export class DashboardLayoutComponent implements OnInit {
   readonly isMobileMenuOpen = signal(false);
 
   readonly links = [
-    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: '🚶‍♂️' },
-    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳' },
-    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟' },
-    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓' },
-    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: '🚨' },
-    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬' },
-    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊' },
+    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: '🚶‍♂️', exact: true, clinicianOnly: false },
+    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳', exact: true, clinicianOnly: false },
+    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟', exact: true, clinicianOnly: false },
+    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓', exact: true, clinicianOnly: false },
+    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: '🚨', exact: true, clinicianOnly: false },
+    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬', exact: true, clinicianOnly: true },
+    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊', exact: false, clinicianOnly: true },
   ];
 
   readonly isClinicianOrAdmin = computed(() => {
@@ -42,8 +42,12 @@ export class DashboardLayoutComponent implements OnInit {
     return role === 'admin' || role === 'clinician';
   });
 
+  /**
+   * Masque les entrées de menu réservées aux rôles `clinician` et `admin`
+   * (Studio Capture et Historique Studio) pour les utilisateurs standards (`user`).
+   */
   readonly visibleLinks = computed(() =>
-    this.links.filter((l) => !l.path.startsWith('/dashboard/studio') || this.isClinicianOrAdmin())
+    this.links.filter((l) => !l.clinicianOnly || this.isClinicianOrAdmin())
   );
 
   constructor() {

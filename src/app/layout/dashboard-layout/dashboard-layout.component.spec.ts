@@ -1,10 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardLayoutComponent } from './dashboard-layout.component';
 import { AuthService } from '../../core/services/auth.service';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { Component } from '@angular/core';
 import { of } from 'rxjs';
 import { signal, WritableSignal } from '@angular/core';
 import { UserResponse } from '../../models/api.models';
+
+@Component({ standalone: true, template: '' })
+class DummyRouteComponent {}
 
 describe('DashboardLayoutComponent', () => {
   let component: DashboardLayoutComponent;
@@ -50,7 +54,10 @@ describe('DashboardLayoutComponent', () => {
     await TestBed.configureTestingModule({
       imports: [DashboardLayoutComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          { path: 'dashboard/studio', component: DummyRouteComponent },
+          { path: 'dashboard/studio/history', component: DummyRouteComponent },
+        ]),
         { provide: AuthService, useValue: authServiceSpy },
       ],
     }).compileComponents();
@@ -190,5 +197,27 @@ describe('DashboardLayoutComponent', () => {
     expect(component.avatarInitial(mockUser)).toBe('J');
     expect(component.avatarInitial({ ...mockUser, name: undefined, email: 'alex@test.com' })).toBe('A');
     expect(component.avatarInitial({ ...mockUser, name: '', email: '' })).toBe('?');
+  });
+
+  it('should not highlight /dashboard/studio link when navigating to /dashboard/studio/history', async () => {
+    userSignal.set(mockClinician);
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/dashboard/studio/history');
+    fixture.detectChanges();
+
+    const links = Array.from(
+      fixture.nativeElement.querySelectorAll('aside nav a')
+    ) as HTMLAnchorElement[];
+    const studioLink = links.find((a) => a.getAttribute('href') === '/dashboard/studio');
+    const studioHistoryLink = links.find(
+      (a) => a.getAttribute('href') === '/dashboard/studio/history'
+    );
+
+    expect(studioLink).toBeTruthy();
+    expect(studioHistoryLink).toBeTruthy();
+    expect(studioHistoryLink!.classList.contains('text-primary-700')).toBeTrue();
+    expect(studioLink!.classList.contains('text-primary-700')).toBeFalse();
   });
 });
