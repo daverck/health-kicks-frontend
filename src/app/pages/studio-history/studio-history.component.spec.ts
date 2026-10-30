@@ -14,6 +14,7 @@ import {
   mockStudioSessionSummaries,
 } from '../../../testing/mocks/studio-history.mock';
 import { mockStudioSessionReadingsResponse } from '../../../testing/mocks/telemetry.mock';
+import { StudioSessionSummary } from '../../models/studio-history.model';
 
 describe('StudioHistoryComponent', () => {
   let component: StudioHistoryComponent;
@@ -587,6 +588,128 @@ describe('StudioHistoryComponent', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
     expect(component.inspectingSession()).toBeNull();
+  });
+
+  it('should not skip the new first row when validating the first row while pending filter is active', () => {
+    const pendingSessions: StudioSessionSummary[] = [
+      { ...mockStudioSessionSummaries[0], uuid: 'sess-001', id: 'sess-001', is_validated: false },
+      { ...mockStudioSessionSummaries[1], uuid: 'sess-002', id: 'sess-002', is_validated: false },
+      { ...mockStudioSessionSummaries[2], uuid: 'sess-003', id: 'sess-003', is_validated: false },
+    ];
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({
+        items: pendingSessions,
+        total: 3,
+        page: 1,
+        size: 20,
+      })
+    );
+
+    component.selectedValidated.set('false');
+    component.loadSessions();
+    fixture.detectChanges();
+
+    // Inspect row 1 (index 0: sess-001)
+    component.openInspection(pendingSessions[0]);
+    fixture.detectChanges();
+    expect(component.currentSessionIndex()).toBe(0);
+
+    // Prepare mock for reload after sess-001 is validated and evicted from pending list
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({
+        items: [pendingSessions[1], pendingSessions[2]],
+        total: 2,
+        page: 1,
+        size: 20,
+      })
+    );
+
+    // Validate sess-001 from inspection drawer
+    component.onSessionConfirmedFromInspection({
+      ...pendingSessions[0],
+      is_validated: true,
+    });
+    fixture.detectChanges();
+
+    // sess-001 is evicted: currentSessionIndex shifts to -1 so nextIdx = 0 (sess-002, new row 1)
+    expect(component.isInspectingSessionEvicted()).toBeTrue();
+    expect(component.currentSessionIndex()).toBe(-1);
+    expect(component.hasPreviousSession()).toBeFalse();
+    expect(component.hasNextSession()).toBeTrue();
+
+    // Clicking "Next" selects sess-002 (new row 1, old row 2) instead of skipping to sess-003
+    component.goToNextSession();
+    fixture.detectChanges();
+
+    expect(component.inspectingSession()?.id).toBe('sess-002');
+    expect(component.currentSessionIndex()).toBe(0);
+  });
+
+  it('should navigate accurately to both previous and next rows when a middle row is evicted by status filter', () => {
+    const pendingSessions: StudioSessionSummary[] = [
+      { ...mockStudioSessionSummaries[0], uuid: 'sess-001', id: 'sess-001', is_validated: false },
+      { ...mockStudioSessionSummaries[1], uuid: 'sess-002', id: 'sess-002', is_validated: false },
+      { ...mockStudioSessionSummaries[2], uuid: 'sess-003', id: 'sess-003', is_validated: false },
+    ];
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({
+        items: pendingSessions,
+        total: 3,
+        page: 1,
+        size: 20,
+      })
+    );
+
+    component.selectedValidated.set('false');
+    component.loadSessions();
+    fixture.detectChanges();
+
+    // Inspect row 2 (index 1: sess-002)
+    component.openInspection(pendingSessions[1]);
+    fixture.detectChanges();
+    expect(component.currentSessionIndex()).toBe(1);
+
+    // Reload after sess-002 is validated: remaining list is [sess-001, sess-003]
+    studioHistoryServiceSpy.getSessions.and.returnValue(
+      of({
+        items: [pendingSessions[0], pendingSessions[2]],
+        total: 2,
+        page: 1,
+        size: 20,
+      })
+    );
+
+    component.onSessionConfirmedFromInspection({
+      ...pendingSessions[1],
+      is_validated: true,
+    });
+    fixture.detectChanges();
+
+    expect(component.isInspectingSessionEvicted()).toBeTrue();
+    expect(component.currentSessionIndex()).toBe(0);
+    expect(component.hasPreviousSession()).toBeTrue();
+    expect(component.hasNextSession()).toBeTrue();
+
+    // Clicking "Next" opens sess-003 (now at index 1)
+    component.goToNextSession();
+    fixture.detectChanges();
+    expect(component.inspectingSession()?.id).toBe('sess-003');
+    expect(component.currentSessionIndex()).toBe(1);
+
+    // Re-simulate eviction of sess-002 at index 1 to test "Previous"
+    component.sessions.set(pendingSessions);
+    component.openInspection(pendingSessions[1]);
+    component.onSessionConfirmedFromInspection({
+      ...pendingSessions[1],
+      is_validated: true,
+    });
+    fixture.detectChanges();
+
+    // Clicking "Previous" opens sess-001 (at index 0)
+    component.goToPreviousSession();
+    fixture.detectChanges();
+    expect(component.inspectingSession()?.id).toBe('sess-001');
+    expect(component.currentSessionIndex()).toBe(0);
   });
 
   it('should navigate across pages when reaching the boundary of the current page list', () => {

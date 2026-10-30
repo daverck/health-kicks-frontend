@@ -134,7 +134,13 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   // Inspection Drawer State
   readonly inspectingSession = signal<StudioSessionSummary | null>(null);
 
-  // Index of inspecting session or fallback index when session is evicted by status filter
+  readonly isInspectingSessionEvicted = computed<boolean>(() => {
+    const current = this.inspectingSession();
+    if (!current) return false;
+    return !this.sessions().some((s) => (s.uuid ?? s.id) === (current.uuid ?? current.id));
+  });
+
+  // Index of inspecting session or shifted index when session is evicted by status filter
   readonly currentSessionIndex = computed<number>(() => {
     const current = this.inspectingSession();
     if (!current) return -1;
@@ -142,25 +148,28 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     if (foundIdx >= 0) {
       return foundIdx;
     }
-    return this.lastInspectedIndex();
+    const lastIdx = this.lastInspectedIndex();
+    return lastIdx >= 0 ? lastIdx - 1 : -1;
   });
 
   private readonly lastInspectedIndex = signal<number>(-1);
 
   readonly hasPreviousSession = computed<boolean>(() => {
-    if (this.isLoading()) return false;
+    if (this.isLoading() || !this.inspectingSession()) return false;
     const idx = this.currentSessionIndex();
-    if (idx > 0) return true;
-    if (idx === 0 && this.page() > 1) return true;
+    const prevIdx = this.isInspectingSessionEvicted() ? idx : idx - 1;
+    if (prevIdx >= 0 && prevIdx < this.sessions().length) return true;
+    if (prevIdx === -1 && this.page() > 1) return true;
     return false;
   });
 
   readonly hasNextSession = computed<boolean>(() => {
-    if (this.isLoading()) return false;
+    if (this.isLoading() || !this.inspectingSession()) return false;
     const idx = this.currentSessionIndex();
+    const nextIdx = idx + 1;
     const list = this.sessions();
-    if (idx >= 0 && idx < list.length - 1) return true;
-    if (idx >= 0 && idx === list.length - 1 && this.page() < this.totalPages()) return true;
+    if (nextIdx >= 0 && nextIdx < list.length) return true;
+    if (nextIdx === list.length && this.page() < this.totalPages()) return true;
     return false;
   });
 
@@ -437,12 +446,14 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   goToPreviousSession(): void {
-    if (this.isLoading()) return;
+    if (this.isLoading() || !this.inspectingSession()) return;
     const idx = this.currentSessionIndex();
-    if (idx > 0) {
-      const prev = this.sessions()[idx - 1];
+    const prevIdx = this.isInspectingSessionEvicted() ? idx : idx - 1;
+    const list = this.sessions();
+    if (prevIdx >= 0 && prevIdx < list.length) {
+      const prev = list[prevIdx];
       this.openInspection(prev);
-    } else if (idx === 0 && this.page() > 1) {
+    } else if (prevIdx === -1 && this.page() > 1) {
       this.page.update((p) => p - 1);
       this.loadSessions((newItems) => {
         if (newItems.length > 0) {
@@ -453,13 +464,14 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   goToNextSession(): void {
-    if (this.isLoading()) return;
+    if (this.isLoading() || !this.inspectingSession()) return;
     const idx = this.currentSessionIndex();
+    const nextIdx = idx + 1;
     const list = this.sessions();
-    if (idx >= 0 && idx < list.length - 1) {
-      const next = this.sessions()[idx + 1];
+    if (nextIdx >= 0 && nextIdx < list.length) {
+      const next = list[nextIdx];
       this.openInspection(next);
-    } else if (idx >= 0 && idx === list.length - 1 && this.page() < this.totalPages()) {
+    } else if (nextIdx === list.length && this.page() < this.totalPages()) {
       this.page.update((p) => p + 1);
       this.loadSessions((newItems) => {
         if (newItems.length > 0) {
