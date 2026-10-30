@@ -135,6 +135,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   }
 
   // Curation State
+  readonly showLabelEditor = signal<boolean>(false);
   readonly labelEditMode = signal<'predefined' | 'custom'>('predefined');
   readonly editLabelValue = signal<string>('walk');
   readonly customLabelValue = signal<string>('');
@@ -142,6 +143,11 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly isDeletingSession = signal<boolean>(false);
   readonly showDeleteConfirm = signal<boolean>(false);
   readonly linkCopied = signal<boolean>(false);
+
+  toggleLabelEditor(): void {
+    if (this.session()?.is_validated) return;
+    this.showLabelEditor.update((v) => !v);
+  }
 
   readonly effectiveEditLabel = computed<string>(() => {
     if (this.labelEditMode() === 'custom') {
@@ -209,6 +215,9 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
       if (current) {
         if (this.currentSessionId === current.uuid) {
           this.syncLabelState(current);
+          if (current.is_validated) {
+            this.showLabelEditor.set(false);
+          }
         } else {
           this.initSessionState(current);
         }
@@ -235,6 +244,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   private initSessionState(session: StudioSessionSummary): void {
     this.currentSessionId = session.uuid;
     this.syncLabelState(session);
+    this.showLabelEditor.set(false);
     this.activeReadings.set([]);
     this.replayPlaybackTime.set(0);
     this.show3dViewer.set(false);
@@ -368,6 +378,7 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
     this.studioHistoryService.updateSessionLabel(current.uuid, newLabel).subscribe({
       next: (updated) => {
         this.isUpdatingLabel.set(false);
+        this.showLabelEditor.set(false);
         this.toast.success(
           this.translation.translate('studio_history.label_updated')
         );

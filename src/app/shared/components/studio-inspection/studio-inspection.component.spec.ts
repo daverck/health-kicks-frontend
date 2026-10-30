@@ -471,7 +471,7 @@ describe('StudioInspectionComponent', () => {
     expect(compiled.querySelector('[data-testid="unvalidate-confirmation"]')).not.toBeNull();
   });
 
-  it('should allow label editing and hide locked banner when session is unvalidated', () => {
+  it('should allow label editing via the clickable header badge and support both predefined and custom labels', () => {
     fixture.componentRef.setInput('session', { ...mockStudioSessionSummaries[0], is_validated: false });
     fixture.detectChanges();
 
@@ -479,9 +479,29 @@ describe('StudioInspectionComponent', () => {
     const lockedBanner = compiled.querySelector('[data-testid="label-locked-banner"]');
     expect(lockedBanner).toBeNull();
 
+    const toggleBadgeBtn = compiled.querySelector('[data-testid="toggle-label-editor-btn"]') as HTMLButtonElement;
+    expect(toggleBadgeBtn).toBeTruthy();
+    expect(component.showLabelEditor()).toBeFalse();
+
+    // Click the badge in header to open the inline label editor toolbar
+    toggleBadgeBtn.click();
+    fixture.detectChanges();
+    expect(component.showLabelEditor()).toBeTrue();
+
     const updateBtn = compiled.querySelector('#update-label-btn');
     expect(updateBtn).toBeTruthy();
+
+    // Switch to custom label mode in the header toolbar
+    const customModeBtn = compiled.querySelector('[data-testid="label-mode-custom"]') as HTMLButtonElement;
+    expect(customModeBtn).toBeTruthy();
+    customModeBtn.click();
+    fixture.detectChanges();
+
+    expect(component.labelEditMode()).toBe('custom');
+    const customInput = compiled.querySelector('[data-testid="edit-custom-label-input"]') as HTMLInputElement;
+    expect(customInput).toBeTruthy();
   });
+
   it('should render HITL badge and info card when session is recorded in HITL mode', () => {
     fixture.componentRef.setInput('session', {
       ...mockStudioSessionSummaries[1],
