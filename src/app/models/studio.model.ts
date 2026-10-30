@@ -186,7 +186,6 @@ export const EDGE_AI_ACTIVITY_IDS = new Set<string>([
   'idle',
   'walk',
   'run',
-  'stairs',
   'stairs_up',
   'stairs_down',
   'sit_down',
@@ -200,7 +199,6 @@ export const EDGE_AI_ACTIVITY_IDS = new Set<string>([
   'fall_backward',
   'fall_lateral',
   'fall_recovery',
-  'stumble_recover',
   'fall_generic',
 ]);
 

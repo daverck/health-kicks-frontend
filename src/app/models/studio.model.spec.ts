@@ -4,6 +4,7 @@ import {
   STANDARD_STUDIO_LABEL_IDS,
   isStandardStudioLabel,
   isCustomStudioLabel,
+  isEdgeAiActivity,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from './studio.model';
@@ -50,6 +51,14 @@ describe('Studio Model Definitions', () => {
       expect(isStandardStudioLabel(key)).toBeFalse();
       expect(isCustomStudioLabel(key)).toBeTrue();
     }
+  });
+
+  it('should exclude stairs and stumble_recover from edge AI activities', () => {
+    expect(isEdgeAiActivity('stairs')).toBeFalse();
+    expect(isEdgeAiActivity('stumble_recover')).toBeFalse();
+    expect(isEdgeAiActivity('stairs_up')).toBeTrue();
+    expect(isEdgeAiActivity('stairs_down')).toBeTrue();
+    expect(isEdgeAiActivity('fall_forward')).toBeTrue();
   });
 
   it('should handle empty or falsy strings for custom label checks', () => {
