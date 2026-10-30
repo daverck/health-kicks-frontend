@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   StudioStartRequest,
@@ -12,6 +12,7 @@ import {
   StudioSessionSummary,
   StudioSessionTrimPayload,
 } from '../../models/studio-history.model';
+import { setEdgeAiActivities } from '../../models/studio.model';
 
 export type { StudioDatasetStats };
 
@@ -80,6 +81,12 @@ export class StudioService {
     const url = deviceId
       ? `${this.base}/devices/${deviceId}/studio/stats`
       : `${this.base}/studio/stats`;
-    return this.http.get<StudioDatasetStats>(url);
+    return this.http.get<StudioDatasetStats>(url).pipe(
+      tap((stats) => {
+        if (stats?.edge_ai_labels && Array.isArray(stats.edge_ai_labels)) {
+          setEdgeAiActivities(stats.edge_ai_labels);
+        }
+      })
+    );
   }
 }

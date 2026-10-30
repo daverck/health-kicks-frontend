@@ -15,5 +15,6 @@ export type StudioStartResponse = components['schemas']['StudioStartResponse'];
 export type StudioDatasetStatsResponse = components['schemas']['StudioDatasetStatsResponse'] & {
   by_label_validated?: { [key: string]: number };
   by_label_pending?: { [key: string]: number };
+  edge_ai_labels?: string[];
 };
 export type StudioDatasetStats = StudioDatasetStatsResponse;

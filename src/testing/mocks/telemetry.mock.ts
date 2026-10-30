@@ -92,5 +92,24 @@ export const mockStudioDatasetStats: StudioDatasetStats = {
   by_label_pending: {
     walk: 8,
   },
+  edge_ai_labels: [
+    'idle',
+    'walk',
+    'run',
+    'stairs_up',
+    'stairs_down',
+    'sit_down',
+    'stand_up',
+    'lie_down',
+    'lying_supine',
+    'lying_prone',
+    'lying_lateral',
+    'jump',
+    'fall_forward',
+    'fall_backward',
+    'fall_lateral',
+    'fall_recovery',
+    'fall_generic',
+  ],
 };
 

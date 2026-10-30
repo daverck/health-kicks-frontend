@@ -5,6 +5,7 @@ import {
   isStandardStudioLabel,
   isCustomStudioLabel,
   isEdgeAiActivity,
+  setEdgeAiActivities,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from './studio.model';
@@ -59,6 +60,21 @@ describe('Studio Model Definitions', () => {
     expect(isEdgeAiActivity('stairs_up')).toBeTrue();
     expect(isEdgeAiActivity('stairs_down')).toBeTrue();
     expect(isEdgeAiActivity('fall_forward')).toBeTrue();
+  });
+
+  it('should dynamically update edge AI activities via setEdgeAiActivities', () => {
+    setEdgeAiActivities(['custom_action', 'walk']);
+    expect(isEdgeAiActivity('custom_action')).toBeTrue();
+    expect(isEdgeAiActivity('walk')).toBeTrue();
+    expect(isEdgeAiActivity('run')).toBeFalse();
+
+    // Reset back
+    setEdgeAiActivities([
+      'idle', 'walk', 'run', 'stairs_up', 'stairs_down',
+      'sit_down', 'stand_up', 'lie_down', 'lying_supine',
+      'lying_prone', 'lying_lateral', 'jump', 'fall_forward',
+      'fall_backward', 'fall_lateral', 'fall_recovery', 'fall_generic'
+    ]);
   });
 
   it('should handle empty or falsy strings for custom label checks', () => {

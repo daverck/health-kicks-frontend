@@ -202,6 +202,18 @@ export const EDGE_AI_ACTIVITY_IDS = new Set<string>([
   'fall_generic',
 ]);
 
+/**
+ * Updates or registers the active Edge AI activities from backend dataset stats.
+ */
+export function setEdgeAiActivities(labels: string[]): void {
+  EDGE_AI_ACTIVITY_IDS.clear();
+  for (const label of labels) {
+    if (label) {
+      EDGE_AI_ACTIVITY_IDS.add(label.toLowerCase().trim());
+    }
+  }
+}
+
 export function isEdgeAiActivity(labelId: string | null | undefined): boolean {
   if (!labelId) return false;
   return EDGE_AI_ACTIVITY_IDS.has(labelId.toLowerCase().trim());
