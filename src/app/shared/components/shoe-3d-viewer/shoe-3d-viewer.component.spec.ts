@@ -302,4 +302,56 @@ describe('Shoe3dViewerComponent', () => {
       4
     );
   });
+
+  it('should orient the 3D shoe immediately at t=0 for lying postures instead of starting flat horizontal', () => {
+    const lyingSupineReadings: ImuReading[] = [
+      {
+        timestamp_epoch_us: 1000000,
+        timestamp_iso: '2026-10-07T00:00:01.000Z',
+        ax: 0.98,
+        ay: 0.0,
+        az: 0.15,
+        gx: 0.0,
+        gy: 0.0,
+        gz: 0.0,
+      },
+      {
+        timestamp_epoch_us: 1050000,
+        timestamp_iso: '2026-10-07T00:00:01.050Z',
+        ax: 0.98,
+        ay: 0.0,
+        az: 0.15,
+        gx: 0.0,
+        gy: 0.0,
+        gz: 0.0,
+      },
+      {
+        timestamp_epoch_us: 1100000,
+        timestamp_iso: '2026-10-07T00:00:01.100Z',
+        ax: 0.98,
+        ay: 0.0,
+        az: 0.15,
+        gx: 0.0,
+        gy: 0.0,
+        gz: 0.0,
+      },
+    ];
+
+    fixture.componentRef.setInput('readings', lyingSupineReadings);
+    fixture.detectChanges();
+
+    // At t = 0 (before playback even starts), the shoe is already pitched ~ -81.3 deg (not flat 0 deg!)
+    expect(Math.abs(component.livePitchDeg())).toBeGreaterThan(75);
+    const q0 = component.sceneService.getShoeQuaternion();
+    // Three.js X rotation (q.x) reflects the strong initial pitch tilt rather than identity (0, 0, 0, 1)
+    expect(Math.abs(q0.x)).toBeGreaterThan(0.6);
+
+    // Seeking to the end of the stationary lying recording keeps the exact same orientation without sliding
+    component.seekTo(0.1, false);
+    const qEnd = component.sceneService.getShoeQuaternion();
+    expect(qEnd.x).toBeCloseTo(q0.x, 3);
+    expect(qEnd.y).toBeCloseTo(q0.y, 3);
+    expect(qEnd.z).toBeCloseTo(q0.z, 3);
+    expect(qEnd.w).toBeCloseTo(q0.w, 3);
+  });
 });

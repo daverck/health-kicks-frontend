@@ -53,6 +53,7 @@ export class Shoe3dSceneService {
   };
   private cameraTarget = new THREE.Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
   private shoePosition = new THREE.Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
+  private shoeQuaternion = new THREE.Quaternion();
   private pendingTrajectoryFrames: OrientationFrame[] = [];
 
   private static cachedSneakerMesh: THREE.Group | null = null;
@@ -112,6 +113,7 @@ export class Shoe3dSceneService {
       // Shoe Group
       this.shoeGroup = new THREE.Group();
       this.shoeGroup.position.copy(this.shoePosition);
+      this.shoeGroup.quaternion.copy(this.shoeQuaternion);
       this.rebuildModel();
       this.scene.add(this.shoeGroup);
 
@@ -192,6 +194,15 @@ export class Shoe3dSceneService {
       x: this.shoePosition.x,
       y: this.shoePosition.y,
       z: this.shoePosition.z,
+    };
+  }
+
+  getShoeQuaternion(): { x: number; y: number; z: number; w: number } {
+    return {
+      x: this.shoeQuaternion.x,
+      y: this.shoeQuaternion.y,
+      z: this.shoeQuaternion.z,
+      w: this.shoeQuaternion.w,
     };
   }
 
@@ -349,8 +360,6 @@ export class Shoe3dSceneService {
     }
     this.updateCameraPosition();
 
-    if (!this.shoeGroup) return;
-
     // Convert raw frame quaternion to Three.js orientation space
     // Sensor ISB Frame -> Three.js Cyclic Permutation:
     // Three.js X (Right)   <- Sensor Y (Medio-lateral)
@@ -364,6 +373,10 @@ export class Shoe3dSceneService {
     ).normalize();
 
     const targetQ = baseInverseQuat.clone().multiply(qRaw);
+    this.shoeQuaternion.copy(targetQ);
+
+    if (!this.shoeGroup) return;
+
     this.shoeGroup.quaternion.copy(targetQ);
     this.shoeGroup.position.copy(this.shoePosition);
 

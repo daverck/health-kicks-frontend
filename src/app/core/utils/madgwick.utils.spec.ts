@@ -1,5 +1,6 @@
 import {
   MadgwickFilter,
+  computeInitialQuaternionFromGravity,
   quaternionToEulerDeg,
   classifyGaitPhase,
   computeOrientationTrajectory,
@@ -259,6 +260,63 @@ describe('MadgwickUtils', () => {
 
       const descentTrajectory = computeOrientationTrajectory(descentReadings);
       expect(descentTrajectory[descentTrajectory.length - 1].position.y).toBeLessThan(-0.05);
+    });
+
+    it('should orient the shoe immediately at t=0 from 3-axis gravity in lying postures (lying_supine, lying_prone, lying_lateral) without sliding drift', () => {
+      // 1. lying_supine (toes pointing up: ax ≈ +1g, ay ≈ 0, az ≈ 0)
+      const supineReadings: ImuReading[] = [];
+      let tUs = 1000000;
+      for (let i = 0; i < 15; i++) {
+        supineReadings.push({
+          timestamp_epoch_us: tUs,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax: 1.0,
+          ay: 0.0,
+          az: 0.0,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 20000;
+      }
+
+      const supineTraj = computeOrientationTrajectory(supineReadings, 0.25);
+      // At t = 0, pitch is already -90 deg (not 0 deg!) and stays stable without sliding
+      expect(supineTraj[0].euler.pitch).toBeCloseTo(-90, 1);
+      expect(
+        Math.abs(supineTraj[supineTraj.length - 1].euler.pitch - supineTraj[0].euler.pitch)
+      ).toBeLessThan(0.1);
+      expect(supineTraj[supineTraj.length - 1].position.x).toBeCloseTo(0, 4);
+      expect(supineTraj[supineTraj.length - 1].position.y).toBeCloseTo(0, 4);
+      expect(supineTraj[supineTraj.length - 1].position.z).toBeCloseTo(0, 4);
+
+      // 2. lying_prone (toes pointing down: ax ≈ -1g, ay ≈ 0, az ≈ 0)
+      const proneQ = computeInitialQuaternionFromGravity(-1.0, 0.0, 0.0);
+      const proneEuler = quaternionToEulerDeg(proneQ);
+      expect(proneEuler.pitch).toBeCloseTo(90, 1);
+
+      // 3. lying_lateral (shoe resting on lateral side: ax ≈ 0, ay ≈ +1g, az ≈ 0)
+      const lateralReadings: ImuReading[] = [];
+      tUs = 1000000;
+      for (let i = 0; i < 15; i++) {
+        lateralReadings.push({
+          timestamp_epoch_us: tUs,
+          timestamp_iso: '2026-10-07T00:00:01.000Z',
+          ax: 0.0,
+          ay: 1.0,
+          az: 0.0,
+          gx: 0,
+          gy: 0,
+          gz: 0,
+        });
+        tUs += 20000;
+      }
+
+      const lateralTraj = computeOrientationTrajectory(lateralReadings, 0.25);
+      expect(lateralTraj[0].euler.roll).toBeCloseTo(90, 1);
+      expect(
+        Math.abs(lateralTraj[lateralTraj.length - 1].euler.roll - lateralTraj[0].euler.roll)
+      ).toBeLessThan(0.1);
     });
   });
 });

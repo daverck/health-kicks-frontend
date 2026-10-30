@@ -119,6 +119,43 @@ export class MadgwickFilter {
 }
 
 /**
+ * Computes the analytical shortest-arc quaternion (with zero yaw twist, z = 0)
+ * that aligns the measured 3-axis gravity reaction vector (ax, ay, az) in the ISB sensor frame
+ * with the world vertical reference (0, 0, +1).
+ *
+ * This quaternion is the exact equilibrium fixed point of the Madgwick objective function
+ * and avoids any gimbal-lock discontinuity at +-90 deg pitch (lying_supine / lying_prone)
+ * or +-90 deg roll (lying_lateral).
+ */
+export function computeInitialQuaternionFromGravity(
+  ax: number,
+  ay: number,
+  az: number
+): { w: number; x: number; y: number; z: number } {
+  const norm = Math.sqrt(ax * ax + ay * ay + az * az);
+  if (norm < 1e-6) {
+    return { w: 1, x: 0, y: 0, z: 0 };
+  }
+  const nx = ax / norm;
+  const ny = ay / norm;
+  const nz = az / norm;
+
+  // Antipodal case (shoe completely inverted upside-down: nz -> -1)
+  if (nz < -0.999999) {
+    return { w: 0, x: 1, y: 0, z: 0 };
+  }
+
+  const w = Math.sqrt((1.0 + nz) * 0.5);
+  const inv2w = 0.5 / w;
+  return {
+    w,
+    x: ny * inv2w,
+    y: -nx * inv2w,
+    z: 0,
+  };
+}
+
+/**
  * Convert quaternion to Tait-Bryan Euler angles in degrees (Roll, Pitch, Yaw).
  * Roll: X-axis rotation (Inversion / Eversion / Pronation / Supination)
  * Pitch: Y-axis rotation (Dorsiflexion / Plantarflexion / Heel Strike / Toe Off)
@@ -178,18 +215,6 @@ export function classifyGaitPhase(
   return 'neutral';
 }
 
-function multiplyQuat(
-  a: { w: number; x: number; y: number; z: number },
-  b: { w: number; x: number; y: number; z: number }
-): { w: number; x: number; y: number; z: number } {
-  return {
-    w: a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-    x: a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-    y: a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-    z: a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
-  };
-}
-
 function rotateVectorByQuat(
   v: { x: number; y: number; z: number },
   q: { w: number; x: number; y: number; z: number }
@@ -201,6 +226,127 @@ function rotateVectorByQuat(
     x: v.x + q.w * tx + (q.y * tz - q.z * ty),
     y: v.y + q.w * ty + (q.z * tx - q.x * tz),
     z: v.z + q.w * tz + (q.x * ty - q.y * tx),
+  };
+}
+
+const GRAVITY_WINDOW_MAX_SAMPLES = 5;
+const GRAVITY_WINDOW_MAX_DURATION_US = 200_000; // 200 ms
+
+/**
+ * Estimates the local 3-axis gravity vector at index `idx` by averaging quasi-static samples
+ * within a short temporal window (~200 ms, up to 5 samples).
+ * - At t = 0 (`idx === 0`), averages consecutive quasi-static samples from the start of the session.
+ * - For `idx > 0`, averages quasi-static samples in the trailing window `[start .. idx]`.
+ */
+function estimateWindowedGravity(
+  readings: ImuReading[],
+  idx: number
+): { ax: number; ay: number; az: number; isQuasiStatic: boolean } {
+  const toRad = Math.PI / 180;
+  const current = readings[idx];
+  const currentAccelMag = Math.sqrt(
+    current.ax * current.ax + current.ay * current.ay + current.az * current.az
+  );
+  const currentGyroMag =
+    Math.sqrt(
+      current.gx * current.gx + current.gy * current.gy + current.gz * current.gz
+    ) * toRad;
+  const currentIsStatic =
+    Math.abs(currentAccelMag - 1.0) < 0.25 && currentGyroMag < 0.8;
+
+  if (idx === 0) {
+    let sumX = 0;
+    let sumY = 0;
+    let sumZ = 0;
+    let count = 0;
+    const tStart = current.timestamp_epoch_us;
+
+    for (
+      let k = 0;
+      k < Math.min(readings.length, GRAVITY_WINDOW_MAX_SAMPLES);
+      k++
+    ) {
+      const r = readings[k];
+      if (r.timestamp_epoch_us - tStart > GRAVITY_WINDOW_MAX_DURATION_US) {
+        break;
+      }
+      const aMag = Math.sqrt(r.ax * r.ax + r.ay * r.ay + r.az * r.az);
+      const gMag =
+        Math.sqrt(r.gx * r.gx + r.gy * r.gy + r.gz * r.gz) * toRad;
+      if (Math.abs(aMag - 1.0) < 0.25 && gMag < 0.8) {
+        sumX += r.ax;
+        sumY += r.ay;
+        sumZ += r.az;
+        count++;
+      } else {
+        break;
+      }
+    }
+
+    if (count > 0) {
+      return {
+        ax: sumX / count,
+        ay: sumY / count,
+        az: sumZ / count,
+        isQuasiStatic: true,
+      };
+    }
+    return {
+      ax: current.ax,
+      ay: current.ay,
+      az: current.az,
+      isQuasiStatic: currentIsStatic,
+    };
+  }
+
+  if (!currentIsStatic) {
+    return {
+      ax: current.ax,
+      ay: current.ay,
+      az: current.az,
+      isQuasiStatic: false,
+    };
+  }
+
+  let sumX = 0;
+  let sumY = 0;
+  let sumZ = 0;
+  let count = 0;
+  const tCurrent = current.timestamp_epoch_us;
+  const minIndex = Math.max(0, idx - GRAVITY_WINDOW_MAX_SAMPLES + 1);
+
+  for (let k = idx; k >= minIndex; k--) {
+    const r = readings[k];
+    if (tCurrent - r.timestamp_epoch_us > GRAVITY_WINDOW_MAX_DURATION_US) {
+      break;
+    }
+    const aMag = Math.sqrt(r.ax * r.ax + r.ay * r.ay + r.az * r.az);
+    const gMag =
+      Math.sqrt(r.gx * r.gx + r.gy * r.gy + r.gz * r.gz) * toRad;
+    if (Math.abs(aMag - 1.0) < 0.25 && gMag < 0.8) {
+      sumX += r.ax;
+      sumY += r.ay;
+      sumZ += r.az;
+      count++;
+    } else {
+      break;
+    }
+  }
+
+  if (count > 0) {
+    return {
+      ax: sumX / count,
+      ay: sumY / count,
+      az: sumZ / count,
+      isQuasiStatic: true,
+    };
+  }
+
+  return {
+    ax: current.ax,
+    ay: current.ay,
+    az: current.az,
+    isQuasiStatic: true,
   };
 }
 
@@ -219,17 +365,23 @@ export function computeOrientationTrajectory(
   const trajectory: OrientationFrame[] = [];
   const t0 = readings[0].timestamp_epoch_us;
 
-  // Let filter converge on initial accelerometer direction (gravity vector)
-  const r0 = readings[0];
-  const a0Mag = Math.sqrt(r0.ax * r0.ax + r0.ay * r0.ay + r0.az * r0.az);
+  // Directly initialize filter orientation at t = 0 from the windowed 3-axis gravity distribution
+  const initialGravity = estimateWindowedGravity(readings, 0);
+  const a0Mag = Math.sqrt(
+    initialGravity.ax * initialGravity.ax +
+      initialGravity.ay * initialGravity.ay +
+      initialGravity.az * initialGravity.az
+  );
   if (a0Mag > 0.1) {
-    for (let i = 0; i < 30; i++) {
-      filter.update(r0.ax, r0.ay, r0.az, 0, 0, 0, 0.02);
-    }
+    const qInit = computeInitialQuaternionFromGravity(
+      initialGravity.ax,
+      initialGravity.ay,
+      initialGravity.az
+    );
+    filter.reset(qInit.w, qInit.x, qInit.y, qInit.z);
   }
 
   const toRad = Math.PI / 180;
-  let qInitInv: { w: number; x: number; y: number; z: number } | null = null;
   let baselineWorldAccel = { x: 0, y: 1.0, z: 0 };
 
   // Visual scale factor converting g (9.81 m/s^2) into Three.js scene units/s^2
@@ -265,30 +417,52 @@ export function computeOrientationTrajectory(
     const accelMag = Math.sqrt(r.ax * r.ax + r.ay * r.ay + r.az * r.az);
     const gyroMag = Math.sqrt(gx * gx + gy * gy + gz * gz);
 
-    // Dynamic gravity gating: only apply accelerometer correction when close to 1.0g
-    const isStationaryOrSteady = Math.abs(accelMag - 1.0) < 0.25;
-    const ax = isStationaryOrSteady ? r.ax : 0;
-    const ay = isStationaryOrSteady ? r.ay : 0;
-    const az = isStationaryOrSteady ? r.az : 0;
+    // Periodic / sliding-window gravity estimation (~200 ms window) when quasi-static
+    const windowedG = estimateWindowedGravity(readings, i);
+    const isStationaryOrSteady =
+      Math.abs(accelMag - 1.0) < 0.25 && windowedG.isQuasiStatic;
+    const ax = isStationaryOrSteady ? windowedG.ax : 0;
+    const ay = isStationaryOrSteady ? windowedG.ay : 0;
+    const az = isStationaryOrSteady ? windowedG.az : 0;
 
-    const q = filter.update(ax, ay, az, gx, gy, gz, dt);
+    const q =
+      i === 0 && a0Mag > 0.1
+        ? { w: filter.q0, x: filter.q1, y: filter.q2, z: filter.q3 }
+        : filter.update(ax, ay, az, gx, gy, gz, dt);
     const euler = quaternionToEulerDeg(q);
     const gaitPhase = classifyGaitPhase(euler.pitch, accelMag, gyroMag);
 
     // Map quaternion to Three.js scene space (X <- q.y, Y <- q.z, Z <- q.x)
     const qScene = { w: q.w, x: q.y, y: q.z, z: q.x };
-    if (!qInitInv) {
-      qInitInv = { w: qScene.w, x: -qScene.x, y: -qScene.y, z: -qScene.z };
-      baselineWorldAccel = { x: r.ay, y: r.az, z: r.ax };
-    }
+    const localAccelScene = { x: r.ay, y: r.az, z: r.ax };
+    const worldAccel = rotateVectorByQuat(localAccelScene, qScene);
 
     if (i === 0) {
+      const initWorldGravity = rotateVectorByQuat(
+        { x: initialGravity.ay, y: initialGravity.az, z: initialGravity.ax },
+        qScene
+      );
+      baselineWorldAccel = initWorldGravity;
       linAccels[i] = { x: 0, y: 0, z: 0 };
       isZuptFlags[i] = true;
     } else {
-      const qRel = multiplyQuat(qInitInv, qScene);
-      const localAccelScene = { x: r.ay, y: r.az, z: r.ax };
-      const worldAccel = rotateVectorByQuat(localAccelScene, qRel);
+      const isZupt =
+        (gaitPhase === 'flat_foot' || gaitPhase === 'neutral') &&
+        Math.abs(accelMag - 1.0) < 0.12 &&
+        gyroMag < 0.6;
+      isZuptFlags[i] = isZupt;
+
+      if (isZupt && windowedG.isQuasiStatic) {
+        const windowedWorldG = rotateVectorByQuat(
+          { x: windowedG.ay, y: windowedG.az, z: windowedG.ax },
+          qScene
+        );
+        baselineWorldAccel = {
+          x: baselineWorldAccel.x * 0.8 + windowedWorldG.x * 0.2,
+          y: baselineWorldAccel.y * 0.8 + windowedWorldG.y * 0.2,
+          z: baselineWorldAccel.z * 0.8 + windowedWorldG.z * 0.2,
+        };
+      }
 
       let linX = worldAccel.x - baselineWorldAccel.x;
       let linY = worldAccel.y - baselineWorldAccel.y;
@@ -299,10 +473,6 @@ export function computeOrientationTrajectory(
       if (Math.abs(linZ) < DEADZONE_G) linZ = 0;
 
       linAccels[i] = { x: linX, y: linY, z: linZ };
-      isZuptFlags[i] =
-        (gaitPhase === 'flat_foot' || gaitPhase === 'neutral') &&
-        Math.abs(accelMag - 1.0) < 0.12 &&
-        gyroMag < 0.6;
     }
 
     trajectory.push({

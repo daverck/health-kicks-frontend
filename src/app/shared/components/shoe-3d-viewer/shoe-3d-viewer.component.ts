@@ -172,10 +172,8 @@ export class Shoe3dViewerComponent
     this.totalDurationSec.set(duration);
 
     if (this.trajectory.length > 0) {
-      // Sensor ISB Frame -> Three.js Space: X_3 <- q_y, Y_3 <- q_z, Z_3 <- q_x
-      const q0 = this.trajectory[0].q;
-      const initialQuat = new THREE.Quaternion(q0.y, q0.z, q0.x, q0.w).normalize();
-      this.baseInverseQuat = initialQuat.clone().invert();
+      // Initial quaternion already encodes true 3-axis gravity tilt (pitch & roll) with zero yaw twist
+      this.baseInverseQuat = new THREE.Quaternion();
     }
     this.updateShoePose(0);
   }
