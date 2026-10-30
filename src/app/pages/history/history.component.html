@@ -313,7 +313,7 @@
       <div class="flex items-center justify-between">
         <button class="btn-secondary" [disabled]="page() <= 1" (click)="goToPage(page() - 1)">← {{ 'common.back' | translate }}</button>
         <span class="text-sm text-gray-600">Page {{ page() }}{{ totalPages() > 0 ? ' / ' + totalPages() : '' }}</span>
-        <button class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">Suivant →</button>
+        <button class="btn-secondary" [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">{{ 'studio_history.next' | translate }} →</button>
       </div>
     }
 
@@ -431,7 +431,7 @@
       <div class="flex items-center justify-between">
         <button class="btn-secondary" [disabled]="hapticPage() <= 1" (click)="goToPage(hapticPage() - 1)">← {{ 'common.back' | translate }}</button>
         <span class="text-sm text-gray-600">Page {{ hapticPage() }}{{ hapticTotalPages() > 0 ? ' / ' + hapticTotalPages() : '' }}</span>
-        <button class="btn-secondary" [disabled]="hapticPage() >= hapticTotalPages()" (click)="goToPage(hapticPage() + 1)">Suivant →</button>
+        <button class="btn-secondary" [disabled]="hapticPage() >= hapticTotalPages()" (click)="goToPage(hapticPage() + 1)">{{ 'studio_history.next' | translate }} →</button>
       </div>
     }
   }

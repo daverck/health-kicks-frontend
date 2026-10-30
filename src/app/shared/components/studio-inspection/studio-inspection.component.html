@@ -109,7 +109,107 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+        <!-- Session Validation & Deletion Actions (in Header for fast triage) -->
+        @if (!showDeleteConfirm()) {
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            @if (!s.is_validated) {
+              <button
+                id="drawer-confirm-btn"
+                type="button"
+                (click)="confirmSession()"
+                [disabled]="isValidatingSession()"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-emerald-700 transition active:scale-95 disabled:opacity-50"
+                data-testid="confirm-session-btn"
+              >
+                @if (isValidatingSession()) {
+                  <span class="animate-spin">⏳</span>
+                } @else {
+                  <span>✅</span>
+                }
+                <span>{{ 'studio_history.confirm_session_btn' | translate }}</span>
+              </button>
+            } @else if (!showUnvalidateConfirm()) {
+              <button
+                type="button"
+                (click)="showUnvalidateConfirm.set(true)"
+                [disabled]="isUpdatingValidation()"
+                data-testid="unvalidate-session-btn"
+                class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-semibold text-amber-800 shadow-2xs hover:bg-amber-50 disabled:opacity-50 dark:border-amber-700 dark:bg-gray-900 dark:text-amber-200"
+              >
+                {{ 'studio_history.unvalidate_session_btn' | translate }}
+              </button>
+            } @else {
+              <div class="flex flex-wrap items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50/80 px-2.5 py-1 dark:border-amber-800 dark:bg-amber-950/40" data-testid="unvalidate-confirmation">
+                <span class="text-[11px] text-amber-800 dark:text-amber-300 hidden md:inline">
+                  {{ 'studio_history.unvalidate_confirm_warning' | translate }}
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    (click)="reopenSession()"
+                    [disabled]="isUpdatingValidation()"
+                    data-testid="confirm-unvalidate-session-btn"
+                    class="rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+                  >
+                    @if (isUpdatingValidation()) { ⏳ }
+                    {{ 'studio_history.unvalidate_session_btn' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="showUnvalidateConfirm.set(false)"
+                    [disabled]="isUpdatingValidation()"
+                    class="rounded-md border border-gray-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                  >
+                    {{ 'common.cancel' | translate }}
+                  </button>
+                </div>
+              </div>
+            }
+
+            <button
+              id="delete-session-btn"
+              type="button"
+              (click)="confirmDelete()"
+              data-testid="delete-session-btn"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-red-600 shadow-2xs hover:bg-red-50 transition active:scale-95 dark:border-red-900/50 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-950/40"
+              [title]="'studio_history.delete_session' | translate"
+            >
+              <span>🗑️</span>
+              <span class="hidden sm:inline">{{ 'studio_history.delete_session' | translate }}</span>
+            </button>
+          </div>
+        } @else {
+          <!-- Confirmation Banner in Header -->
+          <div class="flex flex-wrap items-center gap-2 rounded-lg border border-red-200 bg-red-50/90 px-2.5 py-1 dark:border-red-900/50 dark:bg-red-950/40">
+            <span class="text-[11px] font-medium text-red-800 dark:text-red-300">
+              ⚠️ {{ 'studio_history.delete_confirm' | translate }}
+            </span>
+            <div class="flex items-center gap-1.5">
+              <button
+                id="confirm-delete-btn"
+                type="button"
+                (click)="deleteSession()"
+                data-testid="confirm-delete-btn"
+                class="rounded-md bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-red-700 transition active:scale-95 disabled:opacity-50"
+              >
+                {{ 'studio_history.delete_session' | translate }}
+              </button>
+              <button
+                id="cancel-delete-btn"
+                type="button"
+                (click)="cancelDelete()"
+                data-testid="cancel-delete-btn"
+                class="rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                {{ 'common.cancel' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+
+        <span class="h-5 w-px bg-gray-200 dark:bg-gray-700 mx-0.5 hidden sm:inline-block"></span>
+
         <!-- Direct Share / Link Button -->
         <button
           type="button"
@@ -382,14 +482,13 @@
         }
       </div>
 
-      <!-- Curation Actions Section -->
-      <div class="rounded-xl border border-gray-200 bg-gray-50/60 p-5 space-y-4 dark:border-gray-800 dark:bg-gray-800/40">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-          {{ 'studio_history.curation_title' | translate }}
-        </h3>
+      <!-- Curation Actions Section (Displayed when session is pending label editing) -->
+      @if (!s.is_validated) {
+        <div class="rounded-xl border border-gray-200 bg-gray-50/60 p-5 space-y-4 dark:border-gray-800 dark:bg-gray-800/40">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+            {{ 'studio_history.curation_title' | translate }}
+          </h3>
 
-        <!-- Edit Label Form or Locked Status -->
-        @if (!s.is_validated) {
           <div class="space-y-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -499,106 +598,8 @@
               </p>
             }
           </div>
-        }
-
-        <!-- Session Actions -->
-        <div class="border-t border-gray-200/80 dark:border-gray-800 pt-4">
-          @if (!showDeleteConfirm()) {
-            <div class="flex flex-wrap items-center gap-2.5">
-              @if (!s.is_validated) {
-                <button
-                  id="drawer-confirm-btn"
-                  type="button"
-                  (click)="confirmSession()"
-                  [disabled]="isValidatingSession()"
-                  class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-emerald-700 transition active:scale-95 disabled:opacity-50"
-                  data-testid="confirm-session-btn"
-                >
-                  @if (isValidatingSession()) {
-                    <span class="animate-spin">⏳</span>
-                  } @else {
-                    <span>✅</span>
-                  }
-                  {{ 'studio_history.confirm_session_btn' | translate }}
-                </button>
-              } @else if (!showUnvalidateConfirm()) {
-                <button
-                  type="button"
-                  (click)="showUnvalidateConfirm.set(true)"
-                  [disabled]="isUpdatingValidation()"
-                  data-testid="unvalidate-session-btn"
-                  class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-white px-3.5 py-1.5 text-xs font-semibold text-amber-800 shadow-2xs hover:bg-amber-50 disabled:opacity-50 dark:border-amber-700 dark:bg-gray-900 dark:text-amber-200"
-                >
-                  {{ 'studio_history.unvalidate_session_btn' | translate }}
-                </button>
-              } @else {
-                <div class="flex flex-col items-start gap-2" data-testid="unvalidate-confirmation">
-                  <span class="text-xs text-amber-800 dark:text-amber-300">
-                    {{ 'studio_history.unvalidate_confirm_warning' | translate }}
-                  </span>
-                  <div class="flex items-center gap-2">
-                    <button
-                      type="button"
-                      (click)="reopenSession()"
-                      [disabled]="isUpdatingValidation()"
-                      data-testid="confirm-unvalidate-session-btn"
-                      class="rounded-md bg-amber-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
-                    >
-                      @if (isUpdatingValidation()) { ⏳ }
-                      {{ 'studio_history.unvalidate_session_btn' | translate }}
-                    </button>
-                    <button
-                      type="button"
-                      (click)="showUnvalidateConfirm.set(false)"
-                      [disabled]="isUpdatingValidation()"
-                      class="rounded-md border border-gray-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                    >
-                      {{ 'common.cancel' | translate }}
-                    </button>
-                  </div>
-                </div>
-              }
-
-              <button
-                id="delete-session-btn"
-                type="button"
-                (click)="confirmDelete()"
-                data-testid="delete-session-btn"
-                class="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-red-600 shadow-2xs hover:bg-red-50 transition active:scale-95 dark:border-red-900/50 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-950/40"
-              >
-                <span>🗑️</span> {{ 'studio_history.delete_session' | translate }}
-              </button>
-            </div>
-          } @else {
-            <!-- Confirmation Banner -->
-            <div class="rounded-lg border border-red-200 bg-red-50/80 p-3 space-y-2 dark:border-red-900/50 dark:bg-red-950/40">
-              <p class="text-xs font-medium text-red-800 dark:text-red-300">
-                ⚠️ {{ 'studio_history.delete_confirm' | translate }}
-              </p>
-              <div class="flex items-center gap-2">
-                <button
-                  id="confirm-delete-btn"
-                  type="button"
-                  (click)="deleteSession()"
-                  data-testid="confirm-delete-btn"
-                  class="rounded-md bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-2xs hover:bg-red-700 transition active:scale-95 disabled:opacity-50"
-                >
-                  {{ 'studio_history.delete_session' | translate }}
-                </button>
-                <button
-                  id="cancel-delete-btn"
-                  type="button"
-                  (click)="cancelDelete()"
-                  data-testid="cancel-delete-btn"
-                  class="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  {{ 'common.cancel' | translate }}
-                </button>
-              </div>
-            </div>
-          }
         </div>
-      </div>
+      }
     </div>
   </div>
 }
