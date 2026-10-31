@@ -46,6 +46,8 @@ export interface StudioClassDetailStatsResponse {
   total_sessions: number;
   validated_sessions: number;
   pending_sessions: number;
+  first_session_date?: string | null;
+  latest_session_date?: string | null;
   duration_metrics: StudioClassDurationStats;
   ml_metrics: StudioClassMlMetrics;
   daily_counts: StudioClassDailyCount[];
@@ -58,6 +60,7 @@ export interface StudioClassSummaryItem {
   pending_sessions: number;
   total_duration_sec: number;
   median_duration_sec: number;
+  first_session_date: string | null;
   latest_session_date: string | null;
   precision: number;
   recall: number;

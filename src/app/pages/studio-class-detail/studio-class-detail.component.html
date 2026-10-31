@@ -60,7 +60,37 @@
     </div>
   } @else {
     <!-- Top KPI Cards Grid -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <!-- Total Sessions -->
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          <span>Sessions Totales</span>
+          <span>📁</span>
+        </div>
+        <div class="mt-2 flex items-baseline gap-1.5">
+          <span class="text-3xl font-extrabold text-gray-900 dark:text-white">
+            {{ stats()?.total_sessions || 0 }}
+          </span>
+        </div>
+        <p class="mt-1 text-xs text-gray-500">
+          <span class="text-emerald-600 font-semibold">{{ stats()?.validated_sessions || 0 }} val.</span> /
+          <span class="text-amber-600 font-semibold">{{ stats()?.pending_sessions || 0 }} att.</span>
+        </p>
+      </div>
+
+      <!-- Dates des Captures (Première & Dernière) -->
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+          <span>Période Captures</span>
+          <span>📅</span>
+        </div>
+        <div class="mt-2">
+          <p class="text-xs text-gray-500">1ère : <span class="font-mono font-bold text-gray-900 dark:text-white">{{ stats()?.first_session_date || '—' }}</span></p>
+          <p class="text-xs text-gray-500 mt-1">Dernière : <span class="font-mono font-bold text-gray-900 dark:text-white">{{ stats()?.latest_session_date || '—' }}</span></p>
+        </div>
+        <p class="mt-1 text-xs text-gray-400">Dates extrêmes d'enregistrement</p>
+      </div>
+
       <!-- Precision -->
       <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -68,29 +98,26 @@
           <span class="text-emerald-500">🎯</span>
         </div>
         <div class="mt-2 flex items-baseline gap-2">
-          <span class="text-3xl font-extrabold text-gray-900 dark:text-white">
+          <span class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
             {{ precisionPct() }}%
           </span>
-          <span class="text-xs text-gray-500">
-            ({{ stats()?.ml_metrics?.support_windows || 0 }} fenêtres)
-          </span>
         </div>
-        <p class="mt-1 text-xs text-gray-500">Taux de vrais positifs sur les détections</p>
+        <p class="mt-1 text-xs text-gray-500">{{ stats()?.ml_metrics?.support_windows || 0 }} fenêtres de test</p>
       </div>
 
-      <!-- Recall -->
+      <!-- Recall & F1 -->
       <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-          <span>Rappel ML</span>
+          <span>Rappel & F1 ML</span>
           <span class="text-indigo-500">🔍</span>
         </div>
         <div class="mt-2 flex items-baseline gap-2">
-          <span class="text-3xl font-extrabold text-gray-900 dark:text-white">
+          <span class="text-3xl font-extrabold text-blue-600 dark:text-blue-400">
             {{ recallPct() }}%
           </span>
-          <span class="text-xs text-gray-500">F1: {{ f1Pct() }}%</span>
+          <span class="text-xs font-bold text-purple-600 dark:text-purple-400">F1: {{ f1Pct() }}%</span>
         </div>
-        <p class="mt-1 text-xs text-gray-500">Capacité à repérer tous les événements réels</p>
+        <p class="mt-1 text-xs text-gray-500">Capacité de détection globale</p>
       </div>
 
       <!-- Median Duration -->
@@ -107,7 +134,7 @@
             Min: {{ stats()?.duration_metrics?.min_sec || 0 }}s
           </span>
         </div>
-        <p class="mt-1 text-xs text-gray-500">Durée médiane d'un enregistrement</p>
+        <p class="mt-1 text-xs text-gray-500">Durée médiane par session</p>
       </div>
 
       <!-- Mean & Std Duration -->
@@ -116,12 +143,12 @@
           <span>Moyenne ± Écart-Type</span>
           <span class="text-blue-500">📊</span>
         </div>
-        <div class="mt-2 flex items-baseline gap-2">
+        <div class="mt-2 flex items-baseline gap-1">
           <span class="text-2xl font-extrabold text-gray-900 dark:text-white">
             {{ stats()?.duration_metrics?.mean_sec || 0 }} s
           </span>
-          <span class="text-sm font-semibold text-gray-500">
-            ± {{ stats()?.duration_metrics?.std_sec || 0 }} s
+          <span class="text-xs font-semibold text-gray-500">
+            ± {{ stats()?.duration_metrics?.std_sec || 0 }}s
           </span>
         </div>
         <p class="mt-1 text-xs text-gray-500">

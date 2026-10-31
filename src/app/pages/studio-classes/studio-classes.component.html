@@ -122,6 +122,7 @@
               <th class="p-3.5">Précision ML</th>
               <th class="p-3.5">Rappel ML</th>
               <th class="p-3.5">Score F1</th>
+              <th class="p-3.5">Première Capture</th>
               <th class="p-3.5">Dernière Capture</th>
               <th class="p-3.5 text-right pr-5">Action</th>
             </tr>
@@ -163,6 +164,9 @@
                 </td>
                 <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">
                   {{ formatScore(item.f1_score) }}
+                </td>
+                <td class="p-3.5 text-xs text-gray-500 font-mono">
+                  {{ item.first_session_date || '—' }}
                 </td>
                 <td class="p-3.5 text-xs text-gray-500 font-mono">
                   {{ item.latest_session_date || '—' }}
