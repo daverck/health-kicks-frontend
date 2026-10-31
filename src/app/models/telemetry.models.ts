@@ -74,6 +74,7 @@ export interface StudioClassesSummaryResponse {
   macro_precision: number;
   macro_recall: number;
   macro_f1: number;
+  daily_counts: StudioClassDailyCount[];
   classes: StudioClassSummaryItem[];
 }
 

@@ -15,6 +15,7 @@ import { StudioService } from '../../core/services/studio.service';
 import {
   StudioClassesSummaryResponse,
   StudioClassSummaryItem,
+  StudioClassDailyCount,
 } from '../../models/telemetry.models';
 import { ActivityIconComponent } from '../../shared/components/activity-icon/activity-icon.component';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -31,7 +32,9 @@ export class StudioClassesComponent implements OnInit {
   private readonly studioService = inject(StudioService);
 
   readonly chartCanvas = viewChild<ElementRef<HTMLCanvasElement>>('chartCanvas');
+  readonly timelineCanvas = viewChild<ElementRef<HTMLCanvasElement>>('timelineCanvas');
   private chartInstance: Chart | null = null;
+  private timelineInstance: Chart | null = null;
 
   readonly isLoading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
@@ -45,12 +48,21 @@ export class StudioClassesComponent implements OnInit {
     return [...this.classes()].sort((a, b) => b.total_sessions - a.total_sessions);
   });
 
+  readonly dailyCounts = computed<StudioClassDailyCount[]>(() => {
+    return this.summary()?.daily_counts ?? [];
+  });
+
   constructor() {
     effect(() => {
       const summaryData = this.summary();
       const canvasRef = this.chartCanvas();
+      const timelineRef = this.timelineCanvas();
+
       if (summaryData && canvasRef?.nativeElement) {
-        this.renderChart(summaryData.classes, canvasRef.nativeElement);
+        this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement);
+      }
+      if (summaryData && timelineRef?.nativeElement) {
+        this.renderTimelineChart(summaryData.daily_counts ?? [], timelineRef.nativeElement);
       }
     });
   }
@@ -86,7 +98,7 @@ export class StudioClassesComponent implements OnInit {
     return (val * 100).toFixed(1) + '%';
   }
 
-  private renderChart(classes: StudioClassSummaryItem[], canvas: HTMLCanvasElement): void {
+  private renderDistributionChart(classes: StudioClassSummaryItem[], canvas: HTMLCanvasElement): void {
     if (this.chartInstance) {
       this.chartInstance.destroy();
       this.chartInstance = null;
@@ -122,10 +134,7 @@ export class StudioClassesComponent implements OnInit {
         plugins: {
           legend: {
             position: 'top',
-            labels: {
-              boxWidth: 12,
-              font: { size: 12 },
-            },
+            labels: { boxWidth: 12, font: { size: 12 } },
           },
           tooltip: {
             callbacks: {
@@ -155,6 +164,71 @@ export class StudioClassesComponent implements OnInit {
             beginAtZero: true,
             ticks: { precision: 0 },
             title: { display: true, text: 'Nombre de sessions' },
+          },
+        },
+      },
+    });
+  }
+
+  private renderTimelineChart(dailyCounts: StudioClassDailyCount[], canvas: HTMLCanvasElement): void {
+    if (this.timelineInstance) {
+      this.timelineInstance.destroy();
+      this.timelineInstance = null;
+    }
+
+    const labels = dailyCounts.map((d) => d.date);
+    const validatedData = dailyCounts.map((d) => d.validated_count);
+    const pendingData = dailyCounts.map((d) => d.pending_count);
+
+    this.timelineInstance = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Validées',
+            data: validatedData,
+            backgroundColor: '#3B82F6',
+            borderRadius: 4,
+          },
+          {
+            label: 'En attente',
+            data: pendingData,
+            backgroundColor: '#F59E0B',
+            borderRadius: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 12, font: { size: 12 } },
+          },
+          tooltip: {
+            callbacks: {
+              afterBody: (context) => {
+                const idx = context[0]?.dataIndex ?? 0;
+                const item = dailyCounts[idx];
+                if (!item) return '';
+                return [`Total du jour: ${item.count} sessions`];
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: false },
+            ticks: { maxRotation: 45, minRotation: 0, font: { size: 11 } },
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            ticks: { precision: 0 },
+            title: { display: true, text: 'Sessions par jour' },
           },
         },
       },

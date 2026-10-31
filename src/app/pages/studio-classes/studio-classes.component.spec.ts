@@ -20,6 +20,10 @@ describe('StudioClassesComponent', () => {
     macro_precision: 0.952,
     macro_recall: 0.941,
     macro_f1: 0.946,
+    daily_counts: [
+      { date: '2026-10-30', count: 5, validated_count: 4, pending_count: 1 },
+      { date: '2026-10-31', count: 10, validated_count: 8, pending_count: 2 },
+    ],
     classes: [
       {
         label: 'walk',
@@ -73,6 +77,7 @@ describe('StudioClassesComponent', () => {
     expect(studioServiceMock.getClassesSummary).toHaveBeenCalled();
     expect(component.isLoading()).toBe(false);
     expect(component.summary()?.total_classes).toBe(2);
+    expect(component.dailyCounts().length).toBe(2);
   });
 
   it('should render total sessions and macro ML performance cards', () => {
