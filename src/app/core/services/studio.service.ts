@@ -7,6 +7,7 @@ import {
   StudioStartResponse,
   StudioSessionReadingsResponse,
   StudioDatasetStats,
+  StudioClassDetailStatsResponse,
 } from '../../models/telemetry.models';
 import {
   StudioSessionSummary,
@@ -87,6 +88,16 @@ export class StudioService {
           setEdgeAiActivities(stats.edge_ai_labels);
         }
       })
+    );
+  }
+
+  /**
+   * Retrieves detailed daily breakdown, duration metrics, and ML precision/recall for an activity class.
+   * GET /api/v1/studio/classes/{label}/stats
+   */
+  getClassStats(label: string): Observable<StudioClassDetailStatsResponse> {
+    return this.http.get<StudioClassDetailStatsResponse>(
+      `${this.base}/studio/classes/${encodeURIComponent(label)}/stats`
     );
   }
 }

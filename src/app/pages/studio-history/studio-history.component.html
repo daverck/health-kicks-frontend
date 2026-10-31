@@ -704,13 +704,17 @@
                 <!-- Movement Label -->
                 <td class="whitespace-nowrap px-2.5 py-2.5">
                   <div class="flex items-center gap-1.5">
-                    <span
-                      class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-semibold shadow-2xs"
+                    <a
+                      [routerLink]="['/dashboard/studio/classes', s.label]"
+                      (click)="$event.stopPropagation()"
+                      class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-xs font-semibold shadow-2xs transition hover:opacity-80 hover:scale-105 active:scale-95"
                       [ngClass]="getLabelBadgeClass(s.label)"
+                      [title]="'Voir les statistiques de la classe ' + s.label"
                     >
                       <span>{{ getLabelIcon(s.label) }}</span>
                       <span>{{ getLabelDisplayName(s.label) }}</span>
-                    </span>
+                      <span class="text-[10px] opacity-60">📊</span>
+                    </a>
 
                     @if (isCustomStudioLabel(s.label)) {
                       <span
