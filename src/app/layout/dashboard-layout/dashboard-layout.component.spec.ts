@@ -174,10 +174,11 @@ describe('DashboardLayoutComponent', () => {
     expect(component.isClinicianOrAdmin()).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio')).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/history')).toBeTrue();
-    expect(component.visibleLinks().length).toBe(7);
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/classes')).toBeTrue();
+    expect(component.visibleLinks().length).toBe(8);
 
     const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
-    expect(desktopLinks.length).toBe(7);
+    expect(desktopLinks.length).toBe(8);
   });
 
   it('should show studio links when user role is "admin"', () => {
@@ -187,10 +188,11 @@ describe('DashboardLayoutComponent', () => {
     expect(component.isClinicianOrAdmin()).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio')).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/history')).toBeTrue();
-    expect(component.visibleLinks().length).toBe(7);
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/classes')).toBeTrue();
+    expect(component.visibleLinks().length).toBe(8);
 
     const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
-    expect(desktopLinks.length).toBe(7);
+    expect(desktopLinks.length).toBe(8);
   });
 
   it('should compute avatar initial correctly', () => {

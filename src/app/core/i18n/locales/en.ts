@@ -50,6 +50,7 @@ export const en = {
     fall_alerts: 'Fall Alerts',
     studio: 'Studio Capture',
     studio_history: 'Studio History',
+    studio_classes: 'Studio Classes',
     profile: 'My Profile',
     logout: 'Log Out',
     home: 'Home',

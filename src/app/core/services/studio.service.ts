@@ -8,6 +8,7 @@ import {
   StudioSessionReadingsResponse,
   StudioDatasetStats,
   StudioClassDetailStatsResponse,
+  StudioClassesSummaryResponse,
 } from '../../models/telemetry.models';
 import {
   StudioSessionSummary,
@@ -98,6 +99,16 @@ export class StudioService {
   getClassStats(label: string): Observable<StudioClassDetailStatsResponse> {
     return this.http.get<StudioClassDetailStatsResponse>(
       `${this.base}/studio/classes/${encodeURIComponent(label)}/stats`
+    );
+  }
+
+  /**
+   * Retrieves comparative global summary across all activity classes with duration and ML metrics.
+   * GET /api/v1/studio/classes/summary
+   */
+  getClassesSummary(): Observable<StudioClassesSummaryResponse> {
+    return this.http.get<StudioClassesSummaryResponse>(
+      `${this.base}/studio/classes/summary`
     );
   }
 }

@@ -50,6 +50,7 @@ export const fr = {
     fall_alerts: 'Alertes de chute',
     studio: 'Studio Capture',
     studio_history: 'Historique Studio',
+    studio_classes: 'Classes Studio',
     profile: 'Mon profil',
     logout: 'Déconnexion',
     home: 'Accueil',

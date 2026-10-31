@@ -1,0 +1,163 @@
+<div class="space-y-6">
+  <!-- En-tête de page -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <span>🏷️</span> Classes Studio
+      </h1>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+        Synthèse globale du jeu de données biomécanique par classe d'activité et benchmark du modèle champion Edge IA.
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        (click)="loadSummary()"
+        class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+      >
+        <span>↻</span> Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- État de chargement / erreur -->
+  @if (isLoading()) {
+    <div class="flex flex-col items-center justify-center p-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
+      <p class="mt-4 text-sm font-medium text-gray-500">Chargement de la synthèse globale des classes…</p>
+    </div>
+  } @else if (error()) {
+    <div class="p-6 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300">
+      <div class="flex items-center gap-2 font-semibold text-base mb-1">
+        <span>⚠️</span> Erreur de chargement
+      </div>
+      <p class="text-sm">{{ error() }}</p>
+    </div>
+  } @else if (summary(); as data) {
+    <!-- Cartes KPI Globaux -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classes Actives</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_classes }}</p>
+        <p class="text-xs text-gray-500 mt-1">Activitées surveillées</p>
+      </div>
+
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sessions Totales</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_sessions }}</p>
+        <p class="text-xs text-gray-500 mt-1">
+          <span class="text-emerald-600 font-semibold">{{ data.validated_sessions }}</span> validées /
+          <span class="text-amber-600 font-semibold">{{ data.pending_sessions }}</span> en attente
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Précision Macro ML</p>
+        <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+          {{ formatScore(data.macro_precision) }}
+        </p>
+        <p class="text-xs text-gray-500 mt-1">Moyenne sans pondération</p>
+      </div>
+
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rappel Macro ML</p>
+        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+          {{ formatScore(data.macro_recall) }}
+        </p>
+        <p class="text-xs text-gray-500 mt-1">Score F1 global: {{ formatScore(data.macro_f1) }}</p>
+      </div>
+    </div>
+
+    <!-- Graphique Comparatif de Répartition -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span>📊</span> Répartition des Sessions par Classe
+        </h2>
+        <span class="text-xs text-gray-500">Classées par volume décroissant</span>
+      </div>
+      <div class="relative h-72 w-full">
+        <canvas #chartCanvas></canvas>
+      </div>
+    </div>
+
+    <!-- Tableau Synthétique de Toutes les Classes -->
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+      <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+        <h2 class="text-base font-bold text-gray-900 dark:text-white">
+          Détail Comparatif des Classes
+        </h2>
+        <span class="text-xs text-gray-500">{{ sortedClasses().length }} activités</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-800/40 text-xs font-semibold uppercase text-gray-500">
+              <th class="p-3.5 pl-5">Activité</th>
+              <th class="p-3.5">Sessions</th>
+              <th class="p-3.5">Durée Médiane</th>
+              <th class="p-3.5">Précision ML</th>
+              <th class="p-3.5">Rappel ML</th>
+              <th class="p-3.5">Score F1</th>
+              <th class="p-3.5">Dernière Capture</th>
+              <th class="p-3.5 text-right pr-5">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (item of sortedClasses(); track item.label) {
+              <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition">
+                <td class="p-3.5 pl-5">
+                  <div class="flex items-center gap-3">
+                    <app-activity-icon [activityId]="item.label" [size]="28" />
+                    <div>
+                      <p class="font-bold text-gray-900 dark:text-white">{{ formatLabel(item.label) }}</p>
+                      <p class="text-xs text-gray-400 font-mono">{{ item.label }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="p-3.5 font-medium">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-900 dark:text-white">{{ item.total_sessions }}</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">
+                      {{ item.validated_sessions }} val.
+                    </span>
+                    @if (item.pending_sessions > 0) {
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-semibold">
+                        {{ item.pending_sessions }} att.
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td class="p-3.5 font-medium text-gray-700 dark:text-gray-300">
+                  {{ item.median_duration_sec }}s
+                  <span class="text-xs text-gray-400 block font-normal">tot: {{ item.total_duration_sec }}s</span>
+                </td>
+                <td class="p-3.5 font-semibold text-emerald-600 dark:text-emerald-400">
+                  {{ formatScore(item.precision) }}
+                </td>
+                <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">
+                  {{ formatScore(item.recall) }}
+                </td>
+                <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">
+                  {{ formatScore(item.f1_score) }}
+                </td>
+                <td class="p-3.5 text-xs text-gray-500 font-mono">
+                  {{ item.latest_session_date || '—' }}
+                </td>
+                <td class="p-3.5 text-right pr-5">
+                  <a
+                    [routerLink]="['/dashboard/studio/classes', item.label]"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-primary-700 shadow-2xs hover:bg-primary-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-primary-300 dark:hover:bg-gray-700"
+                  >
+                    <span>Détail</span> <span>→</span>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

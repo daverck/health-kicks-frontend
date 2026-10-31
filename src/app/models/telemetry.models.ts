@@ -50,3 +50,30 @@ export interface StudioClassDetailStatsResponse {
   ml_metrics: StudioClassMlMetrics;
   daily_counts: StudioClassDailyCount[];
 }
+
+export interface StudioClassSummaryItem {
+  label: string;
+  total_sessions: number;
+  validated_sessions: number;
+  pending_sessions: number;
+  total_duration_sec: number;
+  median_duration_sec: number;
+  latest_session_date: string | null;
+  precision: number;
+  recall: number;
+  f1_score: number;
+  support_windows: number;
+}
+
+export interface StudioClassesSummaryResponse {
+  total_classes: number;
+  total_sessions: number;
+  validated_sessions: number;
+  pending_sessions: number;
+  total_duration_sec: number;
+  macro_precision: number;
+  macro_recall: number;
+  macro_f1: number;
+  classes: StudioClassSummaryItem[];
+}
+

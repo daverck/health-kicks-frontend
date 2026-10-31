@@ -35,6 +35,7 @@ export class DashboardLayoutComponent implements OnInit {
     { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: '🚨', exact: true, clinicianOnly: false },
     { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬', exact: true, clinicianOnly: true },
     { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊', exact: false, clinicianOnly: true },
+    { path: '/dashboard/studio/classes', labelKey: 'nav.studio_classes', label: 'Classes Studio', icon: '🏷️', exact: true, clinicianOnly: true },
   ];
 
   readonly isClinicianOrAdmin = computed(() => {
