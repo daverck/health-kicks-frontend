@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-8">
   <!-- En-tête de page -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <!-- État de chargement / erreur -->
+  <!-- État de chargement initial / erreur -->
   @if (isLoading()) {
     <div class="flex flex-col items-center justify-center p-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
       <div class="h-10 w-10 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
@@ -34,156 +34,413 @@
       <p class="text-sm">{{ error() }}</p>
     </div>
   } @else if (summary(); as data) {
-    <!-- Cartes KPI Globaux -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classes Actives</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_classes }}</p>
-        <p class="text-xs text-gray-500 mt-1">Activitées surveillées</p>
+
+    <!-- ============================================================== -->
+    <!-- PARTIE 1 : Métriques Globales du Modèle ML & Synthèse Comparative -->
+    <!-- ============================================================== -->
+    <section class="space-y-6">
+      <!-- 5 Cartes KPI Globaux -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <!-- 1. Classes Actives -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classes Actives</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_classes }}</p>
+          <p class="text-xs text-gray-500 mt-1">Activités surveillées</p>
+        </div>
+
+        <!-- 2. Sessions Totales -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sessions Totales</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_sessions }}</p>
+          <p class="text-xs text-gray-500 mt-1">
+            <span class="text-emerald-600 font-semibold">{{ data.validated_sessions }}</span> val. /
+            <span class="text-amber-600 font-semibold">{{ data.pending_sessions }}</span> att.
+          </p>
+        </div>
+
+        <!-- 3. Précision Macro ML -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Précision Macro ML</p>
+          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+            {{ formatScore(data.macro_precision) }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Moyenne sans pondération</p>
+        </div>
+
+        <!-- 4. Rappel Macro ML -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rappel Macro ML</p>
+          <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+            {{ formatScore(data.macro_recall) }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Capacité de détection</p>
+        </div>
+
+        <!-- 5. F1 Score Macro ML -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Score F1 Macro ML</p>
+          <p class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+            {{ formatScore(data.macro_f1) }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Compromis précision/rappel</p>
+        </div>
       </div>
 
-      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sessions Totales</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_sessions }}</p>
-        <p class="text-xs text-gray-500 mt-1">
-          <span class="text-emerald-600 font-semibold">{{ data.validated_sessions }}</span> validées /
-          <span class="text-amber-600 font-semibold">{{ data.pending_sessions }}</span> en attente
-        </p>
-      </div>
-
-      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Précision Macro ML</p>
-        <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-          {{ formatScore(data.macro_precision) }}
-        </p>
-        <p class="text-xs text-gray-500 mt-1">Moyenne sans pondération</p>
-      </div>
-
-      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rappel Macro ML</p>
-        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-          {{ formatScore(data.macro_recall) }}
-        </p>
-        <p class="text-xs text-gray-500 mt-1">Score F1 global: {{ formatScore(data.macro_f1) }}</p>
-      </div>
-    </div>
-
-    <!-- Graphiques Comparatifs (2 Colonnes) -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Graphique Répartition par Classe -->
       <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span>📊</span> Répartition par Classe
-          </h2>
-          <span class="text-xs text-gray-500">Volume décroissant</span>
+          <div>
+            <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span>📊</span> Répartition par Classe
+            </h2>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Volume décroissant de sessions — cliquez sur une barre pour filtrer la timeline ci-dessous
+            </p>
+          </div>
+          @if (selectedClass(); as activeClass) {
+            <button
+              type="button"
+              (click)="selectClass(null)"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 transition"
+            >
+              <span>✕</span> Réinitialiser la sélection
+            </button>
+          }
         </div>
         <div class="relative h-72 w-full">
           <canvas #chartCanvas></canvas>
         </div>
       </div>
 
-      <!-- Graphique Distribution Chronologique des Samples -->
-      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <span>📅</span> Distribution Chronologique des Samples
-          </h2>
-          <span class="text-xs text-gray-500">Par date de capture</span>
+      <!-- Tableau Comparatif des Classes -->
+      <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-bold text-gray-900 dark:text-white">
+              Détail Comparatif des Classes
+            </h2>
+            <p class="text-xs text-gray-500 mt-0.5">
+              Sélectionnez une activité pour analyser spécifiquement sa distribution chronologique
+            </p>
+          </div>
+          <span class="text-xs text-gray-500">{{ sortedClasses().length }} activités</span>
         </div>
-        <div class="relative h-72 w-full">
-          @if (dailyCounts().length > 0) {
-            <canvas #timelineCanvas></canvas>
-          } @else {
-            <div class="flex h-full items-center justify-center text-sm text-gray-400">
-              Aucun échantillon daté disponible
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-800/40 text-xs font-semibold uppercase text-gray-500">
+                <th class="p-3.5 pl-5">Activité</th>
+                <th class="p-3.5">Sessions</th>
+                <th class="p-3.5">Durée Médiane</th>
+                <th class="p-3.5">Précision ML</th>
+                <th class="p-3.5">Rappel ML</th>
+                <th class="p-3.5">Score F1</th>
+                <th class="p-3.5">Première Capture</th>
+                <th class="p-3.5">Dernière Capture</th>
+                <th class="p-3.5 text-right pr-5">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+              @for (item of sortedClasses(); track item.label) {
+                <tr
+                  (click)="selectClass(item.label)"
+                  class="cursor-pointer transition hover:bg-gray-50/80 dark:hover:bg-gray-800/50"
+                  [ngClass]="{
+                    'bg-primary-50/60 dark:bg-primary-950/30 border-l-4 border-primary-600': selectedClass() === item.label
+                  }"
+                >
+                  <td class="p-3.5 pl-5">
+                    <div class="flex items-center gap-3">
+                      <app-activity-icon [activityId]="item.label" [size]="28" />
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <p class="font-bold text-gray-900 dark:text-white">{{ formatLabel(item.label) }}</p>
+                          @if (selectedClass() === item.label) {
+                            <span class="rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-bold text-primary-800 dark:bg-primary-900/40 dark:text-primary-300">
+                              Sélectionnée
+                            </span>
+                          }
+                        </div>
+                        <p class="text-xs text-gray-400 font-mono">{{ item.label }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-3.5 font-medium">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-gray-900 dark:text-white">{{ item.total_sessions }}</span>
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">
+                        {{ item.validated_sessions }} val.
+                      </span>
+                      @if (item.pending_sessions > 0) {
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-semibold">
+                          {{ item.pending_sessions }} att.
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <td class="p-3.5 font-medium text-gray-700 dark:text-gray-300">
+                    {{ item.median_duration_sec }}s
+                    <span class="text-xs text-gray-400 block font-normal">tot: {{ item.total_duration_sec }}s</span>
+                  </td>
+                  <td class="p-3.5 font-semibold text-emerald-600 dark:text-emerald-400">
+                    {{ formatScore(item.precision) }}
+                  </td>
+                  <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">
+                    {{ formatScore(item.recall) }}
+                  </td>
+                  <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">
+                    {{ formatScore(item.f1_score) }}
+                  </td>
+                  <td class="p-3.5 text-xs text-gray-500 font-mono">
+                    {{ item.first_session_date || '—' }}
+                  </td>
+                  <td class="p-3.5 text-xs text-gray-500 font-mono">
+                    {{ item.latest_session_date || '—' }}
+                  </td>
+                  <td class="p-3.5 text-right pr-5">
+                    <button
+                      type="button"
+                      (click)="$event.stopPropagation(); selectClass(item.label)"
+                      class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-2xs transition active:scale-95"
+                      [ngClass]="{
+                        'border-primary-600 bg-primary-600 text-white hover:bg-primary-700': selectedClass() === item.label,
+                        'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700': selectedClass() !== item.label
+                      }"
+                    >
+                      @if (selectedClass() === item.label) {
+                        <span>Désélectionner</span>
+                      } @else {
+                        <span>Filtrer</span> <span>→</span>
+                      }
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- PARTIE 2 : Distribution Chronologique & Détail Dédié             -->
+    <!-- ============================================================== -->
+    <section class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 space-y-6">
+      <!-- En-tête contextuel & Barre de filtres temporels -->
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-5">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span>📅</span> Distribution Chronologique des Samples
+            </h2>
+            <!-- Badge de statut de sélection -->
+            @if (selectedClass(); as activeClass) {
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-primary-100 px-3 py-0.5 text-xs font-semibold text-primary-800 dark:bg-primary-900/40 dark:text-primary-300">
+                <span>Classe :</span>
+                <strong>{{ formatLabel(activeClass) }}</strong>
+                <button
+                  type="button"
+                  (click)="selectClass(null)"
+                  class="ml-0.5 hover:text-red-600 text-gray-500 font-bold"
+                  title="Désélectionner la classe et afficher toutes les classes"
+                >
+                  ✕
+                </button>
+              </span>
+            } @else {
+              <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                Toutes les classes
+              </span>
+            }
+          </div>
+          <p class="text-xs text-gray-500 mt-1">
+            @if (selectedClass(); as activeClass) {
+              Évolution chronologique des sessions pour l'activité <strong>{{ formatLabel(activeClass) }}</strong>
+            } @else {
+              Évolution chronologique cumulée de toutes les activités biomécaniques confondues
+            }
+          </p>
+        </div>
+
+        <!-- Contrôles de filtrage temporel : "Toutes les dates" ou "Par mois" -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Bouton de réinitialisation si une classe est sélectionnée -->
+          @if (selectedClass()) {
+            <button
+              type="button"
+              (click)="selectClass(null)"
+              class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            >
+              <span>🌐</span> Toutes les classes
+            </button>
+          }
+
+          <!-- Sélecteur de mode : Toutes les dates / Par mois -->
+          <div class="inline-flex rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+            <button
+              type="button"
+              (click)="setTimelineMode('all')"
+              class="rounded-lg px-3 py-1 text-xs font-semibold transition"
+              [ngClass]="{
+                'bg-white text-gray-900 shadow-xs dark:bg-gray-700 dark:text-white': timelineMode() === 'all',
+                'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white': timelineMode() !== 'all'
+              }"
+            >
+              Toutes les dates
+            </button>
+            <button
+              type="button"
+              (click)="setTimelineMode('month')"
+              class="rounded-lg px-3 py-1 text-xs font-semibold transition"
+              [ngClass]="{
+                'bg-white text-gray-900 shadow-xs dark:bg-gray-700 dark:text-white': timelineMode() === 'month',
+                'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white': timelineMode() !== 'month'
+              }"
+            >
+              Par mois
+            </button>
+          </div>
+
+          <!-- Pagination temporelle (visible uniquement en mode "Par mois") -->
+          @if (timelineMode() === 'month' && availableMonths().length > 0) {
+            <div class="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800/80 p-1 rounded-xl border border-gray-200 dark:border-gray-700">
+              <button
+                type="button"
+                [disabled]="!hasPreviousMonth()"
+                (click)="goToPreviousMonth()"
+                class="rounded-lg p-1.5 text-gray-600 hover:bg-white hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-700 transition"
+                title="Mois précédent"
+              >
+                ◀
+              </button>
+              
+              <span class="text-xs font-bold text-gray-800 dark:text-gray-200 px-2 min-w-28 text-center capitalize">
+                {{ formatMonth(selectedMonth()) }}
+              </span>
+
+              <button
+                type="button"
+                [disabled]="!hasNextMonth()"
+                (click)="goToNextMonth()"
+                class="rounded-lg p-1.5 text-gray-600 hover:bg-white hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-700 transition"
+                title="Mois suivant"
+              >
+                ▶
+              </button>
             </div>
           }
         </div>
       </div>
-    </div>
 
-    <!-- Tableau Synthétique de Toutes les Classes -->
-    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
-      <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-        <h2 class="text-base font-bold text-gray-900 dark:text-white">
-          Détail Comparatif des Classes
-        </h2>
-        <span class="text-xs text-gray-500">{{ sortedClasses().length }} activités</span>
-      </div>
+      <!-- Récapitulatif détaillé dédié (MASQUÉ SI AUCUNE CLASSE SÉLECTIONNÉE) -->
+      @if (selectedClass(); as activeClass) {
+        @if (selectedClassSummary(); as cls) {
+          <div class="rounded-2xl bg-gray-50/70 dark:bg-gray-800/40 border border-gray-200/80 dark:border-gray-800 p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <app-activity-icon [activityId]="activeClass" [size]="32" />
+                <div>
+                  <h3 class="text-base font-bold text-gray-900 dark:text-white capitalize">
+                    Statistiques de la classe : {{ activeClass.replace('_', ' ') }}
+                  </h3>
+                  <p class="text-xs text-gray-500">
+                    Durées biomécaniques et métriques de classification Edge IA
+                  </p>
+                </div>
+              </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-800/40 text-xs font-semibold uppercase text-gray-500">
-              <th class="p-3.5 pl-5">Activité</th>
-              <th class="p-3.5">Sessions</th>
-              <th class="p-3.5">Durée Médiane</th>
-              <th class="p-3.5">Précision ML</th>
-              <th class="p-3.5">Rappel ML</th>
-              <th class="p-3.5">Score F1</th>
-              <th class="p-3.5">Première Capture</th>
-              <th class="p-3.5">Dernière Capture</th>
-              <th class="p-3.5 text-right pr-5">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            @for (item of sortedClasses(); track item.label) {
-              <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition">
-                <td class="p-3.5 pl-5">
-                  <div class="flex items-center gap-3">
-                    <app-activity-icon [activityId]="item.label" [size]="28" />
-                    <div>
-                      <p class="font-bold text-gray-900 dark:text-white">{{ formatLabel(item.label) }}</p>
-                      <p class="text-xs text-gray-400 font-mono">{{ item.label }}</p>
-                    </div>
-                  </div>
-                </td>
-                <td class="p-3.5 font-medium">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-gray-900 dark:text-white">{{ item.total_sessions }}</span>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">
-                      {{ item.validated_sessions }} val.
-                    </span>
-                    @if (item.pending_sessions > 0) {
-                      <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-semibold">
-                        {{ item.pending_sessions }} att.
-                      </span>
-                    }
-                  </div>
-                </td>
-                <td class="p-3.5 font-medium text-gray-700 dark:text-gray-300">
-                  {{ item.median_duration_sec }}s
-                  <span class="text-xs text-gray-400 block font-normal">tot: {{ item.total_duration_sec }}s</span>
-                </td>
-                <td class="p-3.5 font-semibold text-emerald-600 dark:text-emerald-400">
-                  {{ formatScore(item.precision) }}
-                </td>
-                <td class="p-3.5 font-semibold text-blue-600 dark:text-blue-400">
-                  {{ formatScore(item.recall) }}
-                </td>
-                <td class="p-3.5 font-semibold text-purple-600 dark:text-purple-400">
-                  {{ formatScore(item.f1_score) }}
-                </td>
-                <td class="p-3.5 text-xs text-gray-500 font-mono">
-                  {{ item.first_session_date || '—' }}
-                </td>
-                <td class="p-3.5 text-xs text-gray-500 font-mono">
-                  {{ item.latest_session_date || '—' }}
-                </td>
-                <td class="p-3.5 text-right pr-5">
-                  <a
-                    [routerLink]="['/dashboard/studio/classes', item.label]"
-                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-primary-700 shadow-2xs hover:bg-primary-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-primary-300 dark:hover:bg-gray-700"
-                  >
-                    <span>Détail</span> <span>→</span>
-                  </a>
-                </td>
-              </tr>
+              <!-- Indicateur de chargement si stats spécifiques en cours -->
+              @if (isLoadingClassStats()) {
+                <span class="text-xs text-gray-400 animate-pulse">Actualisation des métriques…</span>
+              }
+            </div>
+
+            <!-- Grille des 6 métriques spécifiques de la classe sélectionnée -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <!-- Sessions Totales -->
+              <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+                <p class="text-[10px] font-bold uppercase text-gray-500">Sessions</p>
+                <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
+                  {{ cls.total_sessions }}
+                </p>
+                <p class="text-[10px] text-gray-500 mt-0.5">
+                  <span class="text-emerald-600 font-semibold">{{ cls.validated_sessions }}</span> val. /
+                  <span class="text-amber-600 font-semibold">{{ cls.pending_sessions }}</span> att.
+                </p>
+              </div>
+
+              <!-- Période Captures -->
+              <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+                <p class="text-[10px] font-bold uppercase text-gray-500">Période Captures</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  1ère : <span class="font-mono font-bold text-gray-900 dark:text-white">{{ cls.first_session_date || '—' }}</span>
+                </p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  Dern. : <span class="font-mono font-bold text-gray-900 dark:text-white">{{ cls.latest_session_date || '—' }}</span>
+                </p>
+              </div>
+
+              <!-- Précision ML -->
+              <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+                <p class="text-[10px] font-bold uppercase text-gray-500">Précision ML</p>
+                <p class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
+                  {{ formatScore(cls.precision) }}
+                </p>
+                <p class="text-[10px] text-gray-500 mt-0.5">{{ cls.support_windows }} fenêtres</p>
+              </div>
+
+              <!-- Rappel ML -->
+              <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+                <p class="text-[10px] font-bold uppercase text-gray-500">Rappel ML</p>
+                <p class="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">
+                  {{ formatScore(cls.recall) }}
+                </p>
+                <p class="text-[10px] text-gray-500 mt-0.5">Sensibilité</p>
+              </div>
+
+              <!-- Score F1 -->
+              <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+                <p class="text-[10px] font-bold uppercase text-gray-500">Score F1</p>
+                <p class="text-xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
+                  {{ formatScore(cls.f1_score) }}
+                </p>
+                <p class="text-[10px] text-gray-500 mt-0.5">Équilibre P/R</p>
+              </div>
+
+              <!-- Médiane Durée -->
+              <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+                <p class="text-[10px] font-bold uppercase text-gray-500">Durée Médiane</p>
+                <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
+                  {{ cls.median_duration_sec }} s
+                </p>
+                <p class="text-[10px] text-gray-500 mt-0.5">Total: {{ cls.total_duration_sec }}s</p>
+              </div>
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Grand Graphique Chronologique Agrandie (h-96) -->
+      <div class="relative h-96 w-full">
+        @if (filteredDailyCounts().length > 0) {
+          <canvas #timelineCanvas></canvas>
+        } @else {
+          <div class="flex h-full flex-col items-center justify-center text-sm text-gray-400 gap-2">
+            <span>📅 Aucun échantillon pour la période sélectionnée</span>
+            @if (timelineMode() === 'month') {
+              <button
+                type="button"
+                (click)="setTimelineMode('all')"
+                class="text-xs text-primary-600 hover:underline"
+              >
+                Afficher toutes les dates
+              </button>
             }
-          </tbody>
-        </table>
+          </div>
+        }
       </div>
-    </div>
+    </section>
+
   }
 </div>

@@ -36,7 +36,6 @@ export const routes: Routes = [
       { path: 'studio', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
       { path: 'studio/history', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-history/studio-history.component').then((m) => m.StudioHistoryComponent) },
       { path: 'studio/classes', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-classes/studio-classes.component').then((m) => m.StudioClassesComponent) },
-      { path: 'studio/classes/:label', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-class-detail/studio-class-detail.component').then((m) => m.StudioClassDetailComponent) },
       { path: 'studio/history/:id', canActivate: [clinicianOrAdminGuard], loadComponent: () => import('./pages/studio-session-detail/studio-session-detail.component').then((m) => m.StudioSessionDetailComponent) },
       { path: 'studio/sessions/:id', redirectTo: 'studio/history/:id', pathMatch: 'full' },
       { path: 'studio-history', redirectTo: 'studio/history', pathMatch: 'full' },
