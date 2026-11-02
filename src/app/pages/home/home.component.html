@@ -624,7 +624,7 @@
               <img
                 [src]="prototypes[selectedPrototype()].imageSrc"
                 [alt]="prototypes[selectedPrototype()].titleKey | translate"
-                class="h-full w-full object-cover transition-all duration-500 hover:scale-105"
+                class="h-full w-full object-contain p-2 transition-all duration-500 hover:scale-105"
                 loading="lazy"
               />
               <div class="absolute top-3 left-3 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-white text-xs font-semibold border border-white/20">
@@ -744,3 +744,4 @@
     © {{ currentYear }} Health Kicks — {{ 'home.footer_rights' | translate }}
   </footer>
 </div>
+
