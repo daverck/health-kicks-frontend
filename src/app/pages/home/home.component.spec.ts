@@ -141,7 +141,7 @@ describe('HomeComponent', () => {
 
   it('should render the shoe photo and toggle interactive simulation modes', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const img = compiled.querySelector('img[src="/images/shoe-clip-device.jpg"]');
+    const img = compiled.querySelector('img[src="/images/shoe_clip_device.avif"]');
     expect(img).toBeTruthy();
 
     // Default simulation is walk
@@ -170,26 +170,26 @@ describe('HomeComponent', () => {
     expect(component.activeAppTab()).toBe('web');
     expect(component.selectedWebScreenshot()).toBe(0);
     const webImg = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(webImg.src).toContain('/images/screenshots/3D_visualisation_stairs_up.png');
+    expect(webImg.src).toContain('/images/screenshots/web_showcase_3d_stairs_up.avif');
 
     // Switch web screenshot
     component.selectWebScreenshot(1);
     fixture.detectChanges();
     const webImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(webImg2.src).toContain('/images/screenshots/dashboard_studio_capture.png');
+    expect(webImg2.src).toContain('/images/screenshots/web_showcase_studio_capture.avif');
 
     // Switch to Mobile tab
     component.setAppTab('mobile');
     fixture.detectChanges();
     expect(component.activeAppTab()).toBe('mobile');
     const mobileImg = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(mobileImg.src).toContain('/images/screenshots/mobile_app_dashboard.jpeg');
+    expect(mobileImg.src).toContain('/images/screenshots/mobile_showcase_dashboard.avif');
 
     // Switch mobile screenshot
     component.selectMobileScreenshot(1);
     fixture.detectChanges();
     const mobileImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(mobileImg2.src).toContain('/images/screenshots/mobile-steps-history.jpg');
+    expect(mobileImg2.src).toContain('/images/screenshots/mobile_showcase_steps_history.avif');
 
     // Switch to Emergency tab
     component.setAppTab('emergency');
@@ -197,13 +197,13 @@ describe('HomeComponent', () => {
     expect(component.activeAppTab()).toBe('emergency');
     expect(component.selectedEmergencyScreenshot()).toBe(0);
     const emergencyImg = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(emergencyImg.src).toContain('/images/screenshots/mobile_fall_detected.jpeg');
+    expect(emergencyImg.src).toContain('/images/screenshots/emergency_showcase_fall_detected.avif');
 
     // Switch emergency step
     component.selectEmergencyScreenshot(3);
     fixture.detectChanges();
     const emergencyImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(emergencyImg2.src).toContain('/images/screenshots/fall_dashboard.png');
+    expect(emergencyImg2.src).toContain('/images/screenshots/emergency_showcase_fall_dashboard.avif');
   });
 
   it('should render the prototypes history section and allow selecting prototype steps', () => {
@@ -214,12 +214,12 @@ describe('HomeComponent', () => {
 
     expect(component.selectedPrototype()).toBe(0);
     const protoImg = protoSection?.querySelector('img') as HTMLImageElement;
-    expect(protoImg.src).toContain('/images/screenshots/prototype_raspberry_pi_arduino.jpeg');
+    expect(protoImg.src).toContain('/images/screenshots/prototype_1_raspberry_arduino.avif');
 
     component.selectPrototype(1);
     fixture.detectChanges();
     const protoImg2 = protoSection?.querySelector('img') as HTMLImageElement;
-    expect(protoImg2.src).toContain('/images/screenshots/prototype_esp32_breadboard.jpeg');
+    expect(protoImg2.src).toContain('/images/screenshots/prototype_2_esp32_breadboard.avif');
     expect(protoSection?.textContent).toContain('composants ont été directement fixés à la colle époxy');
   });
 });

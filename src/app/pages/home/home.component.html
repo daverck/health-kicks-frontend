@@ -18,15 +18,15 @@
         <a href="#prototypes" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'home.prototypes_badge' | translate }}</a>
         <a href="#how" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.how_it_works' | translate }}</a>
       </div>
-      <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
-        <app-language-selector />
+      <div class="flex items-center gap-1 sm:gap-2.5 shrink-0">
+        <app-language-selector [compact]="true" />
         <app-theme-toggle />
         @if (isAuthenticated()) {
           <a routerLink="/dashboard" class="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap">{{ 'nav.member_space' | translate }}</a>
         } @else {
           <a
             routerLink="/login"
-            class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition px-1.5 sm:px-2 py-1 whitespace-nowrap"
+            class="hidden sm:inline-block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition px-2 py-1 whitespace-nowrap"
             >{{ 'nav.login' | translate }}</a
           >
           <a routerLink="/register" class="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap">{{ 'nav.register' | translate }}</a>
@@ -126,7 +126,7 @@
             @if (heroVisualMode() === 'shoe') {
               <div class="relative overflow-hidden rounded-2xl bg-gray-900 aspect-[4/3] group">
                 <img
-                  src="/images/shoe-clip-device.jpg"
+                  src="/images/shoe_clip_device.avif"
                   alt="Health Kicks - Clip IoT fixé sur les lacets de la chaussure"
                   class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="eager"
@@ -231,7 +231,7 @@
                 </div>
                 <div class="relative bg-gray-950 aspect-[4/3] overflow-hidden">
                   <img
-                    src="/images/screenshots/3D_visualisation_stairs_up.png"
+                    src="/images/screenshots/web_showcase_3d_stairs_up.avif"
                     alt="HealthKicks Web Studio"
                     class="h-full w-full object-cover object-top"
                   />
@@ -249,7 +249,7 @@
                 <div class="mx-auto mb-1.5 h-3 w-16 rounded-full bg-black border border-gray-800"></div>
                 <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-black">
                   <img
-                    src="/images/screenshots/mobile_app_dashboard.jpeg"
+                    src="/images/screenshots/mobile_showcase_dashboard.avif"
                     alt="HealthKicks Mobile Companion"
                     class="h-full w-full object-cover object-top"
                   />
