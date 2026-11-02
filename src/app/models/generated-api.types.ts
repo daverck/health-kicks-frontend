@@ -1319,6 +1319,8 @@ export interface components {
             first_name: string;
             /** Last Name */
             last_name: string;
+            /** Priority Rank */
+            rank?: number | null;
         };
         /**
          * FallAlertAction

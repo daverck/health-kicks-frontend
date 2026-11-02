@@ -390,6 +390,7 @@ export const en = {
     cancel_user_cancel: 'Cancelled by patient (“I am fine”)',
     cancel_fall_recovery: 'Automatic stand-up recovery detected',
     ack_by_label: 'Acknowledged by {name}',
+    ack_by_index_label: 'Acknowledged by contact #{index}',
     fall_generic: 'Detected Fall',
     contacts_title: 'Your Emergency Contacts Priority List',
     contacts_count: '{count} / 5 contacts configured',

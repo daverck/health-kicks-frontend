@@ -358,6 +358,7 @@ export const fr = {
     cancel_user_cancel: 'Annulée par le patient (« Je vais bien »)',
     cancel_fall_recovery: 'Relevage automatique détecté',
     ack_by_label: 'Pris en charge par {name}',
+    ack_by_index_label: 'Pris en charge par le proche n°{index}',
     fall_generic: 'Chute détectée',
     contacts_title: 'Liste de priorité de vos proches',
     contacts_count: '{count} / 5 proches configurés',

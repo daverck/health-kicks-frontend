@@ -43,6 +43,11 @@ export class FallAlertsComponent implements OnInit {
     return user?.role === 'admin';
   });
 
+  readonly isClinicianOrAdmin = computed(() => {
+    const user = this.auth.currentUser ? this.auth.currentUser() : this.auth.user();
+    return user?.role === 'admin' || user?.role === 'clinician';
+  });
+
   // ---------- Tab 1: Alert History ----------
   readonly availableStates: ('all' | FallAlertState)[] = [
     'all',
@@ -253,6 +258,20 @@ export class FallAlertsComponent implements OnInit {
 
   getResolutionText(alert: FallAlertSummary): string {
     if (alert.acknowledged_by) {
+      if (this.isClinicianOrAdmin() || alert.is_pseudonymized) {
+        let rank = alert.acknowledged_by.rank;
+        if (rank == null && (alert as FallAlertDetail).notifications) {
+          const ackNotif = (alert as FallAlertDetail).notifications.find(
+            (n) => n.status === 'ACKNOWLEDGED'
+          );
+          if (ackNotif) {
+            rank = ackNotif.rank;
+          }
+        }
+        return this.translation.translate('fall_alerts.ack_by_index_label', {
+          index: rank ?? 1,
+        });
+      }
       const fullName = `${alert.acknowledged_by.first_name} ${alert.acknowledged_by.last_name}`.trim();
       return this.translation.translate('fall_alerts.ack_by_label', { name: fullName });
     }

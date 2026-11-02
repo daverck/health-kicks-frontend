@@ -431,4 +431,79 @@ describe('FallAlertsComponent', () => {
       '2026-10-23T09:15:00Z'
     );
   });
+
+  describe('getResolutionText contact anonymity', () => {
+    it('displays contact full name for regular user', () => {
+      userSignal.set({
+        id: 1,
+        email: 'user@example.com',
+        name: 'Normal User',
+        role: 'user',
+        created_at: '2026-10-23T08:00:00Z',
+      });
+      const alert: FallAlertSummary = {
+        ...mockAlertSummary,
+        is_pseudonymized: false,
+        acknowledged_by: { first_name: 'David', last_name: 'Serck', rank: 2 },
+      };
+      const text = component.getResolutionText(alert);
+      expect(text).toContain('David Serck');
+    });
+
+    it('displays contact index instead of personal name for admin', () => {
+      userSignal.set({
+        id: 99,
+        email: 'admin@example.com',
+        name: 'Admin User',
+        role: 'admin',
+        created_at: '2026-10-23T08:00:00Z',
+      });
+      const alert: FallAlertSummary = {
+        ...mockAlertSummary,
+        is_pseudonymized: true,
+        acknowledged_by: { first_name: 'David', last_name: 'Serck', rank: 2 },
+      };
+      const text = component.getResolutionText(alert);
+      expect(text).not.toContain('David');
+      expect(text).not.toContain('Serck');
+      expect(text).toMatch(/2/);
+    });
+
+    it('displays contact index instead of personal name for clinician', () => {
+      userSignal.set({
+        id: 50,
+        email: 'clinician@example.com',
+        name: 'Doctor Clinician',
+        role: 'clinician',
+        created_at: '2026-10-23T08:00:00Z',
+      });
+      const alert: FallAlertSummary = {
+        ...mockAlertSummary,
+        is_pseudonymized: true,
+        acknowledged_by: { first_name: 'David', last_name: 'Serck', rank: 3 },
+      };
+      const text = component.getResolutionText(alert);
+      expect(text).not.toContain('David');
+      expect(text).not.toContain('Serck');
+      expect(text).toMatch(/3/);
+    });
+
+    it('resolves rank from notifications on FallAlertDetail if acknowledged_by.rank is missing', () => {
+      userSignal.set({
+        id: 99,
+        email: 'admin@example.com',
+        name: 'Admin User',
+        role: 'admin',
+        created_at: '2026-10-23T08:00:00Z',
+      });
+      const detail: FallAlertDetail = {
+        ...mockAlertDetail,
+        acknowledged_by: { first_name: 'Paul', last_name: 'Martin' }, // rank omitted
+      };
+      const text = component.getResolutionText(detail);
+      expect(text).not.toContain('Paul');
+      expect(text).not.toContain('Martin');
+      expect(text).toMatch(/2/); // rank of ACKNOWLEDGED notification is 2 in mockAlertDetail
+    });
+  });
 });
