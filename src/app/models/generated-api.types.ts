@@ -2610,7 +2610,7 @@ export interface components {
              * Uuid
              * Format: uuid
              */
-            uuid?: string;
+            uuid: string;
         };
         /**
          * UserRole
