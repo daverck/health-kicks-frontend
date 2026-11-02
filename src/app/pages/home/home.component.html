@@ -4,9 +4,9 @@
     class="sticky top-0 z-40 border-b border-gray-100 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur"
   >
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-3 sm:py-4">
-      <a routerLink="/" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-        <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
-        <span class="text-base sm:text-lg font-bold tracking-tight whitespace-nowrap text-gray-900 dark:white"
+      <a routerLink="/" class="mr-2 sm:mr-3 flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 sm:h-9 sm:w-9 object-contain mr-1 sm:mr-1.5" />
+        <span class="text-base sm:text-lg font-bold tracking-tight whitespace-nowrap text-gray-900 dark:text-white"
           >Health<span class="text-primary-600">Kicks</span></span
         >
       </a>
@@ -18,15 +18,13 @@
         <a href="#prototypes" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'home.prototypes_badge' | translate }}</a>
         <a href="#how" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.how_it_works' | translate }}</a>
       </div>
-      <div class="flex items-center gap-1 sm:gap-2.5 shrink-0">
-        <app-language-selector [compact]="true" />
-        <app-theme-toggle />
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
         @if (isAuthenticated()) {
           <a routerLink="/dashboard" class="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap">{{ 'nav.member_space' | translate }}</a>
         } @else {
           <a
             routerLink="/login"
-            class="hidden sm:inline-block text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition px-2 py-1 whitespace-nowrap"
+            class="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition px-2 py-1 whitespace-nowrap"
             >{{ 'nav.login' | translate }}</a
           >
           <a routerLink="/register" class="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap">{{ 'nav.register' | translate }}</a>
@@ -738,10 +736,14 @@
     </div>
   </section>
 
-  <footer
-    class="border-t border-gray-100 dark:border-gray-800 py-8 text-center text-sm text-gray-500 dark:text-gray-400"
-  >
-    © {{ currentYear }} Health Kicks — {{ 'home.footer_rights' | translate }}
+  <footer class="border-t border-gray-100 dark:border-gray-800 py-8 text-sm text-gray-500 dark:text-gray-400">
+    <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row">
+      <div>
+        © {{ currentYear }} Health Kicks — {{ 'home.footer_rights' | translate }}
+      </div>
+      <div class="flex items-center gap-3">
+        <app-language-selector />
+        <app-theme-toggle />
+      </div>
+    </div>
   </footer>
-</div>
-
