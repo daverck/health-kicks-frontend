@@ -187,4 +187,20 @@ describe('StudioClassesComponent', () => {
     expect(component.selectedMonth()).toBe('2026-10');
     expect(component.filteredDailyCounts().length).toBe(2);
   });
+
+  it('should have the distribution bar chart collapsed by default and expand on toggle', () => {
+    expect(component.isChartExpanded()).toBe(false);
+    const el: HTMLElement = fixture.nativeElement;
+    // Canvas is not present initially
+    expect(component.chartCanvas()).toBeUndefined();
+
+    const toggleBtn: HTMLButtonElement | null = el.querySelector('[data-testid="toggle-chart-expansion-btn"]');
+    expect(toggleBtn).not.toBeNull();
+
+    toggleBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.isChartExpanded()).toBe(true);
+    expect(component.chartCanvas()).toBeDefined();
+  });
 });

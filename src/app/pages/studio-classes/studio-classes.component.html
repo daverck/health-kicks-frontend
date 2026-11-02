@@ -3,10 +3,10 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <div>
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-        <span>🏷️</span> Classes Studio
+        <span>🏷️</span> {{ 'studio_classes.title' | translate }}
       </h1>
       <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-        Synthèse globale du jeu de données biomécanique par classe d'activité et benchmark du modèle champion Edge IA.
+        {{ 'studio_classes.subtitle' | translate }}
       </p>
     </div>
     <div class="flex items-center gap-3">
@@ -15,7 +15,7 @@
         (click)="loadSummary()"
         class="inline-flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
       >
-        <span>↻</span> Actualiser
+        <span>↻</span> {{ 'studio_classes.refresh' | translate }}
       </button>
     </div>
   </div>
@@ -24,12 +24,12 @@
   @if (isLoading()) {
     <div class="flex flex-col items-center justify-center p-12 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
       <div class="h-10 w-10 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
-      <p class="mt-4 text-sm font-medium text-gray-500">Chargement de la synthèse globale des classes…</p>
+      <p class="mt-4 text-sm font-medium text-gray-500">{{ 'studio_classes.loading' | translate }}</p>
     </div>
   } @else if (error()) {
     <div class="p-6 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300">
       <div class="flex items-center gap-2 font-semibold text-base mb-1">
-        <span>⚠️</span> Erreur de chargement
+        <span>⚠️</span> {{ 'studio_classes.error_title' | translate }}
       </div>
       <p class="text-sm">{{ error() }}</p>
     </div>
@@ -43,73 +43,99 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <!-- 1. Classes Actives -->
         <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Classes Actives</p>
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_active_classes' | translate }}</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_classes }}</p>
-          <p class="text-xs text-gray-500 mt-1">Activités surveillées</p>
+          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_monitored_activities' | translate }}</p>
         </div>
 
         <!-- 2. Sessions Totales -->
         <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sessions Totales</p>
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_total_sessions' | translate }}</p>
           <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_sessions }}</p>
           <p class="text-xs text-gray-500 mt-1">
-            <span class="text-emerald-600 font-semibold">{{ data.validated_sessions }}</span> val. /
-            <span class="text-amber-600 font-semibold">{{ data.pending_sessions }}</span> att.
+            <span class="text-emerald-600 font-semibold">{{ data.validated_sessions }}</span> {{ 'studio_classes.val_suffix' | translate }} /
+            <span class="text-amber-600 font-semibold">{{ data.pending_sessions }}</span> {{ 'studio_classes.att_suffix' | translate }}
           </p>
         </div>
 
         <!-- 3. Précision Macro ML -->
         <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Précision Macro ML</p>
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_macro_precision' | translate }}</p>
           <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
             {{ formatScore(data.macro_precision) }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">Moyenne sans pondération</p>
+          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_macro_precision_desc' | translate }}</p>
         </div>
 
         <!-- 4. Rappel Macro ML -->
         <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Rappel Macro ML</p>
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_macro_recall' | translate }}</p>
           <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
             {{ formatScore(data.macro_recall) }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">Capacité de détection</p>
+          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_macro_recall_desc' | translate }}</p>
         </div>
 
         <!-- 5. F1 Score Macro ML -->
         <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Score F1 Macro ML</p>
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_macro_f1' | translate }}</p>
           <p class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
             {{ formatScore(data.macro_f1) }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">Compromis précision/rappel</p>
+          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_macro_f1_desc' | translate }}</p>
         </div>
       </div>
 
-      <!-- Graphique Répartition par Classe -->
-      <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <span>📊</span> Répartition par Classe
-            </h2>
-            <p class="text-xs text-gray-500 mt-0.5">
-              Volume décroissant de sessions — cliquez sur une barre pour filtrer la timeline ci-dessous
-            </p>
+      <!-- Graphique Répartition par Classe dans un Expansion Panel (Replié par défaut) -->
+      <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
+        <button
+          type="button"
+          (click)="toggleChartExpansion()"
+          data-testid="toggle-chart-expansion-btn"
+          class="w-full p-5 flex items-center justify-between text-left hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition focus:outline-none"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-lg">📊</span>
+            <div>
+              <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                {{ 'studio_classes.chart_distribution_title' | translate }}
+              </h2>
+              <p class="text-xs text-gray-500 mt-0.5">
+                {{ 'studio_classes.chart_distribution_desc' | translate }}
+              </p>
+            </div>
           </div>
-          @if (selectedClass(); as activeClass) {
-            <button
-              type="button"
-              (click)="selectClass(null)"
-              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 transition"
-            >
-              <span>✕</span> Réinitialiser la sélection
-            </button>
-          }
-        </div>
-        <div class="relative h-72 w-full">
-          <canvas #chartCanvas></canvas>
-        </div>
+          <div class="flex items-center gap-3">
+            @if (selectedClass(); as activeClass) {
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-primary-100 text-primary-800 dark:bg-primary-900/40 dark:text-primary-300">
+                {{ formatLabel(activeClass) }}
+              </span>
+            }
+            <span class="text-xs font-medium text-gray-400 dark:text-gray-500 flex items-center gap-1">
+              <span>{{ isChartExpanded() ? ('studio_classes.collapse_chart' | translate) : ('studio_classes.expand_chart' | translate) }}</span>
+              <span class="text-sm transition-transform duration-200" [ngClass]="{ 'rotate-180': isChartExpanded() }">▼</span>
+            </span>
+          </div>
+        </button>
+
+        @if (isChartExpanded()) {
+          <div class="p-5 pt-0 border-t border-gray-100 dark:border-gray-800 space-y-4">
+            <div class="flex items-center justify-end pt-3">
+              @if (selectedClass(); as activeClass) {
+                <button
+                  type="button"
+                  (click)="selectClass(null)"
+                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300 transition"
+                >
+                  <span>✕</span> {{ 'studio_classes.reset_selection' | translate }}
+                </button>
+              }
+            </div>
+            <div class="relative h-72 w-full">
+              <canvas #chartCanvas></canvas>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Tableau Comparatif des Classes -->
@@ -117,28 +143,28 @@
         <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           <div>
             <h2 class="text-base font-bold text-gray-900 dark:text-white">
-              Détail Comparatif des Classes
+              {{ 'studio_classes.table_title' | translate }}
             </h2>
             <p class="text-xs text-gray-500 mt-0.5">
-              Sélectionnez une activité pour analyser spécifiquement sa distribution chronologique
+              {{ 'studio_classes.table_subtitle' | translate }}
             </p>
           </div>
-          <span class="text-xs text-gray-500">{{ sortedClasses().length }} activités</span>
+          <span class="text-xs text-gray-500">{{ 'studio_classes.activities_count' | translate: { count: sortedClasses().length } }}</span>
         </div>
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-gray-100 bg-gray-50/50 dark:border-gray-800 dark:bg-gray-800/40 text-xs font-semibold uppercase text-gray-500">
-                <th class="p-3.5 pl-5">Activité</th>
-                <th class="p-3.5">Sessions</th>
-                <th class="p-3.5">Durée Médiane</th>
-                <th class="p-3.5">Précision ML</th>
-                <th class="p-3.5">Rappel ML</th>
-                <th class="p-3.5">Score F1</th>
-                <th class="p-3.5">Première Capture</th>
-                <th class="p-3.5">Dernière Capture</th>
-                <th class="p-3.5 text-right pr-5">Action</th>
+                <th class="p-3.5 pl-5">{{ 'studio_classes.col_activity' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_sessions' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_median_duration' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_precision' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_recall' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_f1' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_first_capture' | translate }}</th>
+                <th class="p-3.5">{{ 'studio_classes.col_latest_capture' | translate }}</th>
+                <th class="p-3.5 text-right pr-5">{{ 'studio_classes.col_action' | translate }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -158,7 +184,7 @@
                           <p class="font-bold text-gray-900 dark:text-white">{{ formatLabel(item.label) }}</p>
                           @if (selectedClass() === item.label) {
                             <span class="rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-bold text-primary-800 dark:bg-primary-900/40 dark:text-primary-300">
-                              Sélectionnée
+                              {{ 'studio_classes.selected_badge' | translate }}
                             </span>
                           }
                         </div>
@@ -170,18 +196,18 @@
                     <div class="flex items-center gap-2">
                       <span class="font-bold text-gray-900 dark:text-white">{{ item.total_sessions }}</span>
                       <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">
-                        {{ item.validated_sessions }} val.
+                        {{ item.validated_sessions }} {{ 'studio_classes.val_suffix' | translate }}
                       </span>
                       @if (item.pending_sessions > 0) {
                         <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-semibold">
-                          {{ item.pending_sessions }} att.
+                          {{ item.pending_sessions }} {{ 'studio_classes.att_suffix' | translate }}
                         </span>
                       }
                     </div>
                   </td>
                   <td class="p-3.5 font-medium text-gray-700 dark:text-gray-300">
                     {{ item.median_duration_sec }}s
-                    <span class="text-xs text-gray-400 block font-normal">tot: {{ item.total_duration_sec }}s</span>
+                    <span class="text-xs text-gray-400 block font-normal">{{ 'studio_classes.total_short' | translate: { sec: item.total_duration_sec } }}</span>
                   </td>
                   <td class="p-3.5 font-semibold text-emerald-600 dark:text-emerald-400">
                     {{ formatScore(item.precision) }}
@@ -209,9 +235,9 @@
                       }"
                     >
                       @if (selectedClass() === item.label) {
-                        <span>Désélectionner</span>
+                        <span>{{ 'studio_classes.deselect_action' | translate }}</span>
                       } @else {
-                        <span>Filtrer</span> <span>→</span>
+                        <span>{{ 'studio_classes.filter_action' | translate }}</span> <span>→</span>
                       }
                     </button>
                   </td>
@@ -232,33 +258,33 @@
         <div>
           <div class="flex items-center gap-2.5">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <span>📅</span> Distribution Chronologique des Samples
+              <span>📅</span> {{ 'studio_classes.timeline_title' | translate }}
             </h2>
             <!-- Badge de statut de sélection -->
             @if (selectedClass(); as activeClass) {
               <span class="inline-flex items-center gap-1.5 rounded-full bg-primary-100 px-3 py-0.5 text-xs font-semibold text-primary-800 dark:bg-primary-900/40 dark:text-primary-300">
-                <span>Classe :</span>
+                <span>{{ 'studio_classes.selected_class_prefix' | translate }}</span>
                 <strong>{{ formatLabel(activeClass) }}</strong>
                 <button
                   type="button"
                   (click)="selectClass(null)"
                   class="ml-0.5 hover:text-red-600 text-gray-500 font-bold"
-                  title="Désélectionner la classe et afficher toutes les classes"
+                  [title]="'studio_classes.deselect_tooltip' | translate"
                 >
                   ✕
                 </button>
               </span>
             } @else {
               <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-0.5 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                Toutes les classes
+                {{ 'studio_classes.all_classes' | translate }}
               </span>
             }
           </div>
           <p class="text-xs text-gray-500 mt-1">
             @if (selectedClass(); as activeClass) {
-              Évolution chronologique des sessions pour l'activité <strong>{{ formatLabel(activeClass) }}</strong>
+              {{ 'studio_classes.timeline_desc_class' | translate: { label: formatLabel(activeClass) } }}
             } @else {
-              Évolution chronologique cumulée de toutes les activités biomécaniques confondues
+              {{ 'studio_classes.timeline_desc_all' | translate }}
             }
           </p>
         </div>
@@ -272,7 +298,7 @@
               (click)="selectClass(null)"
               class="inline-flex items-center gap-1.5 rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
             >
-              <span>🌐</span> Toutes les classes
+              <span>🌐</span> {{ 'studio_classes.all_classes' | translate }}
             </button>
           }
 
@@ -287,7 +313,7 @@
                 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white': timelineMode() !== 'all'
               }"
             >
-              Toutes les dates
+              {{ 'studio_classes.mode_all_dates' | translate }}
             </button>
             <button
               type="button"
@@ -298,7 +324,7 @@
                 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white': timelineMode() !== 'month'
               }"
             >
-              Par mois
+              {{ 'studio_classes.mode_by_month' | translate }}
             </button>
           </div>
 
@@ -310,7 +336,7 @@
                 [disabled]="!hasPreviousMonth()"
                 (click)="goToPreviousMonth()"
                 class="rounded-lg p-1.5 text-gray-600 hover:bg-white hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-700 transition"
-                title="Mois précédent"
+                [title]="'studio_classes.prev_month' | translate"
               >
                 ◀
               </button>
@@ -324,7 +350,7 @@
                 [disabled]="!hasNextMonth()"
                 (click)="goToNextMonth()"
                 class="rounded-lg p-1.5 text-gray-600 hover:bg-white hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed dark:text-gray-300 dark:hover:bg-gray-700 transition"
-                title="Mois suivant"
+                [title]="'studio_classes.next_month' | translate"
               >
                 ▶
               </button>
@@ -342,17 +368,17 @@
                 <app-activity-icon [activityId]="activeClass" [size]="32" />
                 <div>
                   <h3 class="text-base font-bold text-gray-900 dark:text-white capitalize">
-                    Statistiques de la classe : {{ activeClass.replace('_', ' ') }}
+                    {{ 'studio_classes.class_stats_title' | translate: { label: activeClass.replace('_', ' ') } }}
                   </h3>
                   <p class="text-xs text-gray-500">
-                    Durées biomécaniques et métriques de classification Edge IA
+                    {{ 'studio_classes.class_stats_subtitle' | translate }}
                   </p>
                 </div>
               </div>
 
               <!-- Indicateur de chargement si stats spécifiques en cours -->
               @if (isLoadingClassStats()) {
-                <span class="text-xs text-gray-400 animate-pulse">Actualisation des métriques…</span>
+                <span class="text-xs text-gray-400 animate-pulse">{{ 'studio_classes.updating_metrics' | translate }}</span>
               }
             </div>
 
@@ -360,61 +386,61 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               <!-- Sessions Totales -->
               <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                <p class="text-[10px] font-bold uppercase text-gray-500">Sessions</p>
+                <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_sessions' | translate }}</p>
                 <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
                   {{ cls.total_sessions }}
                 </p>
                 <p class="text-[10px] text-gray-500 mt-0.5">
-                  <span class="text-emerald-600 font-semibold">{{ cls.validated_sessions }}</span> val. /
-                  <span class="text-amber-600 font-semibold">{{ cls.pending_sessions }}</span> att.
+                  <span class="text-emerald-600 font-semibold">{{ cls.validated_sessions }}</span> {{ 'studio_classes.val_suffix' | translate }} /
+                  <span class="text-amber-600 font-semibold">{{ cls.pending_sessions }}</span> {{ 'studio_classes.att_suffix' | translate }}
                 </p>
               </div>
 
               <!-- Période Captures -->
               <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                <p class="text-[10px] font-bold uppercase text-gray-500">Période Captures</p>
+                <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.capture_period' | translate }}</p>
                 <p class="text-xs text-gray-500 mt-1">
-                  1ère : <span class="font-mono font-bold text-gray-900 dark:text-white">{{ cls.first_session_date || '—' }}</span>
+                  {{ 'studio_classes.first_short' | translate }} <span class="font-mono font-bold text-gray-900 dark:text-white">{{ cls.first_session_date || '—' }}</span>
                 </p>
                 <p class="text-xs text-gray-500 mt-0.5">
-                  Dern. : <span class="font-mono font-bold text-gray-900 dark:text-white">{{ cls.latest_session_date || '—' }}</span>
+                  {{ 'studio_classes.latest_short' | translate }} <span class="font-mono font-bold text-gray-900 dark:text-white">{{ cls.latest_session_date || '—' }}</span>
                 </p>
               </div>
 
               <!-- Précision ML -->
               <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                <p class="text-[10px] font-bold uppercase text-gray-500">Précision ML</p>
+                <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_precision' | translate }}</p>
                 <p class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">
                   {{ formatScore(cls.precision) }}
                 </p>
-                <p class="text-[10px] text-gray-500 mt-0.5">{{ cls.support_windows }} fenêtres</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">{{ 'studio_classes.support_windows' | translate: { count: cls.support_windows } }}</p>
               </div>
 
               <!-- Rappel ML -->
               <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                <p class="text-[10px] font-bold uppercase text-gray-500">Rappel ML</p>
+                <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_recall' | translate }}</p>
                 <p class="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">
                   {{ formatScore(cls.recall) }}
                 </p>
-                <p class="text-[10px] text-gray-500 mt-0.5">Sensibilité</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">{{ 'studio_classes.sensitivity' | translate }}</p>
               </div>
 
               <!-- Score F1 -->
               <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                <p class="text-[10px] font-bold uppercase text-gray-500">Score F1</p>
+                <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_f1' | translate }}</p>
                 <p class="text-xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">
                   {{ formatScore(cls.f1_score) }}
                 </p>
-                <p class="text-[10px] text-gray-500 mt-0.5">Équilibre P/R</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">{{ 'studio_classes.balance_pr' | translate }}</p>
               </div>
 
               <!-- Médiane Durée -->
               <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                <p class="text-[10px] font-bold uppercase text-gray-500">Durée Médiane</p>
+                <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_median_duration' | translate }}</p>
                 <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
                   {{ cls.median_duration_sec }} s
                 </p>
-                <p class="text-[10px] text-gray-500 mt-0.5">Total: {{ cls.total_duration_sec }}s</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">{{ 'studio_classes.total_duration_display' | translate: { sec: cls.total_duration_sec } }}</p>
               </div>
             </div>
           </div>
@@ -427,14 +453,14 @@
           <canvas #timelineCanvas></canvas>
         } @else {
           <div class="flex h-full flex-col items-center justify-center text-sm text-gray-400 gap-2">
-            <span>📅 Aucun échantillon pour la période sélectionnée</span>
+            <span>📅 {{ 'studio_classes.no_samples_period' | translate }}</span>
             @if (timelineMode() === 'month') {
               <button
                 type="button"
                 (click)="setTimelineMode('all')"
                 class="text-xs text-primary-600 hover:underline"
               >
-                Afficher toutes les dates
+                {{ 'studio_classes.show_all_dates_btn' | translate }}
               </button>
             }
           </div>

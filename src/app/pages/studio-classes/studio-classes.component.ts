@@ -48,6 +48,9 @@ export class StudioClassesComponent implements OnInit {
   readonly selectedClassStats = signal<StudioClassDetailStatsResponse | null>(null);
   readonly isLoadingClassStats = signal<boolean>(false);
 
+  // Expansion panel state for the distribution bar chart (shrinked / collapsed by default)
+  readonly isChartExpanded = signal<boolean>(false);
+
   // Timeline filtering: 'all' or 'month'
   readonly timelineMode = signal<'all' | 'month'>('all');
   readonly selectedMonth = signal<string>('');
@@ -182,6 +185,21 @@ export class StudioClassesComponent implements OnInit {
         this.isLoadingClassStats.set(false);
       },
     });
+  }
+
+  toggleChartExpansion(): void {
+    const next = !this.isChartExpanded();
+    this.isChartExpanded.set(next);
+    if (next) {
+      setTimeout(() => {
+        const summaryData = this.summary();
+        const canvasRef = this.chartCanvas();
+        const selected = this.selectedClass();
+        if (summaryData && canvasRef?.nativeElement) {
+          this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected);
+        }
+      }, 0);
+    }
   }
 
   selectClass(label: string | null): void {
