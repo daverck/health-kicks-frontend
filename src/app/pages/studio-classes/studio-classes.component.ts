@@ -23,6 +23,8 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 Chart.register(...registerables);
 
+export type StudioChartMetric = 'distribution' | 'f1' | 'precision' | 'recall';
+
 @Component({
   selector: 'app-studio-classes',
   standalone: true,
@@ -48,9 +50,15 @@ export class StudioClassesComponent implements OnInit {
   readonly selectedClassStats = signal<StudioClassDetailStatsResponse | null>(null);
   readonly isLoadingClassStats = signal<boolean>(false);
 
+  // Active metric for class overview chart ('distribution', 'f1', 'precision', 'recall')
+  readonly chartMetric = signal<StudioChartMetric>('distribution');
+
   // Expansion panel states (distribution bar chart and comparative table, collapsed by default)
   readonly isChartExpanded = signal<boolean>(false);
   readonly isTableExpanded = signal<boolean>(false);
+
+  // Second section: chronological distribution timeline (expanded by default)
+  readonly isTimelineExpanded = signal<boolean>(true);
 
   // Timeline filtering: 'all' or 'month'
   readonly timelineMode = signal<'all' | 'month'>('all');
@@ -122,8 +130,9 @@ export class StudioClassesComponent implements OnInit {
       const summaryData = this.summary();
       const canvasRef = this.chartCanvas();
       const selected = this.selectedClass();
+      const metric = this.chartMetric();
       if (summaryData && canvasRef?.nativeElement) {
-        this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected);
+        this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected, metric);
       }
     });
 
@@ -131,7 +140,8 @@ export class StudioClassesComponent implements OnInit {
     effect(() => {
       const daily = this.filteredDailyCounts();
       const canvasRef = this.timelineCanvas();
-      if (canvasRef?.nativeElement) {
+      const expanded = this.isTimelineExpanded();
+      if (expanded && canvasRef?.nativeElement) {
         this.renderTimelineChart(daily, canvasRef.nativeElement);
       }
     });
@@ -167,7 +177,7 @@ export class StudioClassesComponent implements OnInit {
       },
       error: (err) => {
         this.error.set(
-          err?.error?.detail || 'Erreur lors du chargement de la synthèse des classes Studio.'
+          err?.error?.detail || 'Error loading Studio classes summary.'
         );
         this.isLoading.set(false);
       },
@@ -188,6 +198,20 @@ export class StudioClassesComponent implements OnInit {
     });
   }
 
+  setChartMetric(metric: StudioChartMetric): void {
+    this.chartMetric.set(metric);
+    if (this.isChartExpanded()) {
+      setTimeout(() => {
+        const summaryData = this.summary();
+        const canvasRef = this.chartCanvas();
+        const selected = this.selectedClass();
+        if (summaryData && canvasRef?.nativeElement) {
+          this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected, metric);
+        }
+      }, 0);
+    }
+  }
+
   toggleChartExpansion(): void {
     const next = !this.isChartExpanded();
     this.isChartExpanded.set(next);
@@ -196,8 +220,9 @@ export class StudioClassesComponent implements OnInit {
         const summaryData = this.summary();
         const canvasRef = this.chartCanvas();
         const selected = this.selectedClass();
+        const metric = this.chartMetric();
         if (summaryData && canvasRef?.nativeElement) {
-          this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected);
+          this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected, metric);
         }
       }, 0);
     }
@@ -205,6 +230,20 @@ export class StudioClassesComponent implements OnInit {
 
   toggleTableExpansion(): void {
     this.isTableExpanded.update((v) => !v);
+  }
+
+  toggleTimelineExpansion(): void {
+    const next = !this.isTimelineExpanded();
+    this.isTimelineExpanded.set(next);
+    if (next) {
+      setTimeout(() => {
+        const daily = this.filteredDailyCounts();
+        const canvasRef = this.timelineCanvas();
+        if (canvasRef?.nativeElement) {
+          this.renderTimelineChart(daily, canvasRef.nativeElement);
+        }
+      }, 0);
+    }
   }
 
   selectClass(label: string | null): void {
@@ -279,33 +318,143 @@ export class StudioClassesComponent implements OnInit {
   private renderDistributionChart(
     classes: StudioClassSummaryItem[],
     canvas: HTMLCanvasElement,
-    selectedClass: string | null
+    selectedClass: string | null,
+    metric: StudioChartMetric
   ): void {
     if (this.chartInstance) {
       this.chartInstance.destroy();
       this.chartInstance = null;
     }
 
-    const sortedForChart = [...classes].sort((a, b) => b.total_sessions - a.total_sessions);
+    // Sort order: by sessions for distribution, or by corresponding score descending
+    const sortedForChart = [...classes].sort((a, b) => {
+      if (metric === 'f1') return b.f1_score - a.f1_score;
+      if (metric === 'precision') return b.precision - a.precision;
+      if (metric === 'recall') return b.recall - a.recall;
+      return b.total_sessions - a.total_sessions;
+    });
+
     const labels = sortedForChart.map((c) => this.formatLabel(c.label));
 
-    // Colors: highlight selected class bar if active
-    const validatedColors = sortedForChart.map((c) => {
-      if (selectedClass) {
-        return c.label === selectedClass ? '#10B981' : '#A7F3D0';
-      }
-      return '#10B981';
+    if (metric === 'distribution') {
+      const validatedColors = sortedForChart.map((c) => {
+        if (selectedClass) {
+          return c.label === selectedClass ? '#10B981' : '#A7F3D0';
+        }
+        return '#10B981';
+      });
+
+      const pendingColors = sortedForChart.map((c) => {
+        if (selectedClass) {
+          return c.label === selectedClass ? '#F59E0B' : '#FDE68A';
+        }
+        return '#F59E0B';
+      });
+
+      const validatedData = sortedForChart.map((c) => c.validated_sessions);
+      const pendingData = sortedForChart.map((c) => c.pending_sessions);
+
+      this.chartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Validated Sessions',
+              data: validatedData,
+              backgroundColor: validatedColors,
+              borderRadius: 4,
+            },
+            {
+              label: 'Pending Sessions',
+              data: pendingData,
+              backgroundColor: pendingColors,
+              borderRadius: 4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (_, elements) => {
+            if (elements.length > 0) {
+              const idx = elements[0].index;
+              const clickedClass = sortedForChart[idx]?.label;
+              if (clickedClass) {
+                this.selectClass(clickedClass);
+              }
+            }
+          },
+          onHover: (event, elements) => {
+            if (event.native?.target) {
+              (event.native.target as HTMLElement).style.cursor = elements.length ? 'pointer' : 'default';
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { boxWidth: 12, font: { size: 12 } },
+            },
+            tooltip: {
+              callbacks: {
+                afterBody: (context) => {
+                  const idx = context[0]?.dataIndex ?? 0;
+                  const item = sortedForChart[idx];
+                  if (!item) return '';
+                  return [
+                    `Total: ${item.total_sessions}`,
+                    `Median duration: ${item.median_duration_sec}s`,
+                    `ML Precision: ${(item.precision * 100).toFixed(1)}%`,
+                    `ML Recall: ${(item.recall * 100).toFixed(1)}%`,
+                    `F1-Score: ${(item.f1_score * 100).toFixed(1)}%`,
+                    `Latest session: ${item.latest_session_date || 'N/A'}`,
+                    '👉 Click to filter timeline',
+                  ];
+                },
+              },
+            },
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { maxRotation: 45, minRotation: 0, font: { size: 11 } },
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { precision: 0 },
+              title: { display: true, text: 'Number of sessions' },
+            },
+          },
+        },
+      });
+      return;
+    }
+
+    // Performance metrics: F1, Precision, Recall (percentage 0-100%)
+    const metricLabel =
+      metric === 'f1' ? 'F1-Score' : metric === 'precision' ? 'Precision' : 'Recall';
+
+    const metricData = sortedForChart.map((c) => {
+      const val = metric === 'f1' ? c.f1_score : metric === 'precision' ? c.precision : c.recall;
+      return +(val * 100).toFixed(1);
     });
 
-    const pendingColors = sortedForChart.map((c) => {
-      if (selectedClass) {
-        return c.label === selectedClass ? '#F59E0B' : '#FDE68A';
+    // Color code based on threshold: Green (>= 85%), Amber (70-84%), Red (< 70%)
+    const backgroundColors = sortedForChart.map((c, i) => {
+      const score = metricData[i];
+      let baseColor = '#10B981'; // Green
+      if (score < 70) {
+        baseColor = '#EF4444'; // Red
+      } else if (score < 85) {
+        baseColor = '#F59E0B'; // Amber
       }
-      return '#F59E0B';
+      if (selectedClass) {
+        return c.label === selectedClass ? baseColor : `${baseColor}66`;
+      }
+      return baseColor;
     });
-
-    const validatedData = sortedForChart.map((c) => c.validated_sessions);
-    const pendingData = sortedForChart.map((c) => c.pending_sessions);
 
     this.chartInstance = new Chart(canvas, {
       type: 'bar',
@@ -313,15 +462,9 @@ export class StudioClassesComponent implements OnInit {
         labels,
         datasets: [
           {
-            label: 'Sessions Validées',
-            data: validatedData,
-            backgroundColor: validatedColors,
-            borderRadius: 4,
-          },
-          {
-            label: 'Sessions en Attente',
-            data: pendingData,
-            backgroundColor: pendingColors,
+            label: metricLabel,
+            data: metricData,
+            backgroundColor: backgroundColors,
             borderRadius: 4,
           },
         ],
@@ -345,23 +488,21 @@ export class StudioClassesComponent implements OnInit {
         },
         plugins: {
           legend: {
-            position: 'top',
-            labels: { boxWidth: 12, font: { size: 12 } },
+            display: false,
           },
           tooltip: {
             callbacks: {
+              label: (context) => ` ${metricLabel}: ${context.parsed.y}%`,
               afterBody: (context) => {
                 const idx = context[0]?.dataIndex ?? 0;
                 const item = sortedForChart[idx];
                 if (!item) return '';
                 return [
-                  `Total: ${item.total_sessions}`,
-                  `Durée médiane: ${item.median_duration_sec}s`,
-                  `Précision ML: ${(item.precision * 100).toFixed(1)}%`,
-                  `Rappel ML: ${(item.recall * 100).toFixed(1)}%`,
-                  `Score F1: ${(item.f1_score * 100).toFixed(1)}%`,
-                  `Dernière session: ${item.latest_session_date || 'N/A'}`,
-                  '👉 Cliquer pour filtrer la timeline',
+                  `Sessions: ${item.total_sessions} (${item.validated_sessions} valid)`,
+                  `F1-Score: ${(item.f1_score * 100).toFixed(1)}%`,
+                  `Precision: ${(item.precision * 100).toFixed(1)}%`,
+                  `Recall: ${(item.recall * 100).toFixed(1)}%`,
+                  '👉 Click to filter timeline',
                 ];
               },
             },
@@ -369,15 +510,16 @@ export class StudioClassesComponent implements OnInit {
         },
         scales: {
           x: {
-            stacked: true,
             grid: { display: false },
             ticks: { maxRotation: 45, minRotation: 0, font: { size: 11 } },
           },
           y: {
-            stacked: true,
             beginAtZero: true,
-            ticks: { precision: 0 },
-            title: { display: true, text: 'Nombre de sessions' },
+            max: 100,
+            ticks: {
+              callback: (value) => `${value}%`,
+            },
+            title: { display: true, text: `${metricLabel} (%)` },
           },
         },
       },
@@ -400,13 +542,13 @@ export class StudioClassesComponent implements OnInit {
         labels,
         datasets: [
           {
-            label: 'Validées',
+            label: 'Validated',
             data: validatedData,
             backgroundColor: '#10B981',
             borderRadius: 4,
           },
           {
-            label: 'En attente',
+            label: 'Pending',
             data: pendingData,
             backgroundColor: '#F59E0B',
             borderRadius: 4,
@@ -427,7 +569,7 @@ export class StudioClassesComponent implements OnInit {
                 const idx = context[0]?.dataIndex ?? 0;
                 const item = dailyCounts[idx];
                 if (!item) return '';
-                return [`Total du jour: ${item.count} sessions`];
+                return [`Daily total: ${item.count} sessions`];
               },
             },
           },
@@ -442,7 +584,7 @@ export class StudioClassesComponent implements OnInit {
             stacked: true,
             beginAtZero: true,
             ticks: { precision: 0 },
-            title: { display: true, text: 'Sessions par jour' },
+            title: { display: true, text: 'Sessions per day' },
           },
         },
       },

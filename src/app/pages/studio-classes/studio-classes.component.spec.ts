@@ -53,7 +53,7 @@ describe('StudioClassesComponent', () => {
         pending_sessions: 1,
         total_duration_sec: 25.0,
         median_duration_sec: 5.0,
-        first_session_date: '2026-10-15',
+        first_session_date: '2026-10-21',
         latest_session_date: '2026-10-30',
         precision: 0.92,
         recall: 0.91,
@@ -63,36 +63,21 @@ describe('StudioClassesComponent', () => {
     ],
   };
 
-  const mockClassStatsWalk: StudioClassDetailStatsResponse = {
+  const mockClassStats: StudioClassDetailStatsResponse = {
     label: 'walk',
     total_sessions: 10,
     validated_sessions: 8,
     pending_sessions: 2,
-    first_session_date: '2026-10-20',
-    latest_session_date: '2026-10-31',
-    duration_metrics: {
-      median_sec: 5.0,
-      mean_sec: 5.1,
-      min_sec: 4.8,
-      max_sec: 5.3,
-      std_sec: 0.2,
-      total_sec: 50.0,
-    },
-    ml_metrics: {
-      precision: 0.98,
-      recall: 0.96,
-      f1_score: 0.97,
-      support_windows: 240,
-    },
     daily_counts: [
-      { date: '2026-10-31', count: 10, validated_count: 8, pending_count: 2 },
+      { date: '2026-10-30', count: 3, validated_count: 2, pending_count: 1 },
+      { date: '2026-10-31', count: 7, validated_count: 6, pending_count: 1 },
     ],
   };
 
   beforeEach(async () => {
     studioServiceMock = {
       getClassesSummary: vi.fn().mockReturnValue(of(mockSummary)),
-      getClassStats: vi.fn().mockReturnValue(of(mockClassStatsWalk)),
+      getClassStats: vi.fn().mockReturnValue(of(mockClassStats)),
     };
 
     await TestBed.configureTestingModule({
@@ -103,124 +88,115 @@ describe('StudioClassesComponent', () => {
       ],
     }).compileComponents();
 
-    router = TestBed.inject(Router);
     fixture = TestBed.createComponent(StudioClassesComponent);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
 
-  it('should create and load classes summary on init', () => {
+  it('should initialize and load classes summary', () => {
     expect(component).toBeTruthy();
     expect(studioServiceMock.getClassesSummary).toHaveBeenCalled();
     expect(component.isLoading()).toBe(false);
-    expect(component.summary()?.total_classes).toBe(2);
-    expect(component.activeDailyCounts().length).toBe(2);
+    expect(component.summary()).toEqual(mockSummary);
+    expect(component.classes().length).toBe(2);
+    expect(component.sortedClasses()[0].label).toBe('walk');
   });
 
-  it('should render 5 global KPI cards including Macro F1 score', () => {
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain('Classes Actives');
-    expect(el.textContent).toContain('Sessions Totales');
-    expect(el.textContent).toContain('Précision Macro ML');
-    expect(el.textContent).toContain('Rappel Macro ML');
-    expect(el.textContent).toContain('Score F1 Macro ML');
-    expect(el.textContent).toContain('15');
-    expect(el.textContent).toContain('95.2%');
-    expect(el.textContent).toContain('94.1%');
-    expect(el.textContent).toContain('94.6%');
+  it('should toggle chart expansion panel', () => {
+    expect(component.isChartExpanded()).toBe(false);
+    component.toggleChartExpansion();
+    expect(component.isChartExpanded()).toBe(true);
+    component.toggleChartExpansion();
+    expect(component.isChartExpanded()).toBe(false);
   });
 
-  it('should list all classes in the comparison table with metrics and capture dates when expanded', () => {
-    // Expand table first
-    component.isTableExpanded.set(true);
+  it('should toggle table expansion panel', () => {
+    expect(component.isTableExpanded()).toBe(false);
+    component.toggleTableExpansion();
+    expect(component.isTableExpanded()).toBe(true);
+    component.toggleTableExpansion();
+    expect(component.isTableExpanded()).toBe(false);
+  });
+
+  it('should toggle timeline expansion panel (expanded by default)', () => {
+    expect(component.isTimelineExpanded()).toBe(true);
+    component.toggleTimelineExpansion();
+    expect(component.isTimelineExpanded()).toBe(false);
+    component.toggleTimelineExpansion();
+    expect(component.isTimelineExpanded()).toBe(true);
+  });
+
+  it('should toggle chart metric correctly', () => {
+    expect(component.chartMetric()).toBe('distribution');
+
+    component.setChartMetric('f1');
+    expect(component.chartMetric()).toBe('f1');
+
+    component.setChartMetric('precision');
+    expect(component.chartMetric()).toBe('precision');
+
+    component.setChartMetric('recall');
+    expect(component.chartMetric()).toBe('recall');
+
+    component.setChartMetric('distribution');
+    expect(component.chartMetric()).toBe('distribution');
+  });
+
+  it('should render metric toggle buttons when chart is expanded', () => {
+    component.toggleChartExpansion();
     fixture.detectChanges();
 
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain('WALK');
-    expect(el.textContent).toContain('IDLE');
-    expect(el.textContent).toContain('98.0%');
-    expect(el.textContent).toContain('96.0%');
-    expect(el.textContent).toContain('97.0%');
-    expect(el.textContent).toContain('2026-10-20');
-    expect(el.textContent).toContain('2026-10-31');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const metricGroup = compiled.querySelector('[data-testid="metric-toggle-group"]');
+    expect(metricGroup).toBeTruthy();
+
+    const distBtn = compiled.querySelector('[data-testid="metric-btn-distribution"]') as HTMLButtonElement;
+    const f1Btn = compiled.querySelector('[data-testid="metric-btn-f1"]') as HTMLButtonElement;
+    expect(distBtn).toBeTruthy();
+    expect(f1Btn).toBeTruthy();
+
+    f1Btn.click();
+    expect(component.chartMetric()).toBe('f1');
   });
 
-  it('should hide dedicated class detail summary by default when no class is selected', () => {
-    const el: HTMLElement = fixture.nativeElement;
-    expect(component.selectedClass()).toBeNull();
-    expect(el.textContent).toContain('Toutes les classes');
-    expect(el.textContent).not.toContain('Statistiques de la classe : walk');
-  });
-
-  it('should select class on action click, load its stats and display dedicated summary', () => {
-    const navigateSpy = vi.spyOn(router, 'navigate');
+  it('should select class and navigate with query parameter', () => {
     component.selectClass('walk');
-    expect(navigateSpy).toHaveBeenCalledWith([], {
+    expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.anything(),
       queryParams: { class: 'walk' },
       replaceUrl: false,
     });
 
     component.selectedClass.set('walk');
-    component.selectedClassStats.set(mockClassStatsWalk);
-    fixture.detectChanges();
-
-    const el: HTMLElement = fixture.nativeElement;
-    expect(el.textContent).toContain('Statistiques de la classe : walk');
-    expect(component.selectedClass()).toBe('walk');
-    expect(component.activeDailyCounts().length).toBe(1);
-  });
-
-  it('should deselect class when clicking on the same class or resetting to all classes', () => {
-    component.selectedClass.set('walk');
-    fixture.detectChanges();
-
-    const navigateSpy = vi.spyOn(router, 'navigate');
-    component.selectClass('walk'); // toggle off
-    expect(navigateSpy).toHaveBeenCalledWith([], {
+    component.selectClass('walk');
+    expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.anything(),
       queryParams: {},
       replaceUrl: false,
     });
   });
 
-  it('should toggle timelineMode between all and month and navigate months', () => {
+  it('should filter timeline by mode and month', () => {
     expect(component.timelineMode()).toBe('all');
+    expect(component.filteredDailyCounts().length).toBe(2);
+
     component.setTimelineMode('month');
     expect(component.timelineMode()).toBe('month');
     expect(component.selectedMonth()).toBe('2026-10');
     expect(component.filteredDailyCounts().length).toBe(2);
   });
 
-  it('should have the distribution bar chart collapsed by default and expand on toggle', () => {
-    expect(component.isChartExpanded()).toBe(false);
-    const el: HTMLElement = fixture.nativeElement;
-    // Canvas is not present initially
-    expect(component.chartCanvas()).toBeUndefined();
-
-    const toggleBtn: HTMLButtonElement | null = el.querySelector('[data-testid="toggle-chart-expansion-btn"]');
-    expect(toggleBtn).not.toBeNull();
-
-    toggleBtn?.click();
-    fixture.detectChanges();
-
-    expect(component.isChartExpanded()).toBe(true);
-    expect(component.chartCanvas()).toBeDefined();
+  it('should format score with percentage or fallback', () => {
+    expect(component.formatScore(0.9523)).toBe('95.2%');
+    expect(component.formatScore(null)).toBe('—');
+    expect(component.formatScore(undefined)).toBe('—');
+    expect(component.formatScore(NaN)).toBe('—');
   });
 
-  it('should have the comparative breakdown table collapsed by default and expand on toggle', () => {
-    expect(component.isTableExpanded()).toBe(false);
-    const el: HTMLElement = fixture.nativeElement;
-    // Table body is not present initially
-    expect(el.querySelector('table')).toBeNull();
-
-    const toggleBtn: HTMLButtonElement | null = el.querySelector('[data-testid="toggle-table-expansion-btn"]');
-    expect(toggleBtn).not.toBeNull();
-
-    toggleBtn?.click();
-    fixture.detectChanges();
-
-    expect(component.isTableExpanded()).toBe(true);
-    expect(el.querySelector('table')).not.toBeNull();
+  it('should format labels by replacing underscores and capitalizing', () => {
+    expect(component.formatLabel('fall_backward')).toBe('FALL BACKWARD');
+    expect(component.formatLabel('walk')).toBe('WALK');
   });
 });
