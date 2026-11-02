@@ -267,6 +267,28 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
+  it('should filter by classification when edge_ai or research is selected', () => {
+    fixture.detectChanges();
+
+    component.selectedClassification.set('edge_ai');
+    component.onFilterChange();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      classification: 'edge_ai',
+    });
+
+    component.selectedClassification.set('research');
+    component.onFilterChange();
+
+    expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
+      page: 1,
+      size: 20,
+      classification: 'research',
+    });
+  });
+
   it('should display HITL badges in mobile cards and table rows', () => {
     const sessionsWithHitl: StudioSessionSummary[] = [
       { ...mockStudioSessionSummaries[0], is_hitl: false },

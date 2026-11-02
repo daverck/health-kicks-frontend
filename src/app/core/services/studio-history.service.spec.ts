@@ -85,6 +85,28 @@ describe('StudioHistoryService', () => {
     req.flush(mockPaginatedSessionsResponse);
   });
 
+  it('should pass classification filter param when provided', () => {
+    service.getSessions({ classification: 'edge_ai' }).subscribe((res) => {
+      expect(res).toEqual(mockPaginatedSessionsResponse);
+    });
+
+    const req = httpMock.expectOne((r) => r.url === baseUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('classification')).toBe('edge_ai');
+    req.flush(mockPaginatedSessionsResponse);
+  });
+
+  it('should not pass classification filter param when set to all', () => {
+    service.getSessions({ classification: 'all' }).subscribe((res) => {
+      expect(res).toEqual(mockPaginatedSessionsResponse);
+    });
+
+    const req = httpMock.expectOne((r) => r.url === baseUrl);
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.has('classification')).toBe(false);
+    req.flush(mockPaginatedSessionsResponse);
+  });
+
   it('should include the opaque cursor when requesting a later page', () => {
     service.getSessions({ page: 2, size: 20, cursor: 'next-page-cursor' }).subscribe();
 

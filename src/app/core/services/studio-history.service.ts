@@ -79,6 +79,9 @@ export class StudioHistoryService {
       if (params.is_hitl !== undefined && params.is_hitl !== null) {
         httpParams = httpParams.set('is_hitl', params.is_hitl.toString());
       }
+      if (params.classification && params.classification !== 'all') {
+        httpParams = httpParams.set('classification', params.classification.trim());
+      }
       if (params.cursor) {
         httpParams = httpParams.set('cursor', params.cursor.trim());
       }
