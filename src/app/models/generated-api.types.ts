@@ -189,26 +189,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/devices/{device_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Unbind Device
-         * @description Dissociate/unbind a device.
-         */
-        delete: operations["unbind_device_api_v1_devices__device_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/devices/{device_id}/commands/studio/start": {
         parameters: {
             query?: never;
@@ -363,6 +343,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/devices/{device_uuid}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Unbind Device
+         * @description Dissociate/unbind a device by UUID.
+         */
+        delete: operations["unbind_device_api_v1_devices__device_uuid__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/fall-alerts": {
         parameters: {
             query?: never;
@@ -390,15 +390,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get Fall Alert Ack Page
-         * @description Render the read-only confirmation landing page for an emergency contact (no DB mutation).
-         */
-        get: operations["get_fall_alert_ack_page_api_v1_fall_alerts_ack_get"];
+        get?: never;
         put?: never;
         /**
          * Confirm Fall Alert Ack
-         * @description Confirm acknowledgment of a fall alert via form submission or JSON body.
+         * @description Confirm acknowledgment of a fall alert via JSON payload.
          */
         post: operations["confirm_fall_alert_ack_api_v1_fall_alerts_ack_post"];
         delete?: never;
@@ -407,7 +403,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/fall-alerts/{alert_id}": {
+    "/api/v1/fall-alerts/ack/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Fall Alert Ack Info
+         * @description Safe read-only information endpoint consumed by the frontend acknowledgment page.
+         */
+        get: operations["get_fall_alert_ack_info_api_v1_fall_alerts_ack_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fall-alerts/sms-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report native SMS delivery status from mobile gateway
+         * @description Report execution status of SMS relay directly from authenticated mobile client.
+         */
+        post: operations["report_sms_status_api_v1_fall_alerts_sms_status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/fall-alerts/{alert_identifier}": {
         parameters: {
             query?: never;
             header?: never;
@@ -416,9 +452,9 @@ export interface paths {
         };
         /**
          * Get Fall Alert Detail
-         * @description Retrieve full details and notification log for a single fall alert.
+         * @description Retrieve full details and notification log for a single fall alert (by int ID or UUID).
          */
-        get: operations["get_fall_alert_detail_api_v1_fall_alerts__alert_id__get"];
+        get: operations["get_fall_alert_detail_api_v1_fall_alerts__alert_identifier__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -675,6 +711,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/studio/classes/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Studio Classes Summary
+         * @description Get global summary and comparative metrics across all activity classes.
+         */
+        get: operations["get_studio_classes_summary_api_v1_studio_classes_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/studio/classes/{label}/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Studio Class Stats
+         * @description Get detailed daily counts, duration distribution, and ML metrics for a specific activity class.
+         */
+        get: operations["get_studio_class_stats_api_v1_studio_classes__label__stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/studio/sessions": {
         parameters: {
             query?: never;
@@ -887,7 +963,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/users/me/alert-contacts/{contact_id}": {
+    "/api/v1/users/me/alert-contacts/{contact_identifier}": {
         parameters: {
             query?: never;
             header?: never;
@@ -899,19 +975,19 @@ export interface paths {
         post?: never;
         /**
          * Remove My Alert Contact
-         * @description Delete an emergency contact and re-compact remaining priorities.
+         * @description Delete an emergency contact and re-compact remaining priorities (by int ID or UUID).
          */
-        delete: operations["remove_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__delete"];
+        delete: operations["remove_my_alert_contact_api_v1_users_me_alert_contacts__contact_identifier__delete"];
         options?: never;
         head?: never;
         /**
          * Patch My Alert Contact
-         * @description Update first_name, last_name, email, or phone of an emergency contact.
+         * @description Update first_name, last_name, email, or phone of an emergency contact (by int ID or UUID).
          */
-        patch: operations["patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__patch"];
+        patch: operations["patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_identifier__patch"];
         trace?: never;
     };
-    "/api/v1/users/me/alert-contacts/{contact_id}/test-email": {
+    "/api/v1/users/me/alert-contacts/{contact_identifier}/test-email": {
         parameters: {
             query?: never;
             header?: never;
@@ -922,9 +998,9 @@ export interface paths {
         put?: never;
         /**
          * Send My Alert Contact Test Email
-         * @description Send a verification email (and optional test SMS) to an emergency contact (rate-limited to 3/hour per user).
+         * @description Send a verification email (and optional test SMS) to an emergency contact (by int ID or UUID).
          */
-        post: operations["send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_id__test_email_post"];
+        post: operations["send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_identifier__test_email_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1075,6 +1151,8 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Uuid */
+            uuid?: string | null;
         };
         /**
          * AlertContactTestEmailResponse
@@ -1232,10 +1310,7 @@ export interface components {
             device_id?: string | null;
             /** Name */
             name?: string | null;
-            /**
-             * User Uuid
-             * Format: uuid
-             */
+            /** User Uuid */
             user_uuid?: string | null;
         };
         /**
@@ -1311,6 +1386,72 @@ export interface components {
          */
         DeviceStatus: "online" | "offline";
         /**
+         * FallAlertAckInfoResponse
+         * @description Safe read-only metadata returned to the frontend acknowledgment page.
+         */
+        FallAlertAckInfoResponse: {
+            /** Accuracy M */
+            accuracy_m?: number | null;
+            /** Alert Id */
+            alert_id: number;
+            /** Already Acknowledged By */
+            already_acknowledged_by?: string | null;
+            /** Cancel Reason */
+            cancel_reason?: string | null;
+            /** Confidence Pct */
+            confidence_pct: number;
+            /** Contact Name */
+            contact_name: string;
+            /**
+             * Detected At
+             * Format: date-time
+             */
+            detected_at: string;
+            /** Detected At Paris */
+            detected_at_paris: string;
+            /** Event Type */
+            event_type: string;
+            /** Event Type Label */
+            event_type_label: string;
+            /** Lat */
+            lat?: number | null;
+            /** Lon */
+            lon?: number | null;
+            /** Maps Url */
+            maps_url?: string | null;
+            /** Patient Name */
+            patient_name: string;
+            /** State */
+            state: string;
+        };
+        /**
+         * FallAlertAckPayload
+         * @description JSON body option for POST /api/v1/fall-alerts/ack.
+         */
+        FallAlertAckPayload: {
+            /** Token */
+            token: string;
+        };
+        /**
+         * FallAlertAckResultResponse
+         * @description Result returned on successful acknowledgment.
+         */
+        FallAlertAckResultResponse: {
+            /** Acknowledged By */
+            acknowledged_by: string;
+            /** Alert Id */
+            alert_id: number;
+            /** Message */
+            message: string;
+            /** State */
+            state: string;
+            /**
+             * Status
+             * @default ok
+             */
+            status: string;
+        };
+        /**
          * FallAlertAcknowledgedBy
          * @description Summary of the emergency contact who acknowledged the alert.
          */
@@ -1319,7 +1460,7 @@ export interface components {
             first_name: string;
             /** Last Name */
             last_name: string;
-            /** Priority Rank */
+            /** Rank */
             rank?: number | null;
         };
         /**
@@ -1386,6 +1527,12 @@ export interface components {
             user_display_name: string;
             /** User Id */
             user_id: number;
+            /** User Pseudonym */
+            user_pseudonym?: string | null;
+            /** User Uuid */
+            user_uuid?: string | null;
+            /** Uuid */
+            uuid?: string | null;
         };
         /**
          * FallAlertIngestPayload
@@ -1503,6 +1650,23 @@ export interface components {
             status: ("SENT" | "PENDING_SMS" | "ACKNOWLEDGED" | "FAILED") | string;
         };
         /**
+         * FallAlertSmsStatusRequest
+         * @description Payload sent by mobile client to report execution status of SMS relay.
+         */
+        FallAlertSmsStatusRequest: {
+            /** Error Message */
+            error_message?: string | null;
+            /** Notification Id */
+            notification_id: number;
+            /** Sent At */
+            sent_at?: number | null;
+            /**
+             * Sms Status
+             * @enum {string}
+             */
+            sms_status: "SENT" | "FAILED";
+        };
+        /**
          * FallAlertSummary
          * @description Summary item for paginated fall alert history.
          */
@@ -1546,6 +1710,12 @@ export interface components {
             user_display_name: string;
             /** User Id */
             user_id: number;
+            /** User Pseudonym */
+            user_pseudonym?: string | null;
+            /** User Uuid */
+            user_uuid?: string | null;
+            /** Uuid */
+            uuid?: string | null;
         };
         /** FirmwareLatestResponse */
         FirmwareLatestResponse: {
@@ -1804,8 +1974,8 @@ export interface components {
             secret_access_key: string;
             /** Session Token */
             session_token: string;
-            /** User Id */
-            user_id?: string | null;
+            /** User Uuid */
+            user_uuid: string;
         };
         /**
          * OAuthCallbackRequest
@@ -1887,6 +2057,12 @@ export interface components {
              */
             duration_sec: number | null;
             /**
+             * Is Hitl
+             * @description Flag indicating human-in-the-loop validated detection
+             * @default false
+             */
+            is_hitl: boolean;
+            /**
              * Label
              * @default unlabeled
              */
@@ -1923,7 +2099,6 @@ export interface components {
             author_pseudonym?: string | null;
             /**
              * Author Uuid
-             * Format: uuid
              * @description Unique author UUID
              */
             author_uuid?: string | null;
@@ -1950,6 +2125,191 @@ export interface components {
             subject_pseudonym?: string | null;
         };
         /**
+         * StudioClassDailyCount
+         * @description Session count aggregation grouped by calendar day for a specific class.
+         */
+        StudioClassDailyCount: {
+            /** Count */
+            count: number;
+            /** Date */
+            date: string;
+            /**
+             * Pending Count
+             * @default 0
+             */
+            pending_count: number;
+            /**
+             * Validated Count
+             * @default 0
+             */
+            validated_count: number;
+        };
+        /**
+         * StudioClassDetailStatsResponse
+         * @description Detailed statistics and distribution breakdown for a single activity class.
+         */
+        StudioClassDetailStatsResponse: {
+            /** Daily Counts */
+            daily_counts?: components["schemas"]["StudioClassDailyCount"][];
+            duration_metrics: components["schemas"]["StudioClassDurationStats"];
+            /** First Session Date */
+            first_session_date?: string | null;
+            /** Label */
+            label: string;
+            /** Latest Session Date */
+            latest_session_date?: string | null;
+            ml_metrics: components["schemas"]["StudioClassMlMetrics"];
+            /** Pending Sessions */
+            pending_sessions: number;
+            /** Total Sessions */
+            total_sessions: number;
+            /** Validated Sessions */
+            validated_sessions: number;
+        };
+        /**
+         * StudioClassDurationStats
+         * @description Descriptive statistics on session durations for a given activity class.
+         */
+        StudioClassDurationStats: {
+            /**
+             * Max Sec
+             * @default 0
+             */
+            max_sec: number;
+            /**
+             * Mean Sec
+             * @default 0
+             */
+            mean_sec: number;
+            /**
+             * Median Sec
+             * @default 0
+             */
+            median_sec: number;
+            /**
+             * Min Sec
+             * @default 0
+             */
+            min_sec: number;
+            /**
+             * Std Sec
+             * @default 0
+             */
+            std_sec: number;
+        };
+        /**
+         * StudioClassMlMetrics
+         * @description Edge ML benchmark metrics for a specific class (from trained champion model).
+         */
+        StudioClassMlMetrics: {
+            /**
+             * F1 Score
+             * @default 0
+             */
+            f1_score: number;
+            /**
+             * Precision
+             * @default 0
+             */
+            precision: number;
+            /**
+             * Recall
+             * @default 0
+             */
+            recall: number;
+            /**
+             * Support Windows
+             * @default 0
+             */
+            support_windows: number;
+        };
+        /**
+         * StudioClassSummaryItem
+         * @description Consolidated summary metrics for an activity class in Studio dataset overview.
+         */
+        StudioClassSummaryItem: {
+            /**
+             * F1 Score
+             * @default 0
+             */
+            f1_score: number;
+            /** First Session Date */
+            first_session_date?: string | null;
+            /** Label */
+            label: string;
+            /** Latest Session Date */
+            latest_session_date?: string | null;
+            /**
+             * Median Duration Sec
+             * @default 0
+             */
+            median_duration_sec: number;
+            /** Pending Sessions */
+            pending_sessions: number;
+            /**
+             * Precision
+             * @default 0
+             */
+            precision: number;
+            /**
+             * Recall
+             * @default 0
+             */
+            recall: number;
+            /**
+             * Support Windows
+             * @default 0
+             */
+            support_windows: number;
+            /**
+             * Total Duration Sec
+             * @default 0
+             */
+            total_duration_sec: number;
+            /** Total Sessions */
+            total_sessions: number;
+            /** Validated Sessions */
+            validated_sessions: number;
+        };
+        /**
+         * StudioClassesSummaryResponse
+         * @description Aggregated global overview across all activity classes.
+         */
+        StudioClassesSummaryResponse: {
+            /** Classes */
+            classes?: components["schemas"]["StudioClassSummaryItem"][];
+            /** Daily Counts */
+            daily_counts?: components["schemas"]["StudioClassDailyCount"][];
+            /**
+             * Macro F1
+             * @default 0
+             */
+            macro_f1: number;
+            /**
+             * Macro Precision
+             * @default 0
+             */
+            macro_precision: number;
+            /**
+             * Macro Recall
+             * @default 0
+             */
+            macro_recall: number;
+            /** Pending Sessions */
+            pending_sessions: number;
+            /** Total Classes */
+            total_classes: number;
+            /**
+             * Total Duration Sec
+             * @default 0
+             */
+            total_duration_sec: number;
+            /** Total Sessions */
+            total_sessions: number;
+            /** Validated Sessions */
+            validated_sessions: number;
+        };
+        /**
          * StudioDatasetStatsResponse
          * @description Aggregated session counts for Studio dataset training.
          */
@@ -1958,8 +2318,18 @@ export interface components {
             by_label: {
                 [key: string]: number;
             };
+            /** By Label Pending */
+            by_label_pending?: {
+                [key: string]: number;
+            };
+            /** By Label Validated */
+            by_label_validated?: {
+                [key: string]: number;
+            };
             /** Device Id */
             device_id?: string | null;
+            /** Edge Ai Labels */
+            edge_ai_labels?: string[];
             /**
              * Total Duration Sec
              * @default 0
@@ -1982,10 +2352,7 @@ export interface components {
             author_name?: string | null;
             /** Author Pseudonym */
             author_pseudonym?: string | null;
-            /**
-             * Author Uuid
-             * Format: uuid
-             */
+            /** Author Uuid */
             author_uuid?: string | null;
             /**
              * Created At
@@ -2000,15 +2367,10 @@ export interface components {
              */
             duration_sec: number;
             /**
-             * Id
-             * Format: uuid
+             * Is Hitl
+             * @default false
              */
-            id?: string;
-            /**
-             * Uuid
-             * Format: uuid
-             */
-            uuid: string;
+            is_hitl: boolean;
             /**
              * Is Pseudonymized
              * @default false
@@ -2032,6 +2394,11 @@ export interface components {
             user_email?: string | null;
             /** User Id */
             user_id: number;
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
         };
         /**
          * StudioSessionReadingsResponse
@@ -2058,10 +2425,7 @@ export interface components {
             author_name?: string | null;
             /** Author Pseudonym */
             author_pseudonym?: string | null;
-            /**
-             * Author Uuid
-             * Format: uuid
-             */
+            /** Author Uuid */
             author_uuid?: string | null;
             /**
              * Created At
@@ -2076,15 +2440,10 @@ export interface components {
              */
             duration_sec: number;
             /**
-             * Id
-             * Format: uuid
+             * Is Hitl
+             * @default false
              */
-            id?: string;
-            /**
-             * Uuid
-             * Format: uuid
-             */
-            uuid: string;
+            is_hitl: boolean;
             /**
              * Is Pseudonymized
              * @default false
@@ -2108,6 +2467,11 @@ export interface components {
             user_email?: string | null;
             /** User Id */
             user_id: number;
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
         };
         /**
          * StudioSessionTrimPayload
@@ -2229,17 +2593,16 @@ export interface components {
         UserResponse: {
             /** Avatar Url */
             avatar_url?: string | null;
-            /** Created At */
-            created_at?: string;
             /** Email */
             email: string;
             /** Is Active */
             is_active: boolean;
-            /** Last Login Utc */
-            last_login_utc?: string | null;
             /** Name */
             name?: string | null;
-            /** Pseudonym */
+            /**
+             * Pseudonym
+             * @default
+             */
             pseudonym: string;
             /** Role */
             role: string;
@@ -2247,7 +2610,7 @@ export interface components {
              * Uuid
              * Format: uuid
              */
-            uuid: string;
+            uuid?: string;
         };
         /**
          * UserRole
@@ -2642,7 +3005,7 @@ export interface operations {
             query?: {
                 /** @description Optional user UUID filter for admins */
                 user_uuid?: string | null;
-                /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
+                /** @description Opaque cursor (timestamp_utc|device_id) for keyset pagination */
                 cursor?: string | null;
                 skip?: number;
                 limit?: number;
@@ -2694,35 +3057,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["DeviceResponse"];
                 };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    unbind_device_api_v1_devices__device_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                device_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -3026,6 +3360,35 @@ export interface operations {
             };
         };
     };
+    unbind_device_api_v1_devices__device_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_fall_alerts_api_v1_fall_alerts_get: {
         parameters: {
             query?: {
@@ -3035,8 +3398,10 @@ export interface operations {
                 state?: string | null;
                 start_date?: string | null;
                 end_date?: string | null;
-                /** @description Filter by user_id (taken into account only for admin role) */
-                user_id?: number | null;
+                /** @description Filtrer par user_id numérique ou pseudonyme sujet (déprécié au profit de pseudonym) */
+                user_id?: string | null;
+                /** @description Filtrer par pseudonyme sujet SUBJ-XXXXXXXX (admin uniquement) */
+                pseudonym?: string | null;
             };
             header?: never;
             path?: never;
@@ -3064,7 +3429,40 @@ export interface operations {
             };
         };
     };
-    get_fall_alert_ack_page_api_v1_fall_alerts_ack_get: {
+    confirm_fall_alert_ack_api_v1_fall_alerts_ack_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FallAlertAckPayload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FallAlertAckResultResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_fall_alert_ack_info_api_v1_fall_alerts_ack_info_get: {
         parameters: {
             query?: {
                 token?: string;
@@ -3081,7 +3479,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "text/html": string;
+                    "application/json": components["schemas"]["FallAlertAckInfoResponse"];
                 };
             };
             /** @description Validation Error */
@@ -3095,14 +3493,18 @@ export interface operations {
             };
         };
     };
-    confirm_fall_alert_ack_api_v1_fall_alerts_ack_post: {
+    report_sms_status_api_v1_fall_alerts_sms_status_post: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FallAlertSmsStatusRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -3110,17 +3512,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "text/html": string;
+                    "application/json": components["schemas"]["FallAlertIngestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    get_fall_alert_detail_api_v1_fall_alerts__alert_id__get: {
+    get_fall_alert_detail_api_v1_fall_alerts__alert_identifier__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                alert_id: number;
+                alert_identifier: string;
             };
             cookie?: never;
         };
@@ -3552,6 +3963,57 @@ export interface operations {
             };
         };
     };
+    get_studio_classes_summary_api_v1_studio_classes_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioClassesSummaryResponse"];
+                };
+            };
+        };
+    };
+    get_studio_class_stats_api_v1_studio_classes__label__stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                label: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioClassDetailStatsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_sessions_api_v1_studio_sessions_get: {
         parameters: {
             query?: {
@@ -3567,6 +4029,10 @@ export interface operations {
                 pseudonym?: string | null;
                 /** @description Filtrer par statut de validation de la session */
                 is_validated?: boolean | null;
+                /** @description Filtrer par session HITL (True) ou standard (False) */
+                is_hitl?: boolean | null;
+                /** @description Filtrer par classification ('edge_ai' ou 'research') */
+                classification?: string | null;
                 /** @description Date/heure de début (inclusive, ISO 8601) */
                 start_date?: string | null;
                 /** @description Date/heure de fin (inclusive, ISO 8601) */
@@ -3946,12 +4412,12 @@ export interface operations {
             };
         };
     };
-    remove_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__delete: {
+    remove_my_alert_contact_api_v1_users_me_alert_contacts__contact_identifier__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                contact_id: number;
+                contact_identifier: string;
             };
             cookie?: never;
         };
@@ -3975,12 +4441,12 @@ export interface operations {
             };
         };
     };
-    patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_id__patch: {
+    patch_my_alert_contact_api_v1_users_me_alert_contacts__contact_identifier__patch: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                contact_id: number;
+                contact_identifier: string;
             };
             cookie?: never;
         };
@@ -4010,12 +4476,12 @@ export interface operations {
             };
         };
     };
-    send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_id__test_email_post: {
+    send_my_alert_contact_test_email_api_v1_users_me_alert_contacts__contact_identifier__test_email_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                contact_id: number;
+                contact_identifier: string;
             };
             cookie?: never;
         };
@@ -4046,10 +4512,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                /**
-                 * User Uuid
-                 * Format: uuid
-                 */
                 user_uuid: string;
             };
             cookie?: never;
