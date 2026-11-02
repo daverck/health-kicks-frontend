@@ -164,7 +164,7 @@ describe('HomeComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const showcase = compiled.querySelector('#showcase');
     expect(showcase).toBeTruthy();
-    expect(showcase?.textContent).toContain('Découvrez nos applications en action');
+    expect(showcase?.textContent).toContain('Découvrez les applications en action');
 
     // Default tab is Web
     expect(component.activeAppTab()).toBe('web');

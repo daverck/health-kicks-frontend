@@ -137,7 +137,7 @@ export const en = {
     hero_view_web: 'Web Platform',
     hero_view_mobile: 'Mobile App',
     showcase_badge: 'Connected Ecosystem',
-    showcase_title: 'Discover our applications in action',
+    showcase_title: 'Discover the applications in action',
     showcase_subtitle: 'A complete software suite: high-precision clinical insights on the web and real-time smartphone gateway.',
     showcase_tab_web: '💻 Web & Clinical Platform',
     showcase_tab_mobile: '📱 Mobile Companion App',
@@ -182,7 +182,7 @@ export const en = {
     proto_3_title: '3. ESP32 on Perfboard & Power Bank',
     proto_3_subtitle: 'Tethered portability & the birth of OTA updates',
     proto_3_desc: 'Semi-portable build powered by an external battery pack (power bank) to collect real-world walking and stair-climbing biomechanics.',
-    proto_3_anecdote: 'The turning point: The mechanical strain of the power bank broke one of the two ESP32 USB-C connectors. This incident directly inspired the immediate engineering of our wireless OTA BLE bootloader with automatic rollback!',
+    proto_3_anecdote: 'The turning point: The mechanical strain of the power bank broke one of the two ESP32 USB-C connectors. This incident directly inspired the immediate engineering of a wireless OTA BLE bootloader with automatic rollback!',
     proto_4_title: '4. ESP32 with Integrated LiPo Battery',
     proto_4_subtitle: 'Extreme miniaturization & mass distribution',
     proto_4_desc: 'Embedding an ultra-compact LiPo battery with DC/DC converter, advanced power management (Deep Sleep / Light Sleep), and paving the way for the production clip fastened right onto shoelaces.',
@@ -796,3 +796,4 @@ export const en = {
     expand_chart: 'Expand chart',
   },
 };
+

@@ -137,7 +137,7 @@ export const fr = {
     hero_view_web: 'Plateforme Web',
     hero_view_mobile: 'App Mobile',
     showcase_badge: 'Écosystème Connecté',
-    showcase_title: 'Découvrez nos applications en action',
+    showcase_title: 'Découvrez les applications en action',
     showcase_subtitle: 'Une suite logicielle complète : restitution clinique haute précision sur le web et passerelle temps réel sur smartphone.',
     showcase_tab_web: '💻 Plateforme Web & Clinique',
     showcase_tab_mobile: '📱 Application Mobile Companion',
