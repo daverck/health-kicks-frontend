@@ -154,11 +154,6 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
     expect(compiled.textContent).toContain('Chute détectée par IA embarquée');
 
-    // Switch to haptic simulation
-    component.setSimulation('haptic');
-    fixture.detectChanges();
-    expect(compiled.textContent).toContain('Onde vibratoire transmise aux lacets');
-
     // Switch to idle simulation
     component.setSimulation('idle');
     fixture.detectChanges();
@@ -188,12 +183,43 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
     expect(component.activeAppTab()).toBe('mobile');
     const mobileImg = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(mobileImg.src).toContain('/images/screenshots/mobile-dashboard.jpg');
+    expect(mobileImg.src).toContain('/images/screenshots/mobile_app_dashboard.jpeg');
 
     // Switch mobile screenshot
-    component.selectMobileScreenshot(2);
+    component.selectMobileScreenshot(1);
     fixture.detectChanges();
     const mobileImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(mobileImg2.src).toContain('/images/screenshots/mobile-event-logs.jpg');
+    expect(mobileImg2.src).toContain('/images/screenshots/mobile-steps-history.jpg');
+
+    // Switch to Emergency tab
+    component.setAppTab('emergency');
+    fixture.detectChanges();
+    expect(component.activeAppTab()).toBe('emergency');
+    expect(component.selectedEmergencyScreenshot()).toBe(0);
+    const emergencyImg = compiled.querySelector('#showcase img') as HTMLImageElement;
+    expect(emergencyImg.src).toContain('/images/screenshots/mobile_fall_detected.jpeg');
+
+    // Switch emergency step
+    component.selectEmergencyScreenshot(3);
+    fixture.detectChanges();
+    const emergencyImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
+    expect(emergencyImg2.src).toContain('/images/screenshots/fall_dashboard.png');
+  });
+
+  it('should render the prototypes history section and allow selecting prototype steps', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const protoSection = compiled.querySelector('#prototypes');
+    expect(protoSection).toBeTruthy();
+    expect(protoSection?.textContent).toContain('Banc d\'Essai Arduino');
+
+    expect(component.selectedPrototype()).toBe(0);
+    const protoImg = protoSection?.querySelector('img') as HTMLImageElement;
+    expect(protoImg.src).toContain('/images/screenshots/prototype_raspberry_pi_arduino.jpeg');
+
+    component.selectPrototype(1);
+    fixture.detectChanges();
+    const protoImg2 = protoSection?.querySelector('img') as HTMLImageElement;
+    expect(protoImg2.src).toContain('/images/screenshots/prototype_esp32_breadboard.jpeg');
+    expect(protoSection?.textContent).toContain('composants ont été directement fixés à la colle époxy');
   });
 });

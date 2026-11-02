@@ -6,14 +6,27 @@ import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
 
-export type SimulationMode = 'walk' | 'fall' | 'haptic' | 'idle';
+export type SimulationMode = 'walk' | 'fall' | 'idle';
 export type HeroVisualMode = 'shoe' | 'web' | 'mobile';
+export type AppTab = 'web' | 'mobile' | 'emergency';
 
 export interface ScreenshotItem {
   titleKey: string;
   descKey: string;
   imageSrc: string;
   tag: string;
+  isWebMockup?: boolean;
+}
+
+export interface PrototypeItem {
+  id: number;
+  titleKey: string;
+  subtitleKey: string;
+  descKey: string;
+  anecdoteKey?: string;
+  imageSrc: string;
+  tag: string;
+  specs: string[];
 }
 
 @Component({
@@ -35,9 +48,13 @@ export class HomeComponent {
   readonly heroVisualMode = signal<HeroVisualMode>('shoe');
 
   // Showcase interactive state
-  readonly activeAppTab = signal<'web' | 'mobile'>('web');
+  readonly activeAppTab = signal<AppTab>('web');
   readonly selectedWebScreenshot = signal(0);
   readonly selectedMobileScreenshot = signal(0);
+  readonly selectedEmergencyScreenshot = signal(0);
+
+  // Prototype history state
+  readonly selectedPrototype = signal(0);
 
   readonly webScreenshots: ScreenshotItem[] = [
     {
@@ -45,18 +62,21 @@ export class HomeComponent {
       descKey: 'home.showcase_web_1_desc',
       imageSrc: '/images/screenshots/web-studio-telemetry.jpg',
       tag: 'Studio IMU',
+      isWebMockup: true,
     },
     {
       titleKey: 'home.showcase_web_2_title',
       descKey: 'home.showcase_web_2_desc',
       imageSrc: '/images/screenshots/web-steps-history.jpg',
       tag: 'Podomètre',
+      isWebMockup: true,
     },
     {
       titleKey: 'home.showcase_web_3_title',
       descKey: 'home.showcase_web_3_desc',
       imageSrc: '/images/screenshots/web-activity-history.jpg',
       tag: 'Détections',
+      isWebMockup: true,
     },
   ];
 
@@ -64,7 +84,7 @@ export class HomeComponent {
     {
       titleKey: 'home.showcase_mobile_1_title',
       descKey: 'home.showcase_mobile_1_desc',
-      imageSrc: '/images/screenshots/mobile-dashboard.jpg',
+      imageSrc: '/images/screenshots/mobile_app_dashboard.jpeg',
       tag: 'Dashboard',
     },
     {
@@ -74,10 +94,97 @@ export class HomeComponent {
       tag: 'Historique',
     },
     {
+      titleKey: 'home.showcase_mobile_4_title',
+      descKey: 'home.showcase_mobile_4_desc',
+      imageSrc: '/images/screenshots/mobile_app_param.jpeg',
+      tag: 'Paramètres & Sédentarité',
+    },
+    {
+      titleKey: 'home.showcase_mobile_5_title',
+      descKey: 'home.showcase_mobile_5_desc',
+      imageSrc: '/images/screenshots/mobile_app_ota_firmware_update.jpeg',
+      tag: 'OTA BLE',
+    },
+    {
+      titleKey: 'home.showcase_mobile_6_title',
+      descKey: 'home.showcase_mobile_6_desc',
+      imageSrc: '/images/screenshots/mobile_app_callibration.jpeg',
+      tag: 'Calibration IMU',
+    },
+    {
       titleKey: 'home.showcase_mobile_3_title',
       descKey: 'home.showcase_mobile_3_desc',
       imageSrc: '/images/screenshots/mobile-event-logs.jpg',
       tag: 'Logs BLE',
+    },
+  ];
+
+  readonly emergencyScreenshots: ScreenshotItem[] = [
+    {
+      titleKey: 'home.showcase_emergency_1_title',
+      descKey: 'home.showcase_emergency_1_desc',
+      imageSrc: '/images/screenshots/mobile_fall_detected.jpeg',
+      tag: '1. Alerte Chute',
+    },
+    {
+      titleKey: 'home.showcase_emergency_2_title',
+      descKey: 'home.showcase_emergency_2_desc',
+      imageSrc: '/images/screenshots/mobile_fall_taken_care_of.jpeg',
+      tag: '2. Prise en Charge',
+    },
+    {
+      titleKey: 'home.showcase_emergency_3_title',
+      descKey: 'home.showcase_emergency_3_desc',
+      imageSrc: '/images/screenshots/fall_expired.jpeg',
+      tag: '3. Failsafe Expiration',
+    },
+    {
+      titleKey: 'home.showcase_emergency_4_title',
+      descKey: 'home.showcase_emergency_4_desc',
+      imageSrc: '/images/screenshots/fall_dashboard.png',
+      tag: '4. Traçabilité Clinique',
+      isWebMockup: true,
+    },
+  ];
+
+  readonly prototypes: PrototypeItem[] = [
+    {
+      id: 1,
+      titleKey: 'home.proto_1_title',
+      subtitleKey: 'home.proto_1_subtitle',
+      descKey: 'home.proto_1_desc',
+      imageSrc: '/images/screenshots/prototype_raspberry_pi_arduino.jpeg',
+      tag: 'Preuve de Concept',
+      specs: ['Arduino Nano + Raspberry Pi 3', 'Connexion Wi-Fi & MPU-6050', 'Matériel de récupération'],
+    },
+    {
+      id: 2,
+      titleKey: 'home.proto_2_title',
+      subtitleKey: 'home.proto_2_subtitle',
+      descKey: 'home.proto_2_desc',
+      anecdoteKey: 'home.proto_2_anecdote',
+      imageSrc: '/images/screenshots/prototype_esp32_breadboard.jpeg',
+      tag: 'SoC ESP32-S3',
+      specs: ['Microcontrôleur ESP32-S3', 'NimBLE Server & IA temps réel', 'Composants fixés à la colle époxy'],
+    },
+    {
+      id: 3,
+      titleKey: 'home.proto_3_title',
+      subtitleKey: 'home.proto_3_subtitle',
+      descKey: 'home.proto_3_desc',
+      anecdoteKey: 'home.proto_3_anecdote',
+      imageSrc: '/images/screenshots/prototype_esp32_power_bank_side_profile.jpeg',
+      tag: 'Portable & Genèse OTA',
+      specs: ['Perfboard compacte', 'Alimentation Power Bank externe', 'Bootloader OTA BLE résilient'],
+    },
+    {
+      id: 4,
+      titleKey: 'home.proto_4_title',
+      subtitleKey: 'home.proto_4_subtitle',
+      descKey: 'home.proto_4_desc',
+      imageSrc: '/images/screenshots/prototype_esp32_battery_side_profile.jpeg',
+      tag: 'Autonomie LiPo',
+      specs: ['Batterie LiPo + Convertisseur DC/DC', 'Deep/Light Sleep FreeRTOS', 'Précurseur du clip lacet'],
     },
   ];
 
@@ -96,7 +203,7 @@ export class HomeComponent {
     this.heroVisualMode.set(mode);
   }
 
-  setAppTab(tab: 'web' | 'mobile'): void {
+  setAppTab(tab: AppTab): void {
     this.activeAppTab.set(tab);
   }
 
@@ -106,5 +213,13 @@ export class HomeComponent {
 
   selectMobileScreenshot(index: number): void {
     this.selectedMobileScreenshot.set(index);
+  }
+
+  selectEmergencyScreenshot(index: number): void {
+    this.selectedEmergencyScreenshot.set(index);
+  }
+
+  selectPrototype(index: number): void {
+    this.selectedPrototype.set(index);
   }
 }

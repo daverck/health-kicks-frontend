@@ -6,7 +6,7 @@
     <nav class="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-3 sm:py-4">
       <a routerLink="/" class="flex items-center gap-1.5 sm:gap-2 shrink-0">
         <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 sm:h-9 sm:w-9 object-contain" />
-        <span class="text-base sm:text-lg font-bold tracking-tight whitespace-nowrap text-gray-900 dark:text-white"
+        <span class="text-base sm:text-lg font-bold tracking-tight whitespace-nowrap text-gray-900 dark:white"
           >Health<span class="text-primary-600">Kicks</span></span
         >
       </a>
@@ -15,6 +15,7 @@
       >
         <a href="#features" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.features' | translate }}</a>
         <a href="#showcase" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.showcase' | translate }}</a>
+        <a href="#prototypes" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'home.prototypes_badge' | translate }}</a>
         <a href="#how" class="hover:text-primary-600 dark:hover:text-primary-400 transition">{{ 'nav.how_it_works' | translate }}</a>
       </div>
       <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
@@ -148,73 +149,48 @@
                   <div class="absolute inset-0 bg-red-600/30 border-4 border-red-500 rounded-2xl animate-pulse pointer-events-none"></div>
                 }
 
-                @if (activeSimulation() === 'haptic') {
-                  <div class="absolute top-[42%] left-[45%] -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
-                    <span class="absolute h-24 w-24 rounded-full border-2 border-primary-400/80 animate-ping"></span>
-                    <span class="absolute h-36 w-36 rounded-full border-2 border-indigo-400/60 animate-ping delay-150"></span>
-                    <span class="absolute h-48 w-48 rounded-full border border-primary-300/40 animate-ping delay-300"></span>
+
+                @if (activeSimulation() === 'idle') {
+                  <div class="absolute inset-0 border-4 border-amber-500 rounded-2xl pointer-events-none flex items-center justify-center bg-amber-950/20">
+                    <span class="px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs shadow-lg animate-pulse">
+                      💤 {{ 'home.sim_idle_badge' | translate }}
+                    </span>
                   </div>
                 }
 
-                <div class="absolute bottom-3 inset-x-3 rounded-xl bg-black/70 backdrop-blur-md px-3.5 py-2.5 border border-white/15 text-white shadow">
-                  @switch (activeSimulation()) {
-                    @case ('walk') {
-                      <div class="flex items-center justify-between gap-2 text-xs">
-                        <span class="flex items-center gap-2 text-emerald-300 font-semibold truncate">
-                          <span>🚶‍♂️</span>
-                          <span class="truncate">{{ 'home.sim_status_walk' | translate }}</span>
-                        </span>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                          <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-200 font-semibold">114 SPM</span>
-                          <span class="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-200">54 Hz</span>
-                        </div>
-                      </div>
-                    }
-                    @case ('fall') {
-                      <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2 text-red-300 font-bold animate-pulse">
-                          <span>💥</span>
-                          <span>{{ 'home.sim_status_fall' | translate }}</span>
-                        </span>
-                        <span class="rounded bg-red-500/30 px-2 py-0.5 text-[10px] font-mono text-red-200 font-bold">ALERTE</span>
-                      </div>
-                    }
-                    @case ('haptic') {
-                      <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2 text-primary-300 font-semibold">
-                          <span>📳</span>
-                          <span>{{ 'home.sim_status_haptic' | translate }}</span>
-                        </span>
-                        <span class="rounded bg-primary-500/30 px-2 py-0.5 text-[10px] font-mono text-primary-200">250 ms</span>
-                      </div>
-                    }
-                    @case ('idle') {
-                      <div class="flex items-center justify-between text-xs">
-                        <span class="flex items-center gap-2 text-amber-300 font-semibold">
-                          <span>💤</span>
-                          <span>{{ 'home.sim_status_idle' | translate }}</span>
-                        </span>
-                        <span class="rounded bg-amber-500/30 px-2 py-0.5 text-[10px] font-mono text-amber-200">Roadmap</span>
-                      </div>
-                    }
-                  }
+                <div class="absolute bottom-3 inset-x-3 rounded-xl bg-black/60 backdrop-blur-md p-3 text-white border border-white/10 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">{{ 'home.sim_status_label' | translate }}</span>
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                      @if (activeSimulation() === 'walk') { 🟢 {{ 'home.sim_status_walk' | translate }} }
+                      @if (activeSimulation() === 'fall') { 🔴 {{ 'home.sim_status_fall' | translate }} }
+                      @if (activeSimulation() === 'idle') { 🟡 {{ 'home.sim_status_idle' | translate }} }
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">{{ 'home.sim_metric_label' | translate }}</span>
+                    <span class="text-xs font-bold text-white">
+                      @if (activeSimulation() === 'walk') { 112 SPM · 0.98 m/s }
+                      @if (activeSimulation() === 'fall') { Impact 3.4g · Alerte }
+                      @if (activeSimulation() === 'idle') { 45 min · Rappel }
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Interactive Simulation Buttons -->
-              <div class="mt-3.5">
-                <div class="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                  <span>Tester le comportement du boîtier clipsé :</span>
-                  <span class="text-primary-600 font-normal lowercase">interactif</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <!-- Simulator Controls -->
+              <div class="mt-4">
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+                  {{ 'home.sim_controls_title' | translate }}
+                </span>
+                <div class="grid grid-cols-3 gap-2 text-xs">
                   <button
                     type="button"
                     (click)="setSimulation('walk')"
                     class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
-                    [class]="activeSimulation() === 'walk' ? 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 shadow-sm dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
+                    [class]="activeSimulation() === 'walk' ? 'bg-primary-100 text-primary-800 font-bold border border-primary-300 shadow-sm dark:bg-primary-950/80 dark:text-primary-300 dark:border-primary-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                   >
-                    <span>🚶‍♂️</span>
+                    <span>👟</span>
                     <span>{{ 'home.sim_btn_walk' | translate }}</span>
                   </button>
 
@@ -224,18 +200,8 @@
                     class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
                     [class]="activeSimulation() === 'fall' ? 'bg-red-100 text-red-800 font-bold border border-red-300 shadow-sm dark:bg-red-950/80 dark:text-red-300 dark:border-red-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                   >
-                    <span>💥</span>
+                    <span>🚨</span>
                     <span>{{ 'home.sim_btn_fall' | translate }}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="setSimulation('haptic')"
-                    class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
-                    [class]="activeSimulation() === 'haptic' ? 'bg-primary-100 text-primary-800 font-bold border border-primary-300 shadow-sm dark:bg-primary-950/80 dark:text-primary-300 dark:border-primary-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
-                  >
-                    <span>📳</span>
-                    <span>{{ 'home.sim_btn_haptic' | translate }}</span>
                   </button>
 
                   <button
@@ -283,7 +249,7 @@
                 <div class="mx-auto mb-1.5 h-3 w-16 rounded-full bg-black border border-gray-800"></div>
                 <div class="relative rounded-xl overflow-hidden aspect-[4/3] bg-black">
                   <img
-                    src="/images/screenshots/mobile-dashboard.jpg"
+                    src="/images/screenshots/mobile_app_dashboard.jpeg"
                     alt="HealthKicks Mobile Companion"
                     class="h-full w-full object-cover object-top"
                   />
@@ -299,7 +265,6 @@
       </div>
     </div>
   </section>
-
 
   <!-- ===== Features ===== -->
   <section id="features" class="mx-auto max-w-6xl px-4 py-20">
@@ -369,12 +334,12 @@
           {{ 'home.showcase_subtitle' | translate }}
         </p>
         
-        <!-- Segmented Tab Switcher (Web vs Mobile) -->
-        <div class="mt-8 inline-flex rounded-2xl bg-gray-200/80 dark:bg-gray-800 p-1.5 shadow-inner">
+        <!-- Segmented Tab Switcher (Web vs Mobile vs Emergency) -->
+        <div class="mt-8 inline-flex flex-wrap justify-center rounded-2xl bg-gray-200/80 dark:bg-gray-800 p-1.5 shadow-inner gap-1">
           <button
             type="button"
             (click)="setAppTab('web')"
-            class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer"
+            class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
             [class]="activeAppTab() === 'web' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
           >
             {{ 'home.showcase_tab_web' | translate }}
@@ -382,22 +347,29 @@
           <button
             type="button"
             (click)="setAppTab('mobile')"
-            class="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition cursor-pointer"
+            class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
             [class]="activeAppTab() === 'mobile' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
           >
             {{ 'home.showcase_tab_mobile' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="setAppTab('emergency')"
+            class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
+            [class]="activeAppTab() === 'emergency' ? 'bg-red-500 text-white shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
+          >
+            {{ 'home.showcase_tab_emergency' | translate }}
           </button>
         </div>
       </div>
 
       <!-- Main Showcase Stage -->
       <div class="mt-12">
+        <!-- 1. Web Platform View -->
         @if (activeAppTab() === 'web') {
-          <!-- Desktop Platform View -->
           <div class="mx-auto max-w-5xl">
             <!-- Browser Mockup Window -->
             <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-900 shadow-2xl">
-              <!-- Browser Header Bar -->
               <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/90 px-4 py-3 backdrop-blur">
                 <div class="flex items-center gap-2">
                   <span class="h-3 w-3 rounded-full bg-red-500/80 inline-block"></span>
@@ -412,7 +384,6 @@
                   {{ webScreenshots[selectedWebScreenshot()].tag }}
                 </div>
               </div>
-              <!-- Screenshot Image -->
               <div class="relative bg-gray-950 aspect-[16/10] sm:aspect-[16/9] overflow-hidden">
                 <img
                   [src]="webScreenshots[selectedWebScreenshot()].imageSrc"
@@ -423,7 +394,7 @@
               </div>
             </div>
 
-            <!-- Interactive Web Thumbnail Cards Grid -->
+            <!-- Interactive Web Cards Grid -->
             <div class="mt-8 grid gap-4 md:grid-cols-3">
               @for (item of webScreenshots; track item.titleKey; let i = $index) {
                 <button
@@ -456,19 +427,19 @@
               }
             </div>
           </div>
-        } @else {
-          <!-- Mobile Companion App View -->
-          <div class="mx-auto max-w-4xl">
+        }
+
+        <!-- 2. Mobile Companion App View -->
+        @if (activeAppTab() === 'mobile') {
+          <div class="mx-auto max-w-5xl">
             <div class="flex flex-col lg:flex-row items-center justify-center gap-10">
               <!-- Phone Mockup Frame -->
               <div class="relative w-full max-w-[290px] sm:max-w-[320px] shrink-0">
                 <div class="relative rounded-[42px] border-[10px] border-gray-900 bg-gray-900 p-2 shadow-2xl ring-1 ring-gray-800">
-                  <!-- Dynamic Island / Speaker Notch -->
                   <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex h-4 w-24 items-center justify-center rounded-full bg-black">
                     <div class="h-2 w-2 rounded-full bg-gray-900 mr-2"></div>
                     <div class="h-2 w-2 rounded-full bg-indigo-950"></div>
                   </div>
-                  <!-- Screen Container -->
                   <div class="overflow-hidden rounded-[32px] bg-black aspect-[9/18]">
                     <img
                       [src]="mobileScreenshots[selectedMobileScreenshot()].imageSrc"
@@ -481,15 +452,15 @@
               </div>
 
               <!-- Interactive Mobile Feature Selector List -->
-              <div class="flex-1 space-y-4 w-full">
+              <div class="flex-1 space-y-3 w-full">
                 @for (item of mobileScreenshots; track item.titleKey; let i = $index) {
                   <button
                     type="button"
                     (click)="selectMobileScreenshot(i)"
-                    class="w-full text-left rounded-2xl p-5 border transition-all cursor-pointer block"
+                    class="w-full text-left rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer block"
                     [class]="selectedMobileScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
                   >
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-1.5">
                       <span
                         class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
                         [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 dark:bg-primary-900/60 text-primary-800 dark:text-primary-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
@@ -503,10 +474,10 @@
                         0{{ i + 1 }}
                       </span>
                     </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white text-base">
+                    <h3 class="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
                       {{ item.titleKey | translate }}
                     </h3>
-                    <p class="mt-1.5 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                    <p class="mt-1 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                       {{ item.descKey | translate }}
                     </p>
                   </button>
@@ -515,6 +486,196 @@
             </div>
           </div>
         }
+
+        <!-- 3. Emergency & Caregiver Rescue Loop View -->
+        @if (activeAppTab() === 'emergency') {
+          <div class="mx-auto max-w-5xl">
+            <!-- Stage container switching dynamically between Phone mockup and Browser mockup -->
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-10">
+              <!-- Visual Mockup (Mobile vs Web dashboard) -->
+              <div class="w-full lg:w-5/12 flex justify-center shrink-0">
+                @if (emergencyScreenshots[selectedEmergencyScreenshot()].isWebMockup) {
+                  <!-- Web Browser Window for Clinical Fall Dashboard -->
+                  <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-red-200 dark:border-red-900/60 bg-gray-900 shadow-2xl">
+                    <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/90 px-3 py-2 text-xs text-gray-400 font-mono">
+                      <div class="flex items-center gap-1.5">
+                        <span class="h-2.5 w-2.5 rounded-full bg-red-500 inline-block"></span>
+                        <span class="h-2.5 w-2.5 rounded-full bg-amber-500 inline-block"></span>
+                        <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                      </div>
+                      <span class="text-[11px] truncate text-gray-400">app.healthkicks.io/fall-alerts</span>
+                      <span class="text-[10px] text-red-400 font-semibold">Clinique</span>
+                    </div>
+                    <div class="relative bg-gray-950 aspect-[16/10] overflow-hidden">
+                      <img
+                        [src]="emergencyScreenshots[selectedEmergencyScreenshot()].imageSrc"
+                        [alt]="emergencyScreenshots[selectedEmergencyScreenshot()].titleKey | translate"
+                        class="h-full w-full object-cover object-top transition-all duration-300"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                } @else {
+                  <!-- Phone Mockup for Mobile alerts & Caregiver response link -->
+                  <div class="relative w-full max-w-[290px] sm:max-w-[320px]">
+                    <div class="relative rounded-[42px] border-[10px] border-gray-900 bg-gray-900 p-2 shadow-2xl ring-1 ring-red-500/30">
+                      <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex h-4 w-24 items-center justify-center rounded-full bg-black">
+                        <div class="h-2 w-2 rounded-full bg-gray-900 mr-2"></div>
+                        <div class="h-2 w-2 rounded-full bg-red-950"></div>
+                      </div>
+                      <div class="overflow-hidden rounded-[32px] bg-black aspect-[9/18]">
+                        <img
+                          [src]="emergencyScreenshots[selectedEmergencyScreenshot()].imageSrc"
+                          [alt]="emergencyScreenshots[selectedEmergencyScreenshot()].titleKey | translate"
+                          class="h-full w-full object-cover object-top transition-all duration-300"
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Interactive Emergency 4-Step Journey -->
+              <div class="flex-1 space-y-3.5 w-full">
+                <div class="mb-4">
+                  <span class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+                    Protocole d'Assistance & Failsafe
+                  </span>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Du déclenchement par Edge AI jusqu'à la traçabilité clinique complète :
+                  </p>
+                </div>
+
+                @for (item of emergencyScreenshots; track item.titleKey; let i = $index) {
+                  <button
+                    type="button"
+                    (click)="selectEmergencyScreenshot(i)"
+                    class="w-full text-left rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer block"
+                    [class]="selectedEmergencyScreenshot() === i ? 'border-red-500 dark:border-red-500 bg-red-50/50 dark:bg-red-950/40 ring-2 ring-red-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-red-300 dark:hover:border-red-900/60 hover:shadow-sm'"
+                  >
+                    <div class="flex items-center justify-between mb-1.5">
+                      <span
+                        class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
+                        [class]="selectedEmergencyScreenshot() === i ? 'bg-red-100 dark:bg-red-900/70 text-red-800 dark:text-red-200' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
+                      >
+                        {{ item.tag }}
+                      </span>
+                      <span
+                        class="text-xs font-mono font-semibold"
+                        [class]="selectedEmergencyScreenshot() === i ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'"
+                      >
+                        Étape 0{{ i + 1 }}
+                      </span>
+                    </div>
+                    <h3 class="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
+                      {{ item.titleKey | translate }}
+                    </h3>
+                    <p class="mt-1 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                      {{ item.descKey | translate }}
+                    </p>
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Prototypes & Engineering Evolution ===== -->
+  <section id="prototypes" class="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 py-20">
+    <div class="mx-auto max-w-6xl px-4">
+      <!-- Section Header -->
+      <div class="mx-auto max-w-3xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full bg-amber-100 dark:bg-amber-950/60 px-3.5 py-1 text-xs font-semibold text-amber-800 dark:text-amber-300 border border-amber-200/50 dark:border-amber-800/50">
+          🛠️ {{ 'home.prototypes_badge' | translate }}
+        </span>
+        <h2 class="mt-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
+          {{ 'home.prototypes_title' | translate }}
+        </h2>
+        <p class="mt-4 text-base text-gray-600 dark:text-gray-300 md:text-lg">
+          {{ 'home.prototypes_subtitle' | translate }}
+        </p>
+
+        <!-- Chronological Step Selector -->
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-2">
+          @for (proto of prototypes; track proto.id; let i = $index) {
+            <button
+              type="button"
+              (click)="selectPrototype(i)"
+              class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer border"
+              [class]="selectedPrototype() === i ? 'bg-amber-500 text-white border-amber-500 shadow-md font-bold' : 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'"
+            >
+              <span>0{{ proto.id }}</span>
+              <span>{{ proto.tag }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Prototype Interactive Showcase Card -->
+      <div class="mt-12 mx-auto max-w-5xl rounded-3xl border border-gray-100 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-900/50 p-6 sm:p-8 shadow-xl">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <!-- Photo Stage -->
+          <div class="lg:col-span-7">
+            <div class="relative overflow-hidden rounded-2xl bg-gray-950 aspect-[4/3] shadow-lg border border-gray-200/50 dark:border-gray-800">
+              <img
+                [src]="prototypes[selectedPrototype()].imageSrc"
+                [alt]="prototypes[selectedPrototype()].titleKey | translate"
+                class="h-full w-full object-cover transition-all duration-500 hover:scale-105"
+                loading="lazy"
+              />
+              <div class="absolute top-3 left-3 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-white text-xs font-semibold border border-white/20">
+                {{ prototypes[selectedPrototype()].tag }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Narrative & Technical Details -->
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-5">
+            <div>
+              <span class="text-xs font-mono font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block">
+                {{ prototypes[selectedPrototype()].subtitleKey | translate }}
+              </span>
+              <h3 class="mt-1 text-2xl font-extrabold text-gray-900 dark:text-white">
+                {{ prototypes[selectedPrototype()].titleKey | translate }}
+              </h3>
+              <p class="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                {{ prototypes[selectedPrototype()].descKey | translate }}
+              </p>
+            </div>
+
+            <!-- Hardware Specs Bullets -->
+            <div class="rounded-xl bg-white dark:bg-gray-800/80 p-4 border border-gray-200/60 dark:border-gray-700/60">
+              <span class="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider block mb-2">
+                Caractéristiques d'Ingénierie
+              </span>
+              <ul class="space-y-1.5 text-xs text-gray-700 dark:text-gray-300">
+                @for (spec of prototypes[selectedPrototype()].specs; track spec) {
+                  <li class="flex items-center gap-2">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                    <span>{{ spec }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+
+            <!-- Engineering Story / Anecdote Alert -->
+            @if (prototypes[selectedPrototype()].anecdoteKey) {
+              <div class="rounded-2xl bg-amber-50/90 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800/60 p-4 text-xs">
+                <div class="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-200 mb-1">
+                  <span>💡</span>
+                  <span>{{ 'home.prototypes_anecdote_title' | translate }}</span>
+                </div>
+                <p class="text-amber-800 dark:text-amber-300 leading-relaxed">
+                  {{ prototypes[selectedPrototype()].anecdoteKey! | translate }}
+                </p>
+              </div>
+            }
+          </div>
+        </div>
       </div>
     </div>
   </section>
