@@ -170,13 +170,13 @@ describe('HomeComponent', () => {
     expect(component.activeAppTab()).toBe('web');
     expect(component.selectedWebScreenshot()).toBe(0);
     const webImg = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(webImg.src).toContain('/images/screenshots/web-studio-telemetry.jpg');
+    expect(webImg.src).toContain('/images/screenshots/3D_visualisation_stairs_up.png');
 
     // Switch web screenshot
     component.selectWebScreenshot(1);
     fixture.detectChanges();
     const webImg2 = compiled.querySelector('#showcase img') as HTMLImageElement;
-    expect(webImg2.src).toContain('/images/screenshots/web-steps-history.jpg');
+    expect(webImg2.src).toContain('/images/screenshots/dashboard_studio_capture.png');
 
     // Switch to Mobile tab
     component.setAppTab('mobile');
