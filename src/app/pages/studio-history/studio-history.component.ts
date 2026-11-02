@@ -242,6 +242,20 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.loadSessions();
   }
 
+  getAuthorDisplayName(session: StudioSessionSummary): string {
+    if (session.is_pseudonymized) {
+      return (
+        session.author_name ||
+        (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
+      );
+    }
+    return (
+      session.user_email ||
+      session.author_name ||
+      (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
+    );
+  }
+
   loadAuthors(): void {
     this.studioHistoryService.getAuthors().subscribe({
       next: (authors) => this.authors.set(authors),

@@ -163,6 +163,52 @@ describe('StudioHistoryComponent', () => {
     expect(authorCells[0].textContent).toContain('admin@healthkicks.org');
   });
 
+  describe('getAuthorDisplayName and PII protection', () => {
+    it('should strictly format pseudonymized third-party sessions as Patient SUBJ-...', () => {
+      const thirdPartySession: StudioSessionSummary = {
+        uuid: 'sess-third-party',
+        id: 'sess-third-party',
+        device_id: 'hk-01',
+        user_id: 9999,
+        user_email: 'secret.patient@example.com',
+        author_name: 'Patient SUBJ-X999',
+        subject_pseudonym: 'SUBJ-X999',
+        is_pseudonymized: true,
+        label: 'walk',
+        sample_count: 300,
+        duration_sec: 5,
+        created_at: '2026-09-08T10:00:00Z',
+        is_validated: true,
+      };
+
+      const displayName = component.getAuthorDisplayName(thirdPartySession);
+      expect(displayName).toBe('Patient SUBJ-X999');
+      expect(displayName).not.toContain('secret.patient@example.com');
+      expect(displayName).not.toContain('9999');
+    });
+
+    it('should display own real email/name when not pseudonymized', () => {
+      const ownSession: StudioSessionSummary = {
+        uuid: 'sess-own',
+        id: 'sess-own',
+        device_id: 'hk-01',
+        user_id: 1,
+        user_email: 'admin@healthkicks.org',
+        author_name: 'Admin Boss',
+        subject_pseudonym: 'SUBJ-ADM-0001',
+        is_pseudonymized: false,
+        label: 'walk',
+        sample_count: 300,
+        duration_sec: 5,
+        created_at: '2026-09-08T10:00:00Z',
+        is_validated: true,
+      };
+
+      const displayName = component.getAuthorDisplayName(ownSession);
+      expect(displayName).toContain('admin@healthkicks.org');
+    });
+  });
+
   it('should filter by label, device, user_id (for admin), dates, is_validated and reset page to 1', () => {
     currentUserSignal.set(adminUser);
     fixture.detectChanges();
@@ -1083,3 +1129,5 @@ describe('StudioHistoryComponent', () => {
     expect(tableCustomBadge?.textContent).toContain('🧪');
   });
 });
+
+

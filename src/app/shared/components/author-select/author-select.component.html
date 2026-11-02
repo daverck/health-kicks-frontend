@@ -194,7 +194,7 @@
                   <span class="font-medium text-gray-900 dark:text-gray-100 truncate">
                     {{ author.name || author.author_pseudonym || author.email }}
                   </span>
-                  @if (author.name && author.email) {
+                  @if (author.name && author.email && !author.is_pseudonymized) {
                     <span class="text-[10px] text-gray-400 dark:text-gray-400 ml-1.5 font-mono">
                       ({{ author.email }})
                     </span>
@@ -212,3 +212,4 @@
     </div>
   }
 </div>
+
