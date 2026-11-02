@@ -413,5 +413,7 @@ export const ar = {
     show_all_dates_btn: 'عرض جميع التواريخ',
     collapse_chart: 'طي المخطط',
     expand_chart: 'عرض المخطط',
+    collapse_table: 'طي الجدول',
+    expand_table: 'عرض الجدول',
   },
 };

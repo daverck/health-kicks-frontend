@@ -762,5 +762,7 @@ export const fr = {
     show_all_dates_btn: 'Afficher toutes les dates',
     collapse_chart: 'Réduire le graphique',
     expand_chart: 'Afficher le graphique',
+    collapse_table: 'Réduire le tableau',
+    expand_table: 'Afficher le tableau',
   },
 };

@@ -413,5 +413,7 @@ export const es = {
     show_all_dates_btn: 'Mostrar todas las fechas',
     collapse_chart: 'Plegar gráfico',
     expand_chart: 'Mostrar gráfico',
+    collapse_table: 'Plegar tabla',
+    expand_table: 'Mostrar tabla',
   },
 };

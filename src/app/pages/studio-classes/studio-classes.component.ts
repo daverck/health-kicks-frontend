@@ -48,8 +48,9 @@ export class StudioClassesComponent implements OnInit {
   readonly selectedClassStats = signal<StudioClassDetailStatsResponse | null>(null);
   readonly isLoadingClassStats = signal<boolean>(false);
 
-  // Expansion panel state for the distribution bar chart (shrinked / collapsed by default)
+  // Expansion panel states (distribution bar chart and comparative table, collapsed by default)
   readonly isChartExpanded = signal<boolean>(false);
+  readonly isTableExpanded = signal<boolean>(false);
 
   // Timeline filtering: 'all' or 'month'
   readonly timelineMode = signal<'all' | 'month'>('all');
@@ -200,6 +201,10 @@ export class StudioClassesComponent implements OnInit {
         }
       }, 0);
     }
+  }
+
+  toggleTableExpansion(): void {
+    this.isTableExpanded.update((v) => !v);
   }
 
   selectClass(label: string | null): void {

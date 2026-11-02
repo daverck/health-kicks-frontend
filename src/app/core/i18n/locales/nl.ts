@@ -413,5 +413,7 @@ export const nl = {
     show_all_dates_btn: 'Toon alle datums',
     collapse_chart: 'Grafiek samenvouwen',
     expand_chart: 'Grafiek uitvouwen',
+    collapse_table: 'Tabel samenvouwen',
+    expand_table: 'Tabel uitvouwen',
   },
 };

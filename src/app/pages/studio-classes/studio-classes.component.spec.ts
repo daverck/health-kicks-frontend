@@ -130,7 +130,11 @@ describe('StudioClassesComponent', () => {
     expect(el.textContent).toContain('94.6%');
   });
 
-  it('should list all classes in the comparison table with metrics and capture dates', () => {
+  it('should list all classes in the comparison table with metrics and capture dates when expanded', () => {
+    // Expand table first
+    component.isTableExpanded.set(true);
+    fixture.detectChanges();
+
     const el: HTMLElement = fixture.nativeElement;
     expect(el.textContent).toContain('WALK');
     expect(el.textContent).toContain('IDLE');
@@ -202,5 +206,21 @@ describe('StudioClassesComponent', () => {
 
     expect(component.isChartExpanded()).toBe(true);
     expect(component.chartCanvas()).toBeDefined();
+  });
+
+  it('should have the comparative breakdown table collapsed by default and expand on toggle', () => {
+    expect(component.isTableExpanded()).toBe(false);
+    const el: HTMLElement = fixture.nativeElement;
+    // Table body is not present initially
+    expect(el.querySelector('table')).toBeNull();
+
+    const toggleBtn: HTMLButtonElement | null = el.querySelector('[data-testid="toggle-table-expansion-btn"]');
+    expect(toggleBtn).not.toBeNull();
+
+    toggleBtn?.click();
+    fixture.detectChanges();
+
+    expect(component.isTableExpanded()).toBe(true);
+    expect(el.querySelector('table')).not.toBeNull();
   });
 });

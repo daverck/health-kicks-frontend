@@ -794,6 +794,8 @@ export const en = {
     show_all_dates_btn: 'Show all dates',
     collapse_chart: 'Collapse chart',
     expand_chart: 'Expand chart',
+    collapse_table: 'Collapse table',
+    expand_table: 'Expand table',
   },
 };
 

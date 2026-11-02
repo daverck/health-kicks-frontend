@@ -413,5 +413,7 @@ export const de = {
     show_all_dates_btn: 'Alle Daten anzeigen',
     collapse_chart: 'Diagramm reduzieren',
     expand_chart: 'Diagramm anzeigen',
+    collapse_table: 'Tabelle reduzieren',
+    expand_table: 'Tabelle anzeigen',
   },
 };

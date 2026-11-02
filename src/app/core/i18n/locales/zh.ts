@@ -413,5 +413,7 @@ export const zh = {
     show_all_dates_btn: '显示全部日期',
     collapse_chart: '折叠图表',
     expand_chart: '展开图表',
+    collapse_table: '折叠表格',
+    expand_table: '展开表格',
   },
 };
