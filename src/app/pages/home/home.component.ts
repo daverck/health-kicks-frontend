@@ -111,12 +111,6 @@ export class HomeComponent {
       imageSrc: '/images/screenshots/mobile_app_callibration.jpeg',
       tag: 'Calibration IMU',
     },
-    {
-      titleKey: 'home.showcase_mobile_3_title',
-      descKey: 'home.showcase_mobile_3_desc',
-      imageSrc: '/images/screenshots/mobile-event-logs.jpg',
-      tag: 'Logs BLE',
-    },
   ];
 
   readonly emergencyScreenshots: ScreenshotItem[] = [
