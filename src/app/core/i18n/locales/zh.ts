@@ -368,6 +368,8 @@ export const zh = {
     kpi_monitored_activities: '监测的运动类型',
     kpi_total_sessions: '采集会话总数',
     kpi_sessions_ratio: '{validated} 已验证 / {pending} 待审核',
+    validated_tag: '已验证',
+    pending_tag: '待处理',
     kpi_macro_precision: '宏平均精确率 ML',
     kpi_macro_precision_desc: '非加权算术平均',
     kpi_macro_recall: '宏平均召回率 ML',

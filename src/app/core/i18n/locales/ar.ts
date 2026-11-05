@@ -368,6 +368,8 @@ export const ar = {
     kpi_monitored_activities: 'الأنشطة المراقبة',
     kpi_total_sessions: 'إجمالي الجلسات',
     kpi_sessions_ratio: '{validated} مؤكدة / {pending} معلقة',
+    validated_tag: 'تم التحقق',
+    pending_tag: 'قيد الانتظار',
     kpi_macro_precision: 'الدقة الكلية (Macro Precision)',
     kpi_macro_precision_desc: 'متوسط غير مرجح',
     kpi_macro_recall: 'الاستدعاء الكلي (Macro Recall)',

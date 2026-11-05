@@ -368,6 +368,8 @@ export const de = {
     kpi_monitored_activities: 'Überwachte Aktivitäten',
     kpi_total_sessions: 'Gesamtsitzungen',
     kpi_sessions_ratio: '{validated} best. / {pending} ausst.',
+    validated_tag: 'validiert',
+    pending_tag: 'ausstehend',
     kpi_macro_precision: 'Makro-Präzision ML',
     kpi_macro_precision_desc: 'Ungewichteter Mittelwert',
     kpi_macro_recall: 'Makro-Recall ML',

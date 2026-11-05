@@ -747,6 +747,8 @@ export const en = {
     kpi_monitored_activities: 'Monitored activities',
     kpi_total_sessions: 'Total Sessions',
     kpi_sessions_ratio: '{validated} val. / {pending} pend.',
+    validated_tag: 'validated',
+    pending_tag: 'pending',
     kpi_macro_precision: 'Macro Precision ML',
     kpi_macro_precision_desc: 'Unweighted mean',
     kpi_macro_recall: 'Macro Recall ML',

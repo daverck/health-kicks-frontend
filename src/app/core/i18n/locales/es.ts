@@ -368,6 +368,8 @@ export const es = {
     kpi_monitored_activities: 'Actividades monitorizadas',
     kpi_total_sessions: 'Sesiones Totales',
     kpi_sessions_ratio: '{validated} val. / {pending} pend.',
+    validated_tag: 'validadas',
+    pending_tag: 'pendientes',
     kpi_macro_precision: 'Precisión Macro ML',
     kpi_macro_precision_desc: 'Promedio sin ponderar',
     kpi_macro_recall: 'Exhaustividad Macro ML',

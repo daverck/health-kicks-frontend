@@ -368,6 +368,8 @@ export const nl = {
     kpi_monitored_activities: 'Gemonitorde activiteiten',
     kpi_total_sessions: 'Totale sessies',
     kpi_sessions_ratio: '{validated} bev. / {pending} in beh.',
+    validated_tag: 'gevalideerd',
+    pending_tag: 'in afwachting',
     kpi_macro_precision: 'Macro-precisie ML',
     kpi_macro_precision_desc: 'Ongewogen gemiddelde',
     kpi_macro_recall: 'Macro-recall ML',
