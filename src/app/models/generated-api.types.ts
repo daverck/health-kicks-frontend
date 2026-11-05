@@ -2278,6 +2278,7 @@ export interface components {
         StudioClassesSummaryResponse: {
             /** Classes */
             classes?: components["schemas"]["StudioClassSummaryItem"][];
+            confusion_matrix?: components["schemas"]["StudioConfusionMatrix"] | null;
             /** Daily Counts */
             daily_counts?: components["schemas"]["StudioClassDailyCount"][];
             /**
@@ -2308,6 +2309,16 @@ export interface components {
             total_sessions: number;
             /** Validated Sessions */
             validated_sessions: number;
+        };
+        /**
+         * StudioConfusionMatrix
+         * @description Normalized confusion matrix for evaluated Edge AI classes.
+         */
+        StudioConfusionMatrix: {
+            /** Labels */
+            labels?: string[];
+            /** Matrix */
+            matrix?: number[][];
         };
         /**
          * StudioDatasetStatsResponse
