@@ -808,6 +808,18 @@ export const en = {
     expand_chart: 'Expand chart',
     collapse_table: 'Collapse table',
     expand_table: 'Expand table',
+    matrix_title: 'Normalized Confusion Matrix (Edge AI)',
+    matrix_subtitle: 'True vs predicted rate across 5-Fold cross-validation of the champion model',
+    collapse_matrix: 'Collapse matrix',
+    expand_matrix: 'Expand matrix',
+    matrix_guide_title: 'Guide',
+    matrix_guide_desc: 'Each row corresponds to the true class; diagonal cells indicate sensitivity / recall.',
+    matrix_true_label: 'True class',
+    matrix_pred_label: 'Predicted class',
+    matrix_true_axis: 'True',
+    matrix_pred_axis: 'Predicted',
+    matrix_legend: 'Accuracy scale',
+    matrix_diagonal_note: 'Main diagonal reflects recall (normalized true positives per class).',
   },
 };
 

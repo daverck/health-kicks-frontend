@@ -68,6 +68,11 @@ export interface StudioClassSummaryItem {
   support_windows: number;
 }
 
+export interface StudioConfusionMatrix {
+  labels: string[];
+  matrix: number[][];
+}
+
 export interface StudioClassesSummaryResponse {
   total_classes: number;
   total_sessions: number;
@@ -79,5 +84,6 @@ export interface StudioClassesSummaryResponse {
   macro_f1: number;
   daily_counts: StudioClassDailyCount[];
   classes: StudioClassSummaryItem[];
+  confusion_matrix?: StudioConfusionMatrix | null;
 }
 

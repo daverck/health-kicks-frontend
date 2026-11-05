@@ -31,6 +31,13 @@ describe('StudioClassesComponent', () => {
       { date: '2026-10-30', count: 5, validated_count: 4, pending_count: 1 },
       { date: '2026-10-31', count: 10, validated_count: 8, pending_count: 2 },
     ],
+    confusion_matrix: {
+      labels: ['walk', 'idle'],
+      matrix: [
+        [0.96, 0.04],
+        [0.09, 0.91],
+      ],
+    },
     classes: [
       {
         label: 'walk',
@@ -198,5 +205,31 @@ describe('StudioClassesComponent', () => {
   it('should format labels by replacing underscores and capitalizing', () => {
     expect(component.formatLabel('fall_backward')).toBe('FALL BACKWARD');
     expect(component.formatLabel('walk')).toBe('WALK');
+  });
+
+  it('should toggle confusion matrix expansion and set hovered cell', () => {
+    expect(component.isMatrixExpanded()).toBe(false);
+    expect(component.confusionMatrix()).toBeTruthy();
+    expect(component.confusionMatrix()?.labels).toEqual(['walk', 'idle']);
+
+    component.toggleMatrixExpansion();
+    expect(component.isMatrixExpanded()).toBe(true);
+
+    fixture.detectChanges();
+    const panel = fixture.nativeElement.querySelector('[data-testid="confusion-matrix-panel"]');
+    expect(panel).toBeTruthy();
+
+    component.setHoveredCell('walk', 'walk', 0.96);
+    expect(component.hoveredCell()).toEqual({
+      trueLabel: 'walk',
+      predLabel: 'walk',
+      value: 0.96,
+    });
+
+    component.clearHoveredCell();
+    expect(component.hoveredCell()).toBeNull();
+
+    expect(component.getMatrixCellBgClass(0.96, true)).toContain('bg-emerald-600');
+    expect(component.getMatrixCellBgClass(0.04, false)).toContain('bg-red-100');
   });
 });

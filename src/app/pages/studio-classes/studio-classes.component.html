@@ -328,6 +328,136 @@
           </div>
         }
       </div>
+
+      <!-- Normalized Confusion Matrix in an Expansion Panel (Collapsed by default) -->
+      @if (confusionMatrix(); as matrixData) {
+        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900" data-testid="confusion-matrix-panel">
+          <button
+            type="button"
+            (click)="toggleMatrixExpansion()"
+            data-testid="toggle-matrix-expansion-btn"
+            class="w-full p-5 flex items-center justify-between text-left hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition focus:outline-none"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-lg">🎯</span>
+              <div>
+                <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  {{ 'studio_classes.matrix_title' | translate }}
+                </h2>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  {{ 'studio_classes.matrix_subtitle' | translate }}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500">
+                {{ matrixData.labels.length }} × {{ matrixData.labels.length }}
+              </span>
+              <span class="text-xs font-medium text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                <span>{{ isMatrixExpanded() ? ('studio_classes.collapse_matrix' | translate) : ('studio_classes.expand_matrix' | translate) }}</span>
+                <span class="text-sm transition-transform duration-200" [ngClass]="{ 'rotate-180': isMatrixExpanded() }">▼</span>
+              </span>
+            </div>
+          </button>
+
+          @if (isMatrixExpanded()) {
+            <div class="p-5 pt-0 border-t border-gray-100 dark:border-gray-800 space-y-4">
+              <!-- Subtitle & Tooltip Bar -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 text-xs text-gray-500">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-gray-700 dark:text-gray-300">{{ 'studio_classes.matrix_guide_title' | translate }}:</span>
+                  <span>{{ 'studio_classes.matrix_guide_desc' | translate }}</span>
+                </div>
+                <!-- Dynamic Hover Tooltip Preview -->
+                @if (hoveredCell(); as cell) {
+                  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary-50 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800 text-primary-900 dark:text-primary-100 font-medium">
+                    <span>{{ 'studio_classes.matrix_true_label' | translate }}: <strong>{{ formatLabel(cell.trueLabel) }}</strong></span>
+                    <span>→</span>
+                    <span>{{ 'studio_classes.matrix_pred_label' | translate }}: <strong>{{ formatLabel(cell.predLabel) }}</strong></span>
+                    <span class="ml-1 px-1.5 py-0.5 rounded bg-primary-600 text-white font-bold">{{ (cell.value * 100).toFixed(1) }}%</span>
+                  </div>
+                }
+              </div>
+
+              <!-- Heatmap Scrollable Grid -->
+              <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl">
+                <table class="w-full text-center border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-gray-50/80 dark:bg-gray-800/60">
+                      <!-- Corner: True \ Predicted -->
+                      <th class="p-2.5 text-left font-bold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 border-b border-r border-gray-200 dark:border-gray-700 min-w-32">
+                        <div class="flex flex-col">
+                          <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ 'studio_classes.matrix_pred_axis' | translate }} →</span>
+                          <span class="text-[11px] font-semibold text-gray-600 dark:text-gray-200">↓ {{ 'studio_classes.matrix_true_axis' | translate }}</span>
+                        </div>
+                      </th>
+                      @for (pLabel of matrixData.labels; track pLabel) {
+                        <th class="p-2 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 min-w-16 max-w-20">
+                          <div class="truncate text-[10px] uppercase tracking-tight" [title]="formatLabel(pLabel)">
+                            {{ formatLabel(pLabel) }}
+                          </div>
+                        </th>
+                      }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (tLabel of matrixData.labels; track tLabel; let rIdx = $index) {
+                      <tr class="hover:bg-primary-50/30 dark:hover:bg-primary-950/10 transition-colors">
+                        <!-- Row Header (True Label) -->
+                        <th class="p-2 text-left font-semibold text-gray-800 dark:text-gray-200 sticky left-0 bg-gray-50 dark:bg-gray-850 z-10 border-r border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
+                          <div class="flex items-center gap-1.5">
+                            <app-activity-icon [activityId]="tLabel" [size]="16" />
+                            <span class="text-[11px]">{{ formatLabel(tLabel) }}</span>
+                          </div>
+                        </th>
+                        <!-- Matrix Cells (Predicted values normalized) -->
+                        @for (pLabel of matrixData.labels; track pLabel; let cIdx = $index) {
+                          @let val = matrixData.matrix[rIdx][cIdx];
+                          @let isDiag = rIdx === cIdx;
+                          <td
+                            (mouseenter)="setHoveredCell(tLabel, pLabel, val)"
+                            (mouseleave)="clearHoveredCell()"
+                            class="p-2 border-b border-r border-gray-100 dark:border-gray-800/80 transition-all cursor-crosshair select-none"
+                            [ngClass]="getMatrixCellBgClass(val, isDiag)"
+                            [title]="formatLabel(tLabel) + ' → ' + formatLabel(pLabel) + ': ' + (val * 100).toFixed(1) + '%'"
+                          >
+                            <span class="text-[10px] leading-tight block">
+                              @if (val >= 0.005) {
+                                {{ (val * 100).toFixed(0) }}%
+                              } @else {
+                                -
+                              }
+                            </span>
+                          </td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Color Scale Legend -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-gray-500">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold">{{ 'studio_classes.matrix_legend' | translate }}:</span>
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold">&gt;95%</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-500 text-white font-semibold">85-95%</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-400 text-gray-900 font-semibold">70-85%</span>
+                    <span class="px-2 py-0.5 rounded bg-emerald-300 dark:bg-emerald-700 text-gray-900 dark:text-white">50-70%</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-300 dark:bg-amber-700 text-gray-900 dark:text-white">25-50%</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-800 text-gray-800 dark:text-gray-100">10-25%</span>
+                    <span class="px-2 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-200">&lt;10%</span>
+                  </div>
+                </div>
+                <div class="text-[11px] text-gray-400 italic">
+                  * {{ 'studio_classes.matrix_diagonal_note' | translate }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
     </section>
 
     <!-- ============================================================== -->
