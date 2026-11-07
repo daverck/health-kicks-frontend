@@ -364,7 +364,7 @@ export class Shoe3dSceneService {
     // Sensor ISB Frame -> Three.js Cyclic Permutation:
     // Three.js X (Right)   <- Sensor Y (Medio-lateral)
     // Three.js Y (Up)      <- Sensor Z (Vertical / Longitudinal)
-    // Three.js Z (Forward) <- Sensor X (Antéro-postérieur)
+    // Three.js Z (Forward) <- Sensor X (Antero-posterior)
     const qRaw = new THREE.Quaternion(
       frame.q.y,
       frame.q.z,
@@ -576,7 +576,7 @@ export class Shoe3dSceneService {
     const centerSphere = new THREE.Mesh(centerSphereGeo, centerMat);
     axes.add(centerSphere);
 
-    // X Axis (Antéro-postérieur / Avant) -> along +Z (Red 0xef4444)
+    // X Axis (Antero-posterior / Forward) -> along +Z (Red 0xef4444)
     const xMat = new THREE.MeshStandardMaterial({
       color: 0xef4444,
       emissive: 0xef4444,
@@ -600,7 +600,7 @@ export class Shoe3dSceneService {
     xTip.position.set(0, 0, axisLength + coneHeight);
     axes.add(xTip);
 
-    // Y Axis (Médio-latéral / Droite) -> along +X (Emerald 0x10b981)
+    // Y Axis (Medio-lateral / Right) -> along +X (Emerald 0x10b981)
     const yMat = new THREE.MeshStandardMaterial({
       color: 0x10b981,
       emissive: 0x10b981,

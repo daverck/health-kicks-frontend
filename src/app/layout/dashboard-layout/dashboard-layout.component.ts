@@ -44,8 +44,8 @@ export class DashboardLayoutComponent implements OnInit {
   });
 
   /**
-   * Masque les entrées de menu réservées aux rôles `clinician` et `admin`
-   * (Studio Capture et Historique Studio) pour les utilisateurs standards (`user`).
+   * Hides menu entries restricted to `clinician` and `admin` roles
+   * (Studio Capture and Studio History) for standard users (`user`).
    */
   readonly visibleLinks = computed(() =>
     this.links.filter((l) => !l.clinicianOnly || this.isClinicianOrAdmin())

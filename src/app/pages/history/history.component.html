@@ -25,7 +25,7 @@
   </div>
   } @else {
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <!-- Navigation par onglets (placée en premier pour ne jamais bouger) -->
+    <!-- Tab navigation (placed first to prevent layout shifts) -->
     <div class="flex rounded-lg border border-gray-200 bg-white p-1 text-sm shadow-sm w-fit dark:border-gray-800 dark:bg-gray-900">
       <button
         id="tab-activities"
@@ -88,7 +88,7 @@
       </button>
     </div>
 
-    <!-- Mobile-only filters (sur desktop, les sélections se font directement dans le header du tableau) -->
+    <!-- Mobile-only filters (on desktop, selections occur directly in table header) -->
     <div class="flex flex-wrap items-center gap-3 md:hidden w-full sm:w-auto">
       <div class="flex items-center gap-2 w-full">
         <label class="text-xs font-medium text-gray-700 shrink-0" for="device-select-trigger-mobile">{{ 'history.device' | translate }} :</label>

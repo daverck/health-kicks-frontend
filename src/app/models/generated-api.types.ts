@@ -2535,7 +2535,7 @@ export interface components {
             duration_sec: number;
             /**
              * Label
-             * @description Label d'activité (ex: walk, idle, fall_forward)
+             * @description Activity label (e.g. walk, idle, fall_forward)
              */
             label: string;
             /**
@@ -3118,11 +3118,11 @@ export interface operations {
     list_activities_api_v1_devices__device_id__events_activities_get: {
         parameters: {
             query?: {
-                /** @description Filtre par type d'activité (ex: 'walk', 'run', ou 'falls' pour toutes les chutes) */
+                /** @description Filter by activity type (e.g. 'walk', 'run', or 'falls' for all falls) */
                 event_type?: string | null;
-                /** @description Date/heure de début (inclusive, ISO 8601) */
+                /** @description Start date/time (inclusive, ISO 8601) */
                 start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                /** @description End date/time (inclusive, ISO 8601) */
                 end_date?: string | null;
                 /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
                 cursor?: string | null;
@@ -3160,9 +3160,9 @@ export interface operations {
     list_haptic_history_api_v1_devices__device_id__haptic_history_get: {
         parameters: {
             query?: {
-                /** @description Date/heure de début (inclusive, ISO 8601) */
+                /** @description Start date/time (inclusive, ISO 8601) */
                 start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                /** @description End date/time (inclusive, ISO 8601) */
                 end_date?: string | null;
                 /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
                 cursor?: string | null;
@@ -3200,9 +3200,9 @@ export interface operations {
     list_haptic_history_api_v1_devices__device_id__haptic_logs_get: {
         parameters: {
             query?: {
-                /** @description Date/heure de début (inclusive, ISO 8601) */
+                /** @description Start date/time (inclusive, ISO 8601) */
                 start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                /** @description End date/time (inclusive, ISO 8601) */
                 end_date?: string | null;
                 /** @description Opaque cursor (timestamp_utc|id) for keyset pagination */
                 cursor?: string | null;
@@ -3409,9 +3409,9 @@ export interface operations {
                 state?: string | null;
                 start_date?: string | null;
                 end_date?: string | null;
-                /** @description Filtrer par user_id numérique ou pseudonyme sujet (déprécié au profit de pseudonym) */
+                /** @description Filter by numeric user_id or subject pseudonym (deprecated in favor of pseudonym) */
                 user_id?: string | null;
-                /** @description Filtrer par pseudonyme sujet SUBJ-XXXXXXXX (admin uniquement) */
+                /** @description Filter by subject pseudonym SUBJ-XXXXXXXX (admin only) */
                 pseudonym?: string | null;
             };
             header?: never;
@@ -4036,17 +4036,17 @@ export interface operations {
                 label?: string | null;
                 /** @description Single device ID or comma-separated list of device IDs */
                 device_id?: string | null;
-                /** @description Filtrer par pseudonyme de l'auteur (admin) */
+                /** @description Filter by author pseudonym (admin) */
                 pseudonym?: string | null;
-                /** @description Filtrer par statut de validation de la session */
+                /** @description Filter by session validation status */
                 is_validated?: boolean | null;
-                /** @description Filtrer par session HITL (True) ou standard (False) */
+                /** @description Filter by HITL session (True) or standard (False) */
                 is_hitl?: boolean | null;
-                /** @description Filtrer par classification ('edge_ai' ou 'research') */
+                /** @description Filter by classification ('edge_ai' or 'research') */
                 classification?: string | null;
-                /** @description Date/heure de début (inclusive, ISO 8601) */
+                /** @description Start date/time (inclusive, ISO 8601) */
                 start_date?: string | null;
-                /** @description Date/heure de fin (inclusive, ISO 8601) */
+                /** @description End date/time (inclusive, ISO 8601) */
                 end_date?: string | null;
                 /** @description Minimum number of IMU samples */
                 sample_count_min?: number | null;

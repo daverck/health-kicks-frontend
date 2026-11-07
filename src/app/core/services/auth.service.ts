@@ -317,8 +317,8 @@ export class AuthService {
   }
 
   /**
-   * Adapte la session utilisateur avec soit un TokenResponse, soit un access_token + user.
-   * Stocke l'access_token et le refresh_token (si présent) dans le localStorage.
+   * Adapts user session with either a TokenResponse or access_token + user.
+   * Stores access_token and refresh_token (if present) in localStorage.
    */
   setSession(tokenResponse: TokenResponse): void;
   setSession(accessToken: string, user?: UserResponse | null): void;
@@ -391,7 +391,7 @@ export class AuthService {
   }
 
   /**
-   * Renouvelle la session utilisateur via POST /api/v1/auth/refresh avec rotation du refresh token.
+   * Refreshes user session via POST /api/v1/auth/refresh with refresh token rotation.
    */
   refreshToken(): Observable<TokenResponse> {
     const refreshToken = this.getRefreshToken();

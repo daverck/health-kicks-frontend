@@ -1,7 +1,7 @@
 /**
- * Utilitaires de conversion pour l'échelle d'intensité haptique.
- * Échelle utilisateur : 10 niveaux (1 à 10).
- * Échelle API backend : 128 à 255.
+ * Conversion utilities for haptic intensity scale.
+ * User scale: 10 levels (1 to 10).
+ * Backend API scale: 128 to 255.
  */
 
 export const HAPTIC_MIN_INTENSITY = 128;
@@ -10,7 +10,7 @@ export const HAPTIC_MIN_LEVEL = 1;
 export const HAPTIC_MAX_LEVEL = 10;
 
 /**
- * Convertit un niveau utilisateur (1 à 10) en valeur d'intensité pour le backend (128 à 255).
+ * Converts a user level (1 to 10) into an intensity value for the backend (128 to 255).
  */
 export function levelToIntensity(level: number): number {
   const clamped = Math.max(HAPTIC_MIN_LEVEL, Math.min(HAPTIC_MAX_LEVEL, Math.round(level)));
@@ -20,8 +20,8 @@ export function levelToIntensity(level: number): number {
 }
 
 /**
- * Convertit une intensité backend (128 à 255) en niveau utilisateur (1 à 10).
- * Les valeurs inférieures à 128 sont calées au niveau 1.
+ * Converts a backend intensity (128 to 255) into a user level (1 to 10).
+ * Values below 128 are clamped to level 1.
  */
 export function intensityToLevel(intensity: number): number {
   if (intensity <= HAPTIC_MIN_INTENSITY) return HAPTIC_MIN_LEVEL;
