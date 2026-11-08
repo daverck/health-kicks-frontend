@@ -40,6 +40,11 @@ import { ActivitySelectComponent } from '../../shared/components/activity-select
 import { AuthorSelectComponent } from '../../shared/components/author-select/author-select.component';
 import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
 import { StudioInspectionComponent } from '../../shared/components/studio-inspection/studio-inspection.component';
+import { StudioHistoryMobileFiltersComponent } from './components/studio-history-mobile-filters.component';
+import { StudioHistoryMobileCardComponent } from './components/studio-history-mobile-card.component';
+import { StudioHistoryTableComponent } from './components/studio-history-table.component';
+import { StudioHistoryPaginationComponent } from './components/studio-history-pagination.component';
+import { StudioHistoryDeleteModalComponent } from './components/studio-history-delete-modal.component';
 
 @Component({
   selector: 'app-studio-history',
@@ -54,6 +59,11 @@ import { StudioInspectionComponent } from '../../shared/components/studio-inspec
     AuthorSelectComponent,
     DateFilterComponent,
     StudioInspectionComponent,
+    StudioHistoryMobileFiltersComponent,
+    StudioHistoryMobileCardComponent,
+    StudioHistoryTableComponent,
+    StudioHistoryPaginationComponent,
+    StudioHistoryDeleteModalComponent,
   ],
   templateUrl: './studio-history.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
