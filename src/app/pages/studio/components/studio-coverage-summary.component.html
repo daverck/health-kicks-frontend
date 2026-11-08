@@ -1,0 +1,64 @@
+<div id="dataset-stats-summary" class="mt-4 rounded-xl border border-indigo-100 bg-gradient-to-r from-indigo-50/70 via-blue-50/40 to-white p-4 shadow-sm dark:border-indigo-950 dark:from-indigo-950/40 dark:via-blue-950/30 dark:to-gray-900">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-lg text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
+        📊
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm font-bold text-gray-900 dark:text-white">{{ 'studio.dataset_summary_title' | translate }}</h3>
+          @if (isLoadingStats) {
+            <span class="inline-block h-3 w-3 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent"></span>
+          }
+        </div>
+        <p class="text-xs text-gray-600">
+          <strong id="total-sessions-count" class="text-indigo-700 font-semibold">{{ 'studio.total_validated_sessions' | translate:{ count: totalSessions } }}</strong>
+          <span class="mx-1.5 text-gray-300">•</span>
+          <span>{{ 'studio.classes_ready' | translate:{ ready: classesReachingTarget, total: totalPredefinedClasses, target: targetPerClass } }}</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+        [class.bg-emerald-100]="classesReachingTarget === totalPredefinedClasses"
+        [class.text-emerald-800]="classesReachingTarget === totalPredefinedClasses"
+        [class.bg-amber-100]="classesReachingTarget < totalPredefinedClasses"
+        [class.text-amber-800]="classesReachingTarget < totalPredefinedClasses"
+      >
+        <span class="h-1.5 w-1.5 rounded-full"
+          [class.bg-emerald-500]="classesReachingTarget === totalPredefinedClasses"
+          [class.bg-amber-500]="classesReachingTarget < totalPredefinedClasses"
+        ></span>
+        {{ 'studio.target_badge' | translate:{ target: targetPerClass } }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Balance progress bar -->
+  <div class="mt-3">
+    <div class="h-1.5 w-full overflow-hidden rounded-full bg-indigo-100/80">
+      <div
+        class="h-full rounded-full transition-all duration-500 ease-out"
+        [class.bg-emerald-500]="classesReachingTarget === totalPredefinedClasses"
+        [class.bg-indigo-600]="classesReachingTarget < totalPredefinedClasses"
+        [style.width.%]="totalPredefinedClasses > 0 ? (classesReachingTarget / totalPredefinedClasses) * 100 : 0"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Guidance notice -->
+  <div class="mt-2.5 flex items-center justify-between gap-2 text-xs">
+    @if (classesReachingTarget < totalPredefinedClasses) {
+      <span class="flex items-center gap-1.5 font-medium text-amber-700">
+        <span>⚠️</span>
+        {{ 'studio.under_represented_notice' | translate:{ target: targetPerClass } }}
+      </span>
+    } @else {
+      <span class="flex items-center gap-1.5 font-medium text-emerald-700">
+        <span>✅</span>
+        {{ 'studio.all_classes_ready' | translate }}
+      </span>
+    }
+  </div>
+</div>

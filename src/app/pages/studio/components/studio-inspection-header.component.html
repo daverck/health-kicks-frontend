@@ -1,0 +1,76 @@
+<div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex rounded-lg bg-primary-100 px-2.5 py-1 text-xs font-bold text-primary-800 dark:bg-primary-900/60 dark:text-primary-300">
+          {{ labelDisplayName }}
+        </span>
+        <span class="font-mono text-xs text-gray-500 dark:text-gray-400">
+          Session : {{ sessionId }}
+        </span>
+      </div>
+      <p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <span>{{ 'history.device' | translate }} : <strong class="text-gray-700 dark:text-gray-200">{{ selectedDeviceId }}</strong> ·
+        {{ 'studio.points_recorded' | translate:{ count: readingsCount } }}</span>
+        <button
+          id="refresh-readings-btn"
+          type="button"
+          (click)="refreshReadings.emit()"
+          [disabled]="isRefreshingReadings"
+          class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[11px] font-medium text-gray-600 shadow-2xs hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          title="Rafraîchir les trames télémétriques"
+        >
+          @if (isRefreshingReadings) {
+            <span class="animate-spin">🔄</span>
+          } @else {
+            <span>🔄</span>
+          }
+          <span>{{ 'common.refresh' | translate }}</span>
+        </button>
+      </p>
+    </div>
+
+    <!-- Mandatory Binary Actions: Reject vs Validate + Export -->
+    <div id="inspect-actions" class="flex flex-wrap items-center gap-3">
+      <button
+        id="export-session-btn"
+        type="button"
+        (click)="exportJson.emit()"
+        [disabled]="readingsCount === 0"
+        class="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+        [title]="'studio_history.export_json' | translate"
+        data-testid="export-session-btn"
+      >
+        <span>📥</span> {{ 'studio_history.export_json' | translate }}
+      </button>
+
+      <button
+        id="reject-session-btn"
+        type="button"
+        (click)="rejectSession.emit()"
+        [disabled]="isDeleting || isValidating"
+        class="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 shadow-sm hover:bg-red-100 transition active:scale-95 disabled:opacity-50 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-900/50"
+      >
+        @if (isDeleting) {
+          <span class="animate-spin">⏳</span> {{ 'common.loading' | translate }}
+        } @else {
+          <span>🗑️</span> {{ 'studio.reject_session' | translate }}
+        }
+      </button>
+
+      <button
+        id="validate-session-btn"
+        type="button"
+        (click)="validateSession.emit()"
+        [disabled]="readingsCount === 0 || isValidating || isDeleting"
+        class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        @if (isValidating) {
+          <span class="animate-spin">⏳</span> {{ 'studio.confirming' | translate }}
+        } @else {
+          <span>✅</span> {{ 'studio.validate_session' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</div>

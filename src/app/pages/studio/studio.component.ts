@@ -49,6 +49,12 @@ import { Shoe3dViewerComponent } from '../../shared/components/shoe-3d-viewer/sh
 import { IsbGuideComponent } from '../../shared/components/isb-guide/isb-guide.component';
 import { ActivityIconComponent } from '../../shared/components/activity-icon/activity-icon.component';
 import { StudioActivityCardComponent } from './components/studio-activity-card.component';
+import { StudioCustomActivityCardComponent } from './components/studio-custom-activity-card.component';
+import { StudioCoverageSummaryComponent } from './components/studio-coverage-summary.component';
+import { StudioCountdownStateComponent } from './components/studio-countdown-state.component';
+import { StudioRecordingStateComponent } from './components/studio-recording-state.component';
+import { StudioInspectionHeaderComponent } from './components/studio-inspection-header.component';
+import { StudioRejectModalComponent } from './components/studio-reject-modal.component';
 
 @Component({
   selector: 'app-studio',
@@ -64,6 +70,12 @@ import { StudioActivityCardComponent } from './components/studio-activity-card.c
     IsbGuideComponent,
     ActivityIconComponent,
     StudioActivityCardComponent,
+    StudioCustomActivityCardComponent,
+    StudioCoverageSummaryComponent,
+    StudioCountdownStateComponent,
+    StudioRecordingStateComponent,
+    StudioInspectionHeaderComponent,
+    StudioRejectModalComponent,
   ],
   templateUrl: './studio.component.html',
 })
@@ -127,7 +139,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly selectedLabel = signal<string>('walk');
   /** Custom activity name when 'custom' label is active. */
   readonly customLabel = signal<string>('');
-  readonly customLabelInput = viewChild<ElementRef<HTMLInputElement>>('customLabelInput');
+  readonly customCardComponent = viewChild<StudioCustomActivityCardComponent>('customCard');
   readonly isCustomInputFocused = signal<boolean>(false);
 
   readonly isCustomCardActive = computed(() => {
@@ -312,10 +324,7 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   focusCustomInput(): void {
-    const inputEl = this.customLabelInput()?.nativeElement;
-    if (inputEl) {
-      inputEl.focus();
-    }
+    this.customCardComponent()?.focusInput();
   }
 
   onCustomLabelChange(value: string): void {
