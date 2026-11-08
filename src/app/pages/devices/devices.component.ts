@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceCreate, DeviceResponse } from '../../models/api.models';
@@ -12,7 +11,7 @@ import { DeviceCardComponent } from './components/device-card.component';
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, DeviceCardComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe, DeviceCardComponent],
   templateUrl: './devices.component.html',
 })
 export class DevicesComponent implements OnInit {

@@ -6,7 +6,9 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 export interface StudioLabelItem {
   id: string;
   name: string;
-  desc: string;
+  desc?: string;
+  icon?: string;
+  description?: string;
 }
 
 @Component({

@@ -19,7 +19,6 @@ import {
   StudioClassDetailStatsResponse,
   StudioConfusionMatrix,
 } from '../../models/telemetry.models';
-import { ActivityIconComponent } from '../../shared/components/activity-icon/activity-icon.component';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { StudioClassesKpiCardsComponent } from './components/studio-classes-kpi-cards.component';
 import { StudioClassesTableComponent } from './components/studio-classes-table.component';
@@ -35,7 +34,6 @@ export type StudioChartMetric = 'distribution' | 'f1' | 'precision' | 'recall';
   standalone: true,
   imports: [
     CommonModule,
-    ActivityIconComponent,
     TranslatePipe,
     StudioClassesKpiCardsComponent,
     StudioClassesTableComponent,

@@ -35,10 +35,6 @@ import {
 } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
-import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
-import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
-import { AuthorSelectComponent } from '../../shared/components/author-select/author-select.component';
-import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
 import { StudioInspectionComponent } from '../../shared/components/studio-inspection/studio-inspection.component';
 import { StudioHistoryMobileFiltersComponent } from './components/studio-history-mobile-filters.component';
 import { StudioHistoryMobileCardComponent } from './components/studio-history-mobile-card.component';
@@ -54,10 +50,6 @@ import { StudioHistoryDeleteModalComponent } from './components/studio-history-d
     FormsModule,
     RouterLink,
     TranslatePipe,
-    DeviceSelectComponent,
-    ActivitySelectComponent,
-    AuthorSelectComponent,
-    DateFilterComponent,
     StudioInspectionComponent,
     StudioHistoryMobileFiltersComponent,
     StudioHistoryMobileCardComponent,

@@ -47,7 +47,6 @@ import { exportSessionToJson } from '../../core/utils/export.utils';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { Shoe3dViewerComponent } from '../../shared/components/shoe-3d-viewer/shoe-3d-viewer.component';
 import { IsbGuideComponent } from '../../shared/components/isb-guide/isb-guide.component';
-import { ActivityIconComponent } from '../../shared/components/activity-icon/activity-icon.component';
 import { StudioActivityCardComponent } from './components/studio-activity-card.component';
 import { StudioCustomActivityCardComponent } from './components/studio-custom-activity-card.component';
 import { StudioCoverageSummaryComponent } from './components/studio-coverage-summary.component';
@@ -68,7 +67,6 @@ import { StudioRejectModalComponent } from './components/studio-reject-modal.com
     DeviceSelectComponent,
     Shoe3dViewerComponent,
     IsbGuideComponent,
-    ActivityIconComponent,
     StudioActivityCardComponent,
     StudioCustomActivityCardComponent,
     StudioCoverageSummaryComponent,
