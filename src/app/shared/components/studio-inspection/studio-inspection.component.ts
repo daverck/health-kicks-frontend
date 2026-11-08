@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { StudioHistoryService } from '../../../core/services/studio-history.service';
 import { StudioService } from '../../../core/services/studio.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -22,6 +21,9 @@ import { ImuReading } from '../../../models/telemetry.models';
 import { ImuChartComponent } from '../imu-chart/imu-chart.component';
 import { Shoe3dViewerComponent } from '../shoe-3d-viewer/shoe-3d-viewer.component';
 import { IsbGuideComponent } from '../isb-guide/isb-guide.component';
+import { StudioInspectionHeaderComponent } from './components/studio-inspection-header.component';
+import { StudioInspectionLabelEditorComponent } from './components/studio-inspection-label-editor.component';
+import { StudioInspectionTrimControlComponent } from './components/studio-inspection-trim-control.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   PREDEFINED_LABELS,
@@ -49,11 +51,13 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     TranslatePipe,
     ImuChartComponent,
     Shoe3dViewerComponent,
     IsbGuideComponent,
+    StudioInspectionHeaderComponent,
+    StudioInspectionLabelEditorComponent,
+    StudioInspectionTrimControlComponent,
   ],
   templateUrl: './studio-inspection.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
