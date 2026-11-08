@@ -1,0 +1,51 @@
+<section id="features" class="mx-auto max-w-6xl px-4 py-20">
+  <div class="mx-auto max-w-3xl text-center">
+    <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
+      {{ 'home.features_title' | translate }}
+    </h2>
+    <p class="mt-4 text-base text-gray-600 dark:text-gray-300 md:text-lg">
+      {{ 'home.features_subtitle' | translate }}
+    </p>
+  </div>
+
+  <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Step Counting (Biomechanical Pedometer & Cadence) -->
+    <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
+      <div>
+        <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_steps_title' | translate }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_steps_desc' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Inactivity Reminder -->
+    <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
+      <div>
+        <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_inactivity_title' | translate }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_inactivity_desc' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Fall Detection -->
+    <div class="flex flex-col justify-between rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm transition hover:shadow-md">
+      <div>
+        <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'home.feature_fall_title' | translate }}</h3>
+        <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ 'home.feature_fall_desc' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+<section id="how" class="bg-gray-50/70 dark:bg-gray-900/50 py-20 border-t border-gray-100 dark:border-gray-800">
+  <div class="mx-auto max-w-6xl px-4">
+    <h2 class="text-center text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white md:text-4xl">
+      {{ 'home.how_title' | translate }}
+    </h2>
+    <div class="mt-12 grid gap-6 md:grid-cols-4">
+      @for (step of steps(); track step.titleKey; let i = $index) {
+        <div class="relative rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <span
+            class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white shadow-sm"
+            >{{ i + 1 }}</span
+          >
+          <h3 class="font-bold text-gray-900 dark:text-white">{{ step.titleKey | translate }}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ step.descKey | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>

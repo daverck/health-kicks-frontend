@@ -29,10 +29,26 @@ export interface PrototypeItem {
   specs: string[];
 }
 
+import { HomeHeroComponent } from './components/home-hero.component';
+import { HomeFeaturesComponent } from './components/home-features.component';
+import { HomeShowcaseComponent } from './components/home-showcase.component';
+import { HomePrototypesComponent } from './components/home-prototypes.component';
+import { HomeHowItWorksComponent } from './components/home-how-it-works.component';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, LanguageSelectorComponent, ThemeToggleComponent],
+  imports: [
+    RouterLink,
+    TranslatePipe,
+    LanguageSelectorComponent,
+    ThemeToggleComponent,
+    HomeHeroComponent,
+    HomeFeaturesComponent,
+    HomeShowcaseComponent,
+    HomePrototypesComponent,
+    HomeHowItWorksComponent,
+  ],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
