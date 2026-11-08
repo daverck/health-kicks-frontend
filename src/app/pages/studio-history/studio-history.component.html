@@ -132,10 +132,10 @@
         }
       </div>
     } @else {
-      @for (s of sessions(); track (s.uuid || s.id)) {
+      @for (s of sessions(); track s.uuid) {
         <app-studio-history-mobile-card
           [session]="s"
-          [isInspecting]="(inspectingSession()?.uuid || inspectingSession()?.id) === (s.uuid || s.id)"
+          [isInspecting]="inspectingSession()?.uuid === s.uuid"
           [labelBadgeClass]="getLabelBadgeClass(s.label)"
           [labelIcon]="getLabelIcon(s.label)"
           [labelDisplayName]="getLabelDisplayName(s.label)"
@@ -155,7 +155,7 @@
     [sessions]="sessions()"
     [isLoading]="isLoading()"
     [hasActiveFilters]="hasActiveFilters()"
-    [inspectingSessionId]="inspectingSession()?.uuid || inspectingSession()?.id || null"
+    [inspectingSessionId]="inspectingSession()?.uuid || null"
     [startDate]="startDate()"
     [endDate]="endDate()"
     [selectedValidated]="selectedValidated()"

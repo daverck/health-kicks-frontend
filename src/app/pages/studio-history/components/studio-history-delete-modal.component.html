@@ -40,7 +40,7 @@
       <button
         id="confirm-modal-delete-btn"
         type="button"
-        (click)="confirm.emit(session.uuid || session.id || '')"
+        (click)="confirm.emit(session.uuid)"
         data-testid="confirm-modal-delete-btn"
         class="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-red-700 transition active:scale-95 disabled:opacity-50"
       >

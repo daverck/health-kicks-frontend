@@ -147,14 +147,14 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly isInspectingSessionEvicted = computed<boolean>(() => {
     const current = this.inspectingSession();
     if (!current) return false;
-    return !this.sessions().some((s) => (s.uuid ?? s.id) === (current.uuid ?? current.id));
+    return !this.sessions().some((s) => s.uuid === current.uuid);
   });
 
   // Index of inspecting session or shifted index when session is evicted by status filter
   readonly currentSessionIndex = computed<number>(() => {
     const current = this.inspectingSession();
     if (!current) return -1;
-    const foundIdx = this.sessions().findIndex((s) => (s.uuid ?? s.id) === (current.uuid ?? current.id));
+    const foundIdx = this.sessions().findIndex((s) => s.uuid === current.uuid);
     if (foundIdx >= 0) {
       return foundIdx;
     }
@@ -458,7 +458,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   openInspection(session: StudioSessionSummary): void {
     this.inspectingSession.set(session);
-    const idx = this.sessions().findIndex((s) => (s.uuid ?? s.id) === (session.uuid ?? session.id));
+    const idx = this.sessions().findIndex((s) => s.uuid === session.uuid);
     if (idx >= 0) {
       this.lastInspectedIndex.set(idx);
     }
@@ -508,7 +508,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
     this.inspectingSession.set(updated);
     this.sessions.update((items) =>
-      items.map((it) => ((it.uuid ?? it.id) === (updated.uuid ?? updated.id) ? updated : it))
+      items.map((it) => (it.uuid === updated.uuid ? updated : it))
     );
     const statusFilter = this.selectedValidated();
     if (
@@ -522,7 +522,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
     this.inspectingSession.set(confirmed);
     this.sessions.update((items) =>
-      items.map((it) => ((it.uuid ?? it.id) === (confirmed.uuid ?? confirmed.id) ? confirmed : it))
+      items.map((it) => (it.uuid === confirmed.uuid ? confirmed : it))
     );
     const statusFilter = this.selectedValidated();
     if (
@@ -534,10 +534,10 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   onSessionDeletedFromInspection(sessionId: string): void {
-    this.sessions.update((items) => items.filter((it) => (it.uuid ?? it.id) !== sessionId && it.id !== sessionId));
+    this.sessions.update((items) => items.filter((it) => it.uuid !== sessionId));
     this.total.update((t) => Math.max(0, t - 1));
 
-    if ((this.inspectingSession()?.uuid ?? this.inspectingSession()?.id) === sessionId) {
+    if (this.inspectingSession()?.uuid === sessionId) {
       this.closeInspection();
     }
 
@@ -572,11 +572,11 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   executeDeleteSession(sessionId: string): void {
     // Immediately dismiss confirmation popup and remove from list
     this.sessionToDelete.set(null);
-    this.sessions.update((items) => items.filter((it) => (it.uuid ?? it.id) !== sessionId && it.id !== sessionId));
+    this.sessions.update((items) => items.filter((it) => it.uuid !== sessionId));
     this.total.update((t) => Math.max(0, t - 1));
 
     // Close inspection drawer if the deleted session was open
-    if ((this.inspectingSession()?.uuid ?? this.inspectingSession()?.id) === sessionId) {
+    if (this.inspectingSession()?.uuid === sessionId) {
       this.closeInspection();
     }
 

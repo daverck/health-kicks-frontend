@@ -229,12 +229,12 @@
             </td>
           </tr>
         } @else {
-          @for (s of sessions; track (s.uuid || s.id)) {
+          @for (s of sessions; track s.uuid) {
             <tr
               (click)="inspect.emit(s)"
               class="cursor-pointer transition hover:bg-gray-50/80 dark:hover:bg-gray-800/60"
-              [class.bg-primary-50]="inspectingSessionId === (s.uuid || s.id)"
-              [class.dark:bg-primary-950/40]="inspectingSessionId === (s.uuid || s.id)"
+              [class.bg-primary-50]="inspectingSessionId === s.uuid"
+              [class.dark:bg-primary-950/40]="inspectingSessionId === s.uuid"
             >
               <!-- Datetime -->
               <td class="whitespace-nowrap px-2.5 py-2.5 font-medium text-gray-900 dark:text-gray-200">
@@ -358,7 +358,7 @@
               <td class="whitespace-nowrap px-2.5 py-2.5 text-right">
                 <div class="inline-flex items-center gap-1.5 justify-end">
                   <button
-                    [id]="'inspect-btn-' + (s.uuid || s.id)"
+                    [id]="'inspect-btn-' + s.uuid"
                     type="button"
                     (click)="$event.stopPropagation(); inspect.emit(s)"
                     class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary-700 shadow-2xs hover:bg-primary-50 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-primary-300 dark:hover:bg-gray-700"
@@ -368,10 +368,10 @@
                   </button>
 
                   <button
-                    [id]="'delete-row-btn-' + (s.uuid || s.id)"
+                    [id]="'delete-row-btn-' + s.uuid"
                     type="button"
                     (click)="onDelete(s, $event)"
-                    [attr.data-testid]="'delete-row-btn-' + (s.uuid || s.id)"
+                    [attr.data-testid]="'delete-row-btn-' + s.uuid"
                     class="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white p-1 text-xs font-semibold text-red-600 shadow-2xs hover:border-red-200 hover:bg-red-50 hover:text-red-700 transition active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-red-950/40"
                     [title]="'studio_history.delete_session' | translate"
                     [attr.aria-label]="'studio_history.delete_session' | translate"
