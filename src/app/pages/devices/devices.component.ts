@@ -7,11 +7,12 @@ import { ToastService } from '../../core/services/toast.service';
 import { DeviceCreate, DeviceResponse } from '../../models/api.models';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { DeviceCardComponent } from './components/device-card.component';
 
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, DeviceCardComponent],
   templateUrl: './devices.component.html',
 })
 export class DevicesComponent implements OnInit {
