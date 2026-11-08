@@ -1,0 +1,117 @@
+<button
+  type="button"
+  (click)="onSelect()"
+  class="relative flex flex-col items-center justify-center rounded-xl border p-4 text-center transition hover:shadow-md w-full"
+  [class.border-primary-600]="isSelected"
+  [class.dark:border-primary-500]="isSelected"
+  [class.bg-primary-50]="isSelected"
+  [class.dark:bg-primary-950/70]="isSelected"
+  [class.text-primary-800]="isSelected"
+  [class.dark:text-primary-300]="isSelected"
+  [class.border-gray-200]="!isSelected"
+  [class.dark:border-gray-800]="!isSelected"
+  [class.bg-white]="!isSelected"
+  [class.dark:bg-gray-800]="!isSelected"
+  [class.text-gray-700]="!isSelected"
+  [class.dark:text-gray-200]="!isSelected"
+>
+  <!-- Activity Classification Badge -->
+  <span
+    class="absolute top-2 right-2 inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold border"
+    [class.bg-emerald-50]="isEdgeAi"
+    [class.text-emerald-700]="isEdgeAi"
+    [class.border-emerald-200]="isEdgeAi"
+    [class.dark:bg-emerald-950/50]="isEdgeAi"
+    [class.dark:text-emerald-300]="isEdgeAi"
+    [class.dark:border-emerald-800]="isEdgeAi"
+    [class.bg-purple-50]="!isEdgeAi"
+    [class.text-purple-700]="!isEdgeAi"
+    [class.border-purple-200]="!isEdgeAi"
+    [class.dark:bg-purple-950/50]="!isEdgeAi"
+    [class.dark:text-purple-300]="!isEdgeAi"
+    [class.dark:border-purple-800]="!isEdgeAi"
+    data-testid="studio-activity-classification-badge"
+  >
+    <span>{{ isEdgeAi ? '⚡' : '🧪' }}</span>
+    <span>{{ (isEdgeAi ? 'studio_history.badge_edge_ai' : 'studio_history.badge_research') | translate }}</span>
+  </span>
+
+  <div
+    class="mt-1 flex h-12 w-12 items-center justify-center rounded-2xl transition duration-200"
+    [class.bg-primary-100]="isSelected"
+    [class.text-primary-700]="isSelected"
+    [class.bg-gray-100]="!isSelected"
+    [class.text-gray-600]="!isSelected"
+    [class.dark:bg-primary-950/60]="isSelected"
+    [class.dark:text-primary-300]="isSelected"
+    [class.dark:bg-gray-800]="!isSelected"
+    [class.dark:text-gray-300]="!isSelected"
+  >
+    <app-activity-icon [activityId]="label.id" [size]="28" />
+  </div>
+  <span class="mt-2 text-sm font-semibold">{{ 'studio.labels.' + label.id | translate }}</span>
+  <span class="mt-0.5 text-[11px] text-gray-400">{{ 'studio.labels.' + label.id + '_desc' | translate }}</span>
+
+  <!-- Explicit exact capture count chip with validated / pending breakdown and clickable redirection -->
+  <div
+    class="label-exact-count mt-2.5 inline-flex flex-col items-center gap-1 rounded-lg border p-1.5 text-[11px] font-semibold transition w-full max-w-[200px]"
+    [class.bg-emerald-50]="totalCount >= targetPerClass"
+    [class.border-emerald-200]="totalCount >= targetPerClass"
+    [class.dark:bg-emerald-950/40]="totalCount >= targetPerClass"
+    [class.dark:border-emerald-800]="totalCount >= targetPerClass"
+    [class.bg-amber-50]="totalCount > 0 && totalCount < targetPerClass"
+    [class.border-amber-200]="totalCount > 0 && totalCount < targetPerClass"
+    [class.dark:bg-amber-950/40]="totalCount > 0 && totalCount < targetPerClass"
+    [class.dark:border-amber-800]="totalCount > 0 && totalCount < targetPerClass"
+    [class.bg-gray-50]="totalCount === 0"
+    [class.border-gray-200]="totalCount === 0"
+    [class.dark:bg-gray-800/80]="totalCount === 0"
+    [class.dark:border-gray-700]="totalCount === 0"
+  >
+    <span class="text-[10px] text-gray-500 dark:text-gray-400">
+      <span class="font-bold text-gray-800 dark:text-gray-200">{{ totalCount }}</span> / {{ targetPerClass }} {{ 'studio.captures_unit' | translate }}
+    </span>
+
+    <div class="inline-flex items-center gap-1 flex-wrap justify-center">
+      <!-- Validated count link -->
+      <button
+        type="button"
+        (click)="onFilterValidated($event)"
+        [title]="'studio.filter_validated_tooltip' | translate"
+        class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold transition hover:scale-105 active:scale-95"
+        [class.bg-emerald-100]="validatedCount > 0"
+        [class.text-emerald-800]="validatedCount > 0"
+        [class.dark:bg-emerald-900/60]="validatedCount > 0"
+        [class.dark:text-emerald-200]="validatedCount > 0"
+        [class.bg-gray-100]="validatedCount === 0"
+        [class.text-gray-400]="validatedCount === 0"
+        [class.dark:bg-gray-700]="validatedCount === 0"
+        [class.dark:text-gray-400]="validatedCount === 0"
+        [attr.data-testid]="'btn-filter-validated-' + label.id"
+      >
+        <span>✅</span>
+        <span>{{ validatedCount }}</span>
+      </button>
+
+      <!-- Pending count link -->
+      <button
+        type="button"
+        (click)="onFilterPending($event)"
+        [title]="'studio.filter_pending_tooltip' | translate"
+        class="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-semibold transition hover:scale-105 active:scale-95"
+        [class.bg-amber-100]="pendingCount > 0"
+        [class.text-amber-800]="pendingCount > 0"
+        [class.dark:bg-amber-900/60]="pendingCount > 0"
+        [class.dark:text-amber-200]="pendingCount > 0"
+        [class.bg-gray-100]="pendingCount === 0"
+        [class.text-gray-400]="pendingCount === 0"
+        [class.dark:bg-gray-700]="pendingCount === 0"
+        [class.dark:text-gray-400]="pendingCount === 0"
+        [attr.data-testid]="'btn-filter-pending-' + label.id"
+      >
+        <span>⏳</span>
+        <span>{{ pendingCount }}</span>
+      </button>
+    </div>
+  </div>
+</button>

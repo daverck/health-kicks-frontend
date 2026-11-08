@@ -48,6 +48,7 @@ import { DeviceSelectComponent } from '../../shared/components/device-select/dev
 import { Shoe3dViewerComponent } from '../../shared/components/shoe-3d-viewer/shoe-3d-viewer.component';
 import { IsbGuideComponent } from '../../shared/components/isb-guide/isb-guide.component';
 import { ActivityIconComponent } from '../../shared/components/activity-icon/activity-icon.component';
+import { StudioActivityCardComponent } from './components/studio-activity-card.component';
 
 @Component({
   selector: 'app-studio',
@@ -62,6 +63,7 @@ import { ActivityIconComponent } from '../../shared/components/activity-icon/act
     Shoe3dViewerComponent,
     IsbGuideComponent,
     ActivityIconComponent,
+    StudioActivityCardComponent,
   ],
   templateUrl: './studio.component.html',
 })
