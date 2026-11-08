@@ -1,0 +1,285 @@
+<!-- Information Banner -->
+<div
+  class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200"
+  data-testid="contacts-info-banner"
+>
+  <div class="flex items-start gap-3">
+    <span class="text-lg">ℹ️</span>
+    <p class="leading-relaxed">
+      {{ 'fall_alerts.info_banner' | translate }}
+    </p>
+  </div>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <!-- Left 2 cols: Ordered List of Contacts -->
+  <div class="lg:col-span-2 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+        {{ 'fall_alerts.contacts_title' | translate }}
+      </h2>
+      <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+        {{ 'fall_alerts.contacts_count' | translate:{ count: contacts.length } }}
+      </span>
+    </div>
+
+    @if (loading) {
+      <div class="card py-12 text-center text-sm text-gray-500 dark:text-gray-400">
+        {{ 'common.loading' | translate }}
+      </div>
+    } @else if (contacts.length === 0) {
+      <div
+        class="card border-dashed py-12 text-center text-sm text-gray-500 dark:text-gray-400"
+        data-testid="empty-contacts-message"
+      >
+        {{ 'fall_alerts.contacts_empty' | translate }}
+      </div>
+    } @else {
+      <div class="space-y-3">
+        @for (contact of contacts; track contact.id; let idx = $index; let first = $first; let last = $last) {
+          <div
+            class="card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4"
+            data-testid="contact-item"
+          >
+            <div class="flex items-start gap-3">
+              <!-- Priority Badge -->
+              <span
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-sm font-bold text-primary-700 dark:bg-primary-950/70 dark:text-primary-300"
+                data-testid="contact-priority-badge"
+              >
+                #{{ contact.priority }}
+              </span>
+
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-base font-bold text-gray-900 dark:text-white">
+                    {{ contact.first_name }} {{ contact.last_name }}
+                  </h3>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                  {{ contact.email }}
+                </p>
+                <p class="mt-0.5 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                  @if (contact.phone) {
+                    <span data-testid="contact-phone">📱 {{ contact.phone }}</span>
+                    <span
+                      class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                      data-testid="sms-enabled-badge"
+                    >
+                      {{ 'fall_alerts.sms_enabled_badge' | translate }}
+                    </span>
+                  } @else {
+                    <span
+                      class="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                      data-testid="email-only-badge"
+                    >
+                      {{ 'fall_alerts.email_only_badge' | translate }}
+                    </span>
+                  }
+                </p>
+                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  {{ 'fall_alerts.last_test_email' | translate }}
+                  @if (contact.last_test_email_at) {
+                    <span class="font-medium text-gray-600 dark:text-gray-300">
+                      {{ contact.last_test_email_at | date:'medium' }}
+                    </span>
+                  } @else {
+                    <span class="italic">{{ 'fall_alerts.never_tested' | translate }}</span>
+                  }
+                </p>
+              </div>
+            </div>
+
+            <!-- Contact Actions -->
+            <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+              <!-- Move Up -->
+              <button
+                type="button"
+                (click)="onMoveUp(idx)"
+                [disabled]="first || reordering"
+                class="btn-secondary px-2.5 py-1.5 text-xs disabled:opacity-40"
+                [title]="'fall_alerts.move_up' | translate"
+                data-testid="move-up-btn"
+              >
+                ↑
+              </button>
+
+              <!-- Move Down -->
+              <button
+                type="button"
+                (click)="onMoveDown(idx)"
+                [disabled]="last || reordering"
+                class="btn-secondary px-2.5 py-1.5 text-xs disabled:opacity-40"
+                [title]="'fall_alerts.move_down' | translate"
+                data-testid="move-down-btn"
+              >
+                ↓
+              </button>
+
+              <!-- Send Test Email -->
+              <button
+                type="button"
+                (click)="onSendTest(contact)"
+                [disabled]="sendingTestContactId === contact.id"
+                class="btn-secondary px-3 py-1.5 text-xs"
+                data-testid="send-test-email-btn"
+              >
+                @if (sendingTestContactId === contact.id) {
+                  {{ 'fall_alerts.sending_test' | translate }}
+                } @else {
+                  ✉️ {{ 'fall_alerts.send_test_email' | translate }}
+                }
+              </button>
+
+              <!-- Edit -->
+              <button
+                type="button"
+                (click)="onStartEdit(contact)"
+                class="btn-secondary px-3 py-1.5 text-xs"
+                data-testid="edit-contact-btn"
+              >
+                {{ 'fall_alerts.edit_btn' | translate }}
+              </button>
+
+              <!-- Delete -->
+              <button
+                type="button"
+                (click)="onDelete(contact)"
+                [disabled]="deletingContactId === contact.id"
+                class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
+                data-testid="delete-contact-btn"
+              >
+                {{ 'fall_alerts.delete_btn' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Right col: Add / Edit Form -->
+  <div class="card h-fit space-y-4">
+    <h3 class="text-base font-bold text-gray-900 dark:text-white">
+      @if (editingContact) {
+        {{ 'fall_alerts.form_edit_title' | translate }}
+      } @else {
+        {{ 'fall_alerts.form_add_title' | translate }}
+      }
+    </h3>
+
+    @if (maxContactsReached) {
+      <div
+        class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
+        data-testid="max-contacts-warning"
+      >
+        {{ 'fall_alerts.form_max_reached' | translate }}
+      </div>
+    }
+
+    @if (contactFormError) {
+      <div
+        class="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400"
+        data-testid="contact-form-error"
+      >
+        {{ contactFormError }}
+      </div>
+    }
+
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <div>
+        <label
+          for="contact_first_name"
+          class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+        >
+          {{ 'fall_alerts.first_name' | translate }}
+        </label>
+        <input
+          id="contact_first_name"
+          data-testid="contact-first-name-input"
+          type="text"
+          formControlName="first_name"
+          class="input mt-1"
+          [disabled]="maxContactsReached"
+        />
+      </div>
+
+      <div>
+        <label
+          for="contact_last_name"
+          class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+        >
+          {{ 'fall_alerts.last_name' | translate }}
+        </label>
+        <input
+          id="contact_last_name"
+          data-testid="contact-last-name-input"
+          type="text"
+          formControlName="last_name"
+          class="input mt-1"
+          [disabled]="maxContactsReached"
+        />
+      </div>
+
+      <div>
+        <label
+          for="contact_email"
+          class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+        >
+          {{ 'fall_alerts.email' | translate }}
+        </label>
+        <input
+          id="contact_email"
+          data-testid="contact-email-input"
+          type="email"
+          formControlName="email"
+          class="input mt-1"
+          [disabled]="maxContactsReached"
+        />
+      </div>
+      <div>
+        <label
+          for="contact_phone"
+          class="block text-xs font-semibold text-gray-700 dark:text-gray-300"
+        >
+          {{ 'fall_alerts.phone' | translate }}
+        </label>
+        <input
+          id="contact_phone"
+          data-testid="contact-phone-input"
+          type="tel"
+          autocomplete="tel"
+          formControlName="phone"
+          [placeholder]="'fall_alerts.phone_placeholder' | translate"
+          class="input mt-1"
+          [disabled]="maxContactsReached"
+        />
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2">
+        @if (editingContact) {
+          <button
+            type="button"
+            (click)="onCancelEdit()"
+            class="btn-secondary text-xs"
+            data-testid="cancel-edit-contact-btn"
+          >
+            {{ 'common.cancel' | translate }}
+          </button>
+        }
+        <button
+          type="submit"
+          [disabled]="contactForm.invalid || submitting || maxContactsReached"
+          class="btn-primary text-xs"
+          data-testid="submit-contact-btn"
+        >
+          @if (editingContact) {
+            {{ 'fall_alerts.form_submit_edit' | translate }}
+          } @else {
+            {{ 'fall_alerts.form_submit_add' | translate }}
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

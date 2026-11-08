@@ -6,7 +6,6 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
 import {
   AlertContactCreate,
   AlertContactResponse,
@@ -16,6 +15,8 @@ import {
   FallAlertSummary,
 } from '../../models/api.models';
 import { PREDEFINED_LABELS, isStandardStudioLabel } from '../../models/studio.model';
+import { FallHistoryComponent } from './components/fall-history.component';
+import { FallContactsComponent } from './components/fall-contacts.component';
 
 @Component({
   selector: 'app-fall-alerts',
@@ -25,7 +26,8 @@ import { PREDEFINED_LABELS, isStandardStudioLabel } from '../../models/studio.mo
     FormsModule,
     ReactiveFormsModule,
     TranslatePipe,
-    DateFilterComponent,
+    FallHistoryComponent,
+    FallContactsComponent,
   ],
   templateUrl: './fall-alerts.component.html',
 })
