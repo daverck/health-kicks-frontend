@@ -40,46 +40,16 @@
     <!-- ============================================================== -->
     <section class="space-y-6">
       <!-- 5 Global KPI Cards -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <!-- 1. Active Classes -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_active_classes' | translate }}</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_classes }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_monitored_activities' | translate }}</p>
-        </div>
-
-        <!-- 2. Total Sessions -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_total_sessions' | translate }}</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ data.total_sessions }}</p>
-          <div class="mt-1 flex items-center gap-2 text-xs">
-            <span class="text-emerald-600 dark:text-emerald-400 font-semibold">{{ data.validated_sessions }} {{ 'studio_classes.validated_tag' | translate }}</span>
-            <span class="text-gray-400">•</span>
-            <span class="text-amber-600 dark:text-amber-400 font-semibold">{{ data.pending_sessions }} {{ 'studio_classes.pending_tag' | translate }}</span>
-          </div>
-        </div>
-
-        <!-- 3. Macro Precision -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_macro_precision' | translate }}</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ formatScore(data.macro_precision) }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_macro_precision_desc' | translate }}</p>
-        </div>
-
-        <!-- 4. Macro Recall -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_macro_recall' | translate }}</p>
-          <p class="text-2xl font-bold text-gray-900 dark:text-white mt-2">{{ formatScore(data.macro_recall) }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_macro_recall_desc' | translate }}</p>
-        </div>
-
-        <!-- 5. Macro F1 -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 col-span-2 sm:col-span-1">
-          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ 'studio_classes.kpi_macro_f1' | translate }}</p>
-          <p class="text-2xl font-bold text-primary-600 dark:text-primary-400 mt-2">{{ formatScore(data.macro_f1) }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ 'studio_classes.kpi_macro_f1_desc' | translate }}</p>
-        </div>
-      </div>
+      <app-studio-classes-kpi-cards
+        [totalClasses]="data.total_classes"
+        [totalSessions]="data.total_sessions"
+        [validatedSessions]="data.validated_sessions"
+        [pendingSessions]="data.pending_sessions"
+        [macroPrecision]="data.macro_precision"
+        [macroRecall]="data.macro_recall"
+        [macroF1]="data.macro_f1"
+        [formatScore]="formatScore.bind(this)"
+      />
 
       <!-- Class Distribution & Metrics in an Expansion Panel (Collapsed by default) -->
       <div class="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 overflow-hidden">
@@ -190,273 +160,28 @@
       </div>
 
       <!-- Comparative Table in an Expansion Panel (Collapsed by default) -->
-      <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900">
-        <button
-          type="button"
-          (click)="toggleTableExpansion()"
-          data-testid="toggle-table-expansion-btn"
-          class="w-full p-5 flex items-center justify-between text-left hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition focus:outline-none"
-        >
-          <div>
-            <h2 class="text-base font-bold text-gray-900 dark:text-white">
-              {{ 'studio_classes.table_title' | translate }}
-            </h2>
-            <p class="text-xs text-gray-500 mt-0.5">
-              {{ 'studio_classes.table_subtitle' | translate }}
-            </p>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-gray-500">{{ 'studio_classes.activities_count' | translate: { count: sortedClasses().length } }}</span>
-            <span class="text-xs font-medium text-gray-400 dark:text-gray-500 flex items-center gap-1">
-              <span>{{ isTableExpanded() ? ('studio_classes.collapse_table' | translate) : ('studio_classes.expand_table' | translate) }}</span>
-              <span class="text-sm transition-transform duration-200" [ngClass]="{ 'rotate-180': isTableExpanded() }">▼</span>
-            </span>
-          </div>
-        </button>
-
-        @if (isTableExpanded()) {
-          <div class="overflow-x-auto border-t border-gray-100 dark:border-gray-800">
-            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-              <thead class="bg-gray-50/75 text-xs uppercase text-gray-400 dark:bg-gray-800/50 dark:text-gray-400">
-                <tr>
-                  <th class="px-6 py-3.5 font-semibold">{{ 'studio_classes.col_activity' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_sessions' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_validated' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_pending' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_f1' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_precision' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_recall' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-right">{{ 'studio_classes.col_median_duration' | translate }}</th>
-                  <th class="px-6 py-3.5 font-semibold text-center">{{ 'studio_classes.col_action' | translate }}</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                @for (item of sortedClasses(); track item.label) {
-                  <tr
-                    (click)="selectClass(item.label)"
-                    class="cursor-pointer transition hover:bg-gray-50/80 dark:hover:bg-gray-800/40"
-                    [ngClass]="{
-                      'bg-primary-50/60 dark:bg-primary-950/20 font-semibold text-primary-950 dark:text-primary-100': selectedClass() === item.label
-                    }"
-                  >
-                    <!-- Activity with icon -->
-                    <td class="px-6 py-4 flex items-center gap-3">
-                      <app-activity-icon [activityId]="item.label" [size]="20" />
-                      <div>
-                        <div class="font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                          {{ formatLabel(item.label) }}
-                          @if (selectedClass() === item.label) {
-                            <span class="inline-block h-2 w-2 rounded-full bg-primary-600"></span>
-                          }
-                        </div>
-                        <div class="text-[11px] text-gray-400">
-                          {{ 'studio_classes.last_session_label' | translate }}: {{ item.latest_session_date || '—' }}
-                        </div>
-                      </div>
-                    </td>
-
-                    <!-- Total sessions -->
-                    <td class="px-6 py-4 text-right font-medium text-gray-900 dark:text-white">
-                      {{ item.total_sessions }}
-                    </td>
-
-                    <!-- Validated sessions -->
-                    <td class="px-6 py-4 text-right">
-                      <span class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                        {{ item.validated_sessions }}
-                      </span>
-                    </td>
-
-                    <!-- Pending sessions -->
-                    <td class="px-6 py-4 text-right">
-                      <span class="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
-                        {{ item.pending_sessions }}
-                      </span>
-                    </td>
-
-                    <!-- F1-Score with colored badge -->
-                    <td class="px-6 py-4 text-right">
-                      <span
-                        class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold"
-                        [ngClass]="{
-                          'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300': item.f1_score >= 0.85,
-                          'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300': item.f1_score >= 0.70 && item.f1_score < 0.85,
-                          'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300': item.f1_score < 0.70
-                        }"
-                      >
-                        {{ formatScore(item.f1_score) }}
-                      </span>
-                    </td>
-
-                    <!-- Precision -->
-                    <td class="px-6 py-4 text-right text-xs">
-                      {{ formatScore(item.precision) }}
-                    </td>
-
-                    <!-- Recall -->
-                    <td class="px-6 py-4 text-right text-xs">
-                      {{ formatScore(item.recall) }}
-                    </td>
-
-                    <!-- Median duration -->
-                    <td class="px-6 py-4 text-right text-xs text-gray-500">
-                      {{ item.median_duration_sec }}s
-                    </td>
-
-                    <!-- Action filter button -->
-                    <td class="px-6 py-4 text-center">
-                      <button
-                        type="button"
-                        (click)="$event.stopPropagation(); selectClass(item.label)"
-                        class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold shadow-2xs transition active:scale-95"
-                        [ngClass]="{
-                          'border-primary-600 bg-primary-600 text-white hover:bg-primary-700': selectedClass() === item.label,
-                          'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700': selectedClass() !== item.label
-                        }"
-                      >
-                        @if (selectedClass() === item.label) {
-                          <span>{{ 'studio_classes.deselect_action' | translate }}</span>
-                        } @else {
-                          <span>{{ 'studio_classes.filter_action' | translate }}</span> <span>→</span>
-                        }
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        }
-      </div>
+      <app-studio-classes-table
+        [classes]="sortedClasses()"
+        [selectedClass]="selectedClass()"
+        [isTableExpanded]="isTableExpanded()"
+        [formatScore]="formatScore.bind(this)"
+        [formatLabel]="formatLabel.bind(this)"
+        (toggleExpansion)="toggleTableExpansion()"
+        (selectClass)="selectClass($event)"
+      />
 
       <!-- Normalized Confusion Matrix in an Expansion Panel (Collapsed by default) -->
       @if (confusionMatrix(); as matrixData) {
-        <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden dark:border-gray-800 dark:bg-gray-900" data-testid="confusion-matrix-panel">
-          <button
-            type="button"
-            (click)="toggleMatrixExpansion()"
-            data-testid="toggle-matrix-expansion-btn"
-            class="w-full p-5 flex items-center justify-between text-left hover:bg-gray-50/70 dark:hover:bg-gray-800/40 transition focus:outline-none"
-          >
-            <div class="flex items-center gap-3">
-              <span class="text-lg">🎯</span>
-              <div>
-                <h2 class="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  {{ 'studio_classes.matrix_title' | translate }}
-                </h2>
-                <p class="text-xs text-gray-500 mt-0.5">
-                  {{ 'studio_classes.matrix_subtitle' | translate }}
-                </p>
-              </div>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs text-gray-500">
-                {{ matrixData.labels.length }} × {{ matrixData.labels.length }}
-              </span>
-              <span class="text-xs font-medium text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                <span>{{ isMatrixExpanded() ? ('studio_classes.collapse_matrix' | translate) : ('studio_classes.expand_matrix' | translate) }}</span>
-                <span class="text-sm transition-transform duration-200" [ngClass]="{ 'rotate-180': isMatrixExpanded() }">▼</span>
-              </span>
-            </div>
-          </button>
-
-          @if (isMatrixExpanded()) {
-            <div class="p-5 pt-0 border-t border-gray-100 dark:border-gray-800 space-y-4">
-              <!-- Subtitle & Tooltip Bar -->
-              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 text-xs text-gray-500">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-gray-700 dark:text-gray-300">{{ 'studio_classes.matrix_guide_title' | translate }}:</span>
-                  <span>{{ 'studio_classes.matrix_guide_desc' | translate }}</span>
-                </div>
-                <!-- Dynamic Hover Tooltip Preview -->
-                @if (hoveredCell(); as cell) {
-                  <div class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-primary-50 dark:bg-primary-950/40 border border-primary-200 dark:border-primary-800 text-primary-900 dark:text-primary-100 font-medium">
-                    <span>{{ 'studio_classes.matrix_true_label' | translate }}: <strong>{{ formatLabel(cell.trueLabel) }}</strong></span>
-                    <span>→</span>
-                    <span>{{ 'studio_classes.matrix_pred_label' | translate }}: <strong>{{ formatLabel(cell.predLabel) }}</strong></span>
-                    <span class="ml-1 px-1.5 py-0.5 rounded bg-primary-600 text-white font-bold">{{ (cell.value * 100).toFixed(1) }}%</span>
-                  </div>
-                }
-              </div>
-
-              <!-- Heatmap Scrollable Grid -->
-              <div class="overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl">
-                <table class="w-full text-center border-collapse text-xs">
-                  <thead>
-                    <tr class="bg-gray-50/80 dark:bg-gray-800/60">
-                      <!-- Corner: True \ Predicted -->
-                      <th class="p-2.5 text-left font-bold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 border-b border-r border-gray-200 dark:border-gray-700 min-w-32">
-                        <div class="flex flex-col">
-                          <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ 'studio_classes.matrix_pred_axis' | translate }} →</span>
-                          <span class="text-[11px] font-semibold text-gray-600 dark:text-gray-200">↓ {{ 'studio_classes.matrix_true_axis' | translate }}</span>
-                        </div>
-                      </th>
-                      @for (pLabel of matrixData.labels; track pLabel) {
-                        <th class="p-2 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700 min-w-16 max-w-20">
-                          <div class="truncate text-[10px] uppercase tracking-tight" [title]="formatLabel(pLabel)">
-                            {{ formatLabel(pLabel) }}
-                          </div>
-                        </th>
-                      }
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (tLabel of matrixData.labels; track tLabel; let rIdx = $index) {
-                      <tr class="hover:bg-primary-50/30 dark:hover:bg-primary-950/10 transition-colors">
-                        <!-- Row Header (True Label) -->
-                        <th class="p-2 text-left font-semibold text-gray-800 dark:text-gray-200 sticky left-0 bg-gray-50 dark:bg-gray-850 z-10 border-r border-b border-gray-200 dark:border-gray-700 whitespace-nowrap">
-                          <div class="flex items-center gap-1.5">
-                            <app-activity-icon [activityId]="tLabel" [size]="16" />
-                            <span class="text-[11px]">{{ formatLabel(tLabel) }}</span>
-                          </div>
-                        </th>
-                        <!-- Matrix Cells (Predicted values normalized) -->
-                        @for (pLabel of matrixData.labels; track pLabel; let cIdx = $index) {
-                          @let val = matrixData.matrix[rIdx][cIdx];
-                          @let isDiag = rIdx === cIdx;
-                          <td
-                            (mouseenter)="setHoveredCell(tLabel, pLabel, val)"
-                            (mouseleave)="clearHoveredCell()"
-                            class="p-2 border-b border-r border-gray-100 dark:border-gray-800/80 transition-all cursor-crosshair select-none"
-                            [ngClass]="getMatrixCellBgClass(val, isDiag)"
-                            [title]="formatLabel(tLabel) + ' → ' + formatLabel(pLabel) + ': ' + (val * 100).toFixed(1) + '%'"
-                          >
-                            <span class="text-[10px] leading-tight block">
-                              @if (val >= 0.005) {
-                                {{ (val * 100).toFixed(0) }}%
-                              } @else {
-                                -
-                              }
-                            </span>
-                          </td>
-                        }
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Color Scale Legend -->
-              <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-gray-500">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold">{{ 'studio_classes.matrix_legend' | translate }}:</span>
-                  <div class="flex items-center gap-1 text-[11px]">
-                    <span class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold">&gt;95%</span>
-                    <span class="px-2 py-0.5 rounded bg-emerald-500 text-white font-semibold">85-95%</span>
-                    <span class="px-2 py-0.5 rounded bg-emerald-400 text-gray-900 font-semibold">70-85%</span>
-                    <span class="px-2 py-0.5 rounded bg-emerald-300 dark:bg-emerald-700 text-gray-900 dark:text-white">50-70%</span>
-                    <span class="px-2 py-0.5 rounded bg-amber-300 dark:bg-amber-700 text-gray-900 dark:text-white">25-50%</span>
-                    <span class="px-2 py-0.5 rounded bg-amber-200 dark:bg-amber-800 text-gray-800 dark:text-gray-100">10-25%</span>
-                    <span class="px-2 py-0.5 rounded bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-200">&lt;10%</span>
-                  </div>
-                </div>
-                <div class="text-[11px] text-gray-400 italic">
-                  * {{ 'studio_classes.matrix_diagonal_note' | translate }}
-                </div>
-              </div>
-            </div>
-          }
-        </div>
+        <app-studio-classes-confusion-matrix
+          [confusionMatrix]="matrixData"
+          [isMatrixExpanded]="isMatrixExpanded()"
+          [hoveredCell]="hoveredCell()"
+          [formatLabel]="formatLabel.bind(this)"
+          [getCellBgClass]="getMatrixCellBgClass.bind(this)"
+          (toggleExpansion)="toggleMatrixExpansion()"
+          (cellHover)="setHoveredCell($event.trueLabel, $event.predLabel, $event.value)"
+          (clearHover)="clearHoveredCell()"
+        />
       }
     </section>
 
@@ -587,69 +312,12 @@
           <!-- Highlighted Cards when a specific class is selected -->
           @if (selectedClass(); as activeClass) {
             @if (selectedClassSummary(); as cls) {
-              <div class="rounded-2xl bg-gradient-to-br from-primary-50/70 to-blue-50/30 p-5 dark:from-primary-950/30 dark:to-gray-900/40 border border-primary-100 dark:border-primary-900/30">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <app-activity-icon [activityId]="cls.label" [size]="28" />
-                    <div>
-                      <h3 class="text-lg font-bold text-gray-900 dark:text-white">
-                        {{ formatLabel(cls.label) }}
-                      </h3>
-                      <p class="text-xs text-gray-500">
-                        {{ 'studio_classes.windows_analyzed' | translate: { count: cls.support_windows } }} •
-                        {{ 'studio_classes.first_session_date' | translate }}: {{ cls.first_session_date || '—' }} •
-                        {{ 'studio_classes.last_session_date' | translate }}: {{ cls.latest_session_date || '—' }}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    (click)="selectClass(null)"
-                    class="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300"
-                  >
-                    ✕ {{ 'studio_classes.close_focus' | translate }}
-                  </button>
-                </div>
-
-                <!-- 4 Metrics of the Selected Class -->
-                <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <!-- Sessions -->
-                  <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                    <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.kpi_total_sessions' | translate }}</p>
-                    <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
-                      {{ cls.total_sessions }}
-                    </p>
-                    <p class="text-[10px] text-gray-500 mt-0.5">{{ cls.validated_sessions }} {{ 'studio_classes.validated_tag' | translate }} • {{ cls.pending_sessions }} {{ 'studio_classes.pending_tag' | translate }}</p>
-                  </div>
-
-                  <!-- F1-Score -->
-                  <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                    <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.kpi_macro_f1' | translate }}</p>
-                    <p class="text-xl font-extrabold text-primary-600 dark:text-primary-400 mt-1">
-                      {{ formatScore(cls.f1_score) }}
-                    </p>
-                    <p class="text-[10px] text-gray-500 mt-0.5">Precision: {{ formatScore(cls.precision) }}</p>
-                  </div>
-
-                  <!-- Recall -->
-                  <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                    <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.kpi_macro_recall' | translate }}</p>
-                    <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
-                      {{ formatScore(cls.recall) }}
-                    </p>
-                    <p class="text-[10px] text-gray-500 mt-0.5">{{ cls.support_windows }} windows</p>
-                  </div>
-
-                  <!-- Median Duration -->
-                  <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
-                    <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_median_duration' | translate }}</p>
-                    <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
-                      {{ cls.median_duration_sec }} s
-                    </p>
-                    <p class="text-[10px] text-gray-500 mt-0.5">{{ 'studio_classes.total_duration_display' | translate: { sec: cls.total_duration_sec } }}</p>
-                  </div>
-                </div>
-              </div>
+              <app-studio-classes-selected-card
+                [classItem]="cls"
+                [formatLabel]="formatLabel.bind(this)"
+                [formatScore]="formatScore.bind(this)"
+                (close)="selectClass(null)"
+              />
             }
           }
 

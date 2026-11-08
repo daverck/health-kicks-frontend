@@ -21,6 +21,10 @@ import {
 } from '../../models/telemetry.models';
 import { ActivityIconComponent } from '../../shared/components/activity-icon/activity-icon.component';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { StudioClassesKpiCardsComponent } from './components/studio-classes-kpi-cards.component';
+import { StudioClassesTableComponent } from './components/studio-classes-table.component';
+import { StudioClassesConfusionMatrixComponent } from './components/studio-classes-confusion-matrix.component';
+import { StudioClassesSelectedCardComponent } from './components/studio-classes-selected-card.component';
 
 Chart.register(...registerables);
 
@@ -29,7 +33,15 @@ export type StudioChartMetric = 'distribution' | 'f1' | 'precision' | 'recall';
 @Component({
   selector: 'app-studio-classes',
   standalone: true,
-  imports: [CommonModule, ActivityIconComponent, TranslatePipe],
+  imports: [
+    CommonModule,
+    ActivityIconComponent,
+    TranslatePipe,
+    StudioClassesKpiCardsComponent,
+    StudioClassesTableComponent,
+    StudioClassesConfusionMatrixComponent,
+    StudioClassesSelectedCardComponent,
+  ],
   templateUrl: './studio-classes.component.html',
 })
 export class StudioClassesComponent implements OnInit {

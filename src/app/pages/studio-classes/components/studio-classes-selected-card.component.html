@@ -1,0 +1,63 @@
+<div class="rounded-2xl bg-gradient-to-br from-primary-50/70 to-blue-50/30 p-5 dark:from-primary-950/30 dark:to-gray-900/40 border border-primary-100 dark:border-primary-900/30">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <app-activity-icon [activityId]="classItem().label" [size]="28" />
+      <div>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+          {{ formatLabel()(classItem().label) }}
+        </h3>
+        <p class="text-xs text-gray-500">
+          {{ 'studio_classes.windows_analyzed' | translate: { count: classItem().support_windows } }} •
+          {{ 'studio_classes.first_session_date' | translate }}: {{ classItem().first_session_date || '—' }} •
+          {{ 'studio_classes.last_session_date' | translate }}: {{ classItem().latest_session_date || '—' }}
+        </p>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="close.emit()"
+      class="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:text-primary-800 dark:text-primary-300"
+    >
+      ✕ {{ 'studio_classes.close_focus' | translate }}
+    </button>
+  </div>
+
+  <!-- 4 Metrics of the Selected Class -->
+  <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <!-- Sessions -->
+    <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+      <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.kpi_total_sessions' | translate }}</p>
+      <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
+        {{ classItem().total_sessions }}
+      </p>
+      <p class="text-[10px] text-gray-500 mt-0.5">{{ classItem().validated_sessions }} {{ 'studio_classes.validated_tag' | translate }} • {{ classItem().pending_sessions }} {{ 'studio_classes.pending_tag' | translate }}</p>
+    </div>
+
+    <!-- F1-Score -->
+    <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+      <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.kpi_macro_f1' | translate }}</p>
+      <p class="text-xl font-extrabold text-primary-600 dark:text-primary-400 mt-1">
+        {{ formatScore()(classItem().f1_score) }}
+      </p>
+      <p class="text-[10px] text-gray-500 mt-0.5">Precision: {{ formatScore()(classItem().precision) }}</p>
+    </div>
+
+    <!-- Recall -->
+    <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+      <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.kpi_macro_recall' | translate }}</p>
+      <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
+        {{ formatScore()(classItem().recall) }}
+      </p>
+      <p class="text-[10px] text-gray-500 mt-0.5">{{ classItem().support_windows }} windows</p>
+    </div>
+
+    <!-- Median Duration -->
+    <div class="rounded-xl bg-white p-3.5 border border-gray-200 dark:border-gray-700/60 dark:bg-gray-800/80 shadow-2xs">
+      <p class="text-[10px] font-bold uppercase text-gray-500">{{ 'studio_classes.col_median_duration' | translate }}</p>
+      <p class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">
+        {{ classItem().median_duration_sec }} s
+      </p>
+      <p class="text-[10px] text-gray-500 mt-0.5">{{ 'studio_classes.total_duration_display' | translate: { sec: classItem().total_duration_sec } }}</p>
+    </div>
+  </div>
+</div>
