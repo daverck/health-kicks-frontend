@@ -207,9 +207,10 @@
     }
   </section>
 
-  <!-- Desktop Table -->
-  <section class="card hidden overflow-x-auto p-0 md:block">
-    <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
+  <!-- Desktop Table with Dual Scrollbar -->
+  <section class="card hidden p-0 md:block overflow-hidden">
+    <app-dual-scrollbar [ariaLabel]="'fall_alerts.title' | translate">
+      <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
       <thead class="bg-gray-50 dark:bg-gray-800/80">
         <!-- Row 1: Column Titles -->
         <tr>
@@ -431,6 +432,7 @@
         }
       </tbody>
     </table>
+    </app-dual-scrollbar>
   </section>
 
   <!-- Pagination -->

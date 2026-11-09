@@ -1,5 +1,5 @@
 <div class="hidden md:block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-  <div class="overflow-x-auto min-h-[380px]">
+  <app-dual-scrollbar [ariaLabel]="'studio_history.title' | translate">
     <table class="min-w-full divide-y divide-gray-200 text-left text-xs dark:divide-gray-800">
       <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider font-semibold dark:bg-gray-800/80 dark:text-gray-400">
         <!-- Row 1: Column Titles -->
@@ -385,5 +385,5 @@
         }
       </tbody>
     </table>
-  </div>
+  </app-dual-scrollbar>
 </div>

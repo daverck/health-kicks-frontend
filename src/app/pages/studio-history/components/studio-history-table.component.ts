@@ -6,6 +6,7 @@ import { DateFilterComponent } from '../../../shared/components/date-filter/date
 import { DeviceSelectComponent } from '../../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../../shared/components/activity-select/activity-select.component';
 import { AuthorSelectComponent } from '../../../shared/components/author-select/author-select.component';
+import { DualScrollbarComponent } from '../../../shared/components/dual-scrollbar/dual-scrollbar.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { DeviceResponse } from '../../../models/api.models';
 import { StudioAuthorSummary, StudioSessionSummary } from '../../../models/studio-history.model';
@@ -22,6 +23,7 @@ import { ActivityClassificationType } from '../../../models/studio.model';
     DeviceSelectComponent,
     ActivitySelectComponent,
     AuthorSelectComponent,
+    DualScrollbarComponent,
     TranslatePipe,
   ],
   templateUrl: './studio-history-table.component.html',

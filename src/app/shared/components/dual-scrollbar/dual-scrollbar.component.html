@@ -1,0 +1,26 @@
+<div class="dual-scrollbar-wrapper relative w-full">
+  <!-- Top synchronized horizontal scrollbar track (desktop only, displayed when table has overflow) -->
+  <div
+    #topScroll
+    class="dual-scrollbar-track hidden md:block overflow-x-auto overflow-y-hidden border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30"
+    [class.invisible]="!hasOverflow()"
+    [style.height]="hasOverflow() ? '14px' : '0px'"
+    aria-hidden="true"
+    tabindex="-1"
+    data-testid="dual-scrollbar-top-track"
+  >
+    <div [style.width.px]="contentWidth()" class="h-1"></div>
+  </div>
+
+  <!-- Primary scroll container hosting the table -->
+  <div
+    #bottomScroll
+    tabindex="0"
+    role="region"
+    [attr.aria-label]="ariaLabel()"
+    class="dual-scrollbar-content overflow-x-auto focus:outline-none"
+    data-testid="dual-scrollbar-bottom-track"
+  >
+    <ng-content />
+  </div>
+</div>

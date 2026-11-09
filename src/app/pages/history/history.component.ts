@@ -17,6 +17,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
 import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
+import { DualScrollbarComponent } from '../../shared/components/dual-scrollbar/dual-scrollbar.component';
 import { HistoryStore } from './history.store';
 
 @Component({
@@ -28,6 +29,7 @@ import { HistoryStore } from './history.store';
     DeviceSelectComponent,
     ActivitySelectComponent,
     DateFilterComponent,
+    DualScrollbarComponent,
   ],
   providers: [HistoryStore],
   templateUrl: './history.component.html',

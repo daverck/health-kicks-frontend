@@ -1,0 +1,42 @@
+/* Custom modern scrollbar styles for dual scroll tracks */
+.dual-scrollbar-track,
+.dual-scrollbar-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.45) transparent;
+}
+
+:host-context(.dark) .dual-scrollbar-track,
+:host-context(.dark) .dual-scrollbar-content {
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.dual-scrollbar-track::-webkit-scrollbar,
+.dual-scrollbar-content::-webkit-scrollbar {
+  height: 9px;
+}
+
+.dual-scrollbar-track::-webkit-scrollbar-track,
+.dual-scrollbar-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dual-scrollbar-track::-webkit-scrollbar-thumb,
+.dual-scrollbar-content::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.45);
+  border-radius: 9999px;
+}
+
+.dual-scrollbar-track::-webkit-scrollbar-thumb:hover,
+.dual-scrollbar-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+:host-context(.dark) .dual-scrollbar-track::-webkit-scrollbar-thumb,
+:host-context(.dark) .dual-scrollbar-content::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+}
+
+:host-context(.dark) .dual-scrollbar-track::-webkit-scrollbar-thumb:hover,
+:host-context(.dark) .dual-scrollbar-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.55);
+}

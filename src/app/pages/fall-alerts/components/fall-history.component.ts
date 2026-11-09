@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, computed, inject, signal } from
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DateFilterComponent } from '../../../shared/components/date-filter/date-filter.component';
+import { DualScrollbarComponent } from '../../../shared/components/dual-scrollbar/dual-scrollbar.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { FallAlertDetail, FallAlertState, FallAlertSummary } from '../../../models/api.models';
@@ -17,7 +18,7 @@ import {
 @Component({
   selector: 'app-fall-history',
   standalone: true,
-  imports: [CommonModule, FormsModule, DateFilterComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, DateFilterComponent, TranslatePipe, DualScrollbarComponent],
   templateUrl: './fall-history.component.html',
 })
 export class FallHistoryComponent {

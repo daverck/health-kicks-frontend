@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-5xl space-y-6">
+<div class="w-full space-y-6">
   <!-- Header -->
   <div class="flex flex-wrap items-center justify-between gap-4">
     <div>
@@ -210,8 +210,9 @@
       </section>
 
       <!-- Table (desktop) -->
-      <section class="card hidden min-h-[380px] overflow-x-auto p-0 md:block">
-        <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
+      <section class="card hidden min-h-[380px] p-0 md:block">
+        <app-dual-scrollbar [ariaLabel]="'history.title' | translate">
+          <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
           <thead class="bg-gray-50 dark:bg-gray-800/80">
             <!-- Row 1: Column Titles -->
             <tr>
@@ -307,6 +308,7 @@
             }
           </tbody>
         </table>
+        </app-dual-scrollbar>
       </section>
 
       <!-- Pagination -->
@@ -344,13 +346,14 @@
       </section>
 
       <!-- Table (desktop) -->
-      <section class="card hidden min-h-[380px] overflow-x-auto p-0 md:block">
-        <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
-          <thead class="bg-gray-50 dark:bg-gray-800/80">
-            <!-- Row 1: Column Titles -->
-            <tr>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
-              <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[130px]">{{ 'history.intensity' | translate }}</th>
+      <section class="card hidden min-h-[380px] p-0 md:block">
+        <app-dual-scrollbar [ariaLabel]="'history.tab_haptic' | translate">
+          <table class="min-w-full divide-y divide-gray-100 text-sm dark:divide-gray-800">
+            <thead class="bg-gray-50 dark:bg-gray-800/80">
+              <!-- Row 1: Column Titles -->
+              <tr>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">{{ 'history.timestamp' | translate }}</th>
+                <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[130px]">{{ 'history.intensity' | translate }}</th>
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[110px]">{{ 'history.duration' | translate }}</th>
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[130px]">Déclenché par</th>
               <th scope="col" class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300 min-w-[230px]">{{ 'history.device' | translate }}</th>
@@ -425,6 +428,7 @@
             }
           </tbody>
         </table>
+        </app-dual-scrollbar>
       </section>
 
       <!-- Pagination -->

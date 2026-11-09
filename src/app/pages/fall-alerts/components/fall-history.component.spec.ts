@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
 import { FallHistoryComponent } from './fall-history.component';
 import { FallAlertSummary } from '../../../models/api.models';
 
