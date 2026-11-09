@@ -12,30 +12,15 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  Chart,
-  LineController,
-  LineElement,
-  PointElement,
-  LinearScale,
-  CategoryScale,
-  Legend,
-  Tooltip,
-  ChartConfiguration,
-} from 'chart.js';
+import { Chart } from 'chart.js';
 import { ImuReading } from '../../../models/telemetry.models';
 import { TranslatePipe } from '../../pipes/translate.pipe';
-
-// Register required Chart.js modules tree-shakably
-Chart.register(
-  LineController,
-  LineElement,
-  PointElement,
-  LinearScale,
-  CategoryScale,
-  Legend,
-  Tooltip
-);
+import {
+  extractImuSeriesData,
+  createPlaybackCursorPlugin,
+  createAccelChartConfig,
+  createGyroChartConfig,
+} from './imu-chart-config.factory';
 
 @Component({
   selector: 'app-imu-chart',
@@ -219,286 +204,62 @@ export class ImuChartComponent implements AfterViewInit, OnChanges, OnDestroy {
       return;
     }
 
-    const t0 = this.readings[0].timestamp_epoch_us;
+    const series = extractImuSeriesData(this.readings);
 
-    // Prepare point coordinates { x: t_offset_sec, y: value }
-    const dataAx: { x: number; y: number }[] = [];
-    const dataAy: { x: number; y: number }[] = [];
-    const dataAz: { x: number; y: number }[] = [];
-    const dataMag: { x: number; y: number }[] = [];
+    const cursorPlugin = createPlaybackCursorPlugin(() => ({
+      trimSelectionEnabled: this.trimSelectionEnabled,
+      trimStartTimeSec: this.trimStartTimeSec,
+      trimEndTimeSec: this.trimEndTimeSec,
+      playbackTimeSec: this.playbackTimeSec,
+    }));
 
-    const dataGx: { x: number; y: number }[] = [];
-    const dataGy: { x: number; y: number }[] = [];
-    const dataGz: { x: number; y: number }[] = [];
-
-    for (const r of this.readings) {
-      const tOffset = (r.timestamp_epoch_us - t0) / 1_000_000;
-      const mag = Math.sqrt(r.ax * r.ax + r.ay * r.ay + r.az * r.az);
-
-      dataAx.push({ x: tOffset, y: r.ax });
-      dataAy.push({ x: tOffset, y: r.ay });
-      dataAz.push({ x: tOffset, y: r.az });
-      dataMag.push({ x: tOffset, y: mag });
-
-      dataGx.push({ x: tOffset, y: r.gx });
-      dataGy.push({ x: tOffset, y: r.gy });
-      dataGz.push({ x: tOffset, y: r.gz });
-    }
-
-    // Custom plugin drawing playback and trim cursors.
-    const cursorPlugin = {
-      id: 'playbackCursor',
-      afterDraw: (chart: Chart) => {
-        const xScale = chart.scales['x'];
-        const yScale = chart.scales['y'];
-        if (!xScale || !yScale) return;
-
-        const ctx = chart.ctx;
-        if (
-          this.trimSelectionEnabled &&
-          this.trimStartTimeSec !== null &&
-          this.trimEndTimeSec !== null
-        ) {
-          const startPixel = xScale.getPixelForValue(this.trimStartTimeSec);
-          const endPixel = xScale.getPixelForValue(this.trimEndTimeSec);
-          ctx.save();
-          ctx.fillStyle = 'rgba(107, 114, 128, 0.12)';
-          ctx.fillRect(xScale.left, yScale.top, startPixel - xScale.left, yScale.bottom - yScale.top);
-          ctx.fillRect(endPixel, yScale.top, xScale.right - endPixel, yScale.bottom - yScale.top);
-          ctx.restore();
-        }
-
-        const drawMarker = (
-          timeSec: number | null,
-          color: string,
-          lineWidth: number,
-          lineDash: number[],
-          label?: string
-        ) => {
-          if (timeSec === null) return;
-          const xPixel = xScale.getPixelForValue(timeSec);
-          if (xPixel < xScale.left || xPixel > xScale.right) return;
-
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(xPixel, yScale.top);
-          ctx.lineTo(xPixel, yScale.bottom);
-          ctx.lineWidth = lineWidth;
-          ctx.strokeStyle = color;
-          ctx.setLineDash(lineDash);
-          ctx.stroke();
-          if (this.trimSelectionEnabled && label) {
-            ctx.beginPath();
-            ctx.arc(xPixel, yScale.top + 8, 7, 0, 2 * Math.PI);
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-            ctx.lineWidth = 2;
-            ctx.strokeStyle = color;
-            ctx.stroke();
-            ctx.fillStyle = color;
-            ctx.font = 'bold 9px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(label, xPixel, yScale.top + 8);
-          }
-          if (!this.trimSelectionEnabled || !label) {
-            ctx.beginPath();
-            ctx.arc(xPixel, yScale.top + 3, 4.5, 0, 2 * Math.PI);
-            ctx.fillStyle = color;
-            ctx.fill();
-          }
-          ctx.restore();
-        };
-
-        drawMarker(this.trimStartTimeSec, '#059669', 2.5, [], 'D');
-        drawMarker(this.trimEndTimeSec, '#e11d48', 2.5, [], 'F');
-        drawMarker(this.playbackTimeSec, '#0284c7', 1.5, [4, 4]);
-      },
-    };
-
-    // Common options for crisp, performant timeseries rendering
-    const commonOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: false as const,
-      elements: {
-        point: {
-          radius: 0, // Clean lines without drawing hundreds of dots
-          hitRadius: 6,
-        },
-        line: {
-          borderWidth: 1.8,
-        },
-      },
-      interaction: {
-        mode: 'index' as const,
-        intersect: false,
-      },
-      onClick: (event: any, elements: any, chart: Chart) => {
+    const callbacks = {
+      shouldSuppressClick: () => {
         if (this.suppressNextClick) {
           this.suppressNextClick = false;
-          return;
+          return true;
         }
-        const xScale = chart.scales['x'];
-        if (!xScale) return;
-        const canvasRect = chart.canvas.getBoundingClientRect();
-        const clientX = event.native ? event.native.clientX : event.x;
-        const xPos = clientX - canvasRect.left;
-        const xVal = xScale.getValueForPixel(xPos);
-        if (xVal !== undefined && xVal !== null) {
-          this.timeSelected.emit(Math.max(0, xVal));
+        return false;
+      },
+      onTimeSelected: (timeSec: number) => {
+        this.timeSelected.emit(timeSec);
+      },
+      onLegendClick: (chart: Chart, index: number, isVisible: boolean) => {
+        if (chart === this.chartAccel) {
+          if (index === 0) this.showAx.set(isVisible);
+          else if (index === 1) this.showAy.set(isVisible);
+          else if (index === 2) this.showAz.set(isVisible);
+          else if (index === 3) this.showMag.set(isVisible);
+        } else if (chart === this.chartGyro) {
+          if (index === 0) this.showGx.set(isVisible);
+          else if (index === 1) this.showGy.set(isVisible);
+          else if (index === 2) this.showGz.set(isVisible);
         }
       },
-      plugins: {
-        legend: {
-          position: 'top' as const,
-          labels: {
-            boxWidth: 12,
-            boxHeight: 12,
-            font: { size: 12 },
-          },
-          onClick: (e: unknown, legendItem: { datasetIndex?: number }, legend: { chart: Chart }) => {
-            const index = legendItem.datasetIndex;
-            if (index === undefined) return;
-            const chart = legend.chart;
-            const isVisible = chart.isDatasetVisible(index);
-            chart.setDatasetVisibility(index, !isVisible);
-            chart.update();
-
-            // Sync with signals
-            if (chart === this.chartAccel) {
-              if (index === 0) this.showAx.set(!isVisible);
-              else if (index === 1) this.showAy.set(!isVisible);
-              else if (index === 2) this.showAz.set(!isVisible);
-              else if (index === 3) this.showMag.set(!isVisible);
-            } else if (chart === this.chartGyro) {
-              if (index === 0) this.showGx.set(!isVisible);
-              else if (index === 1) this.showGy.set(!isVisible);
-              else if (index === 2) this.showGz.set(!isVisible);
-            }
-          },
-        },
-        tooltip: {
-          callbacks: {
-            title: (items: { parsed: { x?: number | null } }[]) => {
-              const xVal = items[0]?.parsed?.x;
-              return xVal !== undefined && xVal !== null ? `t = ${xVal.toFixed(3)} s` : '';
-            },
-          },
-        },
-      },
-      scales: {
-        x: {
-          type: 'linear' as const,
-          title: {
-            display: true,
-            text: 'Temps écoulé (s)',
-            font: { size: 11 },
-          },
-          ticks: {
-            callback: (val: string | number) => `${Number(val).toFixed(1)}s`,
-          },
-        },
-      },
     };
 
-    // 1. Acceleration Chart (g)
-    const accelConfig: ChartConfiguration = {
-      type: 'line',
-      data: {
-        datasets: [
-          {
-            label: 'AX (g)',
-            data: dataAx,
-            borderColor: '#ef4444', // Red
-            backgroundColor: '#ef4444',
-            hidden: !this.showAx(),
-          },
-          {
-            label: 'AY (g)',
-            data: dataAy,
-            borderColor: '#10b981', // Emerald
-            backgroundColor: '#10b981',
-            hidden: !this.showAy(),
-          },
-          {
-            label: 'AZ (g)',
-            data: dataAz,
-            borderColor: '#3b82f6', // Blue
-            backgroundColor: '#3b82f6',
-            hidden: !this.showAz(),
-          },
-          {
-            label: 'Magnitude (g)',
-            data: dataMag,
-            borderColor: '#8b5cf6', // Purple
-            backgroundColor: '#8b5cf6',
-            borderDash: [4, 4],
-            hidden: !this.showMag(),
-          },
-        ],
+    const accelConfig = createAccelChartConfig(
+      series,
+      {
+        showAx: this.showAx(),
+        showAy: this.showAy(),
+        showAz: this.showAz(),
+        showMag: this.showMag(),
       },
-      options: {
-        ...commonOptions,
-        scales: {
-          ...commonOptions.scales,
-          y: {
-            type: 'linear',
-            title: {
-              display: true,
-              text: 'Accélération (g)',
-              font: { size: 11 },
-            },
-          },
-        },
-      },
-      plugins: [cursorPlugin],
-    };
+      cursorPlugin,
+      callbacks
+    );
 
-    // 2. Gyroscope Chart (rad/s)
-    const gyroConfig: ChartConfiguration = {
-      type: 'line',
-      data: {
-        datasets: [
-          {
-            label: 'GX (rad/s)',
-            data: dataGx,
-            borderColor: '#f59e0b', // Amber
-            backgroundColor: '#f59e0b',
-            hidden: !this.showGx(),
-          },
-          {
-            label: 'GY (rad/s)',
-            data: dataGy,
-            borderColor: '#06b6d4', // Cyan
-            backgroundColor: '#06b6d4',
-            hidden: !this.showGy(),
-          },
-          {
-            label: 'GZ (rad/s)',
-            data: dataGz,
-            borderColor: '#ec4899', // Pink
-            backgroundColor: '#ec4899',
-            hidden: !this.showGz(),
-          },
-        ],
+    const gyroConfig = createGyroChartConfig(
+      series,
+      {
+        showGx: this.showGx(),
+        showGy: this.showGy(),
+        showGz: this.showGz(),
       },
-      options: {
-        ...commonOptions,
-        scales: {
-          ...commonOptions.scales,
-          y: {
-            type: 'linear',
-            title: {
-              display: true,
-              text: 'Vitesse angulaire (rad/s)',
-              font: { size: 11 },
-            },
-          },
-        },
-      },
-      plugins: [cursorPlugin],
-    };
+      cursorPlugin,
+      callbacks
+    );
 
     this.chartAccel = new Chart(this.accelCanvasRef.nativeElement, accelConfig);
     this.chartGyro = new Chart(this.gyroCanvasRef.nativeElement, gyroConfig);
