@@ -373,4 +373,110 @@ export class StudioHistoryStore {
       this.loadSessions();
     }
   }
+
+  // --- Inspection Drawer State & Navigation ---
+  readonly inspectingSession = signal<StudioSessionSummary | null>(null);
+  private readonly lastInspectedIndex = signal<number>(-1);
+
+  readonly isInspectingSessionEvicted = computed<boolean>(() => {
+    const current = this.inspectingSession();
+    if (!current) return false;
+    return !this.sessions().some((s) => s.uuid === current.uuid);
+  });
+
+  readonly currentSessionIndex = computed<number>(() => {
+    const current = this.inspectingSession();
+    if (!current) return -1;
+    const foundIdx = this.sessions().findIndex((s) => s.uuid === current.uuid);
+    if (foundIdx >= 0) {
+      return foundIdx;
+    }
+    const lastIdx = this.lastInspectedIndex();
+    return lastIdx >= 0 ? lastIdx - 1 : -1;
+  });
+
+  readonly hasPreviousSession = computed<boolean>(() => {
+    if (this.isLoading() || !this.inspectingSession()) return false;
+    const idx = this.currentSessionIndex();
+    const prevIdx = this.isInspectingSessionEvicted() ? idx : idx - 1;
+    if (prevIdx >= 0 && prevIdx < this.sessions().length) return true;
+    if (prevIdx === -1 && this.page() > 1) return true;
+    return false;
+  });
+
+  readonly hasNextSession = computed<boolean>(() => {
+    if (this.isLoading() || !this.inspectingSession()) return false;
+    const idx = this.currentSessionIndex();
+    const nextIdx = idx + 1;
+    const list = this.sessions();
+    if (nextIdx >= 0 && nextIdx < list.length) return true;
+    if (nextIdx === list.length && this.page() < this.totalPages()) return true;
+    return false;
+  });
+
+  openInspection(session: StudioSessionSummary): void {
+    this.inspectingSession.set(session);
+    const idx = this.sessions().findIndex((s) => s.uuid === session.uuid);
+    if (idx >= 0) {
+      this.lastInspectedIndex.set(idx);
+    }
+  }
+
+  closeInspection(): void {
+    this.inspectingSession.set(null);
+    this.lastInspectedIndex.set(-1);
+  }
+
+  goToPreviousSession(): void {
+    if (this.isLoading() || !this.inspectingSession()) return;
+    const idx = this.currentSessionIndex();
+    const prevIdx = this.isInspectingSessionEvicted() ? idx : idx - 1;
+    const list = this.sessions();
+    if (prevIdx >= 0 && prevIdx < list.length) {
+      const prev = list[prevIdx];
+      this.openInspection(prev);
+    } else if (prevIdx === -1 && this.page() > 1) {
+      this.page.update((p) => p - 1);
+      this.loadSessions((newItems) => {
+        if (newItems.length > 0) {
+          this.openInspection(newItems[newItems.length - 1]);
+        }
+      });
+    }
+  }
+
+  goToNextSession(): void {
+    if (this.isLoading() || !this.inspectingSession()) return;
+    const idx = this.currentSessionIndex();
+    const nextIdx = idx + 1;
+    const list = this.sessions();
+    if (nextIdx >= 0 && nextIdx < list.length) {
+      const next = list[nextIdx];
+      this.openInspection(next);
+    } else if (nextIdx === list.length && this.page() < this.totalPages()) {
+      this.page.update((p) => p + 1);
+      this.loadSessions((newItems) => {
+        if (newItems.length > 0) {
+          this.openInspection(newItems[0]);
+        }
+      });
+    }
+  }
+
+  onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
+    this.inspectingSession.set(updated);
+    this.onSessionUpdated(updated);
+  }
+
+  onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
+    this.inspectingSession.set(confirmed);
+    this.onSessionConfirmed(confirmed);
+  }
+
+  onSessionDeletedFromInspection(sessionId: string): void {
+    if (this.inspectingSession()?.uuid === sessionId) {
+      this.closeInspection();
+    }
+    this.onSessionDeleted(sessionId);
+  }
 }

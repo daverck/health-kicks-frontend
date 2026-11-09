@@ -4,8 +4,6 @@ import {
   OnDestroy,
   HostListener,
   inject,
-  signal,
-  computed,
   effect,
   ChangeDetectionStrategy,
 } from '@angular/core';
@@ -98,47 +96,12 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly deletingSessionIds = this.store.deletingSessionIds;
   readonly sessionToDelete = this.store.sessionToDelete;
 
-  // Inspection Drawer State
-  readonly inspectingSession = signal<StudioSessionSummary | null>(null);
-
-  readonly isInspectingSessionEvicted = computed<boolean>(() => {
-    const current = this.inspectingSession();
-    if (!current) return false;
-    return !this.sessions().some((s) => s.uuid === current.uuid);
-  });
-
-  // Index of inspecting session or shifted index when session is evicted by status filter
-  readonly currentSessionIndex = computed<number>(() => {
-    const current = this.inspectingSession();
-    if (!current) return -1;
-    const foundIdx = this.sessions().findIndex((s) => s.uuid === current.uuid);
-    if (foundIdx >= 0) {
-      return foundIdx;
-    }
-    const lastIdx = this.lastInspectedIndex();
-    return lastIdx >= 0 ? lastIdx - 1 : -1;
-  });
-
-  private readonly lastInspectedIndex = signal<number>(-1);
-
-  readonly hasPreviousSession = computed<boolean>(() => {
-    if (this.isLoading() || !this.inspectingSession()) return false;
-    const idx = this.currentSessionIndex();
-    const prevIdx = this.isInspectingSessionEvicted() ? idx : idx - 1;
-    if (prevIdx >= 0 && prevIdx < this.sessions().length) return true;
-    if (prevIdx === -1 && this.page() > 1) return true;
-    return false;
-  });
-
-  readonly hasNextSession = computed<boolean>(() => {
-    if (this.isLoading() || !this.inspectingSession()) return false;
-    const idx = this.currentSessionIndex();
-    const nextIdx = idx + 1;
-    const list = this.sessions();
-    if (nextIdx >= 0 && nextIdx < list.length) return true;
-    if (nextIdx === list.length && this.page() < this.totalPages()) return true;
-    return false;
-  });
+  // Inspection Drawer State (delegated to store)
+  readonly inspectingSession = this.store.inspectingSession;
+  readonly currentSessionIndex = this.store.currentSessionIndex;
+  readonly isInspectingSessionEvicted = this.store.isInspectingSessionEvicted;
+  readonly hasPreviousSession = this.store.hasPreviousSession;
+  readonly hasNextSession = this.store.hasNextSession;
 
   constructor() {
     effect(() => {
@@ -248,69 +211,31 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   // --- Inspection Drawer Controls ---
 
   openInspection(session: StudioSessionSummary): void {
-    this.inspectingSession.set(session);
-    const idx = this.sessions().findIndex((s) => s.uuid === session.uuid);
-    if (idx >= 0) {
-      this.lastInspectedIndex.set(idx);
-    }
+    this.store.openInspection(session);
   }
 
   closeInspection(): void {
-    this.inspectingSession.set(null);
-    this.lastInspectedIndex.set(-1);
+    this.store.closeInspection();
   }
 
   goToPreviousSession(): void {
-    if (this.isLoading() || !this.inspectingSession()) return;
-    const idx = this.currentSessionIndex();
-    const prevIdx = this.isInspectingSessionEvicted() ? idx : idx - 1;
-    const list = this.sessions();
-    if (prevIdx >= 0 && prevIdx < list.length) {
-      const prev = list[prevIdx];
-      this.openInspection(prev);
-    } else if (prevIdx === -1 && this.page() > 1) {
-      this.store.page.update((p) => p - 1);
-      this.store.loadSessions((newItems) => {
-        if (newItems.length > 0) {
-          this.openInspection(newItems[newItems.length - 1]);
-        }
-      });
-    }
+    this.store.goToPreviousSession();
   }
 
   goToNextSession(): void {
-    if (this.isLoading() || !this.inspectingSession()) return;
-    const idx = this.currentSessionIndex();
-    const nextIdx = idx + 1;
-    const list = this.sessions();
-    if (nextIdx >= 0 && nextIdx < list.length) {
-      const next = list[nextIdx];
-      this.openInspection(next);
-    } else if (nextIdx === list.length && this.page() < this.totalPages()) {
-      this.store.page.update((p) => p + 1);
-      this.store.loadSessions((newItems) => {
-        if (newItems.length > 0) {
-          this.openInspection(newItems[0]);
-        }
-      });
-    }
+    this.store.goToNextSession();
   }
 
   onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
-    this.inspectingSession.set(updated);
-    this.store.onSessionUpdated(updated);
+    this.store.onSessionUpdatedFromInspection(updated);
   }
 
   onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
-    this.inspectingSession.set(confirmed);
-    this.store.onSessionConfirmed(confirmed);
+    this.store.onSessionConfirmedFromInspection(confirmed);
   }
 
   onSessionDeletedFromInspection(sessionId: string): void {
-    if (this.inspectingSession()?.uuid === sessionId) {
-      this.closeInspection();
-    }
-    this.store.onSessionDeleted(sessionId);
+    this.store.onSessionDeletedFromInspection(sessionId);
   }
 
   @HostListener('document:keydown.escape')
