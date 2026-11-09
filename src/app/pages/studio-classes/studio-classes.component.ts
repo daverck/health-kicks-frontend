@@ -20,6 +20,7 @@ import { StudioClassesConfusionMatrixComponent } from './components/studio-class
 import { StudioClassesSelectedCardComponent } from './components/studio-classes-selected-card.component';
 import { StudioClassesStore, StudioChartMetric } from './studio-classes.store';
 import { formatMonthYearFromYm } from '../../shared/formatters/date.formatters';
+import { formatPercentScore } from '../../shared/formatters/number.formatters';
 import {
   formatClassLabel,
   createDistributionChartConfig,
@@ -238,8 +239,7 @@ export class StudioClassesComponent implements OnInit {
   }
 
   formatScore(val: number | null | undefined): string {
-    if (val === null || val === undefined || isNaN(val)) return '—';
-    return (val * 100).toFixed(1) + '%';
+    return formatPercentScore(val);
   }
 
   private renderDistributionChart(

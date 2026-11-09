@@ -1,4 +1,5 @@
 import { ChartConfiguration } from 'chart.js';
+import { formatPercentScore } from '../../shared/formatters/number.formatters';
 import {
   StudioClassSummaryItem,
   StudioClassDailyCount,
@@ -105,9 +106,9 @@ export function createDistributionChartConfig(
                 return [
                   `Total: ${item.total_sessions}`,
                   `Median duration: ${item.median_duration_sec}s`,
-                  `ML Precision: ${(item.precision * 100).toFixed(1)}%`,
-                  `ML Recall: ${(item.recall * 100).toFixed(1)}%`,
-                  `F1-Score: ${(item.f1_score * 100).toFixed(1)}%`,
+                  `ML Precision: ${formatPercentScore(item.precision)}`,
+                  `ML Recall: ${formatPercentScore(item.recall)}`,
+                  `F1-Score: ${formatPercentScore(item.f1_score)}`,
                   `Latest session: ${item.latest_session_date || 'N/A'}`,
                   '👉 Click to filter timeline',
                 ];
@@ -199,9 +200,9 @@ export function createDistributionChartConfig(
               if (!item) return '';
               return [
                 `Sessions: ${item.total_sessions} (${item.validated_sessions} valid)`,
-                `F1-Score: ${(item.f1_score * 100).toFixed(1)}%`,
-                `Precision: ${(item.precision * 100).toFixed(1)}%`,
-                `Recall: ${(item.recall * 100).toFixed(1)}%`,
+                `F1-Score: ${formatPercentScore(item.f1_score)}`,
+                `Precision: ${formatPercentScore(item.precision)}`,
+                `Recall: ${formatPercentScore(item.recall)}`,
                 '👉 Click to filter timeline',
               ];
             },
