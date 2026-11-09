@@ -1,4 +1,4 @@
-import { getDeviceDisplayName, isDeviceOnline } from './device.formatters';
+import { getDeviceDisplayName, isDeviceOnline, resolvePreferredDevice } from './device.formatters';
 
 describe('device.formatters', () => {
   describe('getDeviceDisplayName', () => {
@@ -37,6 +37,27 @@ describe('device.formatters', () => {
       expect(isDeviceOnline({ status: 'offline' })).toBe(false);
       expect(isDeviceOnline({ status: 'offline', is_online: false })).toBe(false);
       expect(isDeviceOnline({})).toBe(false);
+    });
+  });
+
+  describe('resolvePreferredDevice', () => {
+    it('returns null when devices array is null, undefined, or empty', () => {
+      expect(resolvePreferredDevice(null)).toBeNull();
+      expect(resolvePreferredDevice(undefined)).toBeNull();
+      expect(resolvePreferredDevice([])).toBeNull();
+    });
+
+    it('returns the first online device when available', () => {
+      const dev1 = { device_id: 'dev-1', status: 'offline', is_online: false };
+      const dev2 = { device_id: 'dev-2', status: 'online', is_online: true };
+      const dev3 = { device_id: 'dev-3', status: 'online', is_online: true };
+      expect(resolvePreferredDevice([dev1, dev2, dev3])).toBe(dev2);
+    });
+
+    it('falls back to the first device if none are online', () => {
+      const dev1 = { device_id: 'dev-1', status: 'offline', is_online: false };
+      const dev2 = { device_id: 'dev-2', status: 'offline', is_online: false };
+      expect(resolvePreferredDevice([dev1, dev2])).toBe(dev1);
     });
   });
 });

@@ -6,7 +6,7 @@ import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, HapticTriggerResponse } from '../../models/api.models';
 import { levelToIntensity } from '../../core/utils/haptic.utils';
-import { getDeviceDisplayName } from '../../shared/formatters/device.formatters';
+import { getDeviceDisplayName, resolvePreferredDevice } from '../../shared/formatters/device.formatters';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
@@ -89,7 +89,7 @@ export class DashboardComponent implements OnInit {
         if (matched) {
           this.selectedDevice.set(matched);
         } else if (!this.selectedDevice() && devices.length > 0) {
-          this.selectedDevice.set(devices[0]);
+          this.selectedDevice.set(resolvePreferredDevice(devices));
         }
         this.loadingDevices.set(false);
       },

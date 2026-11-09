@@ -10,6 +10,7 @@ import { StepsHistoryComponent } from '../dashboard/components/steps-history/ste
 import { HourlyStepsChartComponent } from '../dashboard/components/hourly-steps-chart/hourly-steps-chart.component';
 import { ActivityCalendarComponent } from '../dashboard/components/activity-calendar/activity-calendar.component';
 import { formatLocalDateToYmd, getLocalDateString } from '../../shared/formatters/date.formatters';
+import { resolvePreferredDevice } from '../../shared/formatters/device.formatters';
 
 export { formatLocalDateToYmd, getLocalDateString };
 
@@ -50,8 +51,10 @@ export class StepsComponent implements OnInit {
         this.devices.set(devices);
         this.loadingDevices.set(false);
         if (devices.length > 0 && !this.selectedDeviceId()) {
-          const preferred = devices.find((d) => d.is_online) ?? devices[0];
-          this.selectedDeviceId.set(preferred.device_id);
+          const preferred = resolvePreferredDevice(devices);
+          if (preferred) {
+            this.selectedDeviceId.set(preferred.device_id);
+          }
         }
       },
       error: (err) => {

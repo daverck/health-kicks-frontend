@@ -28,3 +28,16 @@ export function isDeviceOnline(device: DeviceStatusable | null | undefined): boo
   if (!device) return false;
   return device.status === 'online' || Boolean(device.is_online);
 }
+
+/**
+ * Selects the preferred active device from a collection, prioritizing online devices
+ * before falling back to the first available device.
+ */
+export function resolvePreferredDevice<T extends DeviceStatusable>(
+  devices: T[] | null | undefined
+): T | null {
+  if (!devices || devices.length === 0) {
+    return null;
+  }
+  return devices.find((d) => isDeviceOnline(d)) ?? devices[0];
+}

@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, ActivityEvent, HapticLogItem } from '../../models/api.models';
+import { resolvePreferredDevice } from '../../shared/formatters/device.formatters';
 
 @Injectable()
 export class HistoryStore {
@@ -80,9 +81,10 @@ export class HistoryStore {
       next: (devices) => {
         this.devices.set(devices);
         this.devicesError.set(false);
-        if (devices.length > 0) {
-          this.selectedDeviceId.set(devices[0].device_id);
-          this.selectedDeviceIds.set([devices[0].device_id]);
+        const preferred = resolvePreferredDevice(devices);
+        if (preferred) {
+          this.selectedDeviceId.set(preferred.device_id);
+          this.selectedDeviceIds.set([preferred.device_id]);
         }
         this.loadCurrentTab();
       },
