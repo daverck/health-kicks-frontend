@@ -37,4 +37,13 @@ describe('DeviceCardComponent', () => {
 
     expect(component.unbind.emit).toHaveBeenCalledWith(mockBoundDevice);
   });
+
+  it('should compute displayName and isOnline correctly', () => {
+    expect(component.displayName).toBe(mockBoundDevice.name);
+    expect(component.isOnline).toBe(false);
+
+    component.device = { ...mockBoundDevice, name: null, status: 'online', is_online: true };
+    expect(component.displayName).toBe(mockBoundDevice.device_id);
+    expect(component.isOnline).toBe(true);
+  });
 });

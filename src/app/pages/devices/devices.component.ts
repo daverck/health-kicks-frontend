@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceCreate, DeviceResponse } from '../../models/api.models';
+import { getDeviceDisplayName } from '../../shared/formatters/device.formatters';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceCardComponent } from './components/device-card.component';
@@ -96,7 +97,7 @@ export class DevicesComponent implements OnInit {
         this.submitting.set(false);
         this.showAddModal.set(false);
         this.addForm.reset();
-        this.toast.success(`L'équipement ${created.name || created.device_id} a été associé avec succès !`);
+        this.toast.success(`L'équipement ${getDeviceDisplayName(created)} a été associé avec succès !`);
         this.loadDevices();
       },
       error: (err) => {
@@ -127,7 +128,7 @@ export class DevicesComponent implements OnInit {
       next: () => {
         this.unbinding.set(false);
         this.deviceToUnbind.set(null);
-        this.toast.success(`L'équipement ${device.name || device.device_id} a été dissocié.`);
+        this.toast.success(`L'équipement ${getDeviceDisplayName(device)} a été dissocié.`);
         this.loadDevices();
       },
       error: (err) => {

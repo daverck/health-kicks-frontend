@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DeviceResponse } from '../../../models/api.models';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { getDeviceDisplayName, isDeviceOnline } from '../../../shared/formatters/device.formatters';
 
 @Component({
   selector: 'app-device-card',
@@ -13,6 +14,14 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 export class DeviceCardComponent {
   @Input({ required: true }) device!: DeviceResponse;
   @Output() unbind = new EventEmitter<DeviceResponse>();
+
+  get displayName(): string {
+    return getDeviceDisplayName(this.device);
+  }
+
+  get isOnline(): boolean {
+    return isDeviceOnline(this.device);
+  }
 
   onUnbind(): void {
     this.unbind.emit(this.device);

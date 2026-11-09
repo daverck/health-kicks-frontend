@@ -6,6 +6,7 @@ import { DeviceService } from '../../core/services/device.service';
 import { ToastService } from '../../core/services/toast.service';
 import { DeviceResponse, HapticTriggerResponse } from '../../models/api.models';
 import { levelToIntensity } from '../../core/utils/haptic.utils';
+import { getDeviceDisplayName } from '../../shared/formatters/device.formatters';
 
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
@@ -35,7 +36,7 @@ export class DashboardComponent implements OnInit {
     if (!query) return all;
     return all.filter(
       (d) =>
-        (d.name || '').toLowerCase().includes(query) ||
+        getDeviceDisplayName(d).toLowerCase().includes(query) ||
         d.device_id.toLowerCase().includes(query)
     );
   });
