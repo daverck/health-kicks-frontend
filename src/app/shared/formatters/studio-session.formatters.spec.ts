@@ -82,6 +82,10 @@ describe('studio-session.formatters', () => {
     it('returns custom fallback icon for unknown label', () => {
       expect(getStudioLabelIcon('unknown_activity')).toBe(CUSTOM_LABEL_ICON);
     });
+
+    it('returns alarm emoji for unlisted fall labels', () => {
+      expect(getStudioLabelIcon('unknown_fall')).toBe('🚨');
+    });
   });
 
   describe('getStudioUserPseudonymOrEmail', () => {

@@ -6,8 +6,12 @@ import {
   isStandardStudioLabel,
   isCustomStudioLabel,
   CUSTOM_LABEL_ICON,
-  CUSTOM_LABEL_BADGE_CLASS,
 } from '../../models/studio.model';
+import {
+  getStudioLabelBadgeClass,
+  getStudioLabelDisplayName,
+  getStudioLabelIcon,
+} from '../../shared/formatters/studio-session.formatters';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
@@ -116,45 +120,18 @@ export class HistoryComponent implements OnInit {
 
   isFall(eventType: string): boolean {
     if (!eventType) return false;
-    const lower = eventType.toLowerCase();
-    return lower.includes('fall');
+    return eventType.toLowerCase().includes('fall');
   }
 
   getActivityIcon(eventType: string): string {
-    const found = this.predefinedLabels.find((l) => l.id === eventType);
-    if (found) return found.icon;
-    if (this.isFall(eventType)) return '🚨';
-    return CUSTOM_LABEL_ICON;
+    return getStudioLabelIcon(eventType, this.predefinedLabels);
   }
 
   getActivityBadgeClass(eventType: string): string {
-    if (this.isFall(eventType)) {
-      return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300';
-    }
-    if (!isStandardStudioLabel(eventType)) {
-      return CUSTOM_LABEL_BADGE_CLASS;
-    }
-    switch (eventType) {
-      case 'idle':
-        return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
-      case 'walk':
-      case 'run':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300';
-      case 'stairs':
-      case 'stumble_recover':
-        return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300';
-      default:
-        return 'bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300';
-    }
+    return getStudioLabelBadgeClass(eventType);
   }
 
   getActivityLabel(eventType: string): string {
-    if (isStandardStudioLabel(eventType)) {
-      const key = `studio.labels.${eventType}`;
-      const translated = this.translation.translate(key);
-      if (translated !== key) return translated;
-    }
-    const found = this.predefinedLabels.find((l) => l.id === eventType);
-    return found ? found.name : eventType;
+    return getStudioLabelDisplayName(eventType, this.translation, this.predefinedLabels);
   }
 }
