@@ -9,10 +9,11 @@ import { DeviceResponse } from '../../models/api.models';
 import { ImuReading, StudioStartResponse, StudioDatasetStats } from '../../models/telemetry.models';
 import { StudioSessionSummary } from '../../models/studio-history.model';
 import { exportSessionToJson } from '../../core/utils/export.utils';
+import { getDeviceDisplayName, isDeviceOnline } from '../../shared/formatters/device.formatters';
+import { getStudioLabelDisplayName } from '../../shared/formatters/studio-session.formatters';
 import {
   PREDEFINED_LABELS,
   SELECTED_DEVICE_STORAGE_KEY,
-  isStandardStudioLabel,
   isCustomStudioLabel,
 } from '../../models/studio.model';
 
@@ -44,7 +45,7 @@ export class StudioLiveStore {
   readonly isDeviceDropdownOpen = signal<boolean>(false);
 
   readonly onlineDevices = computed(() => {
-    return this.devices().filter((d) => d.status === 'online');
+    return this.devices().filter((d) => isDeviceOnline(d));
   });
 
   readonly filteredOnlineDevices = computed(() => {
@@ -55,7 +56,7 @@ export class StudioLiveStore {
     }
     return online.filter(
       (d) =>
-        (d.name && d.name.toLowerCase().includes(query)) ||
+        getDeviceDisplayName(d).toLowerCase().includes(query) ||
         d.device_id.toLowerCase().includes(query)
     );
   });
@@ -77,13 +78,7 @@ export class StudioLiveStore {
   });
 
   getLabelDisplayName(label: string): string {
-    if (!label) return '';
-    if (isStandardStudioLabel(label)) {
-      const key = `studio.labels.${label}`;
-      const translated = this.translation.translate(key);
-      return translated !== key ? translated : label;
-    }
-    return label;
+    return getStudioLabelDisplayName(label, this.translation, this.predefinedLabels);
   }
 
   readonly displayLabel = computed(() => {
