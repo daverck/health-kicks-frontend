@@ -1,14 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, viewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DeviceService } from '../../core/services/device.service';
-import { StudioService } from '../../core/services/studio.service';
-import { ToastService } from '../../core/services/toast.service';
-import { DeviceResponse } from '../../models/api.models';
-import { ImuReading, StudioStartResponse, StudioDatasetStats } from '../../models/telemetry.models';
+import { Router, RouterLink } from '@angular/router';
 import { ImuChartComponent } from '../../shared/components/imu-chart/imu-chart.component';
-
-export type StudioState = 'idle' | 'countdown' | 'recording' | 'fetching' | 'inspecting';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../core/services/translation.service';
 
 import {
   PredefinedLabel,
@@ -37,13 +33,6 @@ export {
   CUSTOM_LABEL_BADGE_CLASS,
 };
 
-import { Router, RouterLink } from '@angular/router';
-import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { TranslationService } from '../../core/services/translation.service';
-import { StudioHistoryService } from '../../core/services/studio-history.service';
-import { StudioSessionSummary } from '../../models/studio-history.model';
-import { exportSessionToJson } from '../../core/utils/export.utils';
-
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { Shoe3dViewerComponent } from '../../shared/components/shoe-3d-viewer/shoe-3d-viewer.component';
 import { IsbGuideComponent } from '../../shared/components/isb-guide/isb-guide.component';
@@ -54,10 +43,14 @@ import { StudioCountdownStateComponent } from './components/studio-countdown-sta
 import { StudioRecordingStateComponent } from './components/studio-recording-state.component';
 import { StudioInspectionHeaderComponent } from './components/studio-inspection-header.component';
 import { StudioRejectModalComponent } from './components/studio-reject-modal.component';
+import { StudioLiveStore, StudioState } from './studio-live.store';
+
+export type { StudioState };
 
 @Component({
   selector: 'app-studio',
   standalone: true,
+  providers: [StudioLiveStore],
   imports: [
     CommonModule,
     FormsModule,
@@ -78,11 +71,8 @@ import { StudioRejectModalComponent } from './components/studio-reject-modal.com
   templateUrl: './studio.component.html',
 })
 export class StudioComponent implements OnInit, OnDestroy {
-  private readonly deviceService = inject(DeviceService);
-  private readonly studioService = inject(StudioService);
-  private readonly studioHistoryService = inject(StudioHistoryService);
+  readonly store = inject(StudioLiveStore);
   private readonly router = inject(Router);
-  private readonly toast = inject(ToastService);
   readonly translation = inject(TranslationService);
 
   readonly predefinedLabels = PREDEFINED_LABELS;
@@ -91,122 +81,72 @@ export class StudioComponent implements OnInit, OnDestroy {
   readonly isEdgeAiActivity = isEdgeAiActivity;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
-  /** List of all footwear devices provisioned in the user's account. */
-  readonly devices = signal<DeviceResponse[]>([]);
-  /** Device ID currently selected for Studio motion capture. */
-  readonly selectedDeviceId = signal<string>('');
-  /** Loading indicator flag while fetching the device list. */
-  readonly devicesLoading = signal<boolean>(true);
-  /** Error flag if the device listing query failed. */
-  readonly devicesError = signal<boolean>(false);
-
-  // Autocomplete & online filtering
-  /** Active search query for filtering candidate devices. */
-  readonly deviceSearchQuery = signal<string>('');
-  /** Visibility toggle for the custom dropdown menu. */
-  readonly isDeviceDropdownOpen = signal<boolean>(false);
-
-  /** Reactive collection of devices reporting an active 'online' presence. */
-  readonly onlineDevices = computed(() => {
-    return this.devices().filter((d) => d.status === 'online');
-  });
-
-  /** Devices matching the search query among currently online devices. */
-  readonly filteredOnlineDevices = computed(() => {
-    const query = this.deviceSearchQuery().trim().toLowerCase();
-    const online = this.onlineDevices();
-    if (!query) {
-      return online;
-    }
-    return online.filter(
-      (d) =>
-        (d.name && d.name.toLowerCase().includes(query)) ||
-        d.device_id.toLowerCase().includes(query)
-    );
-  });
-
-  /** Full metadata of the device matching [selectedDeviceId]. */
-  readonly selectedDevice = computed(() => {
-    const id = this.selectedDeviceId();
-    return this.devices().find((d) => d.device_id === id) ?? null;
-  });
-
-  /** Active phase in the Studio recording state machine ('idle' | 'configuring' | 'recording' | 'complete'). */
-  readonly state = signal<StudioState>('idle');
-  /** Activity code selected for recording (e.g. 'walk', 'idle', 'fall_forward'). */
-  readonly selectedLabel = signal<string>('walk');
-  /** Custom activity name when 'custom' label is active. */
-  readonly customLabel = signal<string>('');
   readonly customCardComponent = viewChild<StudioCustomActivityCardComponent>('customCard');
-  readonly isCustomInputFocused = signal<boolean>(false);
 
-  readonly isCustomCardActive = computed(() => {
-    return isCustomStudioLabel(this.effectiveLabel()) || this.isCustomInputFocused();
-  });
+  // Store bindings exposed for template and test compatibility
+  readonly devices = this.store.devices;
+  readonly selectedDeviceId = this.store.selectedDeviceId;
+  readonly devicesLoading = this.store.devicesLoading;
+  readonly devicesError = this.store.devicesError;
+  readonly deviceSearchQuery = this.store.deviceSearchQuery;
+  readonly isDeviceDropdownOpen = this.store.isDeviceDropdownOpen;
+  readonly onlineDevices = this.store.onlineDevices;
+  readonly filteredOnlineDevices = this.store.filteredOnlineDevices;
+  readonly selectedDevice = this.store.selectedDevice;
 
-  readonly effectiveLabel = computed(() => {
-    const custom = this.customLabel().trim();
-    return custom.length > 0 ? custom : this.selectedLabel();
-  });
+  readonly state = this.store.state;
+  readonly selectedLabel = this.store.selectedLabel;
+  readonly customLabel = this.store.customLabel;
+  readonly isCustomInputFocused = this.store.isCustomInputFocused;
+  readonly effectiveLabel = this.store.effectiveLabel;
+  readonly displayLabel = this.store.displayLabel;
+  readonly isCustomCardActive = this.store.isCustomCardActive;
 
-  getLabelDisplayName(label: string): string {
-    if (!label) return '';
-    if (isStandardStudioLabel(label)) {
-      const key = `studio.labels.${label}`;
-      const translated = this.translation.translate(key);
-      return translated !== key ? translated : label;
-    }
-    return label;
+  readonly currentSession = this.store.currentSession;
+  readonly readings = this.store.readings;
+  readonly fetchingAttempt = this.store.fetchingAttempt;
+  readonly fetchingError = this.store.fetchingError;
+  readonly isDeleting = this.store.isDeleting;
+  readonly isValidating = this.store.isValidating;
+  readonly isRefreshingReadings = this.store.isRefreshingReadings;
+  readonly showDeleteConfirm = this.store.showDeleteConfirm;
+  readonly show3dViewer = this.store.show3dViewer;
+
+  readonly targetPerClass = this.store.targetPerClass;
+  readonly datasetStats = this.store.datasetStats;
+  readonly isLoadingStats = this.store.isLoadingStats;
+  readonly classesReachingTarget = this.store.classesReachingTarget;
+
+  readonly countdownRemainingMs = this.store.countdownRemainingMs;
+  readonly recordingProgressPercent = this.store.recordingProgressPercent;
+
+  ngOnInit(): void {
+    this.store.loadStats();
+    this.store.loadDevices();
   }
 
-  readonly displayLabel = computed(() => {
-    return this.getLabelDisplayName(this.effectiveLabel());
-  });
-
-  // Session data
-  readonly currentSession = signal<StudioStartResponse | null>(null);
-  readonly readings = signal<ImuReading[]>([]);
-  readonly fetchingAttempt = signal<number>(0);
-  readonly fetchingError = signal<boolean>(false);
-  readonly isDeleting = signal<boolean>(false);
-  readonly isValidating = signal<boolean>(false);
-  readonly isRefreshingReadings = signal<boolean>(false);
-  readonly showDeleteConfirm = signal<boolean>(false);
-  readonly show3dViewer = signal<boolean>(false);
-  private lastReadingCount = 0;
-  private stableCountRounds = 0;
+  ngOnDestroy(): void {
+    this.store.clearAllTimers();
+  }
 
   toggle3dViewer(): void {
-    this.show3dViewer.update((open) => !open);
+    this.store.toggle3dViewer();
   }
 
-  // Dataset statistics & balance guidance
-  readonly targetPerClass = 25;
-  readonly datasetStats = signal<StudioDatasetStats>({
-    total_sessions: 0,
-    total_duration_sec: 0,
-    total_samples: 0,
-    by_label: {},
-  });
-  readonly isLoadingStats = signal<boolean>(false);
-
-  readonly classesReachingTarget = computed(() => {
-    const stats = this.datasetStats();
-    return this.predefinedLabels.filter(
-      (l) => (stats.by_label[l.id] ?? 0) >= this.targetPerClass
-    ).length;
-  });
-
   getCountForLabel(label: string): number {
-    return this.datasetStats().by_label[label] ?? 0;
+    return this.store.getCountForLabel(label);
   }
 
   getValidatedCountForLabel(label: string): number {
-    return this.datasetStats().by_label_validated?.[label] ?? 0;
+    return this.store.getValidatedCountForLabel(label);
   }
 
   getPendingCountForLabel(label: string): number {
-    return this.datasetStats().by_label_pending?.[label] ?? 0;
+    return this.store.getPendingCountForLabel(label);
+  }
+
+  getLabelDisplayName(label: string): string {
+    return this.store.getLabelDisplayName(label);
   }
 
   navigateToHistoryWithFilter(event: Event, label: string, isValidated: boolean): void {
@@ -221,100 +161,35 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   loadStats(): void {
-    this.isLoadingStats.set(true);
-    const deviceId = this.selectedDeviceId();
-    this.studioService.getStudioStats(deviceId || undefined).subscribe({
-      next: (stats) => {
-        this.datasetStats.set(stats);
-        this.isLoadingStats.set(false);
-      },
-      error: () => {
-        this.isLoadingStats.set(false);
-      },
-    });
-  }
-
-  // Timers & visual progress
-  readonly countdownRemainingMs = signal<number>(1500);
-  readonly recordingProgressPercent = signal<number>(0);
-
-  private countdownTimer?: ReturnType<typeof setTimeout>;
-  private recordingInterval?: ReturnType<typeof setInterval>;
-  private fetchingTimeout?: ReturnType<typeof setTimeout>;
-
-  ngOnInit(): void {
-    this.loadStats();
-    this.loadDevices();
-  }
-
-  ngOnDestroy(): void {
-    this.clearAllTimers();
+    this.store.loadStats();
   }
 
   loadDevices(): void {
-    this.devicesLoading.set(true);
-    this.devicesError.set(false);
-
-    this.deviceService.listDevices().subscribe({
-      next: (devices) => {
-        this.devices.set(devices);
-        this.devicesLoading.set(false);
-        const online = devices.filter((d) => d.status === 'online');
-        if (online.length > 0) {
-          const savedId = localStorage.getItem(SELECTED_DEVICE_STORAGE_KEY);
-          const found = online.find((d) => d.device_id === savedId);
-          const deviceToSelect = found ? found.device_id : online[0].device_id;
-          this.selectedDeviceId.set(deviceToSelect);
-          localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceToSelect);
-          this.loadStats();
-        } else {
-          this.selectedDeviceId.set('');
-          this.loadStats();
-        }
-      },
-      error: (err) => {
-        this.devicesLoading.set(false);
-        this.devicesError.set(true);
-        this.toast.error(
-          err?.status === 0
-            ? 'Service temporairement indisponible, vérifiez votre connexion.'
-            : 'Impossible de charger vos équipements.'
-        );
-      },
-    });
+    this.store.loadDevices();
   }
 
   onDeviceSelect(deviceId: string): void {
-    this.selectedDeviceId.set(deviceId);
-    if (deviceId) {
-      localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceId);
-    }
-    this.loadStats();
+    this.store.onDeviceSelect(deviceId);
   }
 
   toggleDeviceDropdown(): void {
-    if (this.state() !== 'idle') return;
-    this.isDeviceDropdownOpen.update((open) => !open);
+    this.store.toggleDeviceDropdown();
   }
 
   openDeviceDropdown(): void {
-    if (this.state() !== 'idle') return;
-    this.isDeviceDropdownOpen.set(true);
+    this.store.openDeviceDropdown();
   }
 
   closeDeviceDropdown(): void {
-    this.isDeviceDropdownOpen.set(false);
+    this.store.closeDeviceDropdown();
   }
 
   selectDevice(deviceId: string): void {
-    this.onDeviceSelect(deviceId);
-    this.closeDeviceDropdown();
-    this.deviceSearchQuery.set('');
+    this.store.selectDevice(deviceId);
   }
 
   selectLabel(labelId: string): void {
-    this.selectedLabel.set(labelId);
-    this.customLabel.set('');
+    this.store.selectLabel(labelId);
   }
 
   selectCustomCard(): void {
@@ -326,352 +201,62 @@ export class StudioComponent implements OnInit, OnDestroy {
   }
 
   onCustomLabelChange(value: string): void {
-    this.customLabel.set(value);
+    this.store.onCustomLabelChange(value);
   }
 
   clearCustomLabel(event?: Event): void {
     if (event) {
       event.stopPropagation();
     }
-    this.customLabel.set('');
+    this.store.clearCustomLabel();
     this.focusCustomInput();
   }
 
   startCapture(): void {
-    this.startSession();
+    this.store.startSession();
   }
 
   fetchReadings(): void {
-    this.runFetching();
+    this.store.runFetching();
   }
 
   deleteSession(): void {
-    this.rejectSession();
+    this.store.rejectSession();
   }
 
-  /**
-   * 1. Start Capture Command
-   */
   startSession(): void {
-    const deviceId = this.selectedDeviceId();
-    if (!deviceId) {
-      this.toast.error('Veuillez sélectionner un équipement avant de lancer une session.');
-      return;
-    }
-
-    const isOnline = this.onlineDevices().some((d) => d.device_id === deviceId);
-    if (!isOnline && this.devices().length > 0) {
-      this.toast.error("L'équipement sélectionné n'est pas en ligne. Veuillez choisir un équipement connecté.");
-      return;
-    }
-
-    const label = this.effectiveLabel();
-    if (!label) {
-      this.toast.error('Veuillez spécifier ou sélectionner un label pour la session.');
-      return;
-    }
-
-    this.clearAllTimers();
-    this.state.set('countdown');
-    this.countdownRemainingMs.set(3300);
-    this.recordingProgressPercent.set(0);
-    this.fetchingError.set(false);
-    this.readings.set([]);
-    this.show3dViewer.set(false);
-
-    this.studioService.startStudioSession(deviceId, {
-      label,
-      duration_sec: 5,
-      pulse_count: 3,
-      pulse_duration_ms: 200,
-      pulse_pause_ms: 200,
-      pulse_intensity: 255,
-    }).subscribe({
-      next: (res) => {
-        this.currentSession.set(res);
-        this.runCountdown();
-      },
-      error: (err) => {
-        this.state.set('idle');
-        this.toast.error(
-          err?.status === 0
-            ? 'Service temporairement indisponible, vérifiez votre connexion.'
-            : (err?.error?.detail ?? "Impossible d'initier la session Studio sur l'équipement.")
-        );
-      },
-    });
+    this.store.startSession();
   }
 
-  /**
-   * 2. Step: Countdown (3.3s with safety margin for 3 physical haptic pulses on ESP32)
-   */
-  private runCountdown(): void {
-    const startTime = Date.now();
-    const duration = 3300;
-
-    const tick = () => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, duration - elapsed);
-      this.countdownRemainingMs.set(remaining);
-
-      if (remaining > 0) {
-        this.countdownTimer = setTimeout(tick, 50);
-      } else {
-        this.runRecording();
-      }
-    };
-
-    tick();
-  }
-
-  /**
-   * 3. Step: Recording (5.0s progress bar + 500ms cloud ingestion margin)
-   */
-  private runRecording(): void {
-    this.state.set('recording');
-    const totalDurationMs = 5000;
-    const startTime = Date.now();
-
-    this.recordingInterval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(100, (elapsed / totalDurationMs) * 100);
-      this.recordingProgressPercent.set(progress);
-
-      if (progress >= 100) {
-        this.clearAllTimers();
-        this.runFetching();
-      }
-    }, 50);
-  }
-
-  /**
-   * 4. Step: Fetching telemetry from API with multi-batch polling retry (800ms interval)
-   */
   runFetching(): void {
-    this.state.set('fetching');
-    this.fetchingAttempt.set(0);
-    this.fetchingError.set(false);
-    this.lastReadingCount = 0;
-    this.stableCountRounds = 0;
-    this.pollReadings();
+    this.store.runFetching();
   }
 
-  private pollReadings(): void {
-    const session = this.currentSession();
-    const deviceId = this.selectedDeviceId();
-    if (!session || !deviceId) {
-      this.state.set('idle');
-      return;
-    }
-
-    const currentAttempt = this.fetchingAttempt() + 1;
-    this.fetchingAttempt.set(currentAttempt);
-    const maxAttempts = 12;
-
-    this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
-      next: (res) => {
-        const count = res.readings?.length ?? 0;
-        if (count > 0) {
-          this.readings.set(res.readings);
-
-          // Nominal complete 5-second capture yields 95 ± 1 samples (19 Hz).
-          // Stop polling immediately as soon as nominal count is reached.
-          const isNominalComplete = count >= 94;
-          if (isNominalComplete) {
-            this.state.set('inspecting');
-            this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
-            return;
-          }
-
-          if (count === this.lastReadingCount) {
-            this.stableCountRounds++;
-          } else {
-            this.lastReadingCount = count;
-            this.stableCountRounds = 0;
-          }
-
-          // Ingestion Lambda writes to DynamoDB in 25-item chunks (batch_writer).
-          // If count is a multiple of 25 (<94), remaining chunks are still in flight.
-          const isIncompleteBatch = count % 25 === 0;
-
-          if (
-            (!isIncompleteBatch && count > 0) ||
-            this.stableCountRounds >= 3 ||
-            currentAttempt >= maxAttempts
-          ) {
-            this.state.set('inspecting');
-            this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
-            return;
-          }
-        }
-
-        if (currentAttempt < maxAttempts) {
-          this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
-        } else if (this.readings().length > 0) {
-          this.state.set('inspecting');
-          this.toast.info(`Télémétrie récupérée (${this.readings().length} points IMU enregistrés).`);
-        } else {
-          this.fetchingError.set(true);
-        }
-      },
-      error: () => {
-        if (currentAttempt < maxAttempts) {
-          this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
-        } else if (this.readings().length > 0) {
-          this.state.set('inspecting');
-        } else {
-          this.fetchingError.set(true);
-        }
-      },
-    });
-  }
-
-  /**
-   * Refreshes telemetry readings for the current session on demand.
-   */
   refreshCurrentReadings(): void {
-    const session = this.currentSession();
-    const deviceId = this.selectedDeviceId();
-    if (!session || !deviceId || this.isRefreshingReadings()) {
-      return;
-    }
-
-    this.isRefreshingReadings.set(true);
-    this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
-      next: (res) => {
-        this.isRefreshingReadings.set(false);
-        if (res.readings && res.readings.length > 0) {
-          this.readings.set(res.readings);
-          this.toast.success(`Télémétrie actualisée (${res.readings.length} points IMU).`);
-        } else {
-          this.toast.info('Aucun point supplémentaire trouvé.');
-        }
-      },
-      error: () => {
-        this.isRefreshingReadings.set(false);
-        this.toast.error('Erreur lors du rafraîchissement des trames.');
-      },
-    });
+    this.store.refreshCurrentReadings();
   }
 
-  /**
-   * 5. Step: Inspecting actions
-   */
   validateSession(): void {
-    const session = this.currentSession();
-    if (!session) {
-      this.resetToIdle();
-      return;
-    }
-
-    this.isValidating.set(true);
-    this.studioHistoryService.confirmSession(session.session_id).subscribe({
-      next: () => {
-        this.isValidating.set(false);
-        this.toast.success(this.translation.translate('studio.confirm_success'));
-        this.resetToIdle();
-        this.loadStats();
-        this.router.navigate(['/dashboard/studio']);
-      },
-      error: (err) => {
-        this.isValidating.set(false);
-        this.toast.error(
-          err?.error?.detail ?? this.translation.translate('studio.confirm_error')
-        );
-      },
-    });
+    this.store.validateSession();
   }
 
   rejectSession(): void {
-    this.showDeleteConfirm.set(true);
+    this.store.rejectSession();
   }
 
   confirmRejectSession(): void {
-    const session = this.currentSession();
-
-    if (!session) {
-      this.resetToIdle();
-      return;
-    }
-
-    // Immediately dismiss confirmation prompt and reset state to idle
-    this.showDeleteConfirm.set(false);
-    this.resetToIdle();
-
-    this.isDeleting.set(true);
-    this.studioHistoryService.deleteSession(session.session_id).subscribe({
-      next: () => {
-        this.isDeleting.set(false);
-        this.toast.info(this.translation.translate('studio.reject_success'));
-        this.loadStats();
-      },
-      error: (err) => {
-        this.isDeleting.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
-        );
-        this.loadStats();
-      },
-    });
+    this.store.confirmRejectSession();
   }
 
   cancelRejectPrompt(): void {
-    this.showDeleteConfirm.set(false);
+    this.store.cancelRejectPrompt();
   }
 
   exportJson(): void {
-    const session = this.currentSession();
-    const readings = this.readings();
-    if (readings.length === 0) {
-      this.toast.info(this.translation.translate('studio_history.export_no_data'));
-      return;
-    }
-    const sessionSummary: StudioSessionSummary | null = session
-      ? {
-          uuid: session.session_id,
-          id: session.session_id,
-          device_id: session.device_id,
-          user_id: 0,
-          label: session.label || this.effectiveLabel(),
-          sample_count: readings.length,
-          duration_sec: session.duration_sec,
-          created_at: new Date().toISOString(),
-          is_validated: false,
-          is_hitl: false,
-          is_pseudonymized: false,
-        }
-      : null;
-
-    exportSessionToJson(sessionSummary, readings);
-    this.toast.success(this.translation.translate('studio_history.export_success'));
+    this.store.exportJson();
   }
 
   resetToIdle(): void {
-    this.clearAllTimers();
-    this.state.set('idle');
-    this.currentSession.set(null);
-    this.readings.set([]);
-    this.recordingProgressPercent.set(0);
-    this.fetchingAttempt.set(0);
-    this.fetchingError.set(false);
-    this.isDeleting.set(false);
-    this.isValidating.set(false);
-    this.showDeleteConfirm.set(false);
-  }
-
-  private clearAllTimers(): void {
-    if (this.countdownTimer) {
-      clearTimeout(this.countdownTimer);
-      this.countdownTimer = undefined;
-    }
-    if (this.recordingInterval) {
-      clearInterval(this.recordingInterval);
-      this.recordingInterval = undefined;
-    }
-    if (this.fetchingTimeout) {
-      clearTimeout(this.fetchingTimeout);
-      this.fetchingTimeout = undefined;
-    }
+    this.store.resetToIdle();
   }
 }
-

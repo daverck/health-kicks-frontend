@@ -1,0 +1,539 @@
+import { Injectable, inject, signal, computed } from '@angular/core';
+import { Router } from '@angular/router';
+import { DeviceService } from '../../core/services/device.service';
+import { StudioService } from '../../core/services/studio.service';
+import { StudioHistoryService } from '../../core/services/studio-history.service';
+import { ToastService } from '../../core/services/toast.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { DeviceResponse } from '../../models/api.models';
+import { ImuReading, StudioStartResponse, StudioDatasetStats } from '../../models/telemetry.models';
+import { StudioSessionSummary } from '../../models/studio-history.model';
+import { exportSessionToJson } from '../../core/utils/export.utils';
+import {
+  PREDEFINED_LABELS,
+  SELECTED_DEVICE_STORAGE_KEY,
+  isStandardStudioLabel,
+  isCustomStudioLabel,
+} from '../../models/studio.model';
+
+export type StudioState = 'idle' | 'countdown' | 'recording' | 'fetching' | 'inspecting';
+
+@Injectable()
+export class StudioLiveStore {
+  private readonly deviceService = inject(DeviceService);
+  private readonly studioService = inject(StudioService);
+  private readonly studioHistoryService = inject(StudioHistoryService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
+  readonly translation = inject(TranslationService);
+
+  readonly predefinedLabels = PREDEFINED_LABELS;
+  readonly targetPerClass = 25;
+
+  /** List of all footwear devices provisioned in the user's account. */
+  readonly devices = signal<DeviceResponse[]>([]);
+  /** Device ID currently selected for Studio motion capture. */
+  readonly selectedDeviceId = signal<string>('');
+  /** Loading indicator flag while fetching the device list. */
+  readonly devicesLoading = signal<boolean>(true);
+  /** Error flag if the device listing query failed. */
+  readonly devicesError = signal<boolean>(false);
+
+  // Autocomplete & online filtering
+  readonly deviceSearchQuery = signal<string>('');
+  readonly isDeviceDropdownOpen = signal<boolean>(false);
+
+  readonly onlineDevices = computed(() => {
+    return this.devices().filter((d) => d.status === 'online');
+  });
+
+  readonly filteredOnlineDevices = computed(() => {
+    const query = this.deviceSearchQuery().trim().toLowerCase();
+    const online = this.onlineDevices();
+    if (!query) {
+      return online;
+    }
+    return online.filter(
+      (d) =>
+        (d.name && d.name.toLowerCase().includes(query)) ||
+        d.device_id.toLowerCase().includes(query)
+    );
+  });
+
+  readonly selectedDevice = computed(() => {
+    const id = this.selectedDeviceId();
+    return this.devices().find((d) => d.device_id === id) ?? null;
+  });
+
+  // State machine & Labels
+  readonly state = signal<StudioState>('idle');
+  readonly selectedLabel = signal<string>('walk');
+  readonly customLabel = signal<string>('');
+  readonly isCustomInputFocused = signal<boolean>(false);
+
+  readonly effectiveLabel = computed(() => {
+    const custom = this.customLabel().trim();
+    return custom.length > 0 ? custom : this.selectedLabel();
+  });
+
+  getLabelDisplayName(label: string): string {
+    if (!label) return '';
+    if (isStandardStudioLabel(label)) {
+      const key = `studio.labels.${label}`;
+      const translated = this.translation.translate(key);
+      return translated !== key ? translated : label;
+    }
+    return label;
+  }
+
+  readonly displayLabel = computed(() => {
+    return this.getLabelDisplayName(this.effectiveLabel());
+  });
+
+  readonly isCustomCardActive = computed(() => {
+    return isCustomStudioLabel(this.effectiveLabel()) || this.isCustomInputFocused();
+  });
+
+  // Session data & inspection
+  readonly currentSession = signal<StudioStartResponse | null>(null);
+  readonly readings = signal<ImuReading[]>([]);
+  readonly fetchingAttempt = signal<number>(0);
+  readonly fetchingError = signal<boolean>(false);
+  readonly isDeleting = signal<boolean>(false);
+  readonly isValidating = signal<boolean>(false);
+  readonly isRefreshingReadings = signal<boolean>(false);
+  readonly showDeleteConfirm = signal<boolean>(false);
+  readonly show3dViewer = signal<boolean>(false);
+  private lastReadingCount = 0;
+  private stableCountRounds = 0;
+
+  // Dataset statistics & balance guidance
+  readonly datasetStats = signal<StudioDatasetStats>({
+    total_sessions: 0,
+    total_duration_sec: 0,
+    total_samples: 0,
+    by_label: {},
+  });
+  readonly isLoadingStats = signal<boolean>(false);
+
+  readonly classesReachingTarget = computed(() => {
+    const stats = this.datasetStats();
+    return this.predefinedLabels.filter(
+      (l) => (stats.by_label[l.id] ?? 0) >= this.targetPerClass
+    ).length;
+  });
+
+  // Timers & visual progress
+  readonly countdownRemainingMs = signal<number>(1500);
+  readonly recordingProgressPercent = signal<number>(0);
+
+  private countdownTimer?: ReturnType<typeof setTimeout>;
+  private recordingInterval?: ReturnType<typeof setInterval>;
+  private fetchingTimeout?: ReturnType<typeof setTimeout>;
+
+  toggle3dViewer(): void {
+    this.show3dViewer.update((open) => !open);
+  }
+
+  getCountForLabel(label: string): number {
+    return this.datasetStats().by_label[label] ?? 0;
+  }
+
+  getValidatedCountForLabel(label: string): number {
+    return this.datasetStats().by_label_validated?.[label] ?? 0;
+  }
+
+  getPendingCountForLabel(label: string): number {
+    return this.datasetStats().by_label_pending?.[label] ?? 0;
+  }
+
+  loadStats(): void {
+    this.isLoadingStats.set(true);
+    const deviceId = this.selectedDeviceId();
+    this.studioService.getStudioStats(deviceId || undefined).subscribe({
+      next: (stats) => {
+        this.datasetStats.set(stats);
+        this.isLoadingStats.set(false);
+      },
+      error: () => {
+        this.isLoadingStats.set(false);
+      },
+    });
+  }
+
+  loadDevices(): void {
+    this.devicesLoading.set(true);
+    this.devicesError.set(false);
+
+    this.deviceService.listDevices().subscribe({
+      next: (devices) => {
+        this.devices.set(devices);
+        this.devicesLoading.set(false);
+        const online = devices.filter((d) => d.status === 'online');
+        if (online.length > 0) {
+          const savedId = localStorage.getItem(SELECTED_DEVICE_STORAGE_KEY);
+          const found = online.find((d) => d.device_id === savedId);
+          const deviceToSelect = found ? found.device_id : online[0].device_id;
+          this.selectedDeviceId.set(deviceToSelect);
+          localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceToSelect);
+          this.loadStats();
+        } else {
+          this.selectedDeviceId.set('');
+          this.loadStats();
+        }
+      },
+      error: (err) => {
+        this.devicesLoading.set(false);
+        this.devicesError.set(true);
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, vérifiez votre connexion.'
+            : 'Impossible de charger vos équipements.'
+        );
+      },
+    });
+  }
+
+  onDeviceSelect(deviceId: string): void {
+    this.selectedDeviceId.set(deviceId);
+    if (deviceId) {
+      localStorage.setItem(SELECTED_DEVICE_STORAGE_KEY, deviceId);
+    }
+    this.loadStats();
+  }
+
+  toggleDeviceDropdown(): void {
+    if (this.state() !== 'idle') return;
+    this.isDeviceDropdownOpen.update((open) => !open);
+  }
+
+  openDeviceDropdown(): void {
+    if (this.state() !== 'idle') return;
+    this.isDeviceDropdownOpen.set(true);
+  }
+
+  closeDeviceDropdown(): void {
+    this.isDeviceDropdownOpen.set(false);
+  }
+
+  selectDevice(deviceId: string): void {
+    this.onDeviceSelect(deviceId);
+    this.closeDeviceDropdown();
+    this.deviceSearchQuery.set('');
+  }
+
+  selectLabel(labelId: string): void {
+    this.selectedLabel.set(labelId);
+    this.customLabel.set('');
+  }
+
+  onCustomLabelChange(value: string): void {
+    this.customLabel.set(value);
+  }
+
+  clearCustomLabel(): void {
+    this.customLabel.set('');
+  }
+
+  startSession(): void {
+    const deviceId = this.selectedDeviceId();
+    if (!deviceId) {
+      this.toast.error('Veuillez sélectionner un équipement avant de lancer une session.');
+      return;
+    }
+
+    const isOnline = this.onlineDevices().some((d) => d.device_id === deviceId);
+    if (!isOnline && this.devices().length > 0) {
+      this.toast.error("L'équipement sélectionné n'est pas en ligne. Veuillez choisir un équipement connecté.");
+      return;
+    }
+
+    const label = this.effectiveLabel();
+    if (!label) {
+      this.toast.error('Veuillez spécifier ou sélectionner un label pour la session.');
+      return;
+    }
+
+    this.clearAllTimers();
+    this.state.set('countdown');
+    this.countdownRemainingMs.set(3300);
+    this.recordingProgressPercent.set(0);
+    this.fetchingError.set(false);
+    this.readings.set([]);
+    this.show3dViewer.set(false);
+
+    this.studioService.startStudioSession(deviceId, {
+      label,
+      duration_sec: 5,
+      pulse_count: 3,
+      pulse_duration_ms: 200,
+      pulse_pause_ms: 200,
+      pulse_intensity: 255,
+    }).subscribe({
+      next: (res) => {
+        this.currentSession.set(res);
+        this.runCountdown();
+      },
+      error: (err) => {
+        this.state.set('idle');
+        this.toast.error(
+          err?.status === 0
+            ? 'Service temporairement indisponible, vérifiez votre connexion.'
+            : (err?.error?.detail ?? "Impossible d'initier la session Studio sur l'équipement.")
+        );
+      },
+    });
+  }
+
+  private runCountdown(): void {
+    const startTime = Date.now();
+    const duration = 3300;
+
+    const tick = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, duration - elapsed);
+      this.countdownRemainingMs.set(remaining);
+
+      if (remaining > 0) {
+        this.countdownTimer = setTimeout(tick, 50);
+      } else {
+        this.runRecording();
+      }
+    };
+
+    tick();
+  }
+
+  private runRecording(): void {
+    this.state.set('recording');
+    const totalDurationMs = 5000;
+    const startTime = Date.now();
+
+    this.recordingInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, (elapsed / totalDurationMs) * 100);
+      this.recordingProgressPercent.set(progress);
+
+      if (progress >= 100) {
+        this.clearAllTimers();
+        this.runFetching();
+      }
+    }, 50);
+  }
+
+  runFetching(): void {
+    this.state.set('fetching');
+    this.fetchingAttempt.set(0);
+    this.fetchingError.set(false);
+    this.lastReadingCount = 0;
+    this.stableCountRounds = 0;
+    this.pollReadings();
+  }
+
+  private pollReadings(): void {
+    const session = this.currentSession();
+    const deviceId = this.selectedDeviceId();
+    if (!session || !deviceId) {
+      this.state.set('idle');
+      return;
+    }
+
+    const currentAttempt = this.fetchingAttempt() + 1;
+    this.fetchingAttempt.set(currentAttempt);
+    const maxAttempts = 12;
+
+    this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
+      next: (res) => {
+        const count = res.readings?.length ?? 0;
+        if (count > 0) {
+          this.readings.set(res.readings);
+
+          const isNominalComplete = count >= 94;
+          if (isNominalComplete) {
+            this.state.set('inspecting');
+            this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
+            return;
+          }
+
+          if (count === this.lastReadingCount) {
+            this.stableCountRounds++;
+          } else {
+            this.lastReadingCount = count;
+            this.stableCountRounds = 0;
+          }
+
+          const isIncompleteBatch = count % 25 === 0;
+
+          if (
+            (!isIncompleteBatch && count > 0) ||
+            this.stableCountRounds >= 3 ||
+            currentAttempt >= maxAttempts
+          ) {
+            this.state.set('inspecting');
+            this.toast.success(`Télémétrie récupérée (${count} points IMU enregistrés) !`);
+            return;
+          }
+        }
+
+        if (currentAttempt < maxAttempts) {
+          this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
+        } else if (this.readings().length > 0) {
+          this.state.set('inspecting');
+          this.toast.info(`Télémétrie récupérée (${this.readings().length} points IMU enregistrés).`);
+        } else {
+          this.fetchingError.set(true);
+        }
+      },
+      error: () => {
+        if (currentAttempt < maxAttempts) {
+          this.fetchingTimeout = setTimeout(() => this.pollReadings(), 800);
+        } else if (this.readings().length > 0) {
+          this.state.set('inspecting');
+        } else {
+          this.fetchingError.set(true);
+        }
+      },
+    });
+  }
+
+  refreshCurrentReadings(): void {
+    const session = this.currentSession();
+    const deviceId = this.selectedDeviceId();
+    if (!session || !deviceId || this.isRefreshingReadings()) {
+      return;
+    }
+
+    this.isRefreshingReadings.set(true);
+    this.studioService.getSessionReadings(deviceId, session.session_id).subscribe({
+      next: (res) => {
+        this.isRefreshingReadings.set(false);
+        if (res.readings && res.readings.length > 0) {
+          this.readings.set(res.readings);
+          this.toast.success(`Télémétrie actualisée (${res.readings.length} points IMU).`);
+        } else {
+          this.toast.info('Aucun point supplémentaire trouvé.');
+        }
+      },
+      error: () => {
+        this.isRefreshingReadings.set(false);
+        this.toast.error('Erreur lors du rafraîchissement des trames.');
+      },
+    });
+  }
+
+  validateSession(): void {
+    const session = this.currentSession();
+    if (!session) {
+      this.resetToIdle();
+      return;
+    }
+
+    this.isValidating.set(true);
+    this.studioHistoryService.confirmSession(session.session_id).subscribe({
+      next: () => {
+        this.isValidating.set(false);
+        this.toast.success(this.translation.translate('studio.confirm_success'));
+        this.resetToIdle();
+        this.loadStats();
+        this.router.navigate(['/dashboard/studio']);
+      },
+      error: (err) => {
+        this.isValidating.set(false);
+        this.toast.error(
+          err?.error?.detail ?? this.translation.translate('studio.confirm_error')
+        );
+      },
+    });
+  }
+
+  rejectSession(): void {
+    this.showDeleteConfirm.set(true);
+  }
+
+  confirmRejectSession(): void {
+    const session = this.currentSession();
+
+    if (!session) {
+      this.resetToIdle();
+      return;
+    }
+
+    this.showDeleteConfirm.set(false);
+    this.resetToIdle();
+
+    this.isDeleting.set(true);
+    this.studioHistoryService.deleteSession(session.session_id).subscribe({
+      next: () => {
+        this.isDeleting.set(false);
+        this.toast.info(this.translation.translate('studio.reject_success'));
+        this.loadStats();
+      },
+      error: (err) => {
+        this.isDeleting.set(false);
+        this.toast.error(
+          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
+        );
+        this.loadStats();
+      },
+    });
+  }
+
+  cancelRejectPrompt(): void {
+    this.showDeleteConfirm.set(false);
+  }
+
+  exportJson(): void {
+    const session = this.currentSession();
+    const readings = this.readings();
+    if (readings.length === 0) {
+      this.toast.info(this.translation.translate('studio_history.export_no_data'));
+      return;
+    }
+    const sessionSummary: StudioSessionSummary | null = session
+      ? {
+          uuid: session.session_id,
+          id: session.session_id,
+          device_id: session.device_id,
+          user_id: 0,
+          label: session.label || this.effectiveLabel(),
+          sample_count: readings.length,
+          duration_sec: session.duration_sec,
+          created_at: new Date().toISOString(),
+          is_validated: false,
+          is_hitl: false,
+          is_pseudonymized: false,
+        }
+      : null;
+
+    exportSessionToJson(sessionSummary, readings);
+    this.toast.success(this.translation.translate('studio_history.export_success'));
+  }
+
+  resetToIdle(): void {
+    this.clearAllTimers();
+    this.state.set('idle');
+    this.currentSession.set(null);
+    this.readings.set([]);
+    this.recordingProgressPercent.set(0);
+    this.fetchingAttempt.set(0);
+    this.fetchingError.set(false);
+    this.isDeleting.set(false);
+    this.isValidating.set(false);
+    this.showDeleteConfirm.set(false);
+  }
+
+  clearAllTimers(): void {
+    if (this.countdownTimer) {
+      clearTimeout(this.countdownTimer);
+      this.countdownTimer = undefined;
+    }
+    if (this.recordingInterval) {
+      clearInterval(this.recordingInterval);
+      this.recordingInterval = undefined;
+    }
+    if (this.fetchingTimeout) {
+      clearTimeout(this.fetchingTimeout);
+      this.fetchingTimeout = undefined;
+    }
+  }
+}
