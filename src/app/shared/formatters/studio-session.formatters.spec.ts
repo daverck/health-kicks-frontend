@@ -5,6 +5,7 @@ import {
   CUSTOM_LABEL_ICON,
 } from '../../models/studio.model';
 import {
+  getStudioAuthorDisplayName,
   getStudioLabelBadgeClass,
   getStudioLabelDisplayName,
   getStudioLabelIcon,
@@ -129,6 +130,49 @@ describe('studio-session.formatters', () => {
 
     it('returns dash if no author info is present', () => {
       expect(getStudioUserPseudonymOrEmail(baseSummary)).toBe('—');
+    });
+  });
+
+  describe('getStudioAuthorDisplayName', () => {
+    const baseSummary: StudioSessionSummary = {
+      uuid: '11111111-2222-3333-4444-555555555555',
+      device_id: 'HK-01',
+      label: 'walk',
+      sample_count: 100,
+      duration_sec: 5.0,
+      recorded_at_utc: '2026-11-09T12:00:00Z',
+      is_validated: true,
+      data_file_path: 's3://bucket/path.csv',
+    };
+
+    it('returns pseudonymized name when session is pseudonymized', () => {
+      const summary: StudioSessionSummary = {
+        ...baseSummary,
+        user_email: 'secret@hospital.local',
+        author_name: 'Dr. House',
+        is_pseudonymized: true,
+      };
+      expect(getStudioAuthorDisplayName(summary)).toBe('Dr. House');
+    });
+
+    it('returns Patient pseudonym when session is pseudonymized and author_name is absent', () => {
+      const summary: StudioSessionSummary = {
+        ...baseSummary,
+        user_email: 'secret@hospital.local',
+        subject_pseudonym: 'P-42',
+        is_pseudonymized: true,
+      };
+      expect(getStudioAuthorDisplayName(summary)).toBe('Patient P-42');
+    });
+
+    it('delegates to getStudioUserPseudonymOrEmail when not pseudonymized', () => {
+      const summary: StudioSessionSummary = {
+        ...baseSummary,
+        user_email: 'runner@healthkicks.local',
+        author_name: 'Dr. John',
+        is_pseudonymized: false,
+      };
+      expect(getStudioAuthorDisplayName(summary)).toBe('runner@healthkicks.local');
     });
   });
 });

@@ -23,10 +23,10 @@ import {
 } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import {
+  getStudioAuthorDisplayName,
   getStudioLabelBadgeClass,
   getStudioLabelDisplayName,
   getStudioLabelIcon,
-  getStudioUserPseudonymOrEmail,
 } from '../../shared/formatters/studio-session.formatters';
 
 import { StudioInspectionComponent } from '../../shared/components/studio-inspection/studio-inspection.component';
@@ -270,13 +270,7 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   getAuthorDisplayName(session: StudioSessionSummary): string {
-    if (session.is_pseudonymized) {
-      return (
-        session.author_name ||
-        (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
-      );
-    }
-    return getStudioUserPseudonymOrEmail(session);
+    return getStudioAuthorDisplayName(session);
   }
 
   getLabelBadgeClass(label: string): string {

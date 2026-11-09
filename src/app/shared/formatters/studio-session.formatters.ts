@@ -75,3 +75,16 @@ export function getStudioUserPseudonymOrEmail(session: StudioSessionSummary): st
     (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
   );
 }
+
+/**
+ * Resolves the author display name for a Studio session summary, respecting pseudonymization.
+ */
+export function getStudioAuthorDisplayName(session: StudioSessionSummary): string {
+  if (session.is_pseudonymized) {
+    return (
+      session.author_name ||
+      (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
+    );
+  }
+  return getStudioUserPseudonymOrEmail(session);
+}
