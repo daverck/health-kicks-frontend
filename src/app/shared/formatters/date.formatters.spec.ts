@@ -5,6 +5,7 @@ import {
   getLocalDateString,
   formatMonthYear,
   formatMonthYearFromYm,
+  formatLongLocalDate,
 } from './date.formatters';
 
 describe('date.formatters', () => {
@@ -92,6 +93,24 @@ describe('date.formatters', () => {
     it('returns raw string when invalid or short', () => {
       expect(formatMonthYearFromYm('')).toBe('');
       expect(formatMonthYearFromYm('2026')).toBe('2026');
+    });
+  });
+
+  describe('formatLongLocalDate', () => {
+    it('formats a valid YYYY-MM-DD string to full long localized format', () => {
+      const res = formatLongLocalDate('2026-11-10', 'fr-FR');
+      expect(res.toLowerCase()).toContain('novembre');
+      expect(res).toContain('2026');
+      expect(res).toContain('10');
+    });
+
+    it('returns empty string when input is empty', () => {
+      expect(formatLongLocalDate('')).toBe('');
+    });
+
+    it('returns raw string when format is invalid', () => {
+      expect(formatLongLocalDate('invalid-date')).toBe('invalid-date');
+      expect(formatLongLocalDate('2026-11')).toBe('2026-11');
     });
   });
 });

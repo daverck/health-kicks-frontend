@@ -57,3 +57,19 @@ export function formatMonthYearFromYm(monthStr: string, locale = 'fr-FR'): strin
   const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
   return formatMonthYear(date, locale);
 }
+
+/**
+ * Formats a 'YYYY-MM-DD' date string into a long localized date display (e.g. "mardi 10 novembre 2026").
+ */
+export function formatLongLocalDate(ymd: string, locale = 'fr-FR'): string {
+  if (!ymd) return '';
+  const parts = ymd.split('-').map(Number);
+  if (parts.length !== 3 || !parts[0] || !parts[1] || !parts[2]) return ymd;
+  const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+  return dateObj.toLocaleDateString(locale, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
