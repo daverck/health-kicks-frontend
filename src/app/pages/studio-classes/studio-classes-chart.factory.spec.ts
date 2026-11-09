@@ -3,6 +3,7 @@ import {
   formatClassLabel,
   createDistributionChartConfig,
   createTimelineChartConfig,
+  getConfusionMatrixCellBgClass,
 } from './studio-classes-chart.factory';
 import {
   StudioClassSummaryItem,
@@ -130,6 +131,34 @@ describe('StudioClassesChartFactory', () => {
 
       expect((config.options?.scales as any)?.x?.stacked).toBe(true);
       expect((config.options?.scales as any)?.y?.stacked).toBe(true);
+    });
+  });
+
+  describe('getConfusionMatrixCellBgClass', () => {
+    it('should return high-accuracy green classes for values >= 0.95', () => {
+      expect(getConfusionMatrixCellBgClass(0.98, true)).toContain('bg-emerald-600');
+    });
+
+    it('should return mid-high green classes for values between 0.85 and 0.95', () => {
+      expect(getConfusionMatrixCellBgClass(0.88, true)).toContain('bg-emerald-500');
+    });
+
+    it('should return light green classes for values between 0.70 and 0.85', () => {
+      expect(getConfusionMatrixCellBgClass(0.75, false)).toContain('bg-emerald-400');
+    });
+
+    it('should return amber classes for moderate confusion between 0.10 and 0.50', () => {
+      expect(getConfusionMatrixCellBgClass(0.30, false)).toContain('bg-amber-300');
+      expect(getConfusionMatrixCellBgClass(0.15, false)).toContain('bg-amber-200');
+    });
+
+    it('should return red tint for low confusion > 0.01', () => {
+      expect(getConfusionMatrixCellBgClass(0.05, false)).toContain('bg-red-100');
+    });
+
+    it('should return diagonal-specific vs non-diagonal neutral background for 0.0', () => {
+      expect(getConfusionMatrixCellBgClass(0.0, true)).toContain('bg-red-50');
+      expect(getConfusionMatrixCellBgClass(0.0, false)).toContain('bg-white');
     });
   });
 });

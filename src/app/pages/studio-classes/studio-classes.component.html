@@ -180,7 +180,7 @@
           [isMatrixExpanded]="isMatrixExpanded()"
           [hoveredCell]="hoveredCell()"
           [formatLabel]="formatLabel.bind(this)"
-          [getCellBgClass]="getMatrixCellBgClass.bind(this)"
+          [getCellBgClass]="getMatrixCellBgClass"
           (toggleExpansion)="toggleMatrixExpansion()"
           (cellHover)="setHoveredCell($event.trueLabel, $event.predLabel, $event.value)"
           (clearHover)="clearHoveredCell()"

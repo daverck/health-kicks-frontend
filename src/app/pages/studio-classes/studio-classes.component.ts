@@ -25,6 +25,7 @@ import {
   formatClassLabel,
   createDistributionChartConfig,
   createTimelineChartConfig,
+  getConfusionMatrixCellBgClass,
 } from './studio-classes-chart.factory';
 
 Chart.register(...registerables);
@@ -131,20 +132,15 @@ export class StudioClassesComponent implements OnInit {
 
   setChartMetric(metric: StudioChartMetric): void {
     this.store.setChartMetric(metric);
-    if (this.isChartExpanded()) {
-      setTimeout(() => {
-        const summaryData = this.summary();
-        const canvasRef = this.chartCanvas();
-        const selected = this.selectedClass();
-        if (summaryData && canvasRef?.nativeElement) {
-          this.renderDistributionChart(summaryData.classes, canvasRef.nativeElement, selected, metric);
-        }
-      }, 0);
-    }
+    this.triggerDistributionChartRedraw();
   }
 
   toggleChartExpansion(): void {
     this.store.toggleChartExpansion();
+    this.triggerDistributionChartRedraw();
+  }
+
+  private triggerDistributionChartRedraw(): void {
     if (this.isChartExpanded()) {
       setTimeout(() => {
         const summaryData = this.summary();
@@ -174,19 +170,7 @@ export class StudioClassesComponent implements OnInit {
     this.store.clearHoveredCell();
   }
 
-  getMatrixCellBgClass(value: number, isDiagonal: boolean): string {
-    if (value >= 0.95) return 'bg-emerald-600 text-white font-bold';
-    if (value >= 0.85) return 'bg-emerald-500 text-white font-semibold';
-    if (value >= 0.70) return 'bg-emerald-400 text-gray-900 font-semibold';
-    if (value >= 0.50) return 'bg-emerald-300 dark:bg-emerald-700 text-gray-900 dark:text-white';
-    if (value >= 0.25) return 'bg-amber-300 dark:bg-amber-700 text-gray-900 dark:text-white';
-    if (value >= 0.10) return 'bg-amber-200 dark:bg-amber-800/80 text-gray-800 dark:text-gray-100';
-    if (value > 0.01) return 'bg-red-100 dark:bg-red-950/60 text-red-800 dark:text-red-200';
-    if (value > 0.0) return 'bg-gray-100 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400';
-    return isDiagonal
-      ? 'bg-red-50 dark:bg-red-950/30 text-gray-400'
-      : 'bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-600';
-  }
+  readonly getMatrixCellBgClass = getConfusionMatrixCellBgClass;
 
   toggleTimelineExpansion(): void {
     this.store.toggleTimelineExpansion();
