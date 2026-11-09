@@ -9,6 +9,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
   standalone: true,
   imports: [CommonModule, ActivityIconComponent, TranslatePipe],
   templateUrl: './studio-classes-confusion-matrix.component.html',
+  host: { class: 'block' },
 })
 export class StudioClassesConfusionMatrixComponent {
   readonly confusionMatrix = input.required<StudioConfusionMatrix>();

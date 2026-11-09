@@ -38,9 +38,10 @@
     <!-- ============================================================== -->
     <!-- PART 1 : Global ML Model Metrics & Comparative Overview        -->
     <!-- ============================================================== -->
-    <section class="space-y-6">
+    <section class="flex flex-col gap-6">
       <!-- 5 Global KPI Cards -->
       <app-studio-classes-kpi-cards
+        class="block"
         [totalClasses]="data.total_classes"
         [totalSessions]="data.total_sessions"
         [validatedSessions]="data.validated_sessions"
@@ -161,6 +162,7 @@
 
       <!-- Comparative Table in an Expansion Panel (Collapsed by default) -->
       <app-studio-classes-table
+        class="block"
         [classes]="sortedClasses()"
         [selectedClass]="selectedClass()"
         [isTableExpanded]="isTableExpanded()"
@@ -173,6 +175,7 @@
       <!-- Normalized Confusion Matrix in an Expansion Panel (Collapsed by default) -->
       @if (confusionMatrix(); as matrixData) {
         <app-studio-classes-confusion-matrix
+          class="block"
           [confusionMatrix]="matrixData"
           [isMatrixExpanded]="isMatrixExpanded()"
           [hoveredCell]="hoveredCell()"

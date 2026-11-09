@@ -9,6 +9,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
   standalone: true,
   imports: [CommonModule, ActivityIconComponent, TranslatePipe],
   templateUrl: './studio-classes-table.component.html',
+  host: { class: 'block' },
 })
 export class StudioClassesTableComponent {
   readonly classes = input.required<StudioClassSummaryItem[]>();

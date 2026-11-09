@@ -7,6 +7,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
   standalone: true,
   imports: [CommonModule, TranslatePipe],
   templateUrl: './studio-classes-kpi-cards.component.html',
+  host: { class: 'block' },
 })
 export class StudioClassesKpiCardsComponent {
   readonly totalClasses = input.required<number>();
