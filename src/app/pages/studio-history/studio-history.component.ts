@@ -13,23 +13,14 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { DeviceService } from '../../core/services/device.service';
-import { StudioHistoryService } from '../../core/services/studio-history.service';
-import { ToastService } from '../../core/services/toast.service';
 import { TranslationService } from '../../core/services/translation.service';
-import { DeviceResponse } from '../../models/api.models';
-import {
-  StudioSessionSummary,
-  StudioAuthorSummary,
-  StudioHistoryFilterParams,
-} from '../../models/studio-history.model';
+import { StudioSessionSummary } from '../../models/studio-history.model';
 import {
   PREDEFINED_LABELS,
   PredefinedLabel,
   isStandardStudioLabel,
   isCustomStudioLabel,
   isEdgeAiActivity,
-  ActivityClassificationType,
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from '../../models/studio.model';
@@ -41,10 +32,12 @@ import { StudioHistoryMobileCardComponent } from './components/studio-history-mo
 import { StudioHistoryTableComponent } from './components/studio-history-table.component';
 import { StudioHistoryPaginationComponent } from './components/studio-history-pagination.component';
 import { StudioHistoryDeleteModalComponent } from './components/studio-history-delete-modal.component';
+import { StudioHistoryStore } from './studio-history.store';
 
 @Component({
   selector: 'app-studio-history',
   standalone: true,
+  providers: [StudioHistoryStore],
   imports: [
     CommonModule,
     FormsModule,
@@ -61,12 +54,9 @@ import { StudioHistoryDeleteModalComponent } from './components/studio-history-d
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioHistoryComponent implements OnInit, OnDestroy {
-  private readonly pageCursors = new Map<number, string | null>([[1, null]]);
   private readonly document = inject(DOCUMENT);
+  readonly store = inject(StudioHistoryStore);
   readonly auth = inject(AuthService);
-  private readonly studioHistoryService = inject(StudioHistoryService);
-  private readonly deviceService = inject(DeviceService);
-  private readonly toast = inject(ToastService);
   readonly translation = inject(TranslationService);
   private readonly route = inject(ActivatedRoute);
 
@@ -76,62 +66,37 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly isEdgeAiActivity = isEdgeAiActivity;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
-  // Pagination & List State
-  readonly sessions = signal<StudioSessionSummary[]>([]);
-  readonly total = signal<number>(0);
-  readonly page = signal<number>(1);
-  readonly size = signal<number>(20);
-  readonly isLoading = signal<boolean>(false);
-  readonly errorMessage = signal<string | null>(null);
-
-  // Filters State
-  readonly selectedLabel = signal<string>('');
-  readonly selectedLabels = signal<string[]>([]);
-  readonly selectedDeviceId = signal<string>('');
-  readonly selectedDeviceIds = signal<string[]>([]);
-  readonly filterUserId = signal<string>('');
-  readonly selectedUserIds = signal<(string | number)[]>([]);
-  readonly authors = signal<StudioAuthorSummary[]>([]);
-  readonly startDate = signal<string>('');
-  readonly endDate = signal<string>('');
-  readonly sampleCountMin = signal<number | null>(null);
-  readonly sampleCountMax = signal<number | null>(null);
-  readonly durationMin = signal<number | null>(null);
-  readonly durationMax = signal<number | null>(null);
-  readonly selectedValidated = signal<'all' | 'true' | 'false'>('all');
-  readonly selectedHitl = signal<'all' | 'true' | 'false'>('all');
-  readonly selectedClassification = signal<ActivityClassificationType>('all');
-  readonly devices = signal<DeviceResponse[]>([]);
-  readonly showMobileFilters = signal<boolean>(false);
-
-  // RBAC & Computeds
-  readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
-
-  readonly totalPages = computed(() => {
-    const s = this.size();
-    const t = this.total();
-    return Math.max(1, Math.ceil(t / s));
-  });
-
-  readonly hasActiveFilters = computed(() => {
-    return (
-      this.selectedLabels().length > 0 ||
-      Boolean(this.selectedLabel()) ||
-      this.selectedDeviceIds().length > 0 ||
-      Boolean(this.selectedDeviceId()) ||
-      this.selectedUserIds().length > 0 ||
-      Boolean(this.filterUserId()) ||
-      Boolean(this.startDate()) ||
-      Boolean(this.endDate()) ||
-      this.sampleCountMin() !== null ||
-      this.sampleCountMax() !== null ||
-      this.durationMin() !== null ||
-      this.durationMax() !== null ||
-      this.selectedValidated() !== 'all' ||
-      this.selectedHitl() !== 'all' ||
-      this.selectedClassification() !== 'all'
-    );
-  });
+  // Store bindings exposed for template and test compatibility
+  readonly sessions = this.store.sessions;
+  readonly total = this.store.total;
+  readonly page = this.store.page;
+  readonly size = this.store.size;
+  readonly isLoading = this.store.isLoading;
+  readonly errorMessage = this.store.errorMessage;
+  readonly selectedLabel = this.store.selectedLabel;
+  readonly selectedLabels = this.store.selectedLabels;
+  readonly selectedDeviceId = this.store.selectedDeviceId;
+  readonly selectedDeviceIds = this.store.selectedDeviceIds;
+  readonly filterUserId = this.store.filterUserId;
+  readonly selectedUserIds = this.store.selectedUserIds;
+  readonly authors = this.store.authors;
+  readonly startDate = this.store.startDate;
+  readonly endDate = this.store.endDate;
+  readonly sampleCountMin = this.store.sampleCountMin;
+  readonly sampleCountMax = this.store.sampleCountMax;
+  readonly durationMin = this.store.durationMin;
+  readonly durationMax = this.store.durationMax;
+  readonly selectedValidated = this.store.selectedValidated;
+  readonly selectedHitl = this.store.selectedHitl;
+  readonly selectedClassification = this.store.selectedClassification;
+  readonly devices = this.store.devices;
+  readonly showMobileFilters = this.store.showMobileFilters;
+  readonly isAdmin = this.store.isAdmin;
+  readonly totalPages = this.store.totalPages;
+  readonly hasActiveFilters = this.store.hasActiveFilters;
+  readonly isDeletingSession = this.store.isDeletingSession;
+  readonly deletingSessionIds = this.store.deletingSessionIds;
+  readonly sessionToDelete = this.store.sessionToDelete;
 
   // Inspection Drawer State
   readonly inspectingSession = signal<StudioSessionSummary | null>(null);
@@ -175,11 +140,6 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     return false;
   });
 
-  // Direct List Deletion State
-  readonly isDeletingSession = signal<boolean>(false);
-  readonly deletingSessionIds = signal<Set<string>>(new Set());
-  readonly sessionToDelete = signal<StudioSessionSummary | null>(null);
-
   constructor() {
     effect(() => {
       const isDrawerOpen = this.inspectingSession() !== null;
@@ -222,11 +182,11 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.loadDevices();
+    this.store.loadDevices();
     if (this.isAdmin()) {
-      this.loadAuthors();
+      this.store.loadAuthors();
     }
-    this.loadSessions();
+    this.store.loadSessions();
   }
 
   ngOnDestroy(): void {
@@ -234,216 +194,55 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   }
 
   loadDevices(): void {
-    this.deviceService.listDevices().subscribe({
-      next: (devs) => this.devices.set(devs),
-      error: () => {},
-    });
-  }
-
-  refresh(): void {
-    this.loadSessions();
-  }
-
-  getAuthorDisplayName(session: StudioSessionSummary): string {
-    if (session.is_pseudonymized) {
-      return (
-        session.author_name ||
-        (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
-      );
-    }
-    return (
-      session.user_email ||
-      session.author_name ||
-      (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
-    );
+    this.store.loadDevices();
   }
 
   loadAuthors(): void {
-    this.studioHistoryService.getAuthors().subscribe({
-      next: (authors) => this.authors.set(authors),
-      error: () => {},
-    });
+    this.store.loadAuthors();
   }
 
   loadSessions(onLoaded?: (items: StudioSessionSummary[]) => void): void {
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
+    this.store.loadSessions(onLoaded);
+  }
 
-    const params: StudioHistoryFilterParams = {
-      page: this.page(),
-      size: this.size(),
-    };
-    const sampleCountMin = this.sampleCountMin();
-    const sampleCountMax = this.sampleCountMax();
-    const durationMin = this.durationMin();
-    const durationMax = this.durationMax();
-    const cursor = this.pageCursors.get(this.page());
-    if (cursor) {
-      params.cursor = cursor;
-    }
-
-    if (this.selectedLabels().length > 0) {
-      params.label = this.selectedLabels();
-    } else if (this.selectedLabel()) {
-      params.label = this.selectedLabel();
-    }
-
-    if (this.selectedDeviceIds().length > 0) {
-      params.device_id = this.selectedDeviceIds();
-    } else if (this.selectedDeviceId()) {
-      params.device_id = this.selectedDeviceId();
-    }
-
-    if (this.isAdmin()) {
-      if (this.selectedUserIds().length > 0) {
-        params.pseudonym = this.selectedUserIds().map(String);
-      } else if (this.filterUserId().trim()) {
-        params.pseudonym = this.filterUserId().trim();
-      }
-    }
-
-    if (this.startDate()) {
-      params.start_date = this.startDate();
-    }
-    if (this.endDate()) {
-      params.end_date = this.endDate();
-    }
-    if (sampleCountMin !== null) {
-      params.sample_count_min = sampleCountMin;
-    }
-    if (sampleCountMax !== null) {
-      params.sample_count_max = sampleCountMax;
-    }
-    if (durationMin !== null) {
-      params.duration_sec_min = durationMin;
-    }
-    if (durationMax !== null) {
-      params.duration_sec_max = durationMax;
-    }
-    if (this.selectedValidated() === 'true') {
-      params.is_validated = true;
-    } else if (this.selectedValidated() === 'false') {
-      params.is_validated = false;
-    }
-    if (this.selectedHitl() === 'true') {
-      params.is_hitl = true;
-    } else if (this.selectedHitl() === 'false') {
-      params.is_hitl = false;
-    }
-    if (this.selectedClassification() !== 'all') {
-      params.classification = this.selectedClassification();
-    }
-
-    this.studioHistoryService.getSessions(params).subscribe({
-      next: (res) => {
-        for (const cachedPage of this.pageCursors.keys()) {
-          if (cachedPage > res.page) {
-            this.pageCursors.delete(cachedPage);
-          }
-        }
-        if (res.next_cursor) {
-          this.pageCursors.set(res.page + 1, res.next_cursor);
-        }
-        this.sessions.set(res.items);
-        this.total.set(res.total);
-        this.page.set(res.page);
-        this.size.set(res.size);
-        this.isLoading.set(false);
-        if (onLoaded) {
-          onLoaded(res.items);
-        }
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.errorMessage.set(
-          err?.status === 0
-            ? this.translation.translate('studio_history.error_service_unavailable')
-            : (err?.error?.detail ?? this.translation.translate('studio_history.error_loading'))
-        );
-      },
-    });
+  refresh(): void {
+    this.store.refresh();
   }
 
   toggleMobileFilters(): void {
-    this.showMobileFilters.update((v) => !v);
+    this.store.toggleMobileFilters();
   }
 
   onFilterChange(): void {
-    this.resetPageCursors();
-    this.page.set(1);
-    this.loadSessions();
+    this.store.onFilterChange();
   }
 
   onLabelsChange(labels: string[]): void {
-    this.selectedLabels.set(labels);
-    this.selectedLabel.set(labels.join(','));
-    this.onFilterChange();
+    this.store.onLabelsChange(labels);
   }
 
   onDeviceIdsChange(deviceIds: string[]): void {
-    this.selectedDeviceIds.set(deviceIds);
-    this.selectedDeviceId.set(deviceIds.join(','));
-    this.onFilterChange();
+    this.store.onDeviceIdsChange(deviceIds);
   }
 
   onUserIdsChange(userIds: (string | number)[]): void {
-    this.selectedUserIds.set(userIds);
-    this.filterUserId.set(userIds.join(','));
-    this.onFilterChange();
+    this.store.onUserIdsChange(userIds);
   }
 
   resetFilters(): void {
-    this.selectedLabels.set([]);
-    this.selectedLabel.set('');
-    this.selectedDeviceIds.set([]);
-    this.selectedDeviceId.set('');
-    this.selectedUserIds.set([]);
-    this.filterUserId.set('');
-    this.startDate.set('');
-    this.endDate.set('');
-    this.sampleCountMin.set(null);
-    this.sampleCountMax.set(null);
-    this.durationMin.set(null);
-    this.durationMax.set(null);
-    this.selectedValidated.set('all');
-    this.selectedHitl.set('all');
-    this.selectedClassification.set('all');
-    this.resetPageCursors();
-    this.page.set(1);
-    this.loadSessions();
+    this.store.resetFilters();
   }
 
   goToPage(p: number): void {
-    if (p < 1 || p > this.totalPages() || p === this.page()) {
-      return;
-    }
-    // Keyset cursor exists for p? If not, fallback to direct offset page jump
-    this.page.set(p);
-    this.loadSessions();
+    this.store.goToPage(p);
   }
 
   onPageInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const val = parseInt(input.value, 10);
-    if (!isNaN(val) && val >= 1 && val <= this.totalPages()) {
-      if (val !== this.page()) {
-        this.goToPage(val);
-      }
-    } else {
-      input.value = this.page().toString();
-    }
+    this.store.onPageInput(event);
   }
 
   onPageSizeChange(newSize: number): void {
-    this.size.set(newSize);
-    this.resetPageCursors();
-    this.page.set(1);
-    this.loadSessions();
-  }
-
-  private resetPageCursors(): void {
-    this.pageCursors.clear();
-    this.pageCursors.set(1, null);
+    this.store.onPageSizeChange(newSize);
   }
 
   // --- Inspection Drawer Controls ---
@@ -470,8 +269,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       const prev = list[prevIdx];
       this.openInspection(prev);
     } else if (prevIdx === -1 && this.page() > 1) {
-      this.page.update((p) => p - 1);
-      this.loadSessions((newItems) => {
+      this.store.page.update((p) => p - 1);
+      this.store.loadSessions((newItems) => {
         if (newItems.length > 0) {
           this.openInspection(newItems[newItems.length - 1]);
         }
@@ -488,8 +287,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
       const next = list[nextIdx];
       this.openInspection(next);
     } else if (nextIdx === list.length && this.page() < this.totalPages()) {
-      this.page.update((p) => p + 1);
-      this.loadSessions((newItems) => {
+      this.store.page.update((p) => p + 1);
+      this.store.loadSessions((newItems) => {
         if (newItems.length > 0) {
           this.openInspection(newItems[0]);
         }
@@ -499,44 +298,19 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
 
   onSessionUpdatedFromInspection(updated: StudioSessionSummary): void {
     this.inspectingSession.set(updated);
-    this.sessions.update((items) =>
-      items.map((it) => (it.uuid === updated.uuid ? updated : it))
-    );
-    const statusFilter = this.selectedValidated();
-    if (
-      (statusFilter === 'true' && !updated.is_validated) ||
-      (statusFilter === 'false' && updated.is_validated)
-    ) {
-      this.loadSessions();
-    }
+    this.store.onSessionUpdated(updated);
   }
 
   onSessionConfirmedFromInspection(confirmed: StudioSessionSummary): void {
     this.inspectingSession.set(confirmed);
-    this.sessions.update((items) =>
-      items.map((it) => (it.uuid === confirmed.uuid ? confirmed : it))
-    );
-    const statusFilter = this.selectedValidated();
-    if (
-      (statusFilter === 'true' && !confirmed.is_validated) ||
-      (statusFilter === 'false' && confirmed.is_validated)
-    ) {
-      this.loadSessions();
-    }
+    this.store.onSessionConfirmed(confirmed);
   }
 
   onSessionDeletedFromInspection(sessionId: string): void {
-    this.sessions.update((items) => items.filter((it) => it.uuid !== sessionId));
-    this.total.update((t) => Math.max(0, t - 1));
-
     if (this.inspectingSession()?.uuid === sessionId) {
       this.closeInspection();
     }
-
-    if (this.sessions().length === 0 && this.page() > 1) {
-      this.page.update((p) => p - 1);
-      this.loadSessions();
-    }
+    this.store.onSessionDeleted(sessionId);
   }
 
   @HostListener('document:keydown.escape')
@@ -551,66 +325,32 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   // --- Direct List Deletion Actions ---
 
   promptDeleteSession(session: StudioSessionSummary, event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.sessionToDelete.set(session);
+    this.store.promptDeleteSession(session, event);
   }
 
   cancelPromptDelete(): void {
-    this.sessionToDelete.set(null);
+    this.store.cancelPromptDelete();
   }
 
   executeDeleteSession(sessionId: string): void {
-    // Immediately dismiss confirmation popup and remove from list
-    this.sessionToDelete.set(null);
-    this.sessions.update((items) => items.filter((it) => it.uuid !== sessionId));
-    this.total.update((t) => Math.max(0, t - 1));
-
-    // Close inspection drawer if the deleted session was open
     if (this.inspectingSession()?.uuid === sessionId) {
       this.closeInspection();
     }
+    this.store.executeDeleteSession(sessionId);
+  }
 
-    this.deletingSessionIds.update((set) => {
-      const next = new Set(set);
-      next.add(sessionId);
-      return next;
-    });
-    this.isDeletingSession.set(true);
-
-    this.studioHistoryService.deleteSession(sessionId).subscribe({
-      next: () => {
-        this.deletingSessionIds.update((set) => {
-          const next = new Set(set);
-          next.delete(sessionId);
-          this.isDeletingSession.set(next.size > 0);
-          return next;
-        });
-        this.toast.info(
-          this.translation.translate('studio_history.session_deleted')
-        );
-
-        // Reload current page if list became empty and page > 1
-        if (this.sessions().length === 0 && this.page() > 1) {
-          this.page.update((p) => p - 1);
-          this.loadSessions();
-        }
-      },
-      error: (err) => {
-        this.deletingSessionIds.update((set) => {
-          const next = new Set(set);
-          next.delete(sessionId);
-          this.isDeletingSession.set(next.size > 0);
-          return next;
-        });
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
-        );
-        // Reload sessions to restore list if server returned an error
-        this.loadSessions();
-      },
-    });
+  getAuthorDisplayName(session: StudioSessionSummary): string {
+    if (session.is_pseudonymized) {
+      return (
+        session.author_name ||
+        (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
+      );
+    }
+    return (
+      session.user_email ||
+      session.author_name ||
+      (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
+    );
   }
 
   getLabelBadgeClass(label: string): string {
