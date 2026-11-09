@@ -4,20 +4,14 @@ import {
   OnChanges,
   SimpleChanges,
   inject,
-  signal,
-  computed,
   input,
   output,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { StudioHistoryService } from '../../../core/services/studio-history.service';
-import { StudioService } from '../../../core/services/studio.service';
-import { ToastService } from '../../../core/services/toast.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { StudioSessionSummary } from '../../../models/studio-history.model';
-import { ImuReading } from '../../../models/telemetry.models';
 import { ImuChartComponent } from '../imu-chart/imu-chart.component';
 import { Shoe3dViewerComponent } from '../shoe-3d-viewer/shoe-3d-viewer.component';
 import { IsbGuideComponent } from '../isb-guide/isb-guide.component';
@@ -34,11 +28,12 @@ import {
   CUSTOM_LABEL_ICON,
   CUSTOM_LABEL_BADGE_CLASS,
 } from '../../../models/studio.model';
-import { exportSessionToJson } from '../../../core/utils/export.utils';
+import { StudioInspectionStore, MIN_TRIM_INTERVAL_SEC } from './studio-inspection.store';
 
 @Component({
   selector: 'app-studio-inspection',
   standalone: true,
+  providers: [StudioInspectionStore],
   host: {
     '[class.flex]': '!isStandalone()',
     '[class.flex-col]': '!isStandalone()',
@@ -63,12 +58,9 @@ import { exportSessionToJson } from '../../../core/utils/export.utils';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudioInspectionComponent implements OnInit, OnChanges {
-  private static readonly MIN_TRIM_INTERVAL_SEC = 2;
-  readonly minimumTrimDurationSec = StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
+  readonly minimumTrimDurationSec = MIN_TRIM_INTERVAL_SEC;
 
-  private readonly studioHistoryService = inject(StudioHistoryService);
-  private readonly studioService = inject(StudioService);
-  private readonly toast = inject(ToastService);
+  readonly store = inject(StudioInspectionStore);
   readonly translation = inject(TranslationService);
 
   readonly predefinedLabels: PredefinedLabel[] = PREDEFINED_LABELS;
@@ -92,368 +84,111 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   readonly sessionConfirmed = output<StudioSessionSummary>();
   readonly sessionDeleted = output<string>();
 
-  // State
-  readonly activeReadings = signal<ImuReading[]>([]);
-  readonly isLoadingReadings = signal<boolean>(false);
-  readonly isValidatingSession = signal<boolean>(false);
-  readonly isTrimmingSession = signal<boolean>(false);
-  readonly isUpdatingValidation = signal<boolean>(false);
-  readonly readingsError = signal<string | null>(null);
-  readonly replayPlaybackTime = signal<number>(0);
-  readonly show3dViewer = signal<boolean>(false);
-  readonly trimStartOffsetSec = signal<number>(0);
-  readonly trimEndOffsetSec = signal<number>(2);
-  readonly showTrimConfirm = signal<boolean>(false);
-  readonly showUnvalidateConfirm = signal<boolean>(false);
+  // State delegates from store
+  readonly activeReadings = this.store.activeReadings;
+  readonly isLoadingReadings = this.store.isLoadingReadings;
+  readonly isValidatingSession = this.store.isValidatingSession;
+  readonly isTrimmingSession = this.store.isTrimmingSession;
+  readonly isUpdatingValidation = this.store.isUpdatingValidation;
+  readonly readingsError = this.store.readingsError;
+  readonly replayPlaybackTime = this.store.replayPlaybackTime;
+  readonly show3dViewer = this.store.show3dViewer;
+  readonly trimStartOffsetSec = this.store.trimStartOffsetSec;
+  readonly trimEndOffsetSec = this.store.trimEndOffsetSec;
+  readonly showTrimConfirm = this.store.showTrimConfirm;
+  readonly showUnvalidateConfirm = this.store.showUnvalidateConfirm;
 
-  readonly trimMaxDurationSec = computed(() => {
-    const duration = this.session()?.duration_sec ?? 0;
-    return Math.min(duration, 30);
-  });
+  readonly trimMaxDurationSec = this.store.trimMaxDurationSec;
+  readonly trimDurationSec = this.store.trimDurationSec;
+  readonly hasTrimChanges = this.store.hasTrimChanges;
+  readonly trimPreviewReadings = this.store.trimPreviewReadings;
 
-  readonly trimDurationSec = computed(
-    () => this.trimEndOffsetSec() - this.trimStartOffsetSec()
-  );
-
-  readonly hasTrimChanges = computed(() => {
-    const duration = this.session()?.duration_sec ?? 0;
-    return this.trimStartOffsetSec() > 0 || this.trimEndOffsetSec() < duration;
-  });
-
-  readonly trimPreviewReadings = computed(() => {
-    const readings = this.activeReadings();
-    if (readings.length === 0) return [];
-    const startTimestamp =
-      readings[0].timestamp_epoch_us + Math.round(this.trimStartOffsetSec() * 1_000_000);
-    const endTimestamp =
-      readings[0].timestamp_epoch_us + Math.round(this.trimEndOffsetSec() * 1_000_000);
-    return readings.filter(
-      (reading) =>
-        reading.timestamp_epoch_us >= startTimestamp &&
-        reading.timestamp_epoch_us <= endTimestamp
-    );
-  });
-
-  toggle3dViewer(): void {
-    this.show3dViewer.update((v) => !v);
-  }
-
-  // Curation State
-  readonly showLabelEditor = signal<boolean>(false);
-  readonly labelEditMode = signal<'predefined' | 'custom'>('predefined');
-  readonly editLabelValue = signal<string>('walk');
-  readonly customLabelValue = signal<string>('');
-  readonly isUpdatingLabel = signal<boolean>(false);
-  readonly isDeletingSession = signal<boolean>(false);
-  readonly showDeleteConfirm = signal<boolean>(false);
-  readonly linkCopied = signal<boolean>(false);
-
-  toggleLabelEditor(): void {
-    if (this.session()?.is_validated) return;
-    this.showLabelEditor.update((v) => !v);
-  }
-
-  readonly effectiveEditLabel = computed<string>(() => {
-    if (this.labelEditMode() === 'custom') {
-      return this.customLabelValue().trim().toLowerCase();
-    }
-    return this.editLabelValue();
-  });
-
-  readonly canSaveLabel = computed<boolean>(() => {
-    const currentSession = this.session();
-    if (!currentSession || currentSession.is_validated) return false;
-    const target = this.effectiveEditLabel();
-    return Boolean(target) && target !== currentSession.label;
-  });
-
-  private currentSessionId: string | null = null;
-
-  onReplayTimeSelected(timeSec: number): void {
-    this.replayPlaybackTime.set(timeSec);
-  }
-
-  onTrimHandleChanged(event: { handle: 'start' | 'end'; timeSec: number }): void {
-    if (event.handle === 'start') {
-      this.onTrimStartChanged(event.timeSec);
-    } else {
-      this.onTrimEndChanged(event.timeSec);
-    }
-  }
-
-  onTrimStartChanged(offsetSec: number): void {
-    const latestStart = this.trimEndOffsetSec() - StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
-    const nextStart = Math.min(
-      Math.floor(latestStart * 10) / 10,
-      Math.max(0, Number(offsetSec))
-    );
-    const roundedStart = Math.round(nextStart * 10) / 10;
-    this.trimStartOffsetSec.set(roundedStart);
-  }
-
-  onTrimEndChanged(offsetSec: number): void {
-    const earliestEnd =
-      this.trimStartOffsetSec() + StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC;
-    const minimumEnd = Math.ceil(earliestEnd * 10) / 10;
-    const nextEnd = Math.min(
-      this.trimMaxDurationSec(),
-      Math.max(minimumEnd, Number(offsetSec))
-    );
-    const roundedEnd = Math.min(
-      this.trimMaxDurationSec(),
-      Math.round(nextEnd * 10) / 10
-    );
-    this.trimEndOffsetSec.set(roundedEnd);
-  }
+  readonly showLabelEditor = this.store.showLabelEditor;
+  readonly labelEditMode = this.store.labelEditMode;
+  readonly editLabelValue = this.store.editLabelValue;
+  readonly customLabelValue = this.store.customLabelValue;
+  readonly isUpdatingLabel = this.store.isUpdatingLabel;
+  readonly isDeletingSession = this.store.isDeletingSession;
+  readonly showDeleteConfirm = this.store.showDeleteConfirm;
+  readonly linkCopied = this.store.linkCopied;
+  readonly effectiveEditLabel = this.store.effectiveEditLabel;
+  readonly canSaveLabel = this.store.canSaveLabel;
 
   ngOnInit(): void {
     const current = this.session();
-    if (current && this.currentSessionId !== current.uuid) {
-      this.initSessionState(current);
+    if (current && this.store.currentSessionId() !== current.uuid) {
+      this.store.setSession(current);
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['session']) {
-      const current = this.session();
-      if (current) {
-        if (this.currentSessionId === current.uuid) {
-          this.syncLabelState(current);
-          if (current.is_validated) {
-            this.showLabelEditor.set(false);
-          }
-        } else {
-          this.initSessionState(current);
-        }
-      } else {
-        this.currentSessionId = null;
-        this.activeReadings.set([]);
-      }
+      this.store.setSession(this.session());
     }
   }
 
-  private syncLabelState(session: StudioSessionSummary): void {
-    const isPredefined = this.predefinedLabels.some((l) => l.id === session.label);
-    if (isPredefined) {
-      this.labelEditMode.set('predefined');
-      this.editLabelValue.set(session.label);
-      this.customLabelValue.set('');
-    } else {
-      this.labelEditMode.set('custom');
-      this.customLabelValue.set(session.label);
-      this.editLabelValue.set('walk');
-    }
+  toggle3dViewer(): void {
+    this.store.toggle3dViewer();
   }
 
-  private initSessionState(session: StudioSessionSummary): void {
-    this.currentSessionId = session.uuid;
-    this.syncLabelState(session);
-    this.showLabelEditor.set(false);
-    this.activeReadings.set([]);
-    this.replayPlaybackTime.set(0);
-    this.show3dViewer.set(false);
-    this.showDeleteConfirm.set(false);
-    this.showTrimConfirm.set(false);
-    this.showUnvalidateConfirm.set(false);
-    this.trimStartOffsetSec.set(0);
-    this.trimEndOffsetSec.set(this.trimMaxDurationFor(session.duration_sec));
-    this.replayPlaybackTime.set(this.trimEndOffsetSec());
-    this.linkCopied.set(false);
-    this.loadReadings(this.currentSessionId);
+  toggleLabelEditor(): void {
+    this.store.toggleLabelEditor();
   }
 
-  private trimMaxDurationFor(durationSec: number): number {
-    return Math.min(durationSec, 30);
+  onReplayTimeSelected(timeSec: number): void {
+    this.store.onReplayTimeSelected(timeSec);
+  }
+
+  onTrimHandleChanged(event: { handle: 'start' | 'end'; timeSec: number }): void {
+    this.store.onTrimHandleChanged(event);
+  }
+
+  onTrimStartChanged(offsetSec: number): void {
+    this.store.onTrimStartChanged(offsetSec);
+  }
+
+  onTrimEndChanged(offsetSec: number): void {
+    this.store.onTrimEndChanged(offsetSec);
   }
 
   loadReadings(sessionId: string): void {
-    this.isLoadingReadings.set(true);
-    this.readingsError.set(null);
-
-    this.studioHistoryService.getSessionReadings(sessionId).subscribe({
-      next: (res) => {
-        this.activeReadings.set(res.readings ?? []);
-        this.isLoadingReadings.set(false);
-      },
-      error: (err) => {
-        this.isLoadingReadings.set(false);
-        this.readingsError.set(
-          err?.error?.detail ??
-            'Impossible de récupérer les trames IMU de cette session.'
-        );
-      },
-    });
+    this.store.loadReadings(sessionId);
   }
 
   confirmSession(): void {
-    const current = this.session();
-    if (!current) return;
-
-    this.isValidatingSession.set(true);
-    this.studioHistoryService.confirmSession(current.uuid).subscribe({
-      next: (updated) => {
-        this.isValidatingSession.set(false);
-        this.toast.success(this.translation.translate('studio_history.session_confirmed_success'));
-        this.sessionConfirmed.emit(updated);
-      },
-      error: (err) => {
-        this.isValidatingSession.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la validation de la session.'
-        );
-      },
-    });
+    this.store.confirmSession((updated) => this.sessionConfirmed.emit(updated));
   }
 
   trimSession(): void {
-    const current = this.session();
-    const startOffsetSec = this.trimStartOffsetSec();
-    const endOffsetSec = this.trimEndOffsetSec();
-    const newDurationSec = endOffsetSec - startOffsetSec;
-    if (
-      !current ||
-      current.is_validated ||
-      newDurationSec < StudioInspectionComponent.MIN_TRIM_INTERVAL_SEC ||
-      !this.hasTrimChanges() ||
-      this.isTrimmingSession()
-    ) {
-      return;
-    }
-
-    this.isTrimmingSession.set(true);
-    this.studioService.trimSession(current.uuid, startOffsetSec, endOffsetSec).subscribe({
-      next: (updated) => {
-        this.isTrimmingSession.set(false);
-        this.showTrimConfirm.set(false);
-        this.activeReadings.set(this.trimPreviewReadings());
-        this.trimStartOffsetSec.set(0);
-        this.trimEndOffsetSec.set(updated.duration_sec);
-        this.replayPlaybackTime.set(updated.duration_sec);
-        this.toast.success(
-          this.translation.translate('studio_history.trim_success', {
-            start: startOffsetSec.toFixed(1),
-            end: endOffsetSec.toFixed(1),
-            duration: updated.duration_sec.toFixed(1),
-          })
-        );
-        this.sessionUpdated.emit(updated);
-      },
-      error: (err) => {
-        this.isTrimmingSession.set(false);
-        this.toast.error(
-          err?.error?.detail ?? this.translation.translate('studio_history.trim_error')
-        );
-      },
-    });
+    this.store.trimSession((updated) => this.sessionUpdated.emit(updated));
   }
 
   reopenSession(): void {
-    const current = this.session();
-    if (!current?.is_validated || this.isUpdatingValidation()) return;
-
-    this.isUpdatingValidation.set(true);
-    this.studioHistoryService.updateSessionValidation(current.uuid, false).subscribe({
-      next: (updated) => {
-        this.isUpdatingValidation.set(false);
-        this.showUnvalidateConfirm.set(false);
-        this.toast.success(
-          this.translation.translate('studio_history.session_unvalidated_success')
-        );
-        this.sessionUpdated.emit(updated);
-      },
-      error: (err) => {
-        this.isUpdatingValidation.set(false);
-        this.toast.error(
-          err?.error?.detail ??
-            this.translation.translate('studio_history.session_unvalidated_error')
-        );
-      },
-    });
+    this.store.reopenSession((updated) => this.sessionUpdated.emit(updated));
   }
 
   updateLabel(): void {
-    const current = this.session();
-    const newLabel = this.effectiveEditLabel();
-    if (!current || current.is_validated || !newLabel || newLabel === current.label) {
-      return;
-    }
-
-    this.isUpdatingLabel.set(true);
-    this.studioHistoryService.updateSessionLabel(current.uuid, newLabel).subscribe({
-      next: (updated) => {
-        this.isUpdatingLabel.set(false);
-        this.showLabelEditor.set(false);
-        this.toast.success(
-          this.translation.translate('studio_history.label_updated')
-        );
-        this.sessionUpdated.emit(updated);
-      },
-      error: (err) => {
-        this.isUpdatingLabel.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la mise à jour du label.'
-        );
-      },
-    });
+    this.store.updateLabel((updated) => this.sessionUpdated.emit(updated));
   }
 
   confirmDelete(): void {
-    this.showDeleteConfirm.set(true);
+    this.store.confirmDelete();
   }
 
   cancelDelete(): void {
-    this.showDeleteConfirm.set(false);
+    this.store.cancelDelete();
   }
 
   deleteSession(): void {
-    const current = this.session();
-    if (!current) return;
-
-    // Immediately dismiss confirmation banner and notify parent component
-    this.showDeleteConfirm.set(false);
-    this.sessionDeleted.emit(current.uuid);
-
-    this.isDeletingSession.set(true);
-    this.studioHistoryService.deleteSession(current.uuid).subscribe({
-      next: () => {
-        this.isDeletingSession.set(false);
-        this.toast.info(
-          this.translation.translate('studio_history.session_deleted')
-        );
-      },
-      error: (err) => {
-        this.isDeletingSession.set(false);
-        this.toast.error(
-          err?.error?.detail ?? 'Erreur lors de la suppression de la session.'
-        );
-      },
-    });
+    this.store.deleteSession((sessionId) => this.sessionDeleted.emit(sessionId));
   }
 
   copyShareLink(): void {
-    const current = this.session();
-    if (!current) return;
-
-    const url = `${window.location.origin}/dashboard/studio/history/${current.uuid}`;
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(url).then(() => {
-        this.linkCopied.set(true);
-        this.toast.success(this.translation.translate('studio_history.link_copied'));
-        setTimeout(() => this.linkCopied.set(false), 3000);
-      });
-    }
+    this.store.copyShareLink();
   }
 
   exportJson(): void {
-    const s = this.session();
-    if (!s) return;
-    const readings = this.activeReadings();
-    if (readings.length === 0 && !this.isLoadingReadings()) {
-      this.toast.info(this.translation.translate('studio_history.export_no_data'));
-      return;
-    }
-    exportSessionToJson(s, readings);
-    this.toast.success(this.translation.translate('studio_history.export_success'));
+    this.store.exportJson();
   }
 
   getLabelBadgeClass(label: string): string {
