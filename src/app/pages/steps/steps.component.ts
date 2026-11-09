@@ -9,13 +9,9 @@ import { DeviceSelectComponent } from '../../shared/components/device-select/dev
 import { StepsHistoryComponent } from '../dashboard/components/steps-history/steps-history.component';
 import { HourlyStepsChartComponent } from '../dashboard/components/hourly-steps-chart/hourly-steps-chart.component';
 import { ActivityCalendarComponent } from '../dashboard/components/activity-calendar/activity-calendar.component';
+import { formatLocalDateToYmd, getLocalDateString } from '../../shared/formatters/date.formatters';
 
-export function getLocalDateString(d: Date = new Date()): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+export { formatLocalDateToYmd, getLocalDateString };
 
 @Component({
   selector: 'app-steps',
@@ -37,7 +33,7 @@ export class StepsComponent implements OnInit {
 
   readonly devices = signal<DeviceResponse[]>([]);
   readonly selectedDeviceId = signal<string>('');
-  readonly selectedDate = signal<string>(getLocalDateString());
+  readonly selectedDate = signal<string>(formatLocalDateToYmd());
   readonly loadingDevices = signal<boolean>(false);
   readonly devicesError = signal<boolean>(false);
 

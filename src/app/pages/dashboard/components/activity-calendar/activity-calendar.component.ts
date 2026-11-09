@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { StepsService } from '../../../../core/services/steps.service';
 import { DailyStepsSummary } from '../../../../models/steps.models';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
+import { formatLocalDateToYmd } from '../../../../shared/formatters/date.formatters';
 
 export interface CalendarDayItem {
   dayNumber: number;
@@ -20,13 +21,6 @@ export interface CalendarDayItem {
   totalSteps: number;
   level: number;
   isSelected: boolean;
-}
-
-function getLocalDateString(d: Date = new Date()): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
 }
 
 @Component({
@@ -40,7 +34,7 @@ export class ActivityCalendarComponent implements OnInit {
   private readonly stepsService = inject(StepsService);
 
   readonly deviceId = input.required<string>();
-  readonly selectedDate = model<string>(getLocalDateString());
+  readonly selectedDate = model<string>(formatLocalDateToYmd());
   readonly dateSelected = output<string>();
 
   readonly currentYear = signal<number>(new Date().getFullYear());

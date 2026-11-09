@@ -13,6 +13,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
+import {
+  formatDateDisplay,
+  formatLocalDateToYmd,
+} from '../../formatters/date.formatters';
 
 @Component({
   selector: 'app-date-filter',
@@ -158,19 +162,11 @@ export class DateFilterComponent {
   }
 
   formatDateDisplay(ymd: string): string {
-    if (!ymd) return '';
-    const parts = ymd.split('-');
-    if (parts.length === 3) {
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-    return ymd;
+    return formatDateDisplay(ymd);
   }
 
   private formatToYMD(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
+    return formatLocalDateToYmd(d);
   }
 
   @HostListener('document:keydown.escape')

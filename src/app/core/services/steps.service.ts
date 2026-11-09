@@ -8,6 +8,7 @@ import {
   DailyStepsSummary,
   HourlyStepsResponse,
 } from '../../models/steps.models';
+import { getMonthDateBounds } from '../../shared/formatters/date.formatters';
 
 /**
  * Service to manage and retrieve device step count history.
@@ -54,11 +55,7 @@ export class StepsService {
     year: number,
     month: number
   ): Observable<DailyStepsSummary[]> {
-    const monthStr = month < 10 ? `0${month}` : `${month}`;
-    const fromDate = `${year}-${monthStr}-01`;
-    const lastDay = new Date(year, month, 0).getDate();
-    const lastDayStr = lastDay < 10 ? `0${lastDay}` : `${lastDay}`;
-    const toDate = `${year}-${monthStr}-${lastDayStr}`;
+    const { fromDate, toDate } = getMonthDateBounds(year, month);
 
     const params = new HttpParams()
       .set('device_id', deviceId)
