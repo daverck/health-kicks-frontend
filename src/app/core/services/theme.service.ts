@@ -38,7 +38,7 @@ export class ThemeService {
 
     this.themeMode.set(initialMode);
 
-    if (typeof window !== 'undefined' && window.matchMedia) {
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
       this.mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
       this.mediaQueryListener = (e: MediaQueryListEvent) => {
         if (this.themeMode() === 'system') {
@@ -46,10 +46,13 @@ export class ThemeService {
         }
       };
 
-      if (this.mediaQueryList.addEventListener) {
+      if ('addEventListener' in this.mediaQueryList) {
         this.mediaQueryList.addEventListener('change', this.mediaQueryListener);
-      } else if ((this.mediaQueryList as any).addListener) {
-        (this.mediaQueryList as any).addListener(this.mediaQueryListener);
+      } else {
+        // Fallback for legacy environments that implement addListener
+        (this.mediaQueryList as unknown as { addListener?: (fn: (e: MediaQueryListEvent) => void) => void }).addListener?.(
+          this.mediaQueryListener
+        );
       }
     }
 
@@ -73,23 +76,24 @@ export class ThemeService {
     this.setTheme(nextMode);
   }
 
+  private resolveDarkPreference(mode: ThemeMode): boolean {
+    if (mode === 'dark') {
+      return true;
+    }
+    if (mode === 'light') {
+      return false;
+    }
+    return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : false;
+  }
+
   private updateActiveTheme(mode: ThemeMode): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
-    let shouldBeDark = false;
-    if (mode === 'dark') {
-      shouldBeDark = true;
-    } else if (mode === 'light') {
-      shouldBeDark = false;
-    } else {
-      shouldBeDark =
-        typeof window !== 'undefined' && window.matchMedia
-          ? window.matchMedia('(prefers-color-scheme: dark)').matches
-          : false;
-    }
-
+    const shouldBeDark = this.resolveDarkPreference(mode);
     this.applyTheme(shouldBeDark);
   }
 
