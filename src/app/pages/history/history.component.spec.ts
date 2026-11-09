@@ -6,7 +6,6 @@ import { of, throwError } from 'rxjs';
 import {
   mockDevices,
   mockActivityEventPage,
-  mockActivityEvents,
   mockHapticLogPage,
 } from '../../../testing/mocks/device.mock';
 

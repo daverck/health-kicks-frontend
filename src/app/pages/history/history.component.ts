@@ -1,8 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DeviceService } from '../../core/services/device.service';
-import { ToastService } from '../../core/services/toast.service';
-import { DeviceResponse, ActivityEvent, HapticLogItem } from '../../models/api.models';
 import { intensityToLevel } from '../../core/utils/haptic.utils';
 import {
   PREDEFINED_LABELS,
@@ -16,6 +13,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { DeviceSelectComponent } from '../../shared/components/device-select/device-select.component';
 import { ActivitySelectComponent } from '../../shared/components/activity-select/activity-select.component';
 import { DateFilterComponent } from '../../shared/components/date-filter/date-filter.component';
+import { HistoryStore } from './history.store';
 
 @Component({
   selector: 'app-history',
@@ -27,11 +25,11 @@ import { DateFilterComponent } from '../../shared/components/date-filter/date-fi
     ActivitySelectComponent,
     DateFilterComponent,
   ],
+  providers: [HistoryStore],
   templateUrl: './history.component.html',
 })
 export class HistoryComponent implements OnInit {
-  private readonly deviceService = inject(DeviceService);
-  private readonly toast = inject(ToastService);
+  readonly store = inject(HistoryStore);
   private readonly translation = inject(TranslationService);
 
   readonly intensityToLevel = intensityToLevel;
@@ -40,136 +38,80 @@ export class HistoryComponent implements OnInit {
   readonly isCustomStudioLabel = isCustomStudioLabel;
   readonly customLabelIcon = CUSTOM_LABEL_ICON;
 
-  readonly devices = signal<DeviceResponse[]>([]);
-  readonly selectedDeviceId = signal<string>('');
-  readonly selectedDeviceIds = signal<string[]>([]);
-  readonly activeTab = signal<'activities' | 'haptic'>('activities');
+  // Store signals
+  readonly devices = this.store.devices;
+  readonly selectedDeviceId = this.store.selectedDeviceId;
+  readonly selectedDeviceIds = this.store.selectedDeviceIds;
+  readonly activeTab = this.store.activeTab;
 
-  // Activities history
-  readonly events = signal<ActivityEvent[]>([]);
-  readonly selectedEventType = signal<string>('all');
-  readonly selectedEventTypes = signal<string[]>([]);
-  readonly startDate = signal<string>('');
-  readonly endDate = signal<string>('');
-  readonly page = signal(1);
-  readonly pageSize = 20;
-  readonly total = signal<number | null>(null);
-  readonly totalPages = signal(0);
+  readonly events = this.store.events;
+  readonly selectedEventType = this.store.selectedEventType;
+  readonly selectedEventTypes = this.store.selectedEventTypes;
+  readonly startDate = this.store.startDate;
+  readonly endDate = this.store.endDate;
+  readonly page = this.store.page;
+  readonly pageSize = this.store.pageSize;
+  readonly total = this.store.total;
+  readonly totalPages = this.store.totalPages;
+  readonly filteredEvents = this.store.filteredEvents;
 
-  // Activities are filtered directly server-side
-  readonly filteredEvents = computed<ActivityEvent[]>(() => this.events());
+  readonly hapticLogs = this.store.hapticLogs;
+  readonly hapticStartDate = this.store.hapticStartDate;
+  readonly hapticEndDate = this.store.hapticEndDate;
+  readonly hapticPage = this.store.hapticPage;
+  readonly hapticTotal = this.store.hapticTotal;
+  readonly hapticTotalPages = this.store.hapticTotalPages;
 
-  // Haptic vibrations history
-  readonly hapticLogs = signal<HapticLogItem[]>([]);
-  readonly hapticStartDate = signal<string>('');
-  readonly hapticEndDate = signal<string>('');
-  readonly hapticPage = signal(1);
-  readonly hapticTotal = signal<number | null>(null);
-  readonly hapticTotalPages = signal(0);
-
-  readonly loading = signal(true);
-  readonly devicesError = signal(false);
-  readonly eventsError = signal(false);
+  readonly loading = this.store.loading;
+  readonly devicesError = this.store.devicesError;
+  readonly eventsError = this.store.eventsError;
 
   ngOnInit(): void {
-    this.loadDevices();
-  }
-
-  setTab(tab: 'activities' | 'haptic' | 'falls'): void {
-    const targetTab: 'activities' | 'haptic' = tab === 'falls' ? 'activities' : tab;
-    if (this.activeTab() === targetTab) return;
-    this.activeTab.set(targetTab);
-    this.loadCurrentTab();
-  }
-
-  onEventTypeChange(ev: Event | string): void {
-    const value = typeof ev === 'string' ? ev : (ev.target as HTMLSelectElement).value;
-    this.selectedEventType.set(value);
-    this.selectedEventTypes.set(value && value !== 'all' ? [value] : []);
-    this.page.set(1);
-    this.loadEvents();
-  }
-
-  onEventTypesChange(types: string[]): void {
-    this.selectedEventTypes.set(types);
-    this.selectedEventType.set(types.length === 0 ? 'all' : types.join(','));
-    this.page.set(1);
-    this.loadEvents();
-  }
-
-  onDateChange(range: { startDate: string; endDate: string }): void {
-    this.startDate.set(range.startDate);
-    this.endDate.set(range.endDate);
-    this.page.set(1);
-    this.loadEvents();
-  }
-
-  onHapticDateChange(range: { startDate: string; endDate: string }): void {
-    this.hapticStartDate.set(range.startDate);
-    this.hapticEndDate.set(range.endDate);
-    this.hapticPage.set(1);
-    this.loadHapticLogs();
+    this.store.loadDevices();
   }
 
   loadDevices(): void {
-    this.deviceService.listDevices().subscribe({
-      next: (devices) => {
-        this.devices.set(devices);
-        this.devicesError.set(false);
-        if (devices.length > 0) {
-          this.selectedDeviceId.set(devices[0].device_id);
-          this.selectedDeviceIds.set([devices[0].device_id]);
-        }
-        this.loadCurrentTab();
-      },
-      error: (err) => {
-        this.devices.set([]);
-        this.selectedDeviceId.set('');
-        this.selectedDeviceIds.set([]);
-        this.devicesError.set(true);
-        this.loading.set(false);
-        this.toast.error(
-          err?.status === 0
-            ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
-            : 'Impossible de charger vos appareils. Veuillez réessayer plus tard.'
-        );
-      },
-    });
+    this.store.loadDevices();
+  }
+
+  setTab(tab: 'activities' | 'haptic' | 'falls'): void {
+    this.store.setTab(tab);
+  }
+
+  onEventTypeChange(ev: Event | string): void {
+    this.store.onEventTypeChange(ev);
+  }
+
+  onEventTypesChange(types: string[]): void {
+    this.store.onEventTypesChange(types);
+  }
+
+  onDateChange(range: { startDate: string; endDate: string }): void {
+    this.store.onDateChange(range);
+  }
+
+  onHapticDateChange(range: { startDate: string; endDate: string }): void {
+    this.store.onHapticDateChange(range);
   }
 
   onDeviceSelected(deviceId: string): void {
-    this.selectedDeviceId.set(deviceId);
-    this.selectedDeviceIds.set(deviceId && deviceId !== 'all' ? [deviceId] : []);
-    this.page.set(1);
-    this.hapticPage.set(1);
-    this.loadCurrentTab();
+    this.store.onDeviceSelected(deviceId);
   }
 
   onDeviceIdsChange(deviceIds: string[]): void {
-    this.selectedDeviceIds.set(deviceIds);
-    this.selectedDeviceId.set(deviceIds.length === 0 ? 'all' : deviceIds.join(','));
-    this.page.set(1);
-    this.hapticPage.set(1);
-    this.loadCurrentTab();
+    this.store.onDeviceIdsChange(deviceIds);
   }
 
   onDeviceChange(ev: Event | string): void {
-    const value = typeof ev === 'string' ? ev : (ev.target as HTMLSelectElement).value;
-    this.onDeviceSelected(value);
+    this.store.onDeviceChange(ev);
   }
 
   goToPage(p: number): void {
-    if (this.activeTab() === 'activities') {
-      this.page.set(Math.max(1, p));
-      this.loadEvents();
-    } else {
-      this.hapticPage.set(Math.max(1, p));
-      this.loadHapticLogs();
-    }
+    this.store.goToPage(p);
   }
 
   refresh(): void {
-    this.loadCurrentTab();
+    this.store.refresh();
   }
 
   isFall(eventType: string): boolean {
@@ -214,100 +156,5 @@ export class HistoryComponent implements OnInit {
     }
     const found = this.predefinedLabels.find((l) => l.id === eventType);
     return found ? found.name : eventType;
-  }
-
-  loadCurrentTab(): void {
-    if (this.activeTab() === 'activities') {
-      this.loadEvents();
-    } else {
-      this.loadHapticLogs();
-    }
-  }
-
-  private loadEvents(): void {
-    const deviceParam = this.selectedDeviceIds().length > 0
-      ? this.selectedDeviceIds().join(',')
-      : (this.selectedDeviceId() || 'all');
-    if (this.devices().length === 0 && !this.selectedDeviceId()) {
-      this.loading.set(false);
-      return;
-    }
-    this.loading.set(true);
-    this.eventsError.set(false);
-
-    const typeParam = this.selectedEventTypes().length > 0
-      ? this.selectedEventTypes().join(',')
-      : this.selectedEventType();
-
-    this.deviceService
-      .getActivityEvents(
-        deviceParam,
-        this.page(),
-        this.pageSize,
-        typeParam,
-        this.startDate(),
-        this.endDate()
-      )
-      .subscribe({
-        next: (page) => {
-          this.events.set(page.items);
-          this.total.set(page.total);
-          this.totalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.events.set([]);
-          this.total.set(null);
-          this.totalPages.set(0);
-          this.loading.set(false);
-          this.eventsError.set(true);
-          this.toast.error(
-            err?.status === 0
-              ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
-              : "Impossible de charger l'historique des événements."
-          );
-        },
-      });
-  }
-
-  private loadHapticLogs(): void {
-    const deviceParam = this.selectedDeviceIds().length > 0
-      ? this.selectedDeviceIds().join(',')
-      : (this.selectedDeviceId() || 'all');
-    if (this.devices().length === 0 && !this.selectedDeviceId()) {
-      this.loading.set(false);
-      return;
-    }
-    this.loading.set(true);
-    this.eventsError.set(false);
-
-    this.deviceService
-      .getHapticHistory(
-        deviceParam,
-        this.hapticPage(),
-        this.pageSize,
-        this.hapticStartDate(),
-        this.hapticEndDate()
-      )
-      .subscribe({
-        next: (page) => {
-          this.hapticLogs.set(page.items);
-          this.hapticTotal.set(page.total);
-          this.hapticTotalPages.set(Math.max(1, Math.ceil(page.total / (page.page_size || this.pageSize))));
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.hapticLogs.set([]);
-          this.hapticTotal.set(null);
-          this.hapticTotalPages.set(0);
-          this.loading.set(false);
-          this.eventsError.set(true);
-          this.toast.error(
-            err?.status === 0
-              ? 'Service temporairement indisponible, veuillez vérifier votre connexion.'
-              : "Impossible de charger l'historique des vibrations."
-          );
-        },
-      });
   }
 }
