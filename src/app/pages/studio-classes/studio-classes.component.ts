@@ -1,9 +1,7 @@
 import {
   Component,
   OnInit,
-  computed,
   inject,
-  signal,
   effect,
   ElementRef,
   viewChild,
@@ -11,23 +9,20 @@ import {
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
-import { StudioService } from '../../core/services/studio.service';
 import {
-  StudioClassesSummaryResponse,
   StudioClassSummaryItem,
   StudioClassDailyCount,
-  StudioClassDetailStatsResponse,
-  StudioConfusionMatrix,
 } from '../../models/telemetry.models';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { StudioClassesKpiCardsComponent } from './components/studio-classes-kpi-cards.component';
 import { StudioClassesTableComponent } from './components/studio-classes-table.component';
 import { StudioClassesConfusionMatrixComponent } from './components/studio-classes-confusion-matrix.component';
 import { StudioClassesSelectedCardComponent } from './components/studio-classes-selected-card.component';
+import { StudioClassesStore, StudioChartMetric } from './studio-classes.store';
 
 Chart.register(...registerables);
 
-export type StudioChartMetric = 'distribution' | 'f1' | 'precision' | 'recall';
+export type { StudioChartMetric };
 
 @Component({
   selector: 'app-studio-classes',
@@ -40,10 +35,11 @@ export type StudioChartMetric = 'distribution' | 'f1' | 'precision' | 'recall';
     StudioClassesConfusionMatrixComponent,
     StudioClassesSelectedCardComponent,
   ],
+  providers: [StudioClassesStore],
   templateUrl: './studio-classes.component.html',
 })
 export class StudioClassesComponent implements OnInit {
-  private readonly studioService = inject(StudioService);
+  private readonly store = inject(StudioClassesStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -52,96 +48,38 @@ export class StudioClassesComponent implements OnInit {
   private chartInstance: Chart | null = null;
   private timelineInstance: Chart | null = null;
 
-  readonly isLoading = signal<boolean>(true);
-  readonly error = signal<string | null>(null);
-  readonly summary = signal<StudioClassesSummaryResponse | null>(null);
+  // Delegated signals and state from StudioClassesStore
+  readonly isLoading = this.store.isLoading;
+  readonly error = this.store.error;
+  readonly summary = this.store.summary;
 
-  // Selected class state
-  readonly selectedClass = signal<string | null>(null);
-  readonly selectedClassStats = signal<StudioClassDetailStatsResponse | null>(null);
-  readonly isLoadingClassStats = signal<boolean>(false);
+  readonly selectedClass = this.store.selectedClass;
+  readonly selectedClassStats = this.store.selectedClassStats;
+  readonly isLoadingClassStats = this.store.isLoadingClassStats;
 
-  // Active metric for class overview chart ('distribution', 'f1', 'precision', 'recall')
-  readonly chartMetric = signal<StudioChartMetric>('distribution');
+  readonly chartMetric = this.store.chartMetric;
 
-  // Expansion panel states (distribution bar chart and comparative table, collapsed by default)
-  readonly isChartExpanded = signal<boolean>(false);
-  readonly isTableExpanded = signal<boolean>(false);
-  readonly isMatrixExpanded = signal<boolean>(false);
+  readonly isChartExpanded = this.store.isChartExpanded;
+  readonly isTableExpanded = this.store.isTableExpanded;
+  readonly isMatrixExpanded = this.store.isMatrixExpanded;
 
-  // Confusion matrix hover state
-  readonly hoveredCell = signal<{ trueLabel: string; predLabel: string; value: number } | null>(null);
+  readonly hoveredCell = this.store.hoveredCell;
 
-  // Second section: chronological distribution timeline (expanded by default)
-  readonly isTimelineExpanded = signal<boolean>(true);
+  readonly isTimelineExpanded = this.store.isTimelineExpanded;
 
-  // Timeline filtering: 'all' or 'month'
-  readonly timelineMode = signal<'all' | 'month'>('all');
-  readonly selectedMonth = signal<string>('');
+  readonly timelineMode = this.store.timelineMode;
+  readonly selectedMonth = this.store.selectedMonth;
 
-  readonly classes = computed<StudioClassSummaryItem[]>(() => {
-    return this.summary()?.classes ?? [];
-  });
-
-  readonly confusionMatrix = computed<StudioConfusionMatrix | null>(() => {
-    return this.summary()?.confusion_matrix ?? null;
-  });
-
-  readonly sortedClasses = computed<StudioClassSummaryItem[]>(() => {
-    return [...this.classes()].sort((a, b) => b.total_sessions - a.total_sessions);
-  });
-
-  readonly selectedClassSummary = computed<StudioClassSummaryItem | null>(() => {
-    const lbl = this.selectedClass();
-    if (!lbl) return null;
-    return this.classes().find((c) => c.label === lbl) ?? null;
-  });
-
-  // Source daily counts depending on whether a class is selected or not
-  readonly activeDailyCounts = computed<StudioClassDailyCount[]>(() => {
-    const lbl = this.selectedClass();
-    if (lbl) {
-      return this.selectedClassStats()?.daily_counts ?? [];
-    }
-    return this.summary()?.daily_counts ?? [];
-  });
-
-  // Unique sorted list of months found in activeDailyCounts (e.g. ['2026-09', '2026-10', '2026-11'])
-  readonly availableMonths = computed<string[]>(() => {
-    const counts = this.activeDailyCounts();
-    const monthsSet = new Set<string>();
-    for (const item of counts) {
-      if (item.date && item.date.length >= 7) {
-        monthsSet.add(item.date.substring(0, 7));
-      }
-    }
-    return Array.from(monthsSet).sort();
-  });
-
-  // Timeline daily counts filtered by timelineMode and selectedMonth
-  readonly filteredDailyCounts = computed<StudioClassDailyCount[]>(() => {
-    const counts = this.activeDailyCounts();
-    if (this.timelineMode() === 'month') {
-      const month = this.selectedMonth();
-      if (!month) return counts;
-      return counts.filter((d) => d.date.startsWith(month));
-    }
-    return counts;
-  });
-
-  // Current month index and navigation state
-  readonly currentMonthIndex = computed<number>(() => {
-    return this.availableMonths().indexOf(this.selectedMonth());
-  });
-
-  readonly hasPreviousMonth = computed<boolean>(() => {
-    return this.currentMonthIndex() > 0;
-  });
-
-  readonly hasNextMonth = computed<boolean>(() => {
-    const idx = this.currentMonthIndex();
-    return idx >= 0 && idx < this.availableMonths().length - 1;
-  });
+  readonly classes = this.store.classes;
+  readonly confusionMatrix = this.store.confusionMatrix;
+  readonly sortedClasses = this.store.sortedClasses;
+  readonly selectedClassSummary = this.store.selectedClassSummary;
+  readonly activeDailyCounts = this.store.activeDailyCounts;
+  readonly availableMonths = this.store.availableMonths;
+  readonly filteredDailyCounts = this.store.filteredDailyCounts;
+  readonly currentMonthIndex = this.store.currentMonthIndex;
+  readonly hasPreviousMonth = this.store.hasPreviousMonth;
+  readonly hasNextMonth = this.store.hasNextMonth;
 
   constructor() {
     // Render distribution chart when summary is loaded and canvas is ready
@@ -170,55 +108,22 @@ export class StudioClassesComponent implements OnInit {
     // Listen to query parameters (?class=...)
     this.route.queryParamMap.subscribe((params) => {
       const classParam = params.get('class');
-      if (classParam !== this.selectedClass()) {
-        this.selectedClass.set(classParam);
-        if (classParam) {
-          this.loadClassStats(classParam);
-        } else {
-          this.selectedClassStats.set(null);
-          this.adjustMonthSelection();
-        }
-      }
+      this.store.setSelectedClass(classParam);
     });
 
-    this.loadSummary();
+    this.store.loadSummary();
   }
 
   loadSummary(): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    this.studioService.getClassesSummary().subscribe({
-      next: (data) => {
-        this.summary.set(data);
-        this.isLoading.set(false);
-        this.adjustMonthSelection();
-      },
-      error: (err) => {
-        this.error.set(
-          err?.error?.detail || 'Error loading Studio classes summary.'
-        );
-        this.isLoading.set(false);
-      },
-    });
+    this.store.loadSummary();
   }
 
   loadClassStats(label: string): void {
-    this.isLoadingClassStats.set(true);
-    this.studioService.getClassStats(label).subscribe({
-      next: (data) => {
-        this.selectedClassStats.set(data);
-        this.isLoadingClassStats.set(false);
-        this.adjustMonthSelection();
-      },
-      error: () => {
-        this.isLoadingClassStats.set(false);
-      },
-    });
+    this.store.loadClassStats(label);
   }
 
   setChartMetric(metric: StudioChartMetric): void {
-    this.chartMetric.set(metric);
+    this.store.setChartMetric(metric);
     if (this.isChartExpanded()) {
       setTimeout(() => {
         const summaryData = this.summary();
@@ -232,9 +137,8 @@ export class StudioClassesComponent implements OnInit {
   }
 
   toggleChartExpansion(): void {
-    const next = !this.isChartExpanded();
-    this.isChartExpanded.set(next);
-    if (next) {
+    this.store.toggleChartExpansion();
+    if (this.isChartExpanded()) {
       setTimeout(() => {
         const summaryData = this.summary();
         const canvasRef = this.chartCanvas();
@@ -248,19 +152,19 @@ export class StudioClassesComponent implements OnInit {
   }
 
   toggleTableExpansion(): void {
-    this.isTableExpanded.update((v) => !v);
+    this.store.toggleTableExpansion();
   }
 
   toggleMatrixExpansion(): void {
-    this.isMatrixExpanded.update((v) => !v);
+    this.store.toggleMatrixExpansion();
   }
 
   setHoveredCell(trueLabel: string, predLabel: string, value: number): void {
-    this.hoveredCell.set({ trueLabel, predLabel, value });
+    this.store.setHoveredCell(trueLabel, predLabel, value);
   }
 
   clearHoveredCell(): void {
-    this.hoveredCell.set(null);
+    this.store.clearHoveredCell();
   }
 
   getMatrixCellBgClass(value: number, isDiagonal: boolean): string {
@@ -278,9 +182,8 @@ export class StudioClassesComponent implements OnInit {
   }
 
   toggleTimelineExpansion(): void {
-    const next = !this.isTimelineExpanded();
-    this.isTimelineExpanded.set(next);
-    if (next) {
+    this.store.toggleTimelineExpansion();
+    if (this.isTimelineExpanded()) {
       setTimeout(() => {
         const daily = this.filteredDailyCounts();
         const canvasRef = this.timelineCanvas();
@@ -305,43 +208,19 @@ export class StudioClassesComponent implements OnInit {
   }
 
   setTimelineMode(mode: 'all' | 'month'): void {
-    this.timelineMode.set(mode);
-    if (mode === 'month') {
-      const months = this.availableMonths();
-      if (months.length > 0 && (!this.selectedMonth() || !months.includes(this.selectedMonth()))) {
-        // Default to latest month
-        this.selectedMonth.set(months[months.length - 1]);
-      }
-    }
+    this.store.setTimelineMode(mode);
   }
 
   selectMonth(month: string): void {
-    this.selectedMonth.set(month);
-    this.timelineMode.set('month');
+    this.store.selectMonth(month);
   }
 
   goToPreviousMonth(): void {
-    const idx = this.currentMonthIndex();
-    if (idx > 0) {
-      this.selectedMonth.set(this.availableMonths()[idx - 1]);
-    }
+    this.store.goToPreviousMonth();
   }
 
   goToNextMonth(): void {
-    const idx = this.currentMonthIndex();
-    const months = this.availableMonths();
-    if (idx >= 0 && idx < months.length - 1) {
-      this.selectedMonth.set(months[idx + 1]);
-    }
-  }
-
-  private adjustMonthSelection(): void {
-    const months = this.availableMonths();
-    if (months.length > 0) {
-      if (!this.selectedMonth() || !months.includes(this.selectedMonth())) {
-        this.selectedMonth.set(months[months.length - 1]);
-      }
-    }
+    this.store.goToNextMonth();
   }
 
   formatLabel(lbl: string): string {
