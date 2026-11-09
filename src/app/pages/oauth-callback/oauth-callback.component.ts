@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { AuthService, OAuthProvider } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -29,7 +29,31 @@ export class OAuthCallbackComponent implements OnInit {
   providerLabel = 'Google';
 
   ngOnInit(): void {
-    // Determine provider from route parameter (:provider) or URL path
+    this.resolveProvider();
+
+    const params = this.route.snapshot.queryParamMap;
+    if (this.handleOAuthParamsError(params)) {
+      return;
+    }
+
+    const ticket = params.get('ticket');
+    const code = params.get('code');
+    const state = params.get('state');
+
+    if (ticket) {
+      this.handleTicketExchange(ticket, state);
+      return;
+    }
+
+    if (!code || !state) {
+      this.failWithError(`Paramètres d'autorisation ${this.providerLabel} manquants (code ou state absent).`);
+      return;
+    }
+
+    this.handleCodeExchange(code, state);
+  }
+
+  private resolveProvider(): void {
     const routeProvider = (
       this.route.snapshot.paramMap.get('provider') ??
       (this.route.snapshot.routeConfig?.path?.includes('azure') ? 'azure' : 'google')
@@ -42,99 +66,85 @@ export class OAuthCallbackComponent implements OnInit {
       this.provider = 'google';
       this.providerLabel = 'Google';
     }
+  }
 
-    const params = this.route.snapshot.queryParamMap;
+  private handleOAuthParamsError(params: ParamMap): boolean {
     const errorParam = params.get('error');
     const errorDescription = params.get('error_description');
 
-    // Handle user cancellation explicitly (?error=access_denied)
     if (errorParam === 'access_denied') {
-      const msg = `Connexion annulée : vous avez refusé ou annulé l'authentification avec ${this.providerLabel}.`;
-      this.error.set(msg);
-      this.toast.error(msg);
-      this.loading.set(false);
-      return;
+      this.failWithError(
+        `Connexion annulée : vous avez refusé ou annulé l'authentification avec ${this.providerLabel}.`
+      );
+      return true;
     }
 
-    // Handle generic OAuth error returned by provider
     if (errorParam) {
-      const msg = errorDescription || `Erreur d'authentification ${this.providerLabel} : ${errorParam}`;
-      this.error.set(msg);
-      this.toast.error(msg);
-      this.loading.set(false);
+      this.failWithError(
+        errorDescription || `Erreur d'authentification ${this.providerLabel} : ${errorParam}`
+      );
+      return true;
+    }
+
+    return false;
+  }
+
+  private validateAntiCsrfState(state: string | null): boolean {
+    if (!state) {
+      return false;
+    }
+    const isValid = this.auth.validateOAuthState(this.provider, state);
+    if (!isValid) {
+      this.failWithError(
+        'Échec de validation de sécurité (paramètre state invalide ou expiré). Veuillez réessayer.'
+      );
+      return false;
+    }
+    return true;
+  }
+
+  private handleTicketExchange(ticket: string, state: string | null): void {
+    if (state && !this.validateAntiCsrfState(state)) {
       return;
     }
 
-    const ticket = params.get('ticket');
-    const code = params.get('code');
-    const state = params.get('state');
-
-    if (ticket) {
-      if (state) {
-        const isValidState = this.auth.validateOAuthState(this.provider, state);
-        if (!isValidState) {
-          const msg = 'Échec de validation de sécurité (paramètre state invalide ou expiré). Veuillez réessayer.';
-          this.error.set(msg);
-          this.toast.error(msg);
-          this.loading.set(false);
-          return;
-        }
-      }
-
-      const verifier = this.auth.consumePkceVerifier ? this.auth.consumePkceVerifier(this.provider) : null;
-      this.auth.exchangeOAuthTicket(ticket, verifier).subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.toast.success(`Connexion avec ${this.providerLabel} réussie !`);
-          this.router.navigateByUrl('/dashboard/devices');
-        },
-        error: (err: any) => {
-          this.loading.set(false);
-          const detail =
-            err?.error?.detail ||
-            err?.error?.message ||
-            `Impossible de finaliser l'authentification ${this.providerLabel}. Veuillez réessayer.`;
-          this.error.set(detail);
-          this.toast.error(detail);
-        },
-      });
-      return;
-    }
-
-    if (!code || !state) {
-      const msg = `Paramètres d'autorisation ${this.providerLabel} manquants (code ou state absent).`;
-      this.error.set(msg);
-      this.toast.error(msg);
-      this.loading.set(false);
-      return;
-    }
-
-    // Validate anti-CSRF state against sessionStorage
-    const isValidState = this.auth.validateOAuthState(this.provider, state);
-    if (!isValidState) {
-      const msg = 'Échec de validation de sécurité (paramètre state invalide ou expiré). Veuillez réessayer.';
-      this.error.set(msg);
-      this.toast.error(msg);
-      this.loading.set(false);
-      return;
-    }
-
-    // Exchange authorization code & state with backend
-    this.auth.handleOAuthCallback(this.provider, code, state).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.toast.success(`Connexion avec ${this.providerLabel} réussie !`);
-        this.router.navigateByUrl('/dashboard/devices');
-      },
-      error: (err: any) => {
-        this.loading.set(false);
-        const detail =
-          err?.error?.detail ||
-          err?.error?.message ||
-          `Impossible de finaliser l'authentification ${this.providerLabel}. Veuillez réessayer.`;
-        this.error.set(detail);
-        this.toast.error(detail);
-      },
+    const verifier = this.auth.consumePkceVerifier ? this.auth.consumePkceVerifier(this.provider) : null;
+    this.auth.exchangeOAuthTicket(ticket, verifier).subscribe({
+      next: () => this.onAuthSuccess(),
+      error: (err: any) => this.onAuthError(err),
     });
+  }
+
+  private handleCodeExchange(code: string, state: string): void {
+    if (!this.validateAntiCsrfState(state)) {
+      return;
+    }
+
+    this.auth.handleOAuthCallback(this.provider, code, state).subscribe({
+      next: () => this.onAuthSuccess(),
+      error: (err: any) => this.onAuthError(err),
+    });
+  }
+
+  private onAuthSuccess(): void {
+    this.loading.set(false);
+    this.toast.success(`Connexion avec ${this.providerLabel} réussie !`);
+    this.router.navigateByUrl('/dashboard/devices');
+  }
+
+  private onAuthError(err: any): void {
+    this.loading.set(false);
+    const detail =
+      err?.error?.detail ||
+      err?.error?.message ||
+      `Impossible de finaliser l'authentification ${this.providerLabel}. Veuillez réessayer.`;
+    this.error.set(detail);
+    this.toast.error(detail);
+  }
+
+  private failWithError(message: string): void {
+    this.error.set(message);
+    this.toast.error(message);
+    this.loading.set(false);
   }
 }
