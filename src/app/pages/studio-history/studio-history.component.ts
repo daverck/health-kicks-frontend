@@ -20,9 +20,14 @@ import {
   isCustomStudioLabel,
   isEdgeAiActivity,
   CUSTOM_LABEL_ICON,
-  CUSTOM_LABEL_BADGE_CLASS,
 } from '../../models/studio.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import {
+  getStudioLabelBadgeClass,
+  getStudioLabelDisplayName,
+  getStudioLabelIcon,
+  getStudioUserPseudonymOrEmail,
+} from '../../shared/formatters/studio-session.formatters';
 
 import { StudioInspectionComponent } from '../../shared/components/studio-inspection/studio-inspection.component';
 import { StudioHistoryMobileFiltersComponent } from './components/studio-history-mobile-filters.component';
@@ -271,44 +276,18 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
         (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
       );
     }
-    return (
-      session.user_email ||
-      session.author_name ||
-      (session.subject_pseudonym ? `Patient ${session.subject_pseudonym}` : '—')
-    );
+    return getStudioUserPseudonymOrEmail(session);
   }
 
   getLabelBadgeClass(label: string): string {
-    if (!isStandardStudioLabel(label)) {
-      return CUSTOM_LABEL_BADGE_CLASS;
-    }
-    if (label === 'idle') {
-      return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
-    }
-    if (label.startsWith('fall_')) {
-      return 'bg-red-100 text-red-800 border-red-200';
-    }
-    if (label === 'walk' || label === 'run') {
-      return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    }
-    if (label === 'stairs' || label === 'stumble_recover') {
-      return 'bg-amber-100 text-amber-800 border-amber-200';
-    }
-    return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    return getStudioLabelBadgeClass(label);
   }
 
   getLabelDisplayName(label: string): string {
-    if (!label) return '';
-    if (isStandardStudioLabel(label)) {
-      const key = `studio.labels.${label}`;
-      const translated = this.translation.translate(key);
-      return translated !== key ? translated : label;
-    }
-    return label;
+    return getStudioLabelDisplayName(label, this.translation);
   }
 
   getLabelIcon(labelId: string): string {
-    const found = this.predefinedLabels.find((l) => l.id === labelId);
-    return found ? found.icon : CUSTOM_LABEL_ICON;
+    return getStudioLabelIcon(labelId, this.predefinedLabels);
   }
 }

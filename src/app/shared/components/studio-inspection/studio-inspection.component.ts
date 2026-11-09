@@ -26,8 +26,12 @@ import {
   isCustomStudioLabel,
   isEdgeAiActivity,
   CUSTOM_LABEL_ICON,
-  CUSTOM_LABEL_BADGE_CLASS,
 } from '../../../models/studio.model';
+import {
+  getStudioLabelBadgeClass,
+  getStudioLabelDisplayName,
+  getStudioLabelIcon,
+} from '../../formatters/studio-session.formatters';
 import { StudioInspectionStore, MIN_TRIM_INTERVAL_SEC } from './studio-inspection.store';
 
 @Component({
@@ -192,36 +196,14 @@ export class StudioInspectionComponent implements OnInit, OnChanges {
   }
 
   getLabelBadgeClass(label: string): string {
-    if (!isStandardStudioLabel(label)) {
-      return CUSTOM_LABEL_BADGE_CLASS;
-    }
-    if (label === 'idle') {
-      return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-200';
-    }
-    if (label.startsWith('fall_')) {
-      return 'bg-red-100 text-red-800 border-red-200';
-    }
-    if (label === 'walk' || label === 'run') {
-      return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    }
-    if (label === 'stairs' || label === 'stumble_recover') {
-      return 'bg-amber-100 text-amber-800 border-amber-200';
-    }
-    return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+    return getStudioLabelBadgeClass(label);
   }
 
   getLabelDisplayName(label: string): string {
-    if (!label) return '';
-    if (isStandardStudioLabel(label)) {
-      const key = `studio.labels.${label}`;
-      const translated = this.translation.translate(key);
-      return translated !== key ? translated : label;
-    }
-    return label;
+    return getStudioLabelDisplayName(label, this.translation);
   }
 
   getLabelIcon(labelId: string): string {
-    const found = this.predefinedLabels.find((l) => l.id === labelId);
-    return found ? found.icon : CUSTOM_LABEL_ICON;
+    return getStudioLabelIcon(labelId, this.predefinedLabels);
   }
 }
