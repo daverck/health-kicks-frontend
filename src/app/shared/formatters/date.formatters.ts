@@ -40,3 +40,20 @@ export function getMonthDateBounds(year: number, month: number): { fromDate: str
   const toDate = `${year}-${monthStr}-${lastDayStr}`;
   return { fromDate, toDate };
 }
+
+/**
+ * Formats a Date object into a localized month and year display (e.g. "novembre 2026").
+ */
+export function formatMonthYear(date: Date, locale = 'fr-FR'): string {
+  return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+}
+
+/**
+ * Formats a 'YYYY-MM' string into a localized month and year display (e.g. "novembre 2026").
+ */
+export function formatMonthYearFromYm(monthStr: string, locale = 'fr-FR'): string {
+  if (!monthStr || monthStr.length < 7) return monthStr;
+  const [year, month] = monthStr.split('-');
+  const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
+  return formatMonthYear(date, locale);
+}

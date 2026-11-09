@@ -19,6 +19,7 @@ import { StudioClassesTableComponent } from './components/studio-classes-table.c
 import { StudioClassesConfusionMatrixComponent } from './components/studio-classes-confusion-matrix.component';
 import { StudioClassesSelectedCardComponent } from './components/studio-classes-selected-card.component';
 import { StudioClassesStore, StudioChartMetric } from './studio-classes.store';
+import { formatMonthYearFromYm } from '../../shared/formatters/date.formatters';
 import {
   formatClassLabel,
   createDistributionChartConfig,
@@ -233,10 +234,7 @@ export class StudioClassesComponent implements OnInit {
   }
 
   formatMonth(monthStr: string): string {
-    if (!monthStr || monthStr.length < 7) return monthStr;
-    const [year, month] = monthStr.split('-');
-    const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
-    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return formatMonthYearFromYm(monthStr);
   }
 
   formatScore(val: number | null | undefined): string {

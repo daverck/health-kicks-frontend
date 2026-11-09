@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { StepsService } from '../../../../core/services/steps.service';
 import { DailyStepsSummary } from '../../../../models/steps.models';
 import { TranslatePipe } from '../../../../shared/pipes/translate.pipe';
-import { formatLocalDateToYmd } from '../../../../shared/formatters/date.formatters';
+import { formatLocalDateToYmd, formatMonthYear } from '../../../../shared/formatters/date.formatters';
 
 export interface CalendarDayItem {
   dayNumber: number;
@@ -57,7 +57,7 @@ export class ActivityCalendarComponent implements OnInit {
     const y = this.currentYear();
     const m = this.currentMonth() - 1;
     const date = new Date(y, m, 1);
-    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return formatMonthYear(date);
   });
 
   readonly calendarDays = computed<CalendarDayItem[]>(() => {

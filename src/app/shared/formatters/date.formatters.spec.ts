@@ -3,6 +3,8 @@ import {
   formatDateDisplay,
   getMonthDateBounds,
   getLocalDateString,
+  formatMonthYear,
+  formatMonthYearFromYm,
 } from './date.formatters';
 
 describe('date.formatters', () => {
@@ -62,6 +64,34 @@ describe('date.formatters', () => {
       const bounds = getMonthDateBounds(2026, 4); // April
       expect(bounds.fromDate).toBe('2026-04-01');
       expect(bounds.toDate).toBe('2026-04-30');
+    });
+  });
+
+  describe('formatMonthYear', () => {
+    it('formats date to localized month and year', () => {
+      const d = new Date(2026, 10, 1); // November 2026
+      const res = formatMonthYear(d, 'fr-FR');
+      expect(res.toLowerCase()).toContain('novembre');
+      expect(res).toContain('2026');
+    });
+
+    it('supports alternative locales', () => {
+      const d = new Date(2026, 0, 1); // January 2026
+      const res = formatMonthYear(d, 'en-US');
+      expect(res).toBe('January 2026');
+    });
+  });
+
+  describe('formatMonthYearFromYm', () => {
+    it('formats YYYY-MM string to localized month and year', () => {
+      const res = formatMonthYearFromYm('2026-11', 'fr-FR');
+      expect(res.toLowerCase()).toContain('novembre');
+      expect(res).toContain('2026');
+    });
+
+    it('returns raw string when invalid or short', () => {
+      expect(formatMonthYearFromYm('')).toBe('');
+      expect(formatMonthYearFromYm('2026')).toBe('2026');
     });
   });
 });
