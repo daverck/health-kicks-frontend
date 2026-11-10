@@ -80,8 +80,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
   readonly selectedLabels = this.store.selectedLabels;
   readonly selectedDeviceId = this.store.selectedDeviceId;
   readonly selectedDeviceIds = this.store.selectedDeviceIds;
-  readonly filterUserId = this.store.filterUserId;
-  readonly selectedUserIds = this.store.selectedUserIds;
+  readonly filterPseudonym = this.store.filterPseudonym;
+  readonly selectedAuthorKeys = this.store.selectedAuthorKeys;
   readonly authors = this.store.authors;
   readonly startDate = this.store.startDate;
   readonly endDate = this.store.endDate;
@@ -193,8 +193,8 @@ export class StudioHistoryComponent implements OnInit, OnDestroy {
     this.store.onDeviceIdsChange(deviceIds);
   }
 
-  onUserIdsChange(userIds: (string | number)[]): void {
-    this.store.onUserIdsChange(userIds);
+  onAuthorKeysChange(authorKeys: string[]): void {
+    this.store.onAuthorKeysChange(authorKeys);
   }
 
   resetFilters(): void {

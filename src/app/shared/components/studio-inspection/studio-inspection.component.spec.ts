@@ -67,7 +67,7 @@ describe('StudioInspectionComponent', () => {
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
-    expect(mockStudioHistoryService.getSessionReadings).toHaveBeenCalledWith(mockStudioSessionSummaries[0].id);
+    expect(mockStudioHistoryService.getSessionReadings).toHaveBeenCalledWith(mockStudioSessionSummaries[0].uuid);
     expect(component.activeReadings().length).toBe(mockStudioSessionReadingsResponse.readings.length);
   });
 
@@ -131,7 +131,7 @@ describe('StudioInspectionComponent', () => {
 
     component.confirmSession();
 
-    expect(mockStudioHistoryService.confirmSession).toHaveBeenCalledWith(mockStudioSessionSummaries[0].id);
+    expect(mockStudioHistoryService.confirmSession).toHaveBeenCalledWith(mockStudioSessionSummaries[0].uuid);
     expect(mockToastService.success).toHaveBeenCalled();
     expect(confirmedSession).not.toBeNull();
   });
@@ -159,7 +159,7 @@ describe('StudioInspectionComponent', () => {
 
     component.updateLabel();
 
-    expect(mockStudioHistoryService.updateSessionLabel).toHaveBeenCalledWith(mockStudioSessionSummaries[0].id, 'run');
+    expect(mockStudioHistoryService.updateSessionLabel).toHaveBeenCalledWith(mockStudioSessionSummaries[0].uuid, 'run');
     expect(mockToastService.success).toHaveBeenCalled();
     expect(updatedSession).not.toBeNull();
   });
@@ -220,7 +220,7 @@ describe('StudioInspectionComponent', () => {
     component.trimSession();
 
     expect(mockStudioService.trimSession).toHaveBeenCalledWith(
-      mockStudioSessionSummaries[1].id,
+      mockStudioSessionSummaries[1].uuid,
       0.4,
       2.4
     );
@@ -267,7 +267,7 @@ describe('StudioInspectionComponent', () => {
     component.reopenSession();
 
     expect(mockStudioHistoryService.updateSessionValidation).toHaveBeenCalledWith(
-      mockStudioSessionSummaries[0].id,
+      mockStudioSessionSummaries[0].uuid,
       false
     );
     expect(updatedSession).toEqual(jasmine.objectContaining({ is_validated: false }));
@@ -293,7 +293,7 @@ describe('StudioInspectionComponent', () => {
     component.updateLabel();
 
     expect(mockStudioHistoryService.updateSessionLabel).toHaveBeenCalledWith(
-      mockStudioSessionSummaries[0].id,
+      mockStudioSessionSummaries[0].uuid,
       'sprint_relay'
     );
   });
@@ -310,9 +310,9 @@ describe('StudioInspectionComponent', () => {
 
     component.deleteSession();
 
-    expect(mockStudioHistoryService.deleteSession).toHaveBeenCalledWith(mockStudioSessionSummaries[0].id);
+    expect(mockStudioHistoryService.deleteSession).toHaveBeenCalledWith(mockStudioSessionSummaries[0].uuid);
     expect(mockToastService.info).toHaveBeenCalled();
-    expect(deletedId).toBe(mockStudioSessionSummaries[0].id);
+    expect(deletedId).toBe(mockStudioSessionSummaries[0].uuid);
   });
 
   it('should emit previous, next, and close events', () => {

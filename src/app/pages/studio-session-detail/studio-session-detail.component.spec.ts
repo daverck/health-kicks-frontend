@@ -37,7 +37,7 @@ describe('StudioSessionDetailComponent', () => {
           useValue: {
             snapshot: {
               paramMap: {
-                get: (key: string) => (key === 'id' ? mockStudioSessionSummaries[0].id : null),
+                get: (key: string) => (key === 'id' ? mockStudioSessionSummaries[0].uuid : null),
               },
             },
           },
@@ -57,8 +57,8 @@ describe('StudioSessionDetailComponent', () => {
 
   it('should create and load session details from route parameter', () => {
     expect(component).toBeTruthy();
-    expect(component.sessionId()).toBe(mockStudioSessionSummaries[0].id);
-    expect(mockStudioHistoryService.getSession).toHaveBeenCalledWith(mockStudioSessionSummaries[0].id);
+    expect(component.sessionId()).toBe(mockStudioSessionSummaries[0].uuid);
+    expect(mockStudioHistoryService.getSession).toHaveBeenCalledWith(mockStudioSessionSummaries[0].uuid);
     expect(component.session()).toEqual(mockStudioSessionSummaries[0]);
     expect(component.isLoading()).toBeFalse();
   });

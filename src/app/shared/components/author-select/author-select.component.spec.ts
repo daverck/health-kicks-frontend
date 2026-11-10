@@ -33,22 +33,22 @@ const mockAuthors: StudioAuthorSummary[] = [
   template: `
     <app-author-select
       [authors]="authors()"
-      [(selectedUserId)]="selectedUserId"
-      [(selectedUserIds)]="selectedUserIds"
+      [(selectedAuthorKey)]="selectedAuthorKey"
+      [(selectedAuthorKeys)]="selectedAuthorKeys"
       [multiple]="multiple()"
       [allowAll]="allowAll()"
       [disabled]="disabled()"
       [size]="size()"
       [fullWidth]="fullWidth()"
       (authorChange)="lastAuthorChange = $event"
-      (userIdsChange)="lastUserIdsChange = $event"
+      (authorKeysChange)="lastAuthorKeysChange = $event"
     />
   `,
 })
 class HostComponent {
   readonly authors = signal<StudioAuthorSummary[]>(mockAuthors);
-  readonly selectedUserId = signal<string | number | null>(null);
-  readonly selectedUserIds = signal<(string | number)[]>([]);
+  readonly selectedAuthorKey = signal<string | null>(null);
+  readonly selectedAuthorKeys = signal<string[]>([]);
   readonly multiple = signal<boolean>(true);
   readonly allowAll = signal<boolean>(true);
   readonly disabled = signal<boolean>(false);
@@ -56,7 +56,7 @@ class HostComponent {
   readonly fullWidth = signal<boolean>(false);
 
   lastAuthorChange: StudioAuthorSummary | null = null;
-  lastUserIdsChange: (string | number)[] = [];
+  lastAuthorKeysChange: string[] = [];
 }
 
 describe('AuthorSelectComponent', () => {
@@ -114,7 +114,7 @@ describe('AuthorSelectComponent', () => {
     expect(component.filteredAuthors().length).toBe(0);
   });
 
-  it('should toggle authors in multiple mode and emit userIdsChange', () => {
+  it('should toggle authors in multiple mode and emit authorKeysChange', () => {
     component.toggleDropdown();
     fixture.detectChanges();
 
@@ -122,15 +122,15 @@ describe('AuthorSelectComponent', () => {
     opt1.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual(['HK-ALICE']);
-    expect(host.lastUserIdsChange).toEqual(['HK-ALICE']);
+    expect(host.selectedAuthorKeys()).toEqual(['HK-ALICE']);
+    expect(host.lastAuthorKeysChange).toEqual(['HK-ALICE']);
     expect(component.selectedCount()).toBe(1);
 
     const opt2: HTMLButtonElement = fixture.nativeElement.querySelector('[data-testid="author-option-HK-BOB"]');
     opt2.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual(['HK-ALICE', 'HK-BOB']);
+    expect(host.selectedAuthorKeys()).toEqual(['HK-ALICE', 'HK-BOB']);
     expect(component.selectedCount()).toBe(2);
 
     const trigger: HTMLButtonElement = fixture.nativeElement.querySelector('#author-select-trigger');
@@ -140,12 +140,12 @@ describe('AuthorSelectComponent', () => {
     opt1.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual(['HK-BOB']);
+    expect(host.selectedAuthorKeys()).toEqual(['HK-BOB']);
     expect(component.selectedCount()).toBe(1);
   });
 
   it('should reset to all when selectAll() is clicked in multiple mode', () => {
-    host.selectedUserIds.set(['HK-ALICE', 'HK-BOB']);
+    host.selectedAuthorKeys.set(['HK-ALICE', 'HK-BOB']);
     fixture.detectChanges();
     expect(component.isAllSelected()).toBeFalse();
 
@@ -156,8 +156,8 @@ describe('AuthorSelectComponent', () => {
     allOption.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserIds()).toEqual([]);
-    expect(host.lastUserIdsChange).toEqual([]);
+    expect(host.selectedAuthorKeys()).toEqual([]);
+    expect(host.lastAuthorKeysChange).toEqual([]);
     expect(component.isAllSelected()).toBeTrue();
   });
 
@@ -172,7 +172,7 @@ describe('AuthorSelectComponent', () => {
     opt1.click();
     fixture.detectChanges();
 
-    expect(host.selectedUserId()).toBe('HK-ALICE');
+    expect(host.selectedAuthorKey()).toBe('HK-ALICE');
     expect(host.lastAuthorChange?.author_pseudonym).toBe('HK-ALICE');
     expect(component.isOpen()).toBeFalse();
   });

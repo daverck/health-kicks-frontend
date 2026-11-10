@@ -25,8 +25,8 @@ export class AuthorSelectComponent {
 
   // Inputs & Two-way models
   readonly authors = input<StudioAuthorSummary[]>([]);
-  readonly selectedUserId = model<string | number | null>(null);
-  readonly selectedUserIds = model<(string | number)[]>([]);
+  readonly selectedAuthorKey = model<string | null>(null);
+  readonly selectedAuthorKeys = model<string[]>([]);
   readonly multiple = input<boolean>(true);
   readonly allowAll = input<boolean>(true);
   readonly allLabel = input<string>('');
@@ -39,7 +39,7 @@ export class AuthorSelectComponent {
 
   // Outputs
   readonly authorChange = output<StudioAuthorSummary | null>();
-  readonly userIdsChange = output<(string | number)[]>();
+  readonly authorKeysChange = output<string[]>();
 
   // Internal state
   readonly isOpen = signal<boolean>(false);
@@ -47,23 +47,23 @@ export class AuthorSelectComponent {
 
   readonly isAllSelected = computed<boolean>(() => {
     if (this.multiple()) {
-      return this.selectedUserIds().length === 0;
+      return this.selectedAuthorKeys().length === 0;
     }
-    return this.allowAll() && this.selectedUserId() === null;
+    return this.allowAll() && this.selectedAuthorKey() === null;
   });
 
   readonly selectedCount = computed<number>(() => {
     if (!this.multiple()) {
-      return this.selectedUserId() !== null ? 1 : 0;
+      return this.selectedAuthorKey() !== null ? 1 : 0;
     }
-    return this.selectedUserIds().length;
+    return this.selectedAuthorKeys().length;
   });
 
   getAuthorKey(author: StudioAuthorSummary): string {
     return author.author_pseudonym || author.author_uuid || author.email;
   }
 
-  isAuthorSelected(authorOrKey: StudioAuthorSummary | string | number): boolean {
+  isAuthorSelected(authorOrKey: StudioAuthorSummary | string): boolean {
     const key =
       typeof authorOrKey === 'object' && authorOrKey !== null
         ? this.getAuthorKey(authorOrKey)
@@ -71,7 +71,7 @@ export class AuthorSelectComponent {
     const author = typeof authorOrKey === 'object' && authorOrKey !== null ? authorOrKey : null;
 
     if (this.multiple()) {
-      return this.selectedUserIds().some((id) => {
+      return this.selectedAuthorKeys().some((id) => {
         const idStr = String(id);
         if (idStr === key) return true;
         if (author?.author_uuid && idStr === author.author_uuid) return true;
@@ -79,7 +79,7 @@ export class AuthorSelectComponent {
         return false;
       });
     }
-    const current = this.selectedUserId();
+    const current = this.selectedAuthorKey();
     if (current === null) return false;
     const curStr = String(current);
     if (curStr === key) return true;
@@ -89,7 +89,7 @@ export class AuthorSelectComponent {
   }
 
   readonly currentAuthor = computed<StudioAuthorSummary | null>(() => {
-    const selected = this.selectedUserId();
+    const selected = this.selectedAuthorKey();
     if (selected === null) return null;
     const str = String(selected);
     return (
@@ -137,19 +137,19 @@ export class AuthorSelectComponent {
 
   selectAll(): void {
     if (this.multiple()) {
-      this.selectedUserIds.set([]);
-      this.userIdsChange.emit([]);
+      this.selectedAuthorKeys.set([]);
+      this.authorKeysChange.emit([]);
       return;
     }
     if (!this.allowAll()) return;
-    this.selectedUserId.set(null);
+    this.selectedAuthorKey.set(null);
     this.authorChange.emit(null);
     this.closeDropdown();
   }
 
   selectAuthor(author: StudioAuthorSummary): void {
     const key = this.getAuthorKey(author);
-    this.selectedUserId.set(key);
+    this.selectedAuthorKey.set(key);
     this.authorChange.emit(author);
     this.closeDropdown();
   }
@@ -160,9 +160,9 @@ export class AuthorSelectComponent {
       return;
     }
     const key = this.getAuthorKey(author);
-    const current = this.selectedUserIds();
+    const current = this.selectedAuthorKeys();
     const isSelected = this.isAuthorSelected(author);
-    let updated: (string | number)[];
+    let updated: string[];
     if (isSelected) {
       updated = current.filter((id) => {
         const idStr = String(id);
@@ -175,8 +175,8 @@ export class AuthorSelectComponent {
     } else {
       updated = [...current, key];
     }
-    this.selectedUserIds.set(updated);
-    this.userIdsChange.emit(updated);
+    this.selectedAuthorKeys.set(updated);
+    this.authorKeysChange.emit(updated);
   }
 
   getAuthorDisplayName(author: StudioAuthorSummary): string {

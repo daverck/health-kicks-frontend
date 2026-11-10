@@ -1,7 +1,6 @@
 import {
   exportSessionToJson,
   downloadJsonFile,
-  ExportedSessionJson,
 } from './export.utils';
 import { StudioSessionSummary } from '../../models/studio-history.model';
 import { ImuReading } from '../../models/telemetry.models';
@@ -9,14 +8,15 @@ import { ImuReading } from '../../models/telemetry.models';
 describe('export.utils', () => {
   const mockSession: StudioSessionSummary = {
     uuid: 'sess-test-01',
-    id: 'sess-test-01',
     device_id: 'hk-esp32-001',
     label: 'walk',
     sample_count: 3,
     duration_sec: 1.5,
     created_at: '2026-09-20T12:00:00Z',
     is_validated: true,
-    user_id: 42,
+    author_pseudonym: 'SUBJ-USR-0042',
+    is_hitl: false,
+    is_pseudonymized: true,
   };
 
   const mockReadings: ImuReading[] = [

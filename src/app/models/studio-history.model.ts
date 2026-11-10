@@ -1,16 +1,16 @@
 import type { components } from './generated-api.types';
 
-export type StudioSessionSummary = components['schemas']['StudioSessionSummary'] & {
+export type StudioSessionSummary = Omit<components['schemas']['StudioSessionSummary'], 'user_id'> & {
   is_hitl?: boolean;
   classification?: 'all' | 'edge_ai' | 'research';
   uuid: string;
-  id?: string;
+  user_id?: number | null;
 };
-export type StudioSessionDetail = components['schemas']['StudioSessionDetail'] & {
+export type StudioSessionDetail = Omit<components['schemas']['StudioSessionDetail'], 'user_id'> & {
   is_hitl?: boolean;
   classification?: 'all' | 'edge_ai' | 'research';
   uuid: string;
-  id?: string;
+  user_id?: number | null;
 };
 export type PaginatedSessionsResponse = components['schemas']['PaginatedSessionsResponse'];
 export type StudioAuthorSummary = components['schemas']['StudioAuthorSummary'];
@@ -23,7 +23,6 @@ export interface StudioHistoryFilterParams {
   label?: string | string[];
   device_id?: string | string[];
   pseudonym?: string | string[];
-  user_id?: number | string | (number | string)[];
   start_date?: string;
   end_date?: string;
   sample_count_min?: number;

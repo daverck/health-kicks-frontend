@@ -63,11 +63,6 @@ export class FallAlertsComponent implements OnInit {
   readonly loadingAlerts = this.store.loadingAlerts;
   readonly alertsError = this.store.alertsError;
 
-  // Backward compatibility alias for userIdFilter
-  get userIdFilter() {
-    return this.pseudonymFilter;
-  }
-
   // Detail modal
   readonly selectedAlertDetail = this.store.selectedAlertDetail;
   readonly loadingDetail = this.store.loadingDetail;
@@ -117,10 +112,6 @@ export class FallAlertsComponent implements OnInit {
 
   onPseudonymFilterChange(value: string): void {
     this.store.onPseudonymFilterChange(value);
-  }
-
-  onUserIdFilterChange(value: string): void {
-    this.onPseudonymFilterChange(value);
   }
 
   goToPage(p: number): void {

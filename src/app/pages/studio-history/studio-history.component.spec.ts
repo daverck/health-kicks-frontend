@@ -167,10 +167,8 @@ describe('StudioHistoryComponent', () => {
     it('should strictly format pseudonymized third-party sessions as Patient SUBJ-...', () => {
       const thirdPartySession: StudioSessionSummary = {
         uuid: 'sess-third-party',
-        id: 'sess-third-party',
         device_id: 'hk-01',
-        user_id: 9999,
-        user_email: 'secret.patient@example.com',
+        author_pseudonym: 'SUBJ-X999',
         author_name: 'Patient SUBJ-X999',
         subject_pseudonym: 'SUBJ-X999',
         is_pseudonymized: true,
@@ -179,6 +177,7 @@ describe('StudioHistoryComponent', () => {
         duration_sec: 5,
         created_at: '2026-09-08T10:00:00Z',
         is_validated: true,
+        is_hitl: false,
       };
 
       const displayName = component.getAuthorDisplayName(thirdPartySession);
@@ -190,9 +189,7 @@ describe('StudioHistoryComponent', () => {
     it('should display own real email/name when not pseudonymized', () => {
       const ownSession: StudioSessionSummary = {
         uuid: 'sess-own',
-        id: 'sess-own',
         device_id: 'hk-01',
-        user_id: 1,
         user_email: 'admin@healthkicks.org',
         author_name: 'Admin Boss',
         subject_pseudonym: 'SUBJ-ADM-0001',
@@ -202,6 +199,7 @@ describe('StudioHistoryComponent', () => {
         duration_sec: 5,
         created_at: '2026-09-08T10:00:00Z',
         is_validated: true,
+        is_hitl: false,
       };
 
       const displayName = component.getAuthorDisplayName(ownSession);
@@ -209,13 +207,13 @@ describe('StudioHistoryComponent', () => {
     });
   });
 
-  it('should filter by label, device, user_id (for admin), dates, is_validated and reset page to 1', () => {
+  it('should filter by label, device, pseudonym (for admin), dates, is_validated and reset page to 1', () => {
     currentUserSignal.set(adminUser);
     fixture.detectChanges();
 
     component.selectedLabel.set('fall_forward');
     component.selectedDeviceId.set('hk-device-0001');
-    component.filterUserId.set('2');
+    component.filterPseudonym.set('2');
     component.startDate.set('2026-09-01');
     component.endDate.set('2026-09-10');
     component.sampleCountMin.set(100);
@@ -263,14 +261,14 @@ describe('StudioHistoryComponent', () => {
       device_id: ['HK-1', 'HK-2'],
     });
 
-    component.onUserIdsChange([1, 2]);
-    expect(component.selectedUserIds()).toEqual([1, 2]);
+    component.onAuthorKeysChange(['SUBJ-001', 'SUBJ-002']);
+    expect(component.selectedAuthorKeys()).toEqual(['SUBJ-001', 'SUBJ-002']);
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalledWith({
       page: 1,
       size: 20,
       label: ['walk', 'run'],
       device_id: ['HK-1', 'HK-2'],
-      pseudonym: ['1', '2'],
+      pseudonym: ['SUBJ-001', 'SUBJ-002'],
     });
   });
 
@@ -389,7 +387,7 @@ describe('StudioHistoryComponent', () => {
     component.onSessionConfirmedFromInspection(confirmedSession);
 
     expect(component.inspectingSession()?.is_validated).toBeTrue();
-    expect(component.sessions().find((s) => s.id === 'sess-002')?.is_validated).toBeTrue();
+    expect(component.sessions().find((s) => s.uuid === 'sess-002')?.is_validated).toBeTrue();
   });
 
   it('reloads the active status filter when a session becomes pending again', () => {
@@ -423,7 +421,7 @@ describe('StudioHistoryComponent', () => {
 
     expect(component.selectedLabel()).toBe('');
     expect(component.selectedDeviceId()).toBe('');
-    expect(component.filterUserId()).toBe('');
+    expect(component.filterPseudonym()).toBe('');
     expect(component.startDate()).toBe('');
     expect(component.endDate()).toBe('');
     expect(component.sampleCountMin()).toBeNull();
@@ -631,7 +629,7 @@ describe('StudioHistoryComponent', () => {
     component.goToNextSession();
     fixture.detectChanges();
 
-    expect(component.inspectingSession()?.id).toBe('sess-002');
+    expect(component.inspectingSession()?.uuid).toBe('sess-002');
     expect(component.currentSessionIndex()).toBe(1);
     expect(component.hasPreviousSession()).toBeTrue();
     expect(component.hasNextSession()).toBeTrue();
@@ -640,7 +638,7 @@ describe('StudioHistoryComponent', () => {
     component.goToNextSession();
     fixture.detectChanges();
 
-    expect(component.inspectingSession()?.id).toBe('sess-003');
+    expect(component.inspectingSession()?.uuid).toBe('sess-003');
     expect(component.currentSessionIndex()).toBe(2);
     expect(component.hasPreviousSession()).toBeTrue();
     expect(component.hasNextSession()).toBeFalse();
@@ -649,7 +647,7 @@ describe('StudioHistoryComponent', () => {
     component.goToPreviousSession();
     fixture.detectChanges();
 
-    expect(component.inspectingSession()?.id).toBe('sess-002');
+    expect(component.inspectingSession()?.uuid).toBe('sess-002');
     expect(component.currentSessionIndex()).toBe(1);
 
     // Escape closes drawer
@@ -660,9 +658,9 @@ describe('StudioHistoryComponent', () => {
 
   it('should not skip the new first row when validating the first row while pending filter is active', () => {
     const pendingSessions: StudioSessionSummary[] = [
-      { ...mockStudioSessionSummaries[0], uuid: 'sess-001', id: 'sess-001', is_validated: false },
-      { ...mockStudioSessionSummaries[1], uuid: 'sess-002', id: 'sess-002', is_validated: false },
-      { ...mockStudioSessionSummaries[2], uuid: 'sess-003', id: 'sess-003', is_validated: false },
+      { ...mockStudioSessionSummaries[0], uuid: 'sess-001', is_validated: false },
+      { ...mockStudioSessionSummaries[1], uuid: 'sess-002', is_validated: false },
+      { ...mockStudioSessionSummaries[2], uuid: 'sess-003', is_validated: false },
     ];
     studioHistoryServiceSpy.getSessions.and.returnValue(
       of({
@@ -709,15 +707,15 @@ describe('StudioHistoryComponent', () => {
     component.goToNextSession();
     fixture.detectChanges();
 
-    expect(component.inspectingSession()?.id).toBe('sess-002');
+    expect(component.inspectingSession()?.uuid).toBe('sess-002');
     expect(component.currentSessionIndex()).toBe(0);
   });
 
   it('should navigate accurately to both previous and next rows when a middle row is evicted by status filter', () => {
     const pendingSessions: StudioSessionSummary[] = [
-      { ...mockStudioSessionSummaries[0], uuid: 'sess-001', id: 'sess-001', is_validated: false },
-      { ...mockStudioSessionSummaries[1], uuid: 'sess-002', id: 'sess-002', is_validated: false },
-      { ...mockStudioSessionSummaries[2], uuid: 'sess-003', id: 'sess-003', is_validated: false },
+      { ...mockStudioSessionSummaries[0], uuid: 'sess-001', is_validated: false },
+      { ...mockStudioSessionSummaries[1], uuid: 'sess-002', is_validated: false },
+      { ...mockStudioSessionSummaries[2], uuid: 'sess-003', is_validated: false },
     ];
     studioHistoryServiceSpy.getSessions.and.returnValue(
       of({
@@ -761,7 +759,7 @@ describe('StudioHistoryComponent', () => {
     // Clicking "Next" opens sess-003 (now at index 1)
     component.goToNextSession();
     fixture.detectChanges();
-    expect(component.inspectingSession()?.id).toBe('sess-003');
+    expect(component.inspectingSession()?.uuid).toBe('sess-003');
     expect(component.currentSessionIndex()).toBe(1);
 
     // Re-simulate eviction of sess-002 at index 1 to test "Previous"
@@ -776,7 +774,7 @@ describe('StudioHistoryComponent', () => {
     // Clicking "Previous" opens sess-001 (at index 0)
     component.goToPreviousSession();
     fixture.detectChanges();
-    expect(component.inspectingSession()?.id).toBe('sess-001');
+    expect(component.inspectingSession()?.uuid).toBe('sess-001');
     expect(component.currentSessionIndex()).toBe(0);
   });
 
@@ -817,7 +815,7 @@ describe('StudioHistoryComponent', () => {
 
     expect(studioHistoryServiceSpy.getSessions).toHaveBeenCalled();
     expect(component.page()).toBe(2);
-    expect(component.inspectingSession()?.id).toBe(page2Sessions[0].id);
+    expect(component.inspectingSession()?.uuid).toBe(page2Sessions[0].uuid);
     expect(component.hasPreviousSession()).toBeTrue();
     expect(component.hasNextSession()).toBeFalse();
 
@@ -837,7 +835,7 @@ describe('StudioHistoryComponent', () => {
 
     expect(component.page()).toBe(1);
     // Should have selected the LAST session of page 1
-    expect(component.inspectingSession()?.id).toBe(page1Sessions[1].id);
+    expect(component.inspectingSession()?.uuid).toBe(page1Sessions[1].uuid);
   });
 
   it('should update session and list when label is updated from inspection child component', () => {
@@ -851,7 +849,7 @@ describe('StudioHistoryComponent', () => {
     component.onSessionUpdatedFromInspection(updatedSession);
 
     expect(component.inspectingSession()?.label).toBe('run');
-    expect(component.sessions().find((s) => s.id === 'sess-001')?.label).toBe('run');
+    expect(component.sessions().find((s) => s.uuid === 'sess-001')?.label).toBe('run');
   });
 
   it('should delete session from inspection child component, update list and close drawer', () => {
@@ -864,7 +862,7 @@ describe('StudioHistoryComponent', () => {
     component.onSessionDeletedFromInspection('sess-001');
 
     expect(component.inspectingSession()).toBeNull();
-    expect(component.sessions().some((s) => s.id === 'sess-001')).toBeFalse();
+    expect(component.sessions().some((s) => s.uuid === 'sess-001')).toBeFalse();
     expect(component.total()).toBe(2);
   });
 
@@ -892,7 +890,7 @@ describe('StudioHistoryComponent', () => {
     expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-002');
     expect(toastSpy.info).toHaveBeenCalled();
     expect(component.sessionToDelete()).toBeNull();
-    expect(component.sessions().some((s) => s.id === 'sess-002')).toBeFalse();
+    expect(component.sessions().some((s) => s.uuid === 'sess-002')).toBeFalse();
     expect(component.total()).toBe(2);
     expect(studioHistoryServiceSpy.getSessionReadings).not.toHaveBeenCalled();
   });
@@ -922,7 +920,7 @@ describe('StudioHistoryComponent', () => {
 
     expect(component.sessionToDelete()).toBeNull();
     expect(component.isDeletingSession()).toBeTrue();
-    expect(component.sessions().some((s) => s.id === 'sess-001')).toBeFalse();
+    expect(component.sessions().some((s) => s.uuid === 'sess-001')).toBeFalse();
 
     // 2. Immediately trigger deletion for second session (sess-002) while sess-001 is still in flight
     component.promptDeleteSession(mockStudioSessionSummaries[1]);
@@ -936,7 +934,7 @@ describe('StudioHistoryComponent', () => {
     fixture.detectChanges();
 
     expect(studioHistoryServiceSpy.deleteSession).toHaveBeenCalledWith('sess-002');
-    expect(component.sessions().some((s) => s.id === 'sess-002')).toBeFalse();
+    expect(component.sessions().some((s) => s.uuid === 'sess-002')).toBeFalse();
 
     // Complete first deletion
     pendingSubject.next();
@@ -1022,14 +1020,14 @@ describe('StudioHistoryComponent', () => {
     component.sessions.set([
       {
         uuid: 'sess-custom',
-        id: 'sess-custom',
         device_id: 'hk-esp32-001',
-        user_id: 1,
         label: 'test_movement',
         sample_count: 50,
         duration_sec: 1.0,
         created_at: '2026-09-18T10:00:00Z',
         is_validated: false,
+        is_hitl: false,
+        is_pseudonymized: true,
       },
     ]);
     fixture.detectChanges();
@@ -1054,7 +1052,7 @@ describe('StudioHistoryComponent', () => {
     fixture.detectChanges();
 
     expect(component.openInspection).toHaveBeenCalledWith(mockStudioSessionSummaries[0]);
-    expect(component.inspectingSession()?.id).toBe('sess-001');
+    expect(component.inspectingSession()?.uuid).toBe('sess-001');
   });
 
   it('should toggle mobile filters panel', () => {
@@ -1098,10 +1096,9 @@ describe('StudioHistoryComponent', () => {
   });
 
   it('should render experimental tag for custom sessions in mobile cards and desktop table', () => {
-    const customSession = {
+    const customSession: StudioSessionSummary = {
       ...mockStudioSessionSummaries[0],
       uuid: 'sess-custom-99',
-      id: 'sess-custom-99',
       label: 'breakdance',
     };
     studioHistoryServiceSpy.getSessions.and.returnValue(of({

@@ -47,7 +47,7 @@ export class StudioHistoryTableComponent {
   @Input() durationMax: number | null = null;
   @Input() isAdmin = false;
   @Input() authors: StudioAuthorSummary[] = [];
-  @Input() selectedUserIds: (string | number)[] = [];
+  @Input() selectedAuthorKeys: string[] = [];
 
   @Input({ required: true }) getLabelBadgeClass!: (label: string) => string;
   @Input({ required: true }) getLabelIcon!: (label: string) => string;
@@ -69,7 +69,7 @@ export class StudioHistoryTableComponent {
   @Output() sampleCountMaxChange = new EventEmitter<number | null>();
   @Output() durationMinChange = new EventEmitter<number | null>();
   @Output() durationMaxChange = new EventEmitter<number | null>();
-  @Output() userIdsChange = new EventEmitter<(string | number)[]>();
+  @Output() authorKeysChange = new EventEmitter<string[]>();
 
   onDelete(session: StudioSessionSummary, event: MouseEvent): void {
     event.stopPropagation();

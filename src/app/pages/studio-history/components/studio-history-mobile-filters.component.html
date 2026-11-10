@@ -177,8 +177,8 @@
         <app-author-select
           triggerId="mobile-filter-author"
           [authors]="authors"
-          [selectedUserIds]="selectedUserIds"
-          (userIdsChange)="userIdsChange.emit($event)"
+          [selectedAuthorKeys]="selectedAuthorKeys"
+          (authorKeysChange)="authorKeysChange.emit($event)"
           size="sm"
           [fullWidth]="true"
         />

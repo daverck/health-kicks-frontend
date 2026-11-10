@@ -6,9 +6,7 @@ import {
 export const mockStudioSessionSummaries: StudioSessionSummary[] = [
   {
     uuid: 'sess-001',
-    id: 'sess-001',
     device_id: 'hk-device-0001',
-    user_id: 1,
     author_uuid: '00000000-0000-0000-0000-000000000001',
     author_pseudonym: 'SUBJ-USR-0001',
     user_email: 'admin@healthkicks.org',
@@ -17,12 +15,12 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     duration_sec: 5,
     created_at: '2026-09-08T10:30:00.000Z',
     is_validated: true,
+    is_hitl: false,
+    is_pseudonymized: false,
   },
   {
     uuid: 'sess-002',
-    id: 'sess-002',
     device_id: 'hk-device-0001',
-    user_id: 2,
     author_uuid: '00000000-0000-0000-0000-000000000002',
     author_pseudonym: 'SUBJ-USR-0002',
     user_email: 'user2@healthkicks.org',
@@ -31,12 +29,12 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     duration_sec: 5,
     created_at: '2026-09-08T11:15:00.000Z',
     is_validated: false,
+    is_hitl: false,
+    is_pseudonymized: false,
   },
   {
     uuid: 'sess-003',
-    id: 'sess-003',
     device_id: 'hk-device-0002',
-    user_id: 1,
     author_uuid: '00000000-0000-0000-0000-000000000001',
     author_pseudonym: 'SUBJ-USR-0001',
     user_email: 'admin@healthkicks.org',
@@ -45,6 +43,8 @@ export const mockStudioSessionSummaries: StudioSessionSummary[] = [
     duration_sec: 5,
     created_at: '2026-09-08T12:00:00.000Z',
     is_validated: true,
+    is_hitl: false,
+    is_pseudonymized: false,
   },
 ];
 

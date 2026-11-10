@@ -152,7 +152,7 @@
         {{ 'fall_alerts.empty_alerts' | translate }}
       </div>
     } @else {
-      @for (alert of filteredAlerts(); track alert.id) {
+      @for (alert of filteredAlerts(); track (alert.uuid || alert.id)) {
         <div class="card space-y-3" data-testid="fall-alert-card">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
@@ -195,7 +195,7 @@
           <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
             <button
               type="button"
-              (click)="onAlertClick(alert.id)"
+              (click)="onAlertClick(alert.uuid || alert.id)"
               class="btn-secondary text-xs"
               data-testid="open-alert-detail-btn"
             >
@@ -361,7 +361,7 @@
             </td>
           </tr>
         } @else {
-          @for (alert of filteredAlerts(); track alert.id) {
+          @for (alert of filteredAlerts(); track (alert.uuid || alert.id)) {
             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/60" data-testid="fall-alert-row">
               <td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">
                 {{ alert.detected_at | date:'medium' }}
@@ -420,7 +420,7 @@
               <td class="px-4 py-3 text-right">
                 <button
                   type="button"
-                  (click)="onAlertClick(alert.id)"
+                  (click)="onAlertClick(alert.uuid || alert.id)"
                   class="btn-secondary px-3 py-1 text-xs"
                   data-testid="open-alert-detail-btn"
                 >

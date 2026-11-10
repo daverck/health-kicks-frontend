@@ -130,7 +130,7 @@ describe('FallAlertService', () => {
         state: 'ACKNOWLEDGED',
         startDate: '2026-10-01',
         endDate: '2026-10-23',
-        userId: 3,
+        pseudonym: 'SUBJ-USR-003',
       })
       .subscribe((page) => {
         expect(page).toEqual(mockPage);
@@ -144,7 +144,7 @@ describe('FallAlertService', () => {
         r.params.get('state') === 'ACKNOWLEDGED' &&
         r.params.get('start_date') === '2026-10-01' &&
         r.params.get('end_date') === '2026-10-23' &&
-        r.params.get('user_id') === '3'
+        r.params.get('pseudonym') === 'SUBJ-USR-003'
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockPage);

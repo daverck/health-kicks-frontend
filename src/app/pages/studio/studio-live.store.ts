@@ -487,9 +487,7 @@ export class StudioLiveStore {
     const sessionSummary: StudioSessionSummary | null = session
       ? {
           uuid: session.session_id,
-          id: session.session_id,
           device_id: session.device_id,
-          user_id: 0,
           label: session.label || this.effectiveLabel(),
           sample_count: readings.length,
           duration_sec: session.duration_sec,

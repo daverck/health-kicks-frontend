@@ -34,8 +34,8 @@ export class StudioHistoryStore {
   readonly selectedLabels = signal<string[]>([]);
   readonly selectedDeviceId = signal<string>('');
   readonly selectedDeviceIds = signal<string[]>([]);
-  readonly filterUserId = signal<string>('');
-  readonly selectedUserIds = signal<(string | number)[]>([]);
+  readonly filterPseudonym = signal<string>('');
+  readonly selectedAuthorKeys = signal<string[]>([]);
   readonly authors = signal<StudioAuthorSummary[]>([]);
   readonly startDate = signal<string>('');
   readonly endDate = signal<string>('');
@@ -69,8 +69,8 @@ export class StudioHistoryStore {
       Boolean(this.selectedLabel()) ||
       this.selectedDeviceIds().length > 0 ||
       Boolean(this.selectedDeviceId()) ||
-      this.selectedUserIds().length > 0 ||
-      Boolean(this.filterUserId()) ||
+      this.selectedAuthorKeys().length > 0 ||
+      Boolean(this.filterPseudonym()) ||
       Boolean(this.startDate()) ||
       Boolean(this.endDate()) ||
       this.sampleCountMin() !== null ||
@@ -131,10 +131,10 @@ export class StudioHistoryStore {
     }
 
     if (this.isAdmin()) {
-      if (this.selectedUserIds().length > 0) {
-        params.pseudonym = this.selectedUserIds().map(String);
-      } else if (this.filterUserId().trim()) {
-        params.pseudonym = this.filterUserId().trim();
+      if (this.selectedAuthorKeys().length > 0) {
+        params.pseudonym = this.selectedAuthorKeys();
+      } else if (this.filterPseudonym().trim()) {
+        params.pseudonym = this.filterPseudonym().trim();
       }
     }
 
@@ -222,9 +222,9 @@ export class StudioHistoryStore {
     this.onFilterChange();
   }
 
-  onUserIdsChange(userIds: (string | number)[]): void {
-    this.selectedUserIds.set(userIds);
-    this.filterUserId.set(userIds.join(','));
+  onAuthorKeysChange(authorKeys: string[]): void {
+    this.selectedAuthorKeys.set(authorKeys);
+    this.filterPseudonym.set(authorKeys.join(','));
     this.onFilterChange();
   }
 
@@ -233,8 +233,8 @@ export class StudioHistoryStore {
     this.selectedLabel.set('');
     this.selectedDeviceIds.set([]);
     this.selectedDeviceId.set('');
-    this.selectedUserIds.set([]);
-    this.filterUserId.set('');
+    this.selectedAuthorKeys.set([]);
+    this.filterPseudonym.set('');
     this.startDate.set('');
     this.endDate.set('');
     this.sampleCountMin.set(null);

@@ -6,14 +6,14 @@ import { ImuReading } from '../../models/telemetry.models';
  */
 export interface ExportedSessionJson {
   session: {
-    id: string;
+    uuid: string;
     device_id: string;
     label: string;
     sample_count: number;
     duration_sec: number;
     created_at: string;
     is_validated: boolean;
-    user_id?: number | null;
+    author_pseudonym?: string | null;
   } | null;
   readings: ImuReading[];
   exported_at: string;
@@ -51,14 +51,14 @@ export function exportSessionToJson(
   const payload: ExportedSessionJson = {
     session: session
       ? {
-          id: session.uuid,
+          uuid: session.uuid,
           device_id: session.device_id,
           label: session.label,
           sample_count: session.sample_count,
           duration_sec: session.duration_sec,
           created_at: session.created_at,
           is_validated: session.is_validated,
-          user_id: session.user_id,
+          author_pseudonym: session.author_pseudonym,
         }
       : null,
     readings: readings || [],
