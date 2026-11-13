@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import * as THREE from 'three';
+import { Quaternion } from 'three';
 import {
   computeOrientationTrajectory,
   OrientationFrame,
@@ -80,7 +80,7 @@ export class Shoe3dViewerComponent
 
   // Trajectory cache
   private trajectory: OrientationFrame[] = [];
-  private baseInverseQuat: THREE.Quaternion = new THREE.Quaternion();
+  private baseInverseQuat: Quaternion = new Quaternion();
 
   // Playback timing
   private lastRafTimestamp = 0;
@@ -173,7 +173,7 @@ export class Shoe3dViewerComponent
 
     if (this.trajectory.length > 0) {
       // Initial quaternion already encodes true 3-axis gravity tilt (pitch & roll) with zero yaw twist
-      this.baseInverseQuat = new THREE.Quaternion();
+      this.baseInverseQuat = new Quaternion();
     }
     this.updateShoePose(0);
   }
@@ -302,8 +302,8 @@ export class Shoe3dViewerComponent
       const span = frame.timeSec - prev.timeSec;
       const alpha = span > 1e-5 ? Math.max(0, Math.min(1, (timeSec - prev.timeSec) / span)) : 1;
 
-      const qPrev = new THREE.Quaternion(prev.q.x, prev.q.y, prev.q.z, prev.q.w);
-      const qNext = new THREE.Quaternion(frame.q.x, frame.q.y, frame.q.z, frame.q.w);
+      const qPrev = new Quaternion(prev.q.x, prev.q.y, prev.q.z, prev.q.w);
+      const qNext = new Quaternion(frame.q.x, frame.q.y, frame.q.z, frame.q.w);
       qPrev.slerp(qNext, alpha);
 
       frame = {

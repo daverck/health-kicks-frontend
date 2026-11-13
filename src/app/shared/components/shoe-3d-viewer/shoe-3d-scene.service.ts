@@ -1,6 +1,27 @@
 import { Injectable, signal } from '@angular/core';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {
+  AmbientLight,
+  ArrowHelper,
+  Box3,
+  BufferGeometry,
+  Color,
+  DirectionalLight,
+  GridHelper,
+  Group,
+  HemisphereLight,
+  Line,
+  LineBasicMaterial,
+  Material,
+  Mesh,
+  PCFShadowMap,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Quaternion,
+  Scene,
+  ShadowMaterial,
+  Vector3,
+  WebGLRenderer,
+} from 'three';
 import { OrientationFrame } from '../../../core/utils/madgwick.utils';
 import { Shoe3dVisualHelpersFactory } from './shoe-3d-visual-helpers.factory';
 
@@ -25,20 +46,20 @@ export class Shoe3dSceneService {
   readonly showAccelVectors = signal<boolean>(true);
   readonly isZoomEnabled = signal<boolean>(false);
 
-  private scene: THREE.Scene | null = null;
-  private camera: THREE.PerspectiveCamera | null = null;
-  private renderer: THREE.WebGLRenderer | null = null;
-  private dirLight: THREE.DirectionalLight | null = null;
-  private floorMesh: THREE.Mesh | null = null;
-  private shoeGroup: THREE.Group | null = null;
-  private axesGroup: THREE.Group | null = null;
-  private accelVectorsGroup: THREE.Group | null = null;
-  private accelResultantArrow: THREE.ArrowHelper | null = null;
-  private accelAxArrow: THREE.ArrowHelper | null = null;
-  private accelAyArrow: THREE.ArrowHelper | null = null;
-  private accelAzArrow: THREE.ArrowHelper | null = null;
-  private trajectoryLine: THREE.Line | null = null;
-  private gridHelper: THREE.GridHelper | null = null;
+  private scene: Scene | null = null;
+  private camera: PerspectiveCamera | null = null;
+  private renderer: WebGLRenderer | null = null;
+  private dirLight: DirectionalLight | null = null;
+  private floorMesh: Mesh | null = null;
+  private shoeGroup: Group | null = null;
+  private axesGroup: Group | null = null;
+  private accelVectorsGroup: Group | null = null;
+  private accelResultantArrow: ArrowHelper | null = null;
+  private accelAxArrow: ArrowHelper | null = null;
+  private accelAyArrow: ArrowHelper | null = null;
+  private accelAzArrow: ArrowHelper | null = null;
+  private trajectoryLine: Line | null = null;
+  private gridHelper: GridHelper | null = null;
   private resizeObserver: ResizeObserver | null = null;
 
   private isDarkTheme = false;
@@ -52,12 +73,12 @@ export class Shoe3dSceneService {
     theta: Math.PI / 4,
     phi: Math.PI / 3,
   };
-  private cameraTarget = new THREE.Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
-  private shoePosition = new THREE.Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
-  private shoeQuaternion = new THREE.Quaternion();
+  private cameraTarget = new Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
+  private shoePosition = new Vector3(0, Shoe3dSceneService.SCENE_BASE_Y, 0);
+  private shoeQuaternion = new Quaternion();
   private pendingTrajectoryFrames: OrientationFrame[] = [];
 
-  private static cachedSneakerMesh: THREE.Group | null = null;
+  private static cachedSneakerMesh: Group | null = null;
 
   init(container: HTMLElement, isDark: boolean): void {
     this.isDarkTheme = isDark;
@@ -65,31 +86,31 @@ export class Shoe3dSceneService {
     const height = container.clientHeight || 280;
 
     try {
-      this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
+      this.scene = new Scene();
+      this.scene.background = new Color(isDark ? 0x0f172a : 0xf8fafc);
 
       // Camera
-      this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 500);
+      this.camera = new PerspectiveCamera(40, width / height, 0.1, 500);
       this.updateCameraPosition();
 
       // Renderer
-      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
       this.renderer.setSize(width, height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       this.renderer.shadowMap.enabled = true;
-      this.renderer.shadowMap.type = THREE.PCFShadowMap;
+      this.renderer.shadowMap.type = PCFShadowMap;
 
       container.appendChild(this.renderer.domElement);
 
       // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+      const ambientLight = new AmbientLight(0xffffff, 0.75);
       this.scene.add(ambientLight);
 
-      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x94a3b8, 0.5);
+      const hemiLight = new HemisphereLight(0xffffff, 0x94a3b8, 0.5);
       hemiLight.position.set(0, 10, 0);
       this.scene.add(hemiLight);
 
-      this.dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      this.dirLight = new DirectionalLight(0xffffff, 0.9);
       this.dirLight.position.set(4, 8, 4);
       this.dirLight.castShadow = true;
       this.dirLight.shadow.mapSize.width = 1024;
@@ -103,16 +124,16 @@ export class Shoe3dSceneService {
       // Floor Grid and Shadow Receiver (strictly at Y = 0 in scene base coordinates)
       this.rebuildGrid();
 
-      const floorGeo = new THREE.PlaneGeometry(24, 24);
-      const floorMat = new THREE.ShadowMaterial({ opacity: isDark ? 0.35 : 0.15 });
-      this.floorMesh = new THREE.Mesh(floorGeo, floorMat);
+      const floorGeo = new PlaneGeometry(24, 24);
+      const floorMat = new ShadowMaterial({ opacity: isDark ? 0.35 : 0.15 });
+      this.floorMesh = new Mesh(floorGeo, floorMat);
       this.floorMesh.rotation.x = -Math.PI / 2;
       this.floorMesh.position.y = Shoe3dSceneService.SCENE_BASE_Y - 0.02;
       this.floorMesh.receiveShadow = true;
       this.scene.add(this.floorMesh);
 
       // Shoe Group
-      this.shoeGroup = new THREE.Group();
+      this.shoeGroup = new Group();
       this.shoeGroup.position.copy(this.shoePosition);
       this.shoeGroup.quaternion.copy(this.shoeQuaternion);
       this.rebuildModel();
@@ -232,7 +253,7 @@ export class Shoe3dSceneService {
   updateTheme(isDark: boolean): void {
     this.isDarkTheme = isDark;
     if (!this.scene) return;
-    this.scene.background = new THREE.Color(isDark ? 0x0f172a : 0xf8fafc);
+    this.scene.background = new Color(isDark ? 0x0f172a : 0xf8fafc);
     this.rebuildGrid();
     this.render();
   }
@@ -276,12 +297,12 @@ export class Shoe3dSceneService {
     if (this.gridHelper) {
       this.scene.remove(this.gridHelper);
       this.gridHelper.geometry.dispose();
-      (this.gridHelper.material as THREE.Material).dispose();
+      (this.gridHelper.material as Material).dispose();
       this.gridHelper = null;
     }
 
     const divisions = Math.min(400, Math.max(32, Math.round(this.gridSize * 2)));
-    this.gridHelper = new THREE.GridHelper(
+    this.gridHelper = new GridHelper(
       this.gridSize,
       divisions,
       this.isDarkTheme ? 0x38bdf8 : 0x0284c7,
@@ -305,38 +326,38 @@ export class Shoe3dSceneService {
     if (this.trajectoryLine) {
       this.scene.remove(this.trajectoryLine);
       this.trajectoryLine.geometry.dispose();
-      (this.trajectoryLine.material as THREE.Material).dispose();
+      (this.trajectoryLine.material as Material).dispose();
       this.trajectoryLine = null;
     }
 
     if (!frames || frames.length < 2) return;
 
-    const points: THREE.Vector3[] = frames.map((f) => {
+    const points: Vector3[] = frames.map((f) => {
       const p = f.position ?? { x: 0, y: 0, z: 0 };
-      return new THREE.Vector3(
+      return new Vector3(
         p.x,
         Shoe3dSceneService.SCENE_BASE_Y + p.y + 0.05,
         p.z
       );
     });
 
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const geometry = new BufferGeometry().setFromPoints(points);
     geometry.setDrawRange(0, 1);
 
-    const material = new THREE.LineBasicMaterial({
+    const material = new LineBasicMaterial({
       color: 0x0ea5e9,
       transparent: true,
       opacity: 0.75,
     });
 
-    this.trajectoryLine = new THREE.Line(geometry, material);
+    this.trajectoryLine = new Line(geometry, material);
     this.trajectoryLine.name = 'shoe-trajectory-line';
     this.scene.add(this.trajectoryLine);
   }
 
   updatePose(
     frame: OrientationFrame | null,
-    baseInverseQuat: THREE.Quaternion,
+    baseInverseQuat: Quaternion,
     frameIndex = 0
   ): void {
     if (!frame) return;
@@ -366,7 +387,7 @@ export class Shoe3dSceneService {
     // Three.js X (Right)   <- Sensor Y (Medio-lateral)
     // Three.js Y (Up)      <- Sensor Z (Vertical / Longitudinal)
     // Three.js Z (Forward) <- Sensor X (Antero-posterior)
-    const qRaw = new THREE.Quaternion(
+    const qRaw = new Quaternion(
       frame.q.y,
       frame.q.z,
       frame.q.x,
@@ -400,7 +421,7 @@ export class Shoe3dSceneService {
     // Update dynamic acceleration vectors:
     if (this.accelVectorsGroup && this.showAccelVectors()) {
       const scale = 0.55;
-      const resDir = new THREE.Vector3(ay, az, ax);
+      const resDir = new Vector3(ay, az, ax);
       const resMag = resDir.length();
       if (resMag > 0.001) {
         resDir.normalize();
@@ -416,7 +437,7 @@ export class Shoe3dSceneService {
       );
 
       // Ax arrow (along Three.js Z)
-      const axDir = new THREE.Vector3(0, 0, ax >= 0 ? 1 : -1);
+      const axDir = new Vector3(0, 0, ax >= 0 ? 1 : -1);
       const axLen = Math.max(0.02, Math.min(Math.abs(ax) * scale, 1.8));
       this.accelAxArrow?.setDirection(axDir);
       this.accelAxArrow?.setLength(
@@ -426,7 +447,7 @@ export class Shoe3dSceneService {
       );
 
       // Ay arrow (along Three.js X)
-      const ayDir = new THREE.Vector3(ay >= 0 ? 1 : -1, 0, 0);
+      const ayDir = new Vector3(ay >= 0 ? 1 : -1, 0, 0);
       const ayLen = Math.max(0.02, Math.min(Math.abs(ay) * scale, 1.8));
       this.accelAyArrow?.setDirection(ayDir);
       this.accelAyArrow?.setLength(
@@ -436,7 +457,7 @@ export class Shoe3dSceneService {
       );
 
       // Az arrow (along Three.js Y)
-      const azDir = new THREE.Vector3(0, az >= 0 ? 1 : -1, 0);
+      const azDir = new Vector3(0, az >= 0 ? 1 : -1, 0);
       const azLen = Math.max(0.02, Math.min(Math.abs(az) * scale, 1.8));
       this.accelAzArrow?.setDirection(azDir);
       this.accelAzArrow?.setLength(
@@ -474,8 +495,8 @@ export class Shoe3dSceneService {
     while (this.shoeGroup.children.length > 0) {
       const child = this.shoeGroup.children[0];
       this.shoeGroup.remove(child);
-      if ((child as THREE.Mesh).geometry) {
-        (child as THREE.Mesh).geometry.dispose();
+      if ((child as Mesh).geometry) {
+        (child as Mesh).geometry.dispose();
       }
     }
 
@@ -496,53 +517,59 @@ export class Shoe3dSceneService {
     this.attachAxesHelper();
     this.render();
 
-    try {
-      const loader = new GLTFLoader();
-      this.isModelLoading.set(true);
-      loader.load(
-        '/models/blue_sneaker.glb',
-        (gltf) => {
+    this.isModelLoading.set(true);
+    import('three/examples/jsm/loaders/GLTFLoader.js')
+      .then(({ GLTFLoader }) => {
+        if (!this.shoeGroup) {
           this.isModelLoading.set(false);
-          if (!this.shoeGroup) return;
-
-          const model = gltf.scene;
-          const bbox = new THREE.Box3().setFromObject(model);
-          const size = bbox.getSize(new THREE.Vector3());
-          const center = bbox.getCenter(new THREE.Vector3());
-
-          const targetLength = 2.0;
-          const scale = size.z > 0 ? targetLength / size.z : 0.068;
-          model.scale.set(scale, scale, scale);
-
-          model.position.x = -center.x * scale;
-          model.position.y = -bbox.min.y * scale;
-          model.position.z = -center.z * scale + 0.15;
-
-          model.traverse((child) => {
-            if ((child as THREE.Mesh).isMesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
-
-          const container = new THREE.Group();
-          container.add(model);
-          Shoe3dSceneService.cachedSneakerMesh = container;
-
-          this.shoeGroup.add(container.clone(true));
-          this.attachAxesHelper();
-          this.render();
-        },
-        undefined,
-        (err) => {
-          console.warn('Could not load /models/blue_sneaker.glb:', err);
-          this.isModelLoading.set(false);
+          return;
         }
-      );
-    } catch (e) {
-      console.warn('GLTFLoader error:', e);
-      this.isModelLoading.set(false);
-    }
+        const loader = new GLTFLoader();
+        loader.load(
+          '/models/blue_sneaker.glb',
+          (gltf) => {
+            this.isModelLoading.set(false);
+            if (!this.shoeGroup) return;
+
+            const model = gltf.scene;
+            const bbox = new Box3().setFromObject(model);
+            const size = bbox.getSize(new Vector3());
+            const center = bbox.getCenter(new Vector3());
+
+            const targetLength = 2.0;
+            const scale = size.z > 0 ? targetLength / size.z : 0.068;
+            model.scale.set(scale, scale, scale);
+
+            model.position.x = -center.x * scale;
+            model.position.y = -bbox.min.y * scale;
+            model.position.z = -center.z * scale + 0.15;
+
+            model.traverse((child) => {
+              if ((child as Mesh).isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+              }
+            });
+
+            const container = new Group();
+            container.add(model);
+            Shoe3dSceneService.cachedSneakerMesh = container;
+
+            this.shoeGroup.add(container.clone(true));
+            this.attachAxesHelper();
+            this.render();
+          },
+          undefined,
+          (err) => {
+            console.warn('Could not load /models/blue_sneaker.glb:', err);
+            this.isModelLoading.set(false);
+          }
+        );
+      })
+      .catch((e) => {
+        console.warn('GLTFLoader error:', e);
+        this.isModelLoading.set(false);
+      });
   }
 
   private attachAxesHelper(): void {
