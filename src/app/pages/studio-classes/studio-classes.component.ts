@@ -8,7 +8,15 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Chart, registerables } from 'chart.js';
+import {
+  Chart,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip,
+} from 'chart.js';
 import {
   StudioClassSummaryItem,
   StudioClassDailyCount,
@@ -28,7 +36,14 @@ import {
   getConfusionMatrixCellBgClass,
 } from './studio-classes-chart.factory';
 
-Chart.register(...registerables);
+Chart.register(
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Tooltip
+);
 
 export type { StudioChartMetric };
 
