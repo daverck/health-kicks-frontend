@@ -195,6 +195,41 @@ describe('authInterceptor', () => {
       expect((caughtError as unknown as HttpErrorResponse)?.status).toBe(401);
     });
 
+    it('should propagate refresh failure to all queued concurrent 401 requests without hanging', () => {
+      localStorage.setItem('access_token', 'expired-token');
+
+      const refreshSubject = new Subject<TokenResponse>();
+      authServiceSpy.refreshToken.and.returnValue(refreshSubject.asObservable());
+
+      let err1: HttpErrorResponse | null = null;
+      let err2: HttpErrorResponse | null = null;
+
+      httpClient.get(`${environment.apiUrl}/api/v1/devices`).subscribe({
+        error: (e: HttpErrorResponse) => {
+          err1 = e;
+        },
+      });
+      httpClient.get(`${environment.apiUrl}/api/v1/fall-events`).subscribe({
+        error: (e: HttpErrorResponse) => {
+          err2 = e;
+        },
+      });
+
+      const req1 = httpTesting.expectOne(`${environment.apiUrl}/api/v1/devices`);
+      const req2 = httpTesting.expectOne(`${environment.apiUrl}/api/v1/fall-events`);
+      req1.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+      req2.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+      expect(authServiceSpy.refreshToken).toHaveBeenCalledTimes(1);
+
+      refreshSubject.error(new HttpErrorResponse({ status: 401, statusText: 'Refresh Expired' }));
+
+      expect(err1).not.toBeNull();
+      expect(err2).not.toBeNull();
+      expect((err1 as unknown as HttpErrorResponse).status).toBe(401);
+      expect((err2 as unknown as HttpErrorResponse).status).toBe(401);
+    });
+
     it('should NOT attempt refresh or call logout on 401 when the request is an auth bypass endpoint (e.g. login)', () => {
       httpClient.post(`${environment.apiUrl}/api/v1/auth/login`, { email: 'bad@healthkicks.local', password: 'bad' }).subscribe({
         next: () => fail('Should have failed with 401'),

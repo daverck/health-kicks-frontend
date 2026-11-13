@@ -6,8 +6,13 @@ import { AuthService } from '../services/auth.service';
 import { ToastService } from '../services/toast.service';
 import { TokenResponse } from '../../models/api.models';
 
+interface RefreshOutcome {
+  token: string | null;
+  error?: unknown;
+}
+
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+const refreshTokenSubject = new BehaviorSubject<RefreshOutcome | null>(null);
 
 /**
  * Resets the interceptor state (useful for unit testing).
@@ -42,8 +47,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.includes('/auth/login') ||
     req.url.includes('/auth/register') ||
     req.url.includes('/auth/refresh') ||
+    req.url.includes('/auth/token/exchange') ||
     req.url.includes('/auth/google') ||
-    req.url.includes('/auth/azure');
+    req.url.includes('/auth/azure') ||
+    req.url.includes('/fall-alerts/ack');
 
   const authReq = token && isApiRequest && !isAuthBypassRequest
     ? addTokenHeader(req, token)
@@ -71,12 +78,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           return authService.refreshToken().pipe(
             switchMap((res: TokenResponse) => {
               isRefreshing = false;
-              refreshTokenSubject.next(res.access_token);
+              refreshTokenSubject.next({ token: res.access_token });
               return next(addTokenHeader(req, res.access_token));
             }),
             catchError((refreshError: unknown) => {
               isRefreshing = false;
-              refreshTokenSubject.next(null);
+              refreshTokenSubject.next({ token: null, error: refreshError });
               authService.logout('/login');
               toastService.error('Votre session a expiré. Veuillez vous reconnecter.');
               return throwError(() => refreshError);
@@ -85,10 +92,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         } else {
           // Case 2: A refresh procedure is already in progress -> queue request
           return refreshTokenSubject.pipe(
-            filter((newToken): newToken is string => newToken !== null),
+            filter((outcome): outcome is RefreshOutcome => outcome !== null),
             take(1),
-            switchMap((newToken: string) => {
-              return next(addTokenHeader(req, newToken));
+            switchMap((outcome: RefreshOutcome) => {
+              if (!outcome.token) {
+                return throwError(() => outcome.error ?? error);
+              }
+              return next(addTokenHeader(req, outcome.token));
             })
           );
         }
