@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /fall-alerts/ack
+
+Sitemap: https://healthkicks.app/sitemap.xml

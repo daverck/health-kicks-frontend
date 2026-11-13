@@ -3,9 +3,23 @@ import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { clinicianOrAdminGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  { path: '', loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent) },
-  { path: 'login', canActivate: [guestGuard], loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent) },
-  { path: 'register', canActivate: [guestGuard], loadComponent: () => import('./pages/register/register.component').then((m) => m.RegisterComponent) },
+  {
+    path: '',
+    title: 'HealthKicks — Chaussures Connectées & Détection de Chutes',
+    loadComponent: () => import('./pages/home/home.component').then((m) => m.HomeComponent),
+  },
+  {
+    path: 'login',
+    title: 'Connexion — HealthKicks',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'register',
+    title: 'Inscription — HealthKicks',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/register/register.component').then((m) => m.RegisterComponent),
+  },
   {
     path: 'auth/:provider/callback',
     loadComponent: () =>

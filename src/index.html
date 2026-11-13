@@ -2,13 +2,70 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <title>HealthKicks</title>
+  <title>HealthKicks — Chaussures Connectées & Détection Intelligente des Chutes</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="HealthKicks : Dispositif connecté pour chaussures et semelles avec détection de chutes par IA edge, analyse biomécanique de la marche et suivi clinique en temps réel.">
+  <meta name="keywords" content="chaussure connectée, détection de chutes, biomécanique, capteurs IMU, santé connectée, podologie, ESP32, IA embarquée">
+  <meta name="author" content="HealthKicks">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://healthkicks.app/">
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://healthkicks.app/">
+  <meta property="og:title" content="HealthKicks — Chaussures Connectées & Détection Intelligente des Chutes">
+  <meta property="og:description" content="Surveillance biomécanique en temps réel, détection de chutes par IA embarquée et portail clinique de santé.">
+  <meta property="og:image" content="https://healthkicks.app/images/shoe_clip_device.webp">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://healthkicks.app/">
+  <meta name="twitter:title" content="HealthKicks — Chaussures Connectées & Détection Intelligente des Chutes">
+  <meta name="twitter:description" content="Surveillance biomécanique en temps réel, détection de chutes par IA embarquée et portail clinique de santé.">
+  <meta name="twitter:image" content="https://healthkicks.app/images/shoe_clip_device.webp">
+
+  <!-- Favicons & App Icons -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/png" href="favicon.png">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://healthkicks.app/#organization",
+        "name": "HealthKicks",
+        "url": "https://healthkicks.app",
+        "logo": "https://healthkicks.app/favicon.svg"
+      },
+      {
+        "@type": "MedicalDevice",
+        "name": "HealthKicks Smart Shoe & Footwear Clip",
+        "category": "Gait Analysis & Fall Detection",
+        "description": "Connected smart footwear providing 19 Hz IMU biomechanical gait monitoring, on-device edge fall detection, and clinician telemetry portal.",
+        "manufacturer": {
+          "@id": "https://healthkicks.app/#organization"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://healthkicks.app/#website",
+        "url": "https://healthkicks.app",
+        "name": "HealthKicks",
+        "publisher": {
+          "@id": "https://healthkicks.app/#organization"
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <app-root></app-root>
