@@ -9,6 +9,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { MockAuthService } from './core/services/mock-auth.service';
 import { environment } from '../environments/environment';
+import { provideClientHydration } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,6 +20,6 @@ export const appConfig: ApplicationConfig = {
     ),
     ...(environment.mockAuth
       ? [{ provide: AuthService, useClass: MockAuthService }]
-      : []),
+      : []), provideClientHydration(),
   ],
 };

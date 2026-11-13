@@ -1,4 +1,5 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, throwError } from 'rxjs';
@@ -84,11 +85,13 @@ export function computePkceChallengeSync(verifier: string): string {
 export class AuthService {
   private readonly http = inject(HttpClient);
   protected readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
+  private get isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
 
   protected readonly userSignal = signal<UserResponse | null>(this.getStoredUser());
-  protected readonly tokenSignal = signal<string | null>(
-    localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token')
-  );
+  protected readonly tokenSignal = signal<string | null>(this.getAccessToken());
 
   readonly user = this.userSignal.asReadonly();
   readonly currentUser = this.user;
@@ -102,6 +105,7 @@ export class AuthService {
   private readonly pkceKeyPrefix = 'hk_oauth_pkce_';
 
   getAccessToken(): string | null {
+    if (!this.isBrowser) return null;
     return localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token');
   }
 
@@ -110,6 +114,7 @@ export class AuthService {
   }
 
   getRefreshToken(): string | null {
+    if (!this.isBrowser) return null;
     return localStorage.getItem(REFRESH_TOKEN_KEY);
   }
 
@@ -145,12 +150,15 @@ export class AuthService {
     for (let i = 0; i < 64; i++) {
       verifier += charset[randomValues[i] % charset.length];
     }
-    sessionStorage.setItem(`${this.pkceKeyPrefix}${provider}`, verifier);
+    if (this.isBrowser) {
+      sessionStorage.setItem(`${this.pkceKeyPrefix}${provider}`, verifier);
+    }
     return verifier;
   }
 
   /** Read and remove the PKCE code_verifier from sessionStorage for the given provider. */
   consumePkceVerifier(provider: OAuthProvider): string | null {
+    if (!this.isBrowser) return null;
     const key = `${this.pkceKeyPrefix}${provider}`;
     const verifier = sessionStorage.getItem(key);
     sessionStorage.removeItem(key);
@@ -253,6 +261,7 @@ export class AuthService {
   }
 
   getStoredUser(): UserResponse | null {
+    if (!this.isBrowser) return null;
     const tokenUser = this.getUserFromToken();
     try {
       const raw = localStorage.getItem(USER_KEY);
@@ -272,6 +281,7 @@ export class AuthService {
   }
 
   getUserFromToken(): UserResponse | null {
+    if (!this.isBrowser) return null;
     try {
       const token = localStorage.getItem(ACCESS_TOKEN_KEY) || localStorage.getItem('hk_access_token');
       if (!token) return null;
@@ -309,9 +319,11 @@ export class AuthService {
     return this.http.get<UserResponse>(`${this.base}/auth/me`).pipe(
       tap((user) => {
         this.userSignal.set(user);
-        try {
-          localStorage.setItem(USER_KEY, JSON.stringify(user));
-        } catch (_) {}
+        if (this.isBrowser) {
+          try {
+            localStorage.setItem(USER_KEY, JSON.stringify(user));
+          } catch (_) {}
+        }
       })
     );
   }
@@ -323,6 +335,7 @@ export class AuthService {
   setSession(tokenResponse: TokenResponse): void;
   setSession(accessToken: string, user?: UserResponse | null): void;
   setSession(tokenOrResponse: string | TokenResponse, user?: UserResponse | null): void {
+    if (!this.isBrowser) return;
     if (typeof tokenOrResponse === 'string') {
       localStorage.setItem(ACCESS_TOKEN_KEY, tokenOrResponse);
       localStorage.setItem('hk_access_token', tokenOrResponse);
@@ -371,16 +384,20 @@ export class AuthService {
   }
 
   setToken(token: string): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, token);
-    localStorage.setItem('hk_access_token', token);
+    if (this.isBrowser) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, token);
+      localStorage.setItem('hk_access_token', token);
+    }
     this.tokenSignal.set(token);
   }
 
   clearSession(): void {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem('hk_access_token');
-    localStorage.removeItem(USER_KEY);
+    if (this.isBrowser) {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem('hk_access_token');
+      localStorage.removeItem(USER_KEY);
+    }
     this.tokenSignal.set(null);
     this.userSignal.set(null);
   }
