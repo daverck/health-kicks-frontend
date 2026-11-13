@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
+import { idempotencyInterceptor } from './core/interceptors/idempotency.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { MockAuthService } from './core/services/mock-auth.service';
@@ -13,7 +14,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([correlationIdInterceptor, authInterceptor])),
+    provideHttpClient(
+      withInterceptors([correlationIdInterceptor, idempotencyInterceptor, authInterceptor]),
+    ),
     ...(environment.mockAuth
       ? [{ provide: AuthService, useClass: MockAuthService }]
       : []),
