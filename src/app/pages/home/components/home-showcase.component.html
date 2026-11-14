@@ -23,7 +23,10 @@
           class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
           [class]="activeAppTab() === 'web' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
         >
-          {{ 'home.showcase_tab_web' | translate }}
+          <svg class="h-4 w-4 sm:h-5 sm:w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span>{{ 'home.showcase_tab_web' | translate }}</span>
         </button>
         <button
           type="button"
@@ -31,7 +34,10 @@
           class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
           [class]="activeAppTab() === 'mobile' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
         >
-          {{ 'home.showcase_tab_mobile' | translate }}
+          <svg class="h-4 w-4 sm:h-5 sm:w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+          </svg>
+          <span>{{ 'home.showcase_tab_mobile' | translate }}</span>
         </button>
         <button
           type="button"
@@ -39,7 +45,10 @@
           class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
           [class]="activeAppTab() === 'emergency' ? 'bg-red-500 text-white shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
         >
-          {{ 'home.showcase_tab_emergency' | translate }}
+          <svg class="h-4 w-4 sm:h-5 sm:w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.002A11.959 11.959 0 0112 2.714zm0 14.036h.008v.008H12v-.008z" />
+          </svg>
+          <span>{{ 'home.showcase_tab_emergency' | translate }}</span>
         </button>
       </div>
     </div>
@@ -82,33 +91,13 @@
           <!-- Interactive Web Cards Grid -->
           <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             @for (item of webScreenshots(); track item.titleKey; let i = $index) {
-              <button
-                type="button"
-                (click)="onManualScreenshotSelect('web', i)"
-                class="group relative text-left rounded-2xl p-5 border transition-all cursor-pointer"
-                [class]="selectedWebScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
-              >
-                <div class="flex items-center justify-between mb-2">
-                  <span
-                    class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
-                    [class]="selectedWebScreenshot() === i ? 'bg-primary-100 dark:bg-primary-900/60 text-primary-800 dark:text-primary-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
-                  >
-                    {{ item.tag }}
-                  </span>
-                  <span
-                    class="text-xs font-mono font-semibold"
-                    [class]="selectedWebScreenshot() === i ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'"
-                  >
-                    0{{ i + 1 }}
-                  </span>
-                </div>
-                <h3 class="font-bold text-gray-900 dark:text-white text-base group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">
-                  {{ item.titleKey | translate }}
-                </h3>
-                <p class="mt-1.5 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
-                  {{ item.descKey | translate }}
-                </p>
-              </button>
+              <app-home-screenshot-card
+                [item]="item"
+                [index]="i"
+                [isSelected]="selectedWebScreenshot() === i"
+                theme="primary"
+                (cardClick)="onManualScreenshotSelect('web', i)"
+              />
             }
           </div>
         </div>
@@ -143,33 +132,15 @@
             <!-- Interactive Mobile Feature Selector List -->
             <div class="flex-1 space-y-3 w-full">
               @for (item of mobileScreenshots(); track item.titleKey; let i = $index) {
-                <button
-                  type="button"
-                  (click)="onManualScreenshotSelect('mobile', i)"
-                  class="w-full text-left rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer block"
-                  [class]="selectedMobileScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
-                >
-                  <div class="flex items-center justify-between mb-1.5">
-                    <span
-                      class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
-                      [class]="selectedMobileScreenshot() === i ? 'bg-primary-100 dark:bg-primary-900/60 text-primary-800 dark:text-primary-300' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
-                    >
-                      📱 {{ item.tag }}
-                    </span>
-                    <span
-                      class="text-xs font-mono font-semibold"
-                      [class]="selectedMobileScreenshot() === i ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'"
-                    >
-                      0{{ i + 1 }}
-                    </span>
-                  </div>
-                  <h3 class="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                    {{ item.titleKey | translate }}
-                  </h3>
-                  <p class="mt-1 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                    {{ item.descKey | translate }}
-                  </p>
-                </button>
+                <app-home-screenshot-card
+                  [item]="item"
+                  [index]="i"
+                  [isSelected]="selectedMobileScreenshot() === i"
+                  theme="primary"
+                  iconType="mobile"
+                  [dense]="true"
+                  (cardClick)="onManualScreenshotSelect('mobile', i)"
+                />
               }
             </div>
           </div>
@@ -245,33 +216,15 @@
               </div>
 
               @for (item of emergencyScreenshots(); track item.titleKey; let i = $index) {
-                <button
-                  type="button"
-                  (click)="onManualScreenshotSelect('emergency', i)"
-                  class="w-full text-left rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer block"
-                  [class]="selectedEmergencyScreenshot() === i ? 'border-red-500 dark:border-red-500 bg-red-50/50 dark:bg-red-950/40 ring-2 ring-red-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-red-300 dark:hover:border-red-900/60 hover:shadow-sm'"
-                >
-                  <div class="flex items-center justify-between mb-1.5">
-                    <span
-                      class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold"
-                      [class]="selectedEmergencyScreenshot() === i ? 'bg-red-100 dark:bg-red-900/70 text-red-800 dark:text-red-200' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'"
-                    >
-                      {{ item.tag }}
-                    </span>
-                    <span
-                      class="text-xs font-mono font-semibold"
-                      [class]="selectedEmergencyScreenshot() === i ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'"
-                    >
-                      Étape 0{{ i + 1 }}
-                    </span>
-                  </div>
-                  <h3 class="font-bold text-gray-900 dark:text-white text-sm sm:text-base">
-                    {{ item.titleKey | translate }}
-                  </h3>
-                  <p class="mt-1 text-xs sm:text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                    {{ item.descKey | translate }}
-                  </p>
-                </button>
+                <app-home-screenshot-card
+                  [item]="item"
+                  [index]="i"
+                  [isSelected]="selectedEmergencyScreenshot() === i"
+                  theme="emergency"
+                  stepPrefix="Étape "
+                  [dense]="true"
+                  (cardClick)="onManualScreenshotSelect('emergency', i)"
+                />
               }
             </div>
           </div>

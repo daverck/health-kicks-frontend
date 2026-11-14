@@ -2,11 +2,12 @@ import { Component, inject, input, OnDestroy, OnInit, output, PLATFORM_ID, signa
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { AppTab, ScreenshotItem } from '../home.component';
+import { HomeScreenshotCardComponent } from './home-screenshot-card.component';
 
 @Component({
   selector: 'app-home-showcase',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, HomeScreenshotCardComponent],
   templateUrl: './home-showcase.component.html',
 })
 export class HomeShowcaseComponent implements OnInit, OnDestroy {

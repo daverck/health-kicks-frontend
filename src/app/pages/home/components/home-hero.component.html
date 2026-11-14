@@ -65,7 +65,9 @@
               class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
               [class]="heroVisualMode() === 'shoe' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-sm font-bold' : 'hover:text-gray-900 dark:hover:text-white'"
             >
-              <span>👟</span>
+              <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 16.5h16.5c.69 0 1.25-.56 1.25-1.25 0-2.35-1.42-4.32-3.45-5.12L14.25 8.5a3 3 0 00-1.2-.25H8.25a2.25 2.25 0 00-2.25 2.25v2.25H3.75a1.5 1.5 0 00-1.5 1.5v.5c0 .69.56 1.25 1.25 1.25zM6 16.5v2.25m6-2.25v2.25m6-2.25v2.25" />
+              </svg>
               <span>{{ 'home.hero_view_shoe' | translate }}</span>
             </button>
             <button
@@ -74,7 +76,9 @@
               class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
               [class]="heroVisualMode() === 'web' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-sm font-bold' : 'hover:text-gray-900 dark:hover:text-white'"
             >
-              <span>💻</span>
+              <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
               <span>{{ 'home.hero_view_web' | translate }}</span>
             </button>
             <button
@@ -83,7 +87,9 @@
               class="flex-1 py-1.5 px-2 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5"
               [class]="heroVisualMode() === 'mobile' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-sm font-bold' : 'hover:text-gray-900 dark:hover:text-white'"
             >
-              <span>📱</span>
+              <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+              </svg>
               <span>{{ 'home.hero_view_mobile' | translate }}</span>
             </button>
           </div>
@@ -117,8 +123,11 @@
 
               @if (activeSimulation() === 'idle') {
                 <div class="absolute inset-0 border-4 border-amber-500 rounded-2xl pointer-events-none flex items-center justify-center bg-amber-950/20">
-                  <span class="px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs shadow-lg animate-pulse">
-                    💤 {{ 'home.sim_idle_badge' | translate }}
+                  <span class="px-3 py-1.5 rounded-lg bg-amber-600 text-white font-bold text-xs shadow-lg animate-pulse inline-flex items-center gap-1.5">
+                    <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    <span>{{ 'home.sim_idle_badge' | translate }}</span>
                   </span>
                 </div>
               }
@@ -155,7 +164,9 @@
                   class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
                   [class]="activeSimulation() === 'walk' ? 'bg-primary-100 text-primary-800 font-bold border border-primary-300 shadow-sm dark:bg-primary-950/80 dark:text-primary-300 dark:border-primary-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                 >
-                  <span>👟</span>
+                  <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 16.5h16.5c.69 0 1.25-.56 1.25-1.25 0-2.35-1.42-4.32-3.45-5.12L14.25 8.5a3 3 0 00-1.2-.25H8.25a2.25 2.25 0 00-2.25 2.25v2.25H3.75a1.5 1.5 0 00-1.5 1.5v.5c0 .69.56 1.25 1.25 1.25zM6 16.5v2.25m6-2.25v2.25m6-2.25v2.25" />
+                  </svg>
                   <span>{{ 'home.sim_btn_walk' | translate }}</span>
                 </button>
 
@@ -165,7 +176,9 @@
                   class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
                   [class]="activeSimulation() === 'fall' ? 'bg-red-100 text-red-800 font-bold border border-red-300 shadow-sm dark:bg-red-950/80 dark:text-red-300 dark:border-red-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                 >
-                  <span>🚨</span>
+                  <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
                   <span>{{ 'home.sim_btn_fall' | translate }}</span>
                 </button>
 
@@ -175,7 +188,9 @@
                   class="flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 font-medium transition cursor-pointer"
                   [class]="activeSimulation() === 'idle' ? 'bg-amber-100 text-amber-800 font-bold border border-amber-300 shadow-sm dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'"
                 >
-                  <span>💤</span>
+                  <svg class="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
                   <span>{{ 'home.sim_btn_idle' | translate }}</span>
                 </button>
               </div>
