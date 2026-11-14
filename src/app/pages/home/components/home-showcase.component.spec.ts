@@ -113,18 +113,18 @@ describe('HomeShowcaseComponent', () => {
     expect(selectWebSpy).toHaveBeenCalledWith(0);
   });
 
-  it('should pause auto-advance on mouseenter and resume on mouseleave', () => {
+  it('should pause auto-advance on mouseenter and resume on mouseleave on screenshot img', () => {
     const selectWebSpy = vi.fn();
     component.selectWeb.subscribe(selectWebSpy);
 
-    const section: HTMLElement = fixture.nativeElement.querySelector('#showcase');
-    section.dispatchEvent(new MouseEvent('mouseenter'));
+    const img: HTMLImageElement = fixture.nativeElement.querySelector('#showcase img');
+    img.dispatchEvent(new MouseEvent('mouseenter'));
     expect(component.isPaused()).toBe(true);
 
     vi.advanceTimersByTime(4000);
     expect(selectWebSpy).not.toHaveBeenCalled();
 
-    section.dispatchEvent(new MouseEvent('mouseleave'));
+    img.dispatchEvent(new MouseEvent('mouseleave'));
     expect(component.isPaused()).toBe(false);
 
     vi.advanceTimersByTime(4000);

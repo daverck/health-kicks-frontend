@@ -1,8 +1,6 @@
 <section
   id="showcase"
   class="border-t border-gray-100 dark:border-gray-800 bg-gradient-to-b from-gray-50/80 via-white to-gray-50/40 dark:from-gray-900/80 dark:via-gray-950 dark:to-gray-900/40 py-20"
-  (mouseenter)="pauseAutoPlay()"
-  (mouseleave)="resumeAutoPlay()"
 >
   <div class="mx-auto max-w-6xl px-4">
     <!-- Section Header -->
@@ -75,6 +73,8 @@
                 loading="lazy"
                 width="1280"
                 height="720"
+                (mouseenter)="pauseAutoPlay()"
+                (mouseleave)="resumeAutoPlay()"
               />
             </div>
           </div>
@@ -133,6 +133,8 @@
                     loading="lazy"
                     width="360"
                     height="720"
+                    (mouseenter)="pauseAutoPlay()"
+                    (mouseleave)="resumeAutoPlay()"
                   />
                 </div>
               </div>
@@ -201,6 +203,8 @@
                       loading="lazy"
                       width="1024"
                       height="640"
+                      (mouseenter)="pauseAutoPlay()"
+                      (mouseleave)="resumeAutoPlay()"
                     />
                   </div>
                 </div>
@@ -220,6 +224,8 @@
                         loading="lazy"
                         width="360"
                         height="720"
+                        (mouseenter)="pauseAutoPlay()"
+                        (mouseleave)="resumeAutoPlay()"
                       />
                     </div>
                   </div>
