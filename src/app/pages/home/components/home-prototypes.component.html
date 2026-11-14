@@ -1,8 +1,6 @@
 <section
   id="prototypes"
   class="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 py-20"
-  (mouseenter)="pauseAutoPlay()"
-  (mouseleave)="resumeAutoPlay()"
 >
   <div class="mx-auto max-w-6xl px-4">
     <!-- Section Header -->
@@ -46,6 +44,8 @@
               loading="lazy"
               width="640"
               height="480"
+              (mouseenter)="pauseAutoPlay()"
+              (mouseleave)="resumeAutoPlay()"
             />
             <div class="absolute top-3 left-3 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-white text-xs font-semibold border border-white/20">
               {{ prototypes()[selectedPrototype()].tag }}

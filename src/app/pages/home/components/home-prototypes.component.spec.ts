@@ -75,18 +75,18 @@ describe('HomePrototypesComponent', () => {
     expect(selectSpy).toHaveBeenCalledWith(0);
   });
 
-  it('should pause auto-advance on mouseenter and resume on mouseleave', () => {
+  it('should pause auto-advance on mouseenter and resume on mouseleave on img', () => {
     const selectSpy = vi.fn();
     component.prototypeSelect.subscribe(selectSpy);
 
-    const section: HTMLElement = fixture.nativeElement.querySelector('#prototypes');
-    section.dispatchEvent(new MouseEvent('mouseenter'));
+    const img: HTMLImageElement = fixture.nativeElement.querySelector('#prototypes img');
+    img.dispatchEvent(new MouseEvent('mouseenter'));
     expect(component.isPaused()).toBe(true);
 
     vi.advanceTimersByTime(4000);
     expect(selectSpy).not.toHaveBeenCalled();
 
-    section.dispatchEvent(new MouseEvent('mouseleave'));
+    img.dispatchEvent(new MouseEvent('mouseleave'));
     expect(component.isPaused()).toBe(false);
 
     vi.advanceTimersByTime(4000);
