@@ -1,4 +1,9 @@
-<section id="showcase" class="border-t border-gray-100 dark:border-gray-800 bg-gradient-to-b from-gray-50/80 via-white to-gray-50/40 dark:from-gray-900/80 dark:via-gray-950 dark:to-gray-900/40 py-20">
+<section
+  id="showcase"
+  class="border-t border-gray-100 dark:border-gray-800 bg-gradient-to-b from-gray-50/80 via-white to-gray-50/40 dark:from-gray-900/80 dark:via-gray-950 dark:to-gray-900/40 py-20"
+  (mouseenter)="pauseAutoPlay()"
+  (mouseleave)="resumeAutoPlay()"
+>
   <div class="mx-auto max-w-6xl px-4">
     <!-- Section Header -->
     <div class="mx-auto max-w-3xl text-center">
@@ -16,7 +21,7 @@
       <div class="mt-8 inline-flex flex-wrap justify-center rounded-2xl bg-gray-200/80 dark:bg-gray-800 p-1.5 shadow-inner gap-1">
         <button
           type="button"
-          (click)="tabChange.emit('web')"
+          (click)="onManualTabSelect('web')"
           class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
           [class]="activeAppTab() === 'web' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
         >
@@ -24,7 +29,7 @@
         </button>
         <button
           type="button"
-          (click)="tabChange.emit('mobile')"
+          (click)="onManualTabSelect('mobile')"
           class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
           [class]="activeAppTab() === 'mobile' ? 'bg-white dark:bg-gray-700 text-primary-700 dark:text-primary-300 shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
         >
@@ -32,7 +37,7 @@
         </button>
         <button
           type="button"
-          (click)="tabChange.emit('emergency')"
+          (click)="onManualTabSelect('emergency')"
           class="flex items-center gap-2 rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold transition cursor-pointer"
           [class]="activeAppTab() === 'emergency' ? 'bg-red-500 text-white shadow-md font-bold' : 'text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
         >
@@ -79,7 +84,7 @@
             @for (item of webScreenshots(); track item.titleKey; let i = $index) {
               <button
                 type="button"
-                (click)="selectWeb.emit(i)"
+                (click)="onManualScreenshotSelect('web', i)"
                 class="group relative text-left rounded-2xl p-5 border transition-all cursor-pointer"
                 [class]="selectedWebScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
               >
@@ -138,7 +143,7 @@
               @for (item of mobileScreenshots(); track item.titleKey; let i = $index) {
                 <button
                   type="button"
-                  (click)="selectMobile.emit(i)"
+                  (click)="onManualScreenshotSelect('mobile', i)"
                   class="w-full text-left rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer block"
                   [class]="selectedMobileScreenshot() === i ? 'border-primary-500 dark:border-primary-500 bg-primary-50/40 dark:bg-primary-950/40 ring-2 ring-primary-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-sm'"
                 >
@@ -236,7 +241,7 @@
               @for (item of emergencyScreenshots(); track item.titleKey; let i = $index) {
                 <button
                   type="button"
-                  (click)="selectEmergency.emit(i)"
+                  (click)="onManualScreenshotSelect('emergency', i)"
                   class="w-full text-left rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer block"
                   [class]="selectedEmergencyScreenshot() === i ? 'border-red-500 dark:border-red-500 bg-red-50/50 dark:bg-red-950/40 ring-2 ring-red-500/20 shadow-md' : 'border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-red-300 dark:hover:border-red-900/60 hover:shadow-sm'"
                 >
