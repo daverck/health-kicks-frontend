@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { UserResponse } from '../../models/api.models';
@@ -8,10 +9,31 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 
+export type NavIconId =
+  | 'steps'
+  | 'vibrations'
+  | 'devices'
+  | 'history'
+  | 'fall-alerts'
+  | 'studio'
+  | 'studio-history'
+  | 'studio-classes'
+  | 'logout';
+
+export interface NavLink {
+  path: string;
+  labelKey: string;
+  label: string;
+  icon: NavIconId;
+  exact: boolean;
+  clinicianOnly: boolean;
+}
+
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
@@ -27,15 +49,15 @@ export class DashboardLayoutComponent implements OnInit {
 
   readonly isMobileMenuOpen = signal(false);
 
-  readonly links = [
-    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: '🚶‍♂️', exact: true, clinicianOnly: false },
-    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: '📳', exact: true, clinicianOnly: false },
-    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: '👟', exact: true, clinicianOnly: false },
-    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: '🕓', exact: true, clinicianOnly: false },
-    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: '🚨', exact: true, clinicianOnly: false },
-    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: '🎬', exact: true, clinicianOnly: true },
-    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: '📊', exact: false, clinicianOnly: true },
-    { path: '/dashboard/studio/classes', labelKey: 'nav.studio_classes', label: 'Classes Studio', icon: '🏷️', exact: true, clinicianOnly: true },
+  readonly links: NavLink[] = [
+    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: 'steps', exact: true, clinicianOnly: false },
+    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: 'vibrations', exact: true, clinicianOnly: false },
+    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: 'devices', exact: true, clinicianOnly: false },
+    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: 'history', exact: true, clinicianOnly: false },
+    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: 'fall-alerts', exact: true, clinicianOnly: false },
+    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: 'studio', exact: true, clinicianOnly: true },
+    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: 'studio-history', exact: false, clinicianOnly: true },
+    { path: '/dashboard/studio/classes', labelKey: 'nav.studio_classes', label: 'Classes Studio', icon: 'studio-classes', exact: true, clinicianOnly: true },
   ];
 
   readonly isClinicianOrAdmin = computed(() => {

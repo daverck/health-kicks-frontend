@@ -40,6 +40,31 @@ describe('ActivityIconComponent', () => {
     expect(svg).toBeTruthy();
   });
 
+  it('should render SVGs for all redesigned movement and fall activities', () => {
+    const cases: { id: string; expectCircle: boolean; expectedPaths: number }[] = [
+      { id: 'walk', expectCircle: true, expectedPaths: 4 },
+      { id: 'run', expectCircle: true, expectedPaths: 4 },
+      { id: 'stairs_up', expectCircle: false, expectedPaths: 3 },
+      { id: 'stairs_down', expectCircle: false, expectedPaths: 3 },
+      { id: 'jump', expectCircle: true, expectedPaths: 5 },
+      { id: 'stumble_recover', expectCircle: true, expectedPaths: 7 },
+      { id: 'fall_forward', expectCircle: true, expectedPaths: 8 },
+      { id: 'fall_backward', expectCircle: true, expectedPaths: 8 },
+      { id: 'fall_lateral', expectCircle: true, expectedPaths: 7 },
+      { id: 'fall_recovery', expectCircle: true, expectedPaths: 7 },
+    ];
+
+    for (const c of cases) {
+      fixture.componentRef.setInput('activityId', c.id);
+      fixture.detectChanges();
+      const svg: SVGElement | null = fixture.nativeElement.querySelector('svg');
+      expect(svg).withContext(`SVG for ${c.id}`).toBeTruthy();
+      expect(svg!.getAttribute('viewBox')).toBe('0 0 24 24');
+      expect(svg!.querySelectorAll('circle').length).withContext(`circle for ${c.id}`).toBe(c.expectCircle ? 1 : 0);
+      expect(svg!.querySelectorAll('path').length).withContext(`paths for ${c.id}`).toBe(c.expectedPaths);
+    }
+  });
+
   it('should render custom fallback SVG for unknown activity', () => {
     fixture.componentRef.setInput('activityId', 'custom_motion_xyz');
     fixture.detectChanges();

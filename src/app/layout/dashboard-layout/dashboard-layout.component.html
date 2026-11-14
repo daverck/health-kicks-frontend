@@ -17,7 +17,8 @@
             [routerLinkActiveOptions]="{ exact: link.exact }"
             class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white transition"
           >
-            <span>{{ link.icon }}</span> {{ link.labelKey | translate }}
+            <ng-container [ngTemplateOutlet]="navIcon" [ngTemplateOutletContext]="{ $implicit: link.icon }" />
+            <span>{{ link.labelKey | translate }}</span>
           </a>
         }
       </nav>
@@ -51,7 +52,8 @@
       <!-- Logout -->
       <div class="p-4 pt-2">
         <button (click)="logout()" data-testid="sidebar-logout" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition">
-          <span>⎋</span> {{ 'nav.logout' | translate }}
+          <ng-container [ngTemplateOutlet]="navIcon" [ngTemplateOutletContext]="{ $implicit: 'logout' }" />
+          <span>{{ 'nav.logout' | translate }}</span>
         </button>
       </div>
     </div>
@@ -121,7 +123,7 @@
               (click)="closeMobileMenu()"
               class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white transition"
             >
-              <span class="text-lg">{{ link.icon }}</span>
+              <ng-container [ngTemplateOutlet]="navIcon" [ngTemplateOutletContext]="{ $implicit: link.icon }" />
               <span>{{ link.labelKey | translate }}</span>
             </a>
           }
@@ -140,13 +142,82 @@
             class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition"
             data-testid="mobile-drawer-logout"
           >
-            <span class="text-lg">⎋</span>
+            <ng-container [ngTemplateOutlet]="navIcon" [ngTemplateOutletContext]="{ $implicit: 'logout' }" />
             <span>{{ 'nav.logout' | translate }}</span>
           </button>
         </div>
       </div>
     </aside>
   }
+
+  <ng-template #navIcon let-icon>
+    @switch (icon) {
+      @case ('steps') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z" />
+          <path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z" />
+          <path d="M16 17h4" />
+          <path d="M4 13h4" />
+        </svg>
+      }
+      @case ('vibrations') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="7" y="4" width="10" height="16" rx="2" />
+          <path d="M12 17h.01" />
+          <path d="M3.5 8v8" />
+          <path d="M1.5 10v4" />
+          <path d="M20.5 8v8" />
+          <path d="M22.5 10v4" />
+        </svg>
+      }
+      @case ('devices') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 15c0-1.5.5-5 2-6l2.5 1.5c1.5 1 3 0 3.5-2l1 1.5 3.5 3.5c1.5.4 5.5 1 5.5 3.5v1.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 18.5V15Z" />
+          <path d="M3 16.5h18" />
+        </svg>
+      }
+      @case ('history') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </svg>
+      }
+      @case ('fall-alerts') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+        </svg>
+      }
+      @case ('studio') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="6" width="14" height="12" rx="2" />
+          <path d="m16 10 6-3v10l-6-3Z" />
+        </svg>
+      }
+      @case ('studio-history') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 3v18h18" />
+          <path d="M18 17V9" />
+          <path d="M13 17V5" />
+          <path d="M8 17v-3" />
+        </svg>
+      }
+      @case ('studio-classes') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z" />
+          <path d="M7 7h.01" />
+        </svg>
+      }
+      @case ('logout') {
+        <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <path d="M16 17l5-5-5-5" />
+          <path d="M21 12H9" />
+        </svg>
+      }
+    }
+  </ng-template>
 
   <!-- Main Content Wrapper — no topbar on desktop -->
   <div class="flex min-w-0 flex-1 flex-col">

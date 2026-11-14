@@ -222,4 +222,21 @@ describe('DashboardLayoutComponent', () => {
     expect(studioHistoryLink!.classList.contains('text-primary-700')).toBeTrue();
     expect(studioLink!.classList.contains('text-primary-700')).toBeFalse();
   });
+
+  it('should render SVG icons for all visible menu links and logout buttons in desktop and mobile nav', () => {
+    userSignal.set(mockAdmin);
+    component.isMobileMenuOpen.set(true);
+    fixture.detectChanges();
+
+    const desktopLinkSvgs = fixture.nativeElement.querySelectorAll('aside:not([role="dialog"]) nav a svg');
+    expect(desktopLinkSvgs.length).toBe(8);
+
+    const mobileLinkSvgs = fixture.nativeElement.querySelectorAll('aside[role="dialog"] nav a svg');
+    expect(mobileLinkSvgs.length).toBe(8);
+
+    const desktopLogoutSvg = fixture.nativeElement.querySelector('[data-testid="sidebar-logout"] svg');
+    const mobileLogoutSvg = fixture.nativeElement.querySelector('[data-testid="mobile-drawer-logout"] svg');
+    expect(desktopLogoutSvg).toBeTruthy();
+    expect(mobileLogoutSvg).toBeTruthy();
+  });
 });
