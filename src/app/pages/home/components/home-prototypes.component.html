@@ -1,4 +1,9 @@
-<section id="prototypes" class="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 py-20">
+<section
+  id="prototypes"
+  class="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 py-20"
+  (mouseenter)="pauseAutoPlay()"
+  (mouseleave)="resumeAutoPlay()"
+>
   <div class="mx-auto max-w-6xl px-4">
     <!-- Section Header -->
     <div class="mx-auto max-w-3xl text-center">
@@ -17,7 +22,7 @@
         @for (proto of prototypes(); track proto.id; let i = $index) {
           <button
             type="button"
-            (click)="prototypeSelect.emit(i)"
+            (click)="onManualSelect(i)"
             class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer border"
             [class]="selectedPrototype() === i ? 'bg-amber-500 text-white border-amber-500 shadow-md font-bold' : 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800'"
           >

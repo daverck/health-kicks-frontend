@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { HomePrototypesComponent } from './home-prototypes.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { PrototypeItem } from '../home.component';
@@ -31,6 +31,8 @@ describe('HomePrototypesComponent', () => {
   ];
 
   beforeEach(async () => {
+    vi.useFakeTimers();
+
     await TestBed.configureTestingModule({
       imports: [HomePrototypesComponent],
       providers: [TranslationService],
@@ -43,6 +45,10 @@ describe('HomePrototypesComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should render prototypes selector and emit prototypeSelect on click', () => {
     expect(component).toBeTruthy();
     const selectSpy = vi.fn();
@@ -52,6 +58,38 @@ describe('HomePrototypesComponent', () => {
     expect(buttons.length).toBe(2);
 
     buttons[1].click();
+    expect(selectSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('should auto-advance prototype every 4 seconds', () => {
+    const selectSpy = vi.fn();
+    component.prototypeSelect.subscribe(selectSpy);
+
+    vi.advanceTimersByTime(4000);
+    expect(selectSpy).toHaveBeenCalledWith(1);
+
+    fixture.componentRef.setInput('selectedPrototype', 1);
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(4000);
+    expect(selectSpy).toHaveBeenCalledWith(0);
+  });
+
+  it('should pause auto-advance on mouseenter and resume on mouseleave', () => {
+    const selectSpy = vi.fn();
+    component.prototypeSelect.subscribe(selectSpy);
+
+    const section: HTMLElement = fixture.nativeElement.querySelector('#prototypes');
+    section.dispatchEvent(new MouseEvent('mouseenter'));
+    expect(component.isPaused()).toBe(true);
+
+    vi.advanceTimersByTime(4000);
+    expect(selectSpy).not.toHaveBeenCalled();
+
+    section.dispatchEvent(new MouseEvent('mouseleave'));
+    expect(component.isPaused()).toBe(false);
+
+    vi.advanceTimersByTime(4000);
     expect(selectSpy).toHaveBeenCalledWith(1);
   });
 });
