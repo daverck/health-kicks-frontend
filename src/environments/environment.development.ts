@@ -2,7 +2,7 @@ import { AppEnvironment } from './environment.model';
 
 export const environment: AppEnvironment = {
   production: false,
-  apiUrl: 'https://healthkicks.duckdns.org:8443',
+  apiUrl: 'https://api.healthkicks.eu',
   mockAuth: true,
   mockUser: {
     uuid: '00000000-0000-0000-0000-000000000001',

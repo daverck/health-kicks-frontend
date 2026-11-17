@@ -68,7 +68,7 @@ The backend API URL is configured in `src/environments/environment.ts`:
 ```ts
 export const environment = {
   production: false,
-  apiUrl: 'https://healthkicks.duckdns.org:8443',
+  apiUrl: 'https://api.healthkicks.eu',
 };
 ```
 
