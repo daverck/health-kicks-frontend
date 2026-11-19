@@ -87,12 +87,22 @@ jobs:
             set -e
             IMAGE_URI=${{ env.IMAGE_URI }}
 
-            # Authenticate ECR on the EC2 instance
+            # Authenticate ECR on the EC2 instance (optional fallback when amazon-ecr-credential-helper is active)
             aws ecr get-login-password --region ${{ env.AWS_REGION }} \
-              | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+              | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com 2>/dev/null || true
 
-            # Pull the freshly built image
-            docker pull "$IMAGE_URI"
+            # Pull the freshly built image with retries
+            attempt=1
+            max_attempts=3
+            until docker pull "$IMAGE_URI"; do
+              if [ "$attempt" -ge "$max_attempts" ]; then
+                echo "Frontend image pull failed after ${max_attempts} attempts."
+                exit 1
+              fi
+              echo "Frontend image pull failed (attempt ${attempt}/${max_attempts}); retrying..."
+              sleep $((attempt * 5))
+              attempt=$((attempt + 1))
+            done
 
             # Restart the frontend container (port 8080 exposed)
             docker stop healthkicks-frontend 2>/dev/null || true
@@ -102,6 +112,22 @@ jobs:
               --restart unless-stopped \
               -p 127.0.0.1:8080:8080 \
               "$IMAGE_URI"
+
+            # Verify frontend container is serving HTTP 200
+            healthy=0
+            for i in $(seq 1 10); do
+              if curl -fsS http://127.0.0.1:8080/ >/dev/null 2>&1; then
+                healthy=1
+                echo "Frontend container is healthy and responding on port 8080."
+                break
+              fi
+              sleep 2
+            done
+            if [ "$healthy" -ne 1 ]; then
+              echo "ERROR: Frontend container failed liveness check on port 8080. Dumping logs:"
+              docker logs --tail 30 healthkicks-frontend || true
+              exit 1
+            fi
 
             # Housekeeping: remove dangling images
             docker image prune -f
