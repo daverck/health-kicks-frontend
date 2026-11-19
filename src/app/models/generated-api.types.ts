@@ -751,6 +751,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/studio/models/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Models History
+         * @description List all historical and active ML activity classification models.
+         */
+        get: operations["get_models_history_api_v1_studio_models_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/studio/models/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Model Version Detail
+         * @description Get full evaluation metrics, selection criteria, and manifest for a specific model version.
+         */
+        get: operations["get_model_version_detail_api_v1_studio_models__version__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/studio/sessions": {
         parameters: {
             query?: never;
@@ -1978,6 +2018,102 @@ export interface components {
             user_uuid: string;
         };
         /**
+         * MLModelDetailResponse
+         * @description Full detail and evaluation manifest for a specific model version.
+         */
+        MLModelDetailResponse: {
+            /** C Header Size Bytes */
+            c_header_size_bytes?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Dataset Summary */
+            dataset_summary?: {
+                [key: string]: unknown;
+            };
+            /** Flash Usage Pct */
+            flash_usage_pct?: number | null;
+            /** Git Commit */
+            git_commit?: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /** Metrics */
+            metrics?: {
+                [key: string]: unknown;
+            };
+            /** Model Name */
+            model_name: string;
+            /** Ram Usage Pct */
+            ram_usage_pct?: number | null;
+            /** Selection Criteria */
+            selection_criteria?: {
+                [key: string]: unknown;
+            };
+            /** Version */
+            version: string;
+            /**
+             * Window Size Sec
+             * @default 3
+             */
+            window_size_sec: number;
+            /**
+             * Window Step Sec
+             * @default 0.5
+             */
+            window_step_sec: number;
+        };
+        /**
+         * MLModelSummaryResponse
+         * @description Lightweight summary of an ML activity classification model version.
+         */
+        MLModelSummaryResponse: {
+            /**
+             * Accuracy
+             * @default 0
+             */
+            accuracy: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * F1 Macro
+             * @default 0
+             */
+            f1_macro: number;
+            /** Git Commit */
+            git_commit?: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /** Model Name */
+            model_name: string;
+            /**
+             * Precision Macro
+             * @default 0
+             */
+            precision_macro: number;
+            /**
+             * Recall Macro
+             * @default 0
+             */
+            recall_macro: number;
+            /**
+             * Total Sessions
+             * @default 0
+             */
+            total_sessions: number;
+            /**
+             * Total Windows
+             * @default 0
+             */
+            total_windows: number;
+            /** Version */
+            version: string;
+        };
+        /**
          * OAuthCallbackRequest
          * @description OAuth callback POST body.
          */
@@ -2403,7 +2539,11 @@ export interface components {
             subject_pseudonym?: string | null;
             /** User Email */
             user_email?: string | null;
-            /** User Id */
+            /**
+             * User Id
+             * @deprecated
+             * @description Numeric user ID (deprecated in favor of author_pseudonym)
+             */
             user_id: number;
             /**
              * Uuid
@@ -2476,7 +2616,11 @@ export interface components {
             subject_pseudonym?: string | null;
             /** User Email */
             user_email?: string | null;
-            /** User Id */
+            /**
+             * User Id
+             * @deprecated
+             * @description Numeric user ID (deprecated in favor of author_pseudonym)
+             */
             user_id: number;
             /**
              * Uuid
@@ -3409,7 +3553,10 @@ export interface operations {
                 state?: string | null;
                 start_date?: string | null;
                 end_date?: string | null;
-                /** @description Filter by numeric user_id or subject pseudonym (deprecated in favor of pseudonym) */
+                /**
+                 * @deprecated
+                 * @description Filter by numeric user_id or subject pseudonym (deprecated in favor of pseudonym)
+                 */
                 user_id?: string | null;
                 /** @description Filter by subject pseudonym SUBJ-XXXXXXXX (admin only) */
                 pseudonym?: string | null;
@@ -4012,6 +4159,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudioClassDetailStatsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_models_history_api_v1_studio_models_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MLModelSummaryResponse"][];
+                };
+            };
+        };
+    };
+    get_model_version_detail_api_v1_studio_models__version__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                version: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MLModelDetailResponse"];
                 };
             };
             /** @description Validation Error */
