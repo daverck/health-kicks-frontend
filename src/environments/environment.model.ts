@@ -15,4 +15,5 @@ export interface AppEnvironment {
   apiUrl: string;
   mockAuth: boolean;
   mockUser?: MockUserConfig;
+  sentryDsn?: string;
 }

@@ -1,6 +1,7 @@
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import * as Sentry from '@sentry/angular';
 
 import { routes } from './app.routes';
 import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
@@ -20,6 +21,10 @@ export const appConfig: ApplicationConfig = {
     ),
     ...(environment.mockAuth
       ? [{ provide: AuthService, useClass: MockAuthService }]
-      : []), provideClientHydration(),
+      : []),
+    ...(environment.sentryDsn
+      ? [{ provide: ErrorHandler, useValue: Sentry.createErrorHandler() }]
+      : []),
+    provideClientHydration(),
   ],
 };
