@@ -100,7 +100,7 @@ jobs:
             docker run -d \
               --name healthkicks-frontend \
               --restart unless-stopped \
-              -p 8080:8080 \
+              -p 127.0.0.1:8080:8080 \
               "$IMAGE_URI"
 
             # Housekeeping: remove dangling images
