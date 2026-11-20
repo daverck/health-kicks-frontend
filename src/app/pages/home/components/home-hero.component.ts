@@ -3,11 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { HeroVisualMode, SimulationMode, AppTab } from '../home.component';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-home-hero',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, RouterLink, TranslatePipe, ScrollRevealDirective],
   templateUrl: './home-hero.component.html',
 })
 export class HomeHeroComponent implements OnInit, OnDestroy {

@@ -2,11 +2,12 @@ import { Component, inject, input, OnDestroy, OnInit, output, PLATFORM_ID, signa
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PrototypeItem } from '../home.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-home-prototypes',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, ScrollRevealDirective],
   templateUrl: './home-prototypes.component.html',
 })
 export class HomePrototypesComponent implements OnInit, OnDestroy {

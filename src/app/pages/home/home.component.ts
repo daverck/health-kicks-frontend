@@ -34,6 +34,7 @@ import { HomeFeaturesComponent } from './components/home-features.component';
 import { HomeShowcaseComponent } from './components/home-showcase.component';
 import { HomePrototypesComponent } from './components/home-prototypes.component';
 import { HomeHowItWorksComponent } from './components/home-how-it-works.component';
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-home',
@@ -48,6 +49,7 @@ import { HomeHowItWorksComponent } from './components/home-how-it-works.componen
     HomeShowcaseComponent,
     HomePrototypesComponent,
     HomeHowItWorksComponent,
+    ScrollRevealDirective,
   ],
   templateUrl: './home.component.html',
 })

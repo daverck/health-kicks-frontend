@@ -4,7 +4,11 @@
 >
   <div class="mx-auto max-w-6xl px-4">
     <!-- Section Header -->
-    <div class="mx-auto max-w-3xl text-center">
+    <div
+      appScrollReveal
+      direction="down"
+      class="mx-auto max-w-3xl text-center"
+    >
       <span class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-800 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50">
         {{ 'home.showcase_badge' | translate }}
       </span>
@@ -59,7 +63,12 @@
       @if (activeAppTab() === 'web') {
         <div class="mx-auto max-w-5xl">
           <!-- Browser Mockup Window -->
-          <div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-900 shadow-2xl">
+          <div
+            appScrollReveal
+            direction="down"
+            [distance]="24"
+            class="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-900 shadow-2xl"
+          >
             <div class="flex items-center justify-between border-b border-gray-800 bg-gray-900/90 px-4 py-3 backdrop-blur">
               <div class="flex items-center gap-2">
                 <span class="h-3 w-3 rounded-full bg-red-500/80 inline-block"></span>
@@ -92,6 +101,9 @@
           <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             @for (item of webScreenshots(); track item.titleKey; let i = $index) {
               <app-home-screenshot-card
+                appScrollReveal
+                direction="fade"
+                [delay]="i * 80"
                 [item]="item"
                 [index]="i"
                 [isSelected]="selectedWebScreenshot() === i"
@@ -108,7 +120,12 @@
         <div class="mx-auto max-w-5xl">
           <div class="flex flex-col lg:flex-row items-center justify-center gap-10">
             <!-- Phone Mockup Frame -->
-            <div class="relative w-full max-w-[290px] sm:max-w-[320px] shrink-0">
+            <div
+              appScrollReveal
+              direction="left"
+              [distance]="32"
+              class="relative w-full max-w-[290px] sm:max-w-[320px] shrink-0"
+            >
               <div class="relative rounded-[42px] border-[10px] border-gray-900 bg-gray-900 p-2 shadow-2xl ring-1 ring-gray-800">
                 <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex h-4 w-24 items-center justify-center rounded-full bg-black">
                   <div class="h-2 w-2 rounded-full bg-gray-900 mr-2"></div>
@@ -130,7 +147,13 @@
             </div>
 
             <!-- Interactive Mobile Feature Selector List -->
-            <div class="flex-1 space-y-3 w-full">
+            <div
+              appScrollReveal
+              direction="right"
+              [distance]="32"
+              [delay]="100"
+              class="flex-1 space-y-3 w-full"
+            >
               @for (item of mobileScreenshots(); track item.titleKey; let i = $index) {
                 <app-home-screenshot-card
                   [item]="item"
@@ -153,7 +176,12 @@
           <!-- Stage container switching dynamically between Phone mockup and Browser mockup -->
           <div class="flex flex-col lg:flex-row items-center justify-center gap-10">
             <!-- Visual Mockup (Mobile vs Web dashboard) -->
-            <div class="w-full lg:w-5/12 flex justify-center shrink-0">
+            <div
+              appScrollReveal
+              direction="left"
+              [distance]="32"
+              class="w-full lg:w-5/12 flex justify-center shrink-0"
+            >
               @if (emergencyScreenshots()[selectedEmergencyScreenshot()].isWebMockup) {
                 <!-- Web Browser Window for Clinical Fall Dashboard -->
                 <div class="w-full max-w-lg overflow-hidden rounded-2xl border border-red-200 dark:border-red-900/60 bg-gray-900 shadow-2xl">
@@ -205,7 +233,13 @@
             </div>
 
             <!-- Interactive Emergency 4-Step Journey -->
-            <div class="flex-1 space-y-3.5 w-full">
+            <div
+              appScrollReveal
+              direction="right"
+              [distance]="32"
+              [delay]="100"
+              class="flex-1 space-y-3.5 w-full"
+            >
               <div class="mb-4">
                 <span class="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
                   Protocole d'Assistance & Failsafe

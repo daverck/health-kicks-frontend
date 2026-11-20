@@ -112,5 +112,11 @@ describe('HomeHeroComponent', () => {
     vi.advanceTimersByTime(4000);
     expect(simSpy).toHaveBeenCalledWith('fall');
   });
+
+  it('should render the subtle scroll indicator pointing to #features', () => {
+    const scrollLink = fixture.nativeElement.querySelector('a.scroll-indicator[href="#features"]');
+    expect(scrollLink).toBeTruthy();
+    expect(scrollLink?.getAttribute('aria-label')).toBe('Faire défiler vers la suite');
+  });
 });
 

@@ -48,3 +48,10 @@
 .animate-ping-once {
   animation: ping-once 0.6s ease-out 2;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+

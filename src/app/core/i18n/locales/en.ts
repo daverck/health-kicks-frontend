@@ -138,6 +138,7 @@ export const en = {
     hero_view_shoe: 'Shoe Clip',
     hero_view_web: 'Web Platform',
     hero_view_mobile: 'Mobile App',
+    scroll_explore: 'Explore',
     showcase_badge: 'Connected Ecosystem',
     showcase_title: 'Discover the applications in action',
     showcase_subtitle: 'A complete software suite: high-precision clinical insights on the web and real-time smartphone gateway.',

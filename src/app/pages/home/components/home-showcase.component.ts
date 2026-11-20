@@ -3,11 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { AppTab, ScreenshotItem } from '../home.component';
 import { HomeScreenshotCardComponent } from './home-screenshot-card.component';
+import { ScrollRevealDirective } from '../../../shared/directives/scroll-reveal.directive';
 
 @Component({
   selector: 'app-home-showcase',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, HomeScreenshotCardComponent],
+  imports: [CommonModule, TranslatePipe, HomeScreenshotCardComponent, ScrollRevealDirective],
   templateUrl: './home-showcase.component.html',
 })
 export class HomeShowcaseComponent implements OnInit, OnDestroy {

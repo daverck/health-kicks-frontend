@@ -1,10 +1,15 @@
 <section
-  class="relative overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white dark:from-gray-900/60 dark:via-gray-950 dark:to-gray-950"
+  class="relative flex flex-col justify-between overflow-hidden bg-gradient-to-b from-primary-50/70 via-white to-white dark:from-gray-900/60 dark:via-gray-950 dark:to-gray-950 min-h-[calc(100svh-var(--header-height,4.25rem))]"
 >
   <div
-    class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 md:py-24 md:grid-cols-2"
+    class="my-auto mx-auto grid max-w-6xl w-full items-center gap-8 lg:gap-12 px-4 py-8 sm:py-12 md:py-16 md:grid-cols-2"
   >
-    <div>
+    <div
+      appScrollReveal
+      direction="left"
+      [distance]="32"
+      [duration]="700"
+    >
       <span
         class="inline-flex items-center gap-2 rounded-full bg-primary-100 dark:bg-primary-950/60 px-3.5 py-1 text-xs font-semibold text-primary-700 dark:text-primary-300 border border-primary-200/50 dark:border-primary-800/50"
       >
@@ -47,7 +52,14 @@
     </div>
 
     <!-- Hero Visuals Container with 3-in-1 Switcher -->
-    <div class="flex items-center justify-center">
+    <div
+      appScrollReveal
+      direction="right"
+      [distance]="32"
+      [duration]="700"
+      [delay]="120"
+      class="flex items-center justify-center"
+    >
       <div class="relative w-full max-w-lg">
         <!-- Background ambient glow -->
         <div class="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-primary-200/60 via-indigo-100/50 to-primary-100/30 blur-2xl opacity-70"></div>
@@ -249,5 +261,26 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Subtle Scroll Indicator -->
+  <div
+    appScrollReveal
+    direction="fade"
+    [delay]="400"
+    class="relative z-10 mx-auto pb-4 sm:pb-6 text-center"
+  >
+    <a
+      href="#features"
+      class="scroll-indicator inline-flex flex-col items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition cursor-pointer group"
+      aria-label="Faire défiler vers la suite"
+    >
+      <span class="text-[11px] font-semibold tracking-wider uppercase opacity-75 group-hover:opacity-100 transition">
+        {{ 'home.scroll_explore' | translate }}
+      </span>
+      <div class="flex h-7 w-4 items-start justify-center rounded-full border-2 border-gray-400/80 dark:border-gray-500/80 p-0.5 group-hover:border-primary-500 transition">
+        <span class="h-1.5 w-1 rounded-full bg-gray-500 dark:bg-gray-400 group-hover:bg-primary-500 animate-bounce transition"></span>
+      </div>
+    </a>
   </div>
 </section>
