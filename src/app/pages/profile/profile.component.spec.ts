@@ -122,11 +122,13 @@ describe('ProfileComponent', () => {
 
   it('should map role labels and styling classes correctly', () => {
     expect(component.roleLabel('admin')).toBe('Administrateur');
+    expect(component.roleLabel('trainer')).toBe('Entraîneur ML');
     expect(component.roleLabel('clinician')).toBe('Praticien');
     expect(component.roleLabel('user')).toBe('Utilisateur');
     expect(component.roleLabel('')).toBe('');
 
     expect(component.roleBadgeClass('admin')).toContain('bg-purple-100');
+    expect(component.roleBadgeClass('trainer')).toContain('bg-blue-100');
     expect(component.roleBadgeClass('clinician')).toContain('bg-blue-100');
     expect(component.roleBadgeClass('user')).toContain('bg-primary-50');
   });

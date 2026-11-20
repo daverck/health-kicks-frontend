@@ -418,8 +418,8 @@ describe('AuthService', () => {
     });
 
     it('should decode user role from JWT token when hk_user is absent', () => {
-      // Craft a minimal valid JWT payload: {"sub":"42","email":"doc@hk.local","role":"clinician"}
-      const payloadBase64 = btoa(JSON.stringify({ sub: '42', email: 'doc@hk.local', role: 'clinician' }));
+      // Craft a minimal valid JWT payload: {"sub":"42","email":"doc@hk.local","role":"trainer"}
+      const payloadBase64 = btoa(JSON.stringify({ sub: '42', email: 'doc@hk.local', role: 'trainer' }));
       const jwtToken = `header.${payloadBase64}.signature`;
       localStorage.setItem('hk_access_token', jwtToken);
 
@@ -427,7 +427,7 @@ describe('AuthService', () => {
       expect(newService.user()).toEqual(jasmine.objectContaining({
         uuid: '42',
         email: 'doc@hk.local',
-        role: 'clinician',
+        role: 'trainer',
       }));
     });
 

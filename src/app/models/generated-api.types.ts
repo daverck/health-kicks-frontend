@@ -2772,7 +2772,7 @@ export interface components {
          * @description Role hierarchy for authorization checks.
          * @enum {string}
          */
-        UserRole: "admin" | "clinician" | "user";
+        UserRole: "admin" | "trainer" | "user";
         /**
          * UserUpdate
          * @description Schema for updating user attributes.

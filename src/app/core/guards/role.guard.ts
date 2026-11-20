@@ -4,13 +4,13 @@ import { Observable, catchError, map, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Restricts access to routes to users with 'clinician' or 'admin' roles.
+ * Restricts access to routes to users with 'trainer' or 'admin' roles.
  * Unauthenticated users are redirected to /login with returnUrl query parameter.
  * Authenticated users with insufficient privileges are redirected to /dashboard.
  * When authenticated but user profile is not yet in memory (e.g. cold start / new tab),
  * dynamically loads profile via loadMe() before deciding.
  */
-export const clinicianOrAdminGuard: CanActivateFn = (
+export const trainerOrAdminGuard: CanActivateFn = (
   _route,
   state
 ): Observable<boolean | UrlTree> | boolean | UrlTree => {
@@ -32,7 +32,7 @@ export const clinicianOrAdminGuard: CanActivateFn = (
 
   const role = currentUser?.role;
 
-  if (role === 'admin' || role === 'clinician') {
+  if (role === 'admin' || role === 'trainer' || role === 'clinician') {
     return true;
   }
 
@@ -43,7 +43,7 @@ export const clinicianOrAdminGuard: CanActivateFn = (
   // If authenticated but user profile is not yet loaded into signal (e.g. cold start / new tab)
   return auth.loadMe().pipe(
     map((user) => {
-      if (user.role === 'admin' || user.role === 'clinician') {
+      if (user.role === 'admin' || user.role === 'trainer' || user.role === 'clinician') {
         return true;
       }
       return router.createUrlTree(['/dashboard']);
@@ -51,4 +51,7 @@ export const clinicianOrAdminGuard: CanActivateFn = (
     catchError(() => of(router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } })))
   );
 };
+
+/** Deprecated alias for trainerOrAdminGuard */
+export const clinicianOrAdminGuard = trainerOrAdminGuard;
 

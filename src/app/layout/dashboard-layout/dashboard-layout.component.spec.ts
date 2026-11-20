@@ -28,9 +28,9 @@ describe('DashboardLayoutComponent', () => {
   const mockClinician: UserResponse = {
     uuid: '00000000-0000-0000-0000-000000000002',
     pseudonym: 'SUBJ-CLI-0002',
-    email: 'clinician@test.com',
+    email: 'trainer@test.com',
     name: 'Dr. House',
-    role: 'clinician',
+    role: 'trainer',
     is_active: true,
   };
 

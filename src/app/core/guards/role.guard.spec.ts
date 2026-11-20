@@ -2,11 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { signal } from '@angular/core';
 import { of, throwError, firstValueFrom, Observable } from 'rxjs';
-import { clinicianOrAdminGuard } from './role.guard';
+import { clinicianOrAdminGuard, trainerOrAdminGuard } from './role.guard';
 import { AuthService } from '../services/auth.service';
 import { UserResponse } from '../../models/api.models';
 
-describe('Role Guard (clinicianOrAdminGuard)', () => {
+describe('Role Guard (trainerOrAdminGuard)', () => {
   let authServiceSpy: {
     isAuthenticated: jasmine.Spy;
     currentUser: ReturnType<typeof signal<UserResponse | null>>;
@@ -26,8 +26,8 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
   const mockClinician: UserResponse = {
     uuid: '00000000-0000-0000-0000-000000000002',
     pseudonym: 'SUBJ-CLI-0002',
-    email: 'clinician@test.com',
-    role: 'clinician',
+    email: 'trainer@test.com',
+    role: 'trainer',
     is_active: true,
   };
 
@@ -86,8 +86,9 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
     const dummyRoute = {} as ActivatedRouteSnapshot;
     const dummyState = { url: '/dashboard/studio' } as RouterStateSnapshot;
 
-    const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
+    const result = TestBed.runInInjectionContext(() => trainerOrAdminGuard(dummyRoute, dummyState));
     expect(result).toBeTrue();
+    expect(clinicianOrAdminGuard).toBe(trainerOrAdminGuard);
   });
 
   it('should allow access for authenticated clinician', () => {
@@ -97,8 +98,9 @@ describe('Role Guard (clinicianOrAdminGuard)', () => {
     const dummyRoute = {} as ActivatedRouteSnapshot;
     const dummyState = { url: '/dashboard/studio/history' } as RouterStateSnapshot;
 
-    const result = TestBed.runInInjectionContext(() => clinicianOrAdminGuard(dummyRoute, dummyState));
+    const result = TestBed.runInInjectionContext(() => trainerOrAdminGuard(dummyRoute, dummyState));
     expect(result).toBeTrue();
+    expect(clinicianOrAdminGuard).toBe(trainerOrAdminGuard);
   });
 
   it('should redirect authenticated regular user with role "user" to /dashboard', () => {

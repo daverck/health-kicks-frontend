@@ -564,6 +564,7 @@ export const en = {
     role: 'Role',
     roles: {
       admin: 'Administrator',
+      trainer: 'ML Trainer',
       clinician: 'Clinician',
       user: 'User',
     },

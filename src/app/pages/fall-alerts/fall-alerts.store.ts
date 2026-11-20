@@ -26,10 +26,13 @@ export class FallAlertsStore {
     return user?.role === 'admin';
   });
 
-  readonly isClinicianOrAdmin = computed(() => {
+  readonly isTrainerOrAdmin = computed(() => {
     const user = this.auth.currentUser ? this.auth.currentUser() : this.auth.user();
-    return user?.role === 'admin' || user?.role === 'clinician';
+    return user?.role === 'admin' || user?.role === 'trainer' || user?.role === 'clinician';
   });
+
+  /** Deprecated alias for backwards compatibility */
+  readonly isClinicianOrAdmin = this.isTrainerOrAdmin;
 
   // ---------- Tab 1: Alert History ----------
   readonly availableStates: ('all' | FallAlertState)[] = [

@@ -532,6 +532,7 @@ export const fr = {
     role: 'Rôle',
     roles: {
       admin: 'Administrateur',
+      trainer: 'Entraîneur ML',
       clinician: 'Praticien',
       user: 'Utilisateur',
     },

@@ -26,7 +26,8 @@ export interface NavLink {
   label: string;
   icon: NavIconId;
   exact: boolean;
-  clinicianOnly: boolean;
+  trainerOnly?: boolean;
+  clinicianOnly?: boolean;
 }
 
 @Component({
@@ -50,27 +51,30 @@ export class DashboardLayoutComponent implements OnInit {
   readonly isMobileMenuOpen = signal(false);
 
   readonly links: NavLink[] = [
-    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: 'steps', exact: true, clinicianOnly: false },
-    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: 'vibrations', exact: true, clinicianOnly: false },
-    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: 'devices', exact: true, clinicianOnly: false },
-    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: 'history', exact: true, clinicianOnly: false },
-    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: 'fall-alerts', exact: true, clinicianOnly: false },
-    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: 'studio', exact: true, clinicianOnly: true },
-    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: 'studio-history', exact: false, clinicianOnly: true },
-    { path: '/dashboard/studio/classes', labelKey: 'nav.studio_classes', label: 'Classes Studio', icon: 'studio-classes', exact: true, clinicianOnly: true },
+    { path: '/dashboard/steps', labelKey: 'nav.steps', label: 'Podomètre & Pas', icon: 'steps', exact: true, trainerOnly: false },
+    { path: '/dashboard/vibrations', labelKey: 'nav.vibrations', label: 'Vibrations manuelles', icon: 'vibrations', exact: true, trainerOnly: false },
+    { path: '/dashboard/devices', labelKey: 'nav.devices', label: 'Mes Équipements', icon: 'devices', exact: true, trainerOnly: false },
+    { path: '/dashboard/history', labelKey: 'nav.history', label: 'Historique', icon: 'history', exact: true, trainerOnly: false },
+    { path: '/dashboard/fall-alerts', labelKey: 'nav.fall_alerts', label: 'Alertes de chute', icon: 'fall-alerts', exact: true, trainerOnly: false },
+    { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: 'studio', exact: true, trainerOnly: true },
+    { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: 'studio-history', exact: false, trainerOnly: true },
+    { path: '/dashboard/studio/classes', labelKey: 'nav.studio_classes', label: 'Classes Studio', icon: 'studio-classes', exact: true, trainerOnly: true },
   ];
 
-  readonly isClinicianOrAdmin = computed(() => {
+  readonly isTrainerOrAdmin = computed(() => {
     const role = (this.auth.currentUser ? this.auth.currentUser() : this.auth.user())?.role;
-    return role === 'admin' || role === 'clinician';
+    return role === 'admin' || role === 'trainer' || role === 'clinician';
   });
 
+  /** Deprecated alias for backwards compatibility */
+  readonly isClinicianOrAdmin = this.isTrainerOrAdmin;
+
   /**
-   * Hides menu entries restricted to `clinician` and `admin` roles
+   * Hides menu entries restricted to `trainer` and `admin` roles
    * (Studio Capture and Studio History) for standard users (`user`).
    */
   readonly visibleLinks = computed(() =>
-    this.links.filter((l) => !l.clinicianOnly || this.isClinicianOrAdmin())
+    this.links.filter((l) => !(l.trainerOnly || l.clinicianOnly) || this.isTrainerOrAdmin())
   );
 
   constructor() {

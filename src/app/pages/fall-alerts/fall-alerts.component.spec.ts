@@ -469,12 +469,12 @@ describe('FallAlertsComponent', () => {
       expect(text).toMatch(/2/);
     });
 
-    it('displays contact index instead of personal name for clinician', () => {
+    it('displays contact index instead of personal name for trainer', () => {
       userSignal.set({
         id: 50,
-        email: 'clinician@example.com',
-        name: 'Doctor Clinician',
-        role: 'clinician',
+        email: 'trainer@example.com',
+        name: 'Doctor Trainer',
+        role: 'trainer',
         created_at: '2026-10-23T08:00:00Z',
       });
       const alert: FallAlertSummary = {
