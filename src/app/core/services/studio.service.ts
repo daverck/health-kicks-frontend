@@ -9,6 +9,8 @@ import {
   StudioDatasetStats,
   StudioClassDetailStatsResponse,
   StudioClassesSummaryResponse,
+  MLModelSummaryResponse,
+  MLModelDetailResponse,
 } from '../../models/telemetry.models';
 import {
   StudioSessionSummary,
@@ -109,6 +111,26 @@ export class StudioService {
   getClassesSummary(): Observable<StudioClassesSummaryResponse> {
     return this.http.get<StudioClassesSummaryResponse>(
       `${this.base}/studio/classes/summary`
+    );
+  }
+
+  /**
+   * Retrieves the history of all registered ML activity classification models.
+   * GET /api/v1/studio/models/history
+   */
+  getModelsHistory(): Observable<MLModelSummaryResponse[]> {
+    return this.http.get<MLModelSummaryResponse[]>(
+      `${this.base}/studio/models/history`
+    );
+  }
+
+  /**
+   * Retrieves full evaluation metrics, selection criteria, and manifest for a specific model version.
+   * GET /api/v1/studio/models/{version}
+   */
+  getModelDetail(version: string): Observable<MLModelDetailResponse> {
+    return this.http.get<MLModelDetailResponse>(
+      `${this.base}/studio/models/${encodeURIComponent(version)}`
     );
   }
 }

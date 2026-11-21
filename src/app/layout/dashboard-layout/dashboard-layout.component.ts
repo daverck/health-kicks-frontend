@@ -18,6 +18,7 @@ export type NavIconId =
   | 'studio'
   | 'studio-history'
   | 'studio-classes'
+  | 'studio-models'
   | 'logout';
 
 export interface NavLink {
@@ -59,6 +60,7 @@ export class DashboardLayoutComponent implements OnInit {
     { path: '/dashboard/studio', labelKey: 'nav.studio', label: 'Studio Capture', icon: 'studio', exact: true, trainerOnly: true },
     { path: '/dashboard/studio/history', labelKey: 'nav.studio_history', label: 'Historique Studio', icon: 'studio-history', exact: false, trainerOnly: true },
     { path: '/dashboard/studio/classes', labelKey: 'nav.studio_classes', label: 'Classes Studio', icon: 'studio-classes', exact: true, trainerOnly: true },
+    { path: '/dashboard/studio/models', labelKey: 'nav.studio_models', label: 'Modèles & MLOps', icon: 'studio-models', exact: false, trainerOnly: true },
   ];
 
   readonly isTrainerOrAdmin = computed(() => {

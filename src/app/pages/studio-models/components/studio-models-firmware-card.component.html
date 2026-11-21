@@ -1,0 +1,69 @@
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-xs">
+  <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+    <div>
+      <h3 class="font-semibold text-gray-900 dark:text-white">
+        {{ 'studio_models.firmware_card_title' | translate }}
+      </h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ 'studio_models.firmware_card_subtitle' | translate }}
+      </p>
+    </div>
+    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+      ● {{ 'studio_models.edge_compatible' | translate }}
+    </span>
+  </div>
+
+  <div class="mt-4 space-y-4">
+    <!-- Flash Usage Progress -->
+    <div>
+      <div class="flex items-center justify-between text-xs mb-1">
+        <span class="font-medium text-gray-700 dark:text-gray-300">
+          {{ 'studio_models.flash_partition' | translate }} (3 MB)
+        </span>
+        <span class="font-bold text-gray-900 dark:text-white">
+          {{ flashUsagePct() !== null ? (flashUsagePct()! | number:'1.2-2') + '%' : '—' }}
+        </span>
+      </div>
+      <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
+        <div
+          class="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+          [style.width.%]="flashUsagePct() ?? 0"
+        ></div>
+      </div>
+    </div>
+
+    <!-- RAM Usage Progress -->
+    <div>
+      <div class="flex items-center justify-between text-xs mb-1">
+        <span class="font-medium text-gray-700 dark:text-gray-300">
+          {{ 'studio_models.ram_sram' | translate }} (320 KB)
+        </span>
+        <span class="font-bold text-gray-900 dark:text-white">
+          {{ ramUsagePct() !== null ? (ramUsagePct()! | number:'1.2-2') + '%' : '—' }}
+        </span>
+      </div>
+      <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden">
+        <div
+          class="bg-indigo-600 h-2.5 rounded-full transition-all duration-500"
+          [style.width.%]="ramUsagePct() ?? 0"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Metadata specs -->
+    <div class="grid grid-cols-2 gap-3 pt-2 text-xs border-t border-gray-100 dark:border-gray-800">
+      <div>
+        <span class="text-gray-500 dark:text-gray-400 block">{{ 'studio_models.c_header_size' | translate }}</span>
+        <strong class="text-gray-900 dark:text-white font-mono">
+          {{ cHeaderSizeBytes() !== null ? (cHeaderSizeBytes()! / 1024 | number:'1.1-1') + ' KB (' + cHeaderSizeBytes() + ' B)' : '—' }}
+        </strong>
+      </div>
+      <div>
+        <span class="text-gray-500 dark:text-gray-400 block">{{ 'studio_models.window_params' | translate }}</span>
+        <strong class="text-gray-900 dark:text-white font-mono">
+          {{ windowSizeSec() }}s / {{ windowStepSec() }}s
+        </strong>
+      </div>
+    </div>
+  </div>
+</div>

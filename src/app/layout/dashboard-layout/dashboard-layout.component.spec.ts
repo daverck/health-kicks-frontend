@@ -175,10 +175,11 @@ describe('DashboardLayoutComponent', () => {
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio')).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/history')).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/classes')).toBeTrue();
-    expect(component.visibleLinks().length).toBe(8);
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/models')).toBeTrue();
+    expect(component.visibleLinks().length).toBe(9);
 
     const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
-    expect(desktopLinks.length).toBe(8);
+    expect(desktopLinks.length).toBe(9);
   });
 
   it('should show studio links when user role is "admin"', () => {
@@ -189,10 +190,11 @@ describe('DashboardLayoutComponent', () => {
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio')).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/history')).toBeTrue();
     expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/classes')).toBeTrue();
-    expect(component.visibleLinks().length).toBe(8);
+    expect(component.visibleLinks().some(l => l.path === '/dashboard/studio/models')).toBeTrue();
+    expect(component.visibleLinks().length).toBe(9);
 
     const desktopLinks = fixture.nativeElement.querySelectorAll('aside nav a');
-    expect(desktopLinks.length).toBe(8);
+    expect(desktopLinks.length).toBe(9);
   });
 
   it('should compute avatar initial correctly', () => {
@@ -229,10 +231,10 @@ describe('DashboardLayoutComponent', () => {
     fixture.detectChanges();
 
     const desktopLinkSvgs = fixture.nativeElement.querySelectorAll('aside:not([role="dialog"]) nav a svg');
-    expect(desktopLinkSvgs.length).toBe(8);
+    expect(desktopLinkSvgs.length).toBe(9);
 
     const mobileLinkSvgs = fixture.nativeElement.querySelectorAll('aside[role="dialog"] nav a svg');
-    expect(mobileLinkSvgs.length).toBe(8);
+    expect(mobileLinkSvgs.length).toBe(9);
 
     const desktopLogoutSvg = fixture.nativeElement.querySelector('[data-testid="sidebar-logout"] svg');
     const mobileLogoutSvg = fixture.nativeElement.querySelector('[data-testid="mobile-drawer-logout"] svg');

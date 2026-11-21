@@ -50,6 +50,8 @@ export const routes: Routes = [
       { path: 'studio', canActivate: [trainerOrAdminGuard], loadComponent: () => import('./pages/studio/studio.component').then((m) => m.StudioComponent) },
       { path: 'studio/history', canActivate: [trainerOrAdminGuard], loadComponent: () => import('./pages/studio-history/studio-history.component').then((m) => m.StudioHistoryComponent) },
       { path: 'studio/classes', canActivate: [trainerOrAdminGuard], loadComponent: () => import('./pages/studio-classes/studio-classes.component').then((m) => m.StudioClassesComponent) },
+      { path: 'studio/models', canActivate: [trainerOrAdminGuard], loadComponent: () => import('./pages/studio-models/studio-models.component').then((m) => m.StudioModelsComponent) },
+      { path: 'studio/models/:version', canActivate: [trainerOrAdminGuard], loadComponent: () => import('./pages/studio-models/studio-models.component').then((m) => m.StudioModelsComponent) },
       { path: 'studio/history/:id', canActivate: [trainerOrAdminGuard], loadComponent: () => import('./pages/studio-session-detail/studio-session-detail.component').then((m) => m.StudioSessionDetailComponent) },
       { path: 'studio/sessions/:id', redirectTo: 'studio/history/:id', pathMatch: 'full' },
       { path: 'studio-history', redirectTo: 'studio/history', pathMatch: 'full' },

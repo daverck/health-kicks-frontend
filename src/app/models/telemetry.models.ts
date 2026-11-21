@@ -87,3 +87,33 @@ export interface StudioClassesSummaryResponse {
   confusion_matrix?: StudioConfusionMatrix | null;
 }
 
+
+/**
+ * ML Model Registry schemas and MLOps benchmarks.
+ */
+export type MLModelSummaryResponse = components['schemas']['MLModelSummaryResponse'];
+export type MLModelDetailResponse = components['schemas']['MLModelDetailResponse'];
+
+export interface MLModelMetrics {
+  f1_macro?: number;
+  accuracy?: number;
+  precision_macro?: number;
+  recall_macro?: number;
+  class_metrics?: Record<string, StudioClassMlMetrics>;
+  confusion_matrix?: StudioConfusionMatrix;
+  [key: string]: unknown;
+}
+
+export interface MLModelDatasetSummary {
+  total_sessions?: number;
+  total_windows?: number;
+  by_label?: Record<string, number>;
+  [key: string]: unknown;
+}
+
+export interface MLModelSelectionCriteria {
+  target_f1?: number;
+  max_flash_kb?: number;
+  max_ram_kb?: number;
+  [key: string]: unknown;
+}

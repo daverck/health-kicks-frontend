@@ -1,0 +1,67 @@
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-xs">
+  <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+    <div>
+      <h3 class="font-semibold text-gray-900 dark:text-white">
+        {{ 'studio_models.confusion_matrix_title' | translate }}
+      </h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ 'studio_models.confusion_matrix_subtitle' | translate }}
+      </p>
+    </div>
+    @if (hoveredCell(); as cell) {
+      <span class="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-mono text-gray-700 dark:text-gray-300">
+        {{ cell.trueLabel }} → {{ cell.predLabel }}: <strong>{{ (cell.val * 100) | number:'1.1-1' }}%</strong>
+      </span>
+    }
+  </div>
+
+  @if (matrixData() && matrixData()!.labels && matrixData()!.matrix) {
+    <div class="mt-4 overflow-x-auto">
+      <div class="inline-block min-w-full">
+        <!-- Column header: Predicted label banner -->
+        <p class="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          {{ 'studio_models.predicted_class_axis' | translate }} →
+        </p>
+
+        <table class="border-collapse text-xs">
+          <thead>
+            <tr>
+              <th class="p-1 text-right text-gray-400 font-normal pr-2">
+                {{ 'studio_models.true_class_axis' | translate }} ↓
+              </th>
+              @for (lbl of matrixData()!.labels; track lbl) {
+                <th class="p-1 text-center font-medium text-gray-700 dark:text-gray-300 w-12 min-w-12 truncate" [title]="lbl">
+                  {{ lbl | slice:0:4 }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of matrixData()!.matrix; track $index; let rIdx = $index) {
+              <tr>
+                <td class="p-1 text-right font-medium text-gray-700 dark:text-gray-300 pr-2 whitespace-nowrap">
+                  {{ matrixData()!.labels[$index] }}
+                </td>
+                @for (val of row; track $index; let cIdx = $index) {
+                  <td
+                    class="p-2 text-center rounded border border-white dark:border-gray-900 cursor-pointer transition"
+                    [ngClass]="getCellBgClass(rIdx, cIdx, val)"
+                    (mouseenter)="hoveredCell.set({ trueLabel: matrixData()!.labels[rIdx], predLabel: matrixData()!.labels[cIdx], val })"
+                    (mouseleave)="hoveredCell.set(null)"
+                    [title]="matrixData()!.labels[rIdx] + ' → ' + matrixData()!.labels[cIdx] + ': ' + ((val * 100) | number:'1.1-1') + '%'"
+                  >
+                    {{ (val * 100) | number:'1.0-0' }}%
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  } @else {
+    <p class="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+      {{ 'studio_models.no_confusion_matrix' | translate }}
+    </p>
+  }
+</div>

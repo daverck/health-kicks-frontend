@@ -1,0 +1,107 @@
+<div class="rounded-xl border-2 border-primary-500/40 bg-gradient-to-br from-primary-50/20 to-transparent dark:from-primary-950/20 p-5 shadow-sm">
+  <div class="flex items-center justify-between pb-3 border-b border-primary-200/40 dark:border-primary-900/40">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white font-bold text-sm">
+        Δ
+      </span>
+      <div>
+        <h3 class="font-bold text-gray-900 dark:text-white">
+          {{ 'studio_models.comparator_title' | translate }}
+        </h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400">
+          {{ 'studio_models.comparator_subtitle' | translate:{ base: baseModel().version, comp: compModel().version } }}
+        </p>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="dismiss.emit()"
+      class="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition text-xs font-semibold"
+    >
+      ✕ {{ 'common.close' | translate }}
+    </button>
+  </div>
+
+  <!-- Delta metric cards -->
+  <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <!-- Delta Macro F1 -->
+    <div class="rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3">
+      <span class="text-[11px] uppercase font-semibold text-gray-500">Δ Macro F1</span>
+      <p class="text-xl font-extrabold mt-1"
+         [class.text-emerald-600]="deltas().deltaF1 >= 0"
+         [class.text-red-600]="deltas().deltaF1 < 0">
+        {{ deltas().deltaF1 >= 0 ? '+' : '' }}{{ (deltas().deltaF1 * 100) | number:'1.2-2' }}%
+      </p>
+      <span class="text-[11px] text-gray-400">
+        {{ (baseF1() * 100) | number:'1.1-1' }}% → {{ (compF1() * 100) | number:'1.1-1' }}%
+      </span>
+    </div>
+
+    <!-- Delta Accuracy -->
+    <div class="rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3">
+      <span class="text-[11px] uppercase font-semibold text-gray-500">Δ Accuracy</span>
+      <p class="text-xl font-extrabold mt-1"
+         [class.text-emerald-600]="deltas().deltaAccuracy >= 0"
+         [class.text-red-600]="deltas().deltaAccuracy < 0">
+        {{ deltas().deltaAccuracy >= 0 ? '+' : '' }}{{ (deltas().deltaAccuracy * 100) | number:'1.2-2' }}%
+      </p>
+      <span class="text-[11px] text-gray-400">
+        {{ (baseAccuracy() * 100) | number:'1.1-1' }}% → {{ (compAccuracy() * 100) | number:'1.1-1' }}%
+      </span>
+    </div>
+
+    <!-- Delta Flash Footprint -->
+    <div class="rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3">
+      <span class="text-[11px] uppercase font-semibold text-gray-500">Δ Flash Usage</span>
+      <p class="text-xl font-extrabold mt-1"
+         [class.text-emerald-600]="deltas().deltaFlashPct <= 0"
+         [class.text-amber-600]="deltas().deltaFlashPct > 0">
+        {{ deltas().deltaFlashPct >= 0 ? '+' : '' }}{{ deltas().deltaFlashPct | number:'1.2-2' }}%
+      </p>
+      <span class="text-[11px] text-gray-400">
+        {{ baseModel().flash_usage_pct | number:'1.2-2' }}% → {{ compModel().flash_usage_pct | number:'1.2-2' }}%
+      </span>
+    </div>
+
+    <!-- Delta RAM Footprint -->
+    <div class="rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-3">
+      <span class="text-[11px] uppercase font-semibold text-gray-500">Δ RAM Usage</span>
+      <p class="text-xl font-extrabold mt-1"
+         [class.text-emerald-600]="deltas().deltaRamPct <= 0"
+         [class.text-amber-600]="deltas().deltaRamPct > 0">
+        {{ deltas().deltaRamPct >= 0 ? '+' : '' }}{{ deltas().deltaRamPct | number:'1.2-2' }}%
+      </p>
+      <span class="text-[11px] text-gray-400">
+        {{ baseModel().ram_usage_pct | number:'1.2-2' }}% → {{ compModel().ram_usage_pct | number:'1.2-2' }}%
+      </span>
+    </div>
+  </div>
+
+  <!-- Per-class delta table -->
+  <div class="mt-4 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 overflow-hidden">
+    <table class="w-full text-xs text-left">
+      <thead class="bg-gray-50 dark:bg-gray-800/80 font-semibold text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-800">
+        <tr>
+          <th class="px-3 py-2">{{ 'studio_models.col_activity' | translate }}</th>
+          <th class="px-3 py-2">{{ baseModel().version }} (Base)</th>
+          <th class="px-3 py-2">{{ compModel().version }} (Challenger)</th>
+          <th class="px-3 py-2 text-right">Δ F1</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+        @for (row of deltas().classDeltas; track row.label) {
+          <tr>
+            <td class="px-3 py-2 font-medium text-gray-900 dark:text-white">{{ row.label }}</td>
+            <td class="px-3 py-2">{{ (row.baseF1 * 100) | number:'1.1-1' }}%</td>
+            <td class="px-3 py-2">{{ (row.compF1 * 100) | number:'1.1-1' }}%</td>
+            <td class="px-3 py-2 text-right font-bold"
+                [class.text-emerald-600]="row.deltaF1 >= 0"
+                [class.text-red-600]="row.deltaF1 < 0">
+              {{ row.deltaF1 >= 0 ? '+' : '' }}{{ (row.deltaF1 * 100) | number:'1.1-1' }}%
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,67 @@
+<div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden shadow-xs">
+  <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+    <h3 class="font-semibold text-gray-900 dark:text-white">
+      {{ 'studio_models.class_metrics_title' | translate }}
+    </h3>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+      {{ 'studio_models.class_metrics_subtitle' | translate }}
+    </p>
+  </div>
+
+  <div class="overflow-x-auto max-h-[420px]">
+    <table class="w-full text-left text-sm">
+      <thead class="sticky top-0 bg-gray-50 dark:bg-gray-800/90 backdrop-blur text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider border-b border-gray-200 dark:border-gray-800">
+        <tr>
+          <th class="px-4 py-3">{{ 'studio_models.col_activity' | translate }}</th>
+          <th class="px-4 py-3">{{ 'studio_models.col_precision' | translate }}</th>
+          <th class="px-4 py-3">{{ 'studio_models.col_recall' | translate }}</th>
+          <th class="px-4 py-3">{{ 'studio_models.col_f1' | translate }}</th>
+          <th class="px-4 py-3 text-right">{{ 'studio_models.col_support_windows' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+        @for (row of rows(); track row.label) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition">
+            <td class="px-4 py-2.5 font-medium text-gray-900 dark:text-white">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-2 w-2 rounded-full"
+                      [class.bg-emerald-500]="row.f1Score >= 0.9"
+                      [class.bg-blue-500]="row.f1Score >= 0.75 && row.f1Score < 0.9"
+                      [class.bg-amber-500]="row.f1Score < 0.75"></span>
+                <span>{{ row.label }}</span>
+              </span>
+            </td>
+            <td class="px-4 py-2.5">{{ (row.precision * 100) | number:'1.1-1' }}%</td>
+            <td class="px-4 py-2.5">{{ (row.recall * 100) | number:'1.1-1' }}%</td>
+            <td class="px-4 py-2.5 font-semibold">
+              <span class="inline-flex rounded-md px-2 py-0.5 text-xs font-bold"
+                    [class.bg-emerald-50]="row.f1Score >= 0.9"
+                    [class.text-emerald-700]="row.f1Score >= 0.9"
+                    [class.dark:bg-emerald-950/60]="row.f1Score >= 0.9"
+                    [class.dark:text-emerald-300]="row.f1Score >= 0.9"
+                    [class.bg-blue-50]="row.f1Score >= 0.75 && row.f1Score < 0.9"
+                    [class.text-blue-700]="row.f1Score >= 0.75 && row.f1Score < 0.9"
+                    [class.dark:bg-blue-950/60]="row.f1Score >= 0.75 && row.f1Score < 0.9"
+                    [class.dark:text-blue-300]="row.f1Score >= 0.75 && row.f1Score < 0.9"
+                    [class.bg-amber-50]="row.f1Score < 0.75"
+                    [class.text-amber-700]="row.f1Score < 0.75"
+                    [class.dark:bg-amber-950/60]="row.f1Score < 0.75"
+                    [class.dark:text-amber-300]="row.f1Score < 0.75">
+                {{ (row.f1Score * 100) | number:'1.1-1' }}%
+              </span>
+            </td>
+            <td class="px-4 py-2.5 text-right font-mono text-xs text-gray-500 dark:text-gray-400">
+              {{ row.supportWindows | number }}
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+              {{ 'studio_models.no_class_metrics' | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

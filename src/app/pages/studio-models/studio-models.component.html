@@ -1,0 +1,85 @@
+<div class="space-y-6">
+  <!-- Header Banner -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+        {{ 'studio_models.title' | translate }}
+      </h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        {{ 'studio_models.subtitle' | translate }}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="onRefresh()"
+        class="inline-flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/60 transition shadow-xs"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        {{ 'studio_models.refresh' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center p-12 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+      <div class="flex flex-col items-center gap-3">
+        <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'studio_models.loading' | translate }}</p>
+      </div>
+    </div>
+  } @else if (error()) {
+    <!-- Error State -->
+    <div class="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-4 text-red-800 dark:text-red-200 text-sm flex items-center justify-between">
+      <span>{{ error() }}</span>
+      <button type="button" (click)="onRefresh()" class="font-semibold underline text-xs">
+        {{ 'common.retry' | translate }}
+      </button>
+    </div>
+  } @else {
+    <!-- Section 1: KPI Cards -->
+    <app-studio-models-kpi-cards [kpis]="kpis()" />
+
+    <!-- Optional Section: Comparator side-by-side view -->
+    @if (selectedModelDetail() && comparatorModelDetail() && comparisonDeltas()) {
+      <app-studio-models-comparator
+        [baseModel]="selectedModelDetail()!"
+        [compModel]="comparatorModelDetail()!"
+        [deltas]="comparisonDeltas()!"
+        (dismiss)="onClearComparator()"
+      />
+    }
+
+    <!-- Section 2: Firmware Footprint & Class Metrics Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-1">
+        <app-studio-models-firmware-card
+          [flashUsagePct]="kpis().flashUsagePct"
+          [ramUsagePct]="kpis().ramUsagePct"
+          [cHeaderSizeBytes]="kpis().cHeaderSizeBytes"
+          [windowSizeSec]="selectedModelDetail()?.window_size_sec ?? 3.0"
+          [windowStepSec]="selectedModelDetail()?.window_step_sec ?? 0.5"
+        />
+      </div>
+      <div class="lg:col-span-2">
+        <app-studio-models-class-metrics [classMetrics]="selectedClassMetrics()" />
+      </div>
+    </div>
+
+    <!-- Section 3: Confusion Matrix Heatmap -->
+    <app-studio-models-confusion-matrix [matrixData]="selectedConfusionMatrix()" />
+
+    <!-- Section 4: History Table Registry -->
+    <app-studio-models-history-table
+      [models]="models()"
+      [selectedVersion]="selectedVersion()"
+      [comparatorVersion]="comparatorVersion()"
+      (inspect)="onInspect($event)"
+      (compare)="onCompare($event)"
+      (removeCompare)="onClearComparator()"
+    />
+  }
+</div>

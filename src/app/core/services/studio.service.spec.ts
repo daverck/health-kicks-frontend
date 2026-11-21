@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { StudioService } from './studio.service';
+import { MLModelDetailResponse, MLModelSummaryResponse } from '../../models/telemetry.models';
 import { environment } from '../../../environments/environment';
 import { mockStudioSessionSummaries } from '../../../testing/mocks/studio-history.mock';
 import {
@@ -117,5 +118,66 @@ describe('StudioService', () => {
     const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/studio/stats`);
     expect(req.request.method).toBe('GET');
     req.flush(mockStudioDatasetStats);
+  });
+
+  const mockModelsHistory: MLModelSummaryResponse[] = [
+    {
+      version: 'v1.2.0',
+      model_name: 'RandomForest_Standard',
+      created_at: '2026-11-20T10:00:00Z',
+      is_active: true,
+      git_commit: 'a1b2c3d',
+      f1_macro: 0.932,
+      accuracy: 0.945,
+      precision_macro: 0.938,
+      recall_macro: 0.927,
+      total_sessions: 42,
+      total_windows: 1250,
+    },
+  ];
+
+  const mockModelDetail: MLModelDetailResponse = {
+    version: 'v1.2.0',
+    model_name: 'RandomForest_Standard',
+    created_at: '2026-11-20T10:00:00Z',
+    is_active: true,
+    git_commit: 'a1b2c3d',
+    window_size_sec: 3.0,
+    window_step_sec: 0.5,
+    flash_usage_pct: 1.25,
+    ram_usage_pct: 6.4,
+    c_header_size_bytes: 38450,
+    metrics: {
+      f1_macro: 0.932,
+      accuracy: 0.945,
+    },
+    dataset_summary: {
+      total_sessions: 42,
+      total_windows: 1250,
+    },
+  };
+
+  it('should retrieve models history via GET /api/v1/studio/models/history', () => {
+    service.getModelsHistory().subscribe((res) => {
+      expect(res).toEqual(mockModelsHistory);
+      expect(res.length).toBe(1);
+      expect(res[0].version).toBe('v1.2.0');
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/studio/models/history`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockModelsHistory);
+  });
+
+  it('should retrieve model version detail via GET /api/v1/studio/models/{version}', () => {
+    service.getModelDetail('v1.2.0').subscribe((res) => {
+      expect(res).toEqual(mockModelDetail);
+      expect(res.version).toBe('v1.2.0');
+      expect(res.flash_usage_pct).toBe(1.25);
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/studio/models/v1.2.0`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockModelDetail);
   });
 });
