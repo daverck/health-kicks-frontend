@@ -959,6 +959,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Me
+         * @description Self-delete authenticated user account with GDPR pseudonymization and anonymization re-keying.
+         */
+        delete: operations["delete_me_api_v1_users_me_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me/alert-contacts": {
         parameters: {
             query?: never;
@@ -1057,7 +1077,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete User
+         * @description Delete user account by UUID (administrator or account owner).
+         */
+        delete: operations["delete_user_api_v1_users__user_uuid__delete"];
         options?: never;
         head?: never;
         /**
@@ -2544,7 +2568,7 @@ export interface components {
              * @deprecated
              * @description Numeric user ID (deprecated in favor of author_pseudonym)
              */
-            user_id: number;
+            user_id?: number | null;
             /**
              * Uuid
              * Format: uuid
@@ -2621,7 +2645,7 @@ export interface components {
              * @deprecated
              * @description Numeric user ID (deprecated in favor of author_pseudonym)
              */
-            user_id: number;
+            user_id?: number | null;
             /**
              * Uuid
              * Format: uuid
@@ -4535,6 +4559,24 @@ export interface operations {
             };
         };
     };
+    delete_me_api_v1_users_me_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     get_my_alert_contacts_api_v1_users_me_alert_contacts_get: {
         parameters: {
             query?: never;
@@ -4704,6 +4746,35 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AlertContactTestEmailResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_user_api_v1_users__user_uuid__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

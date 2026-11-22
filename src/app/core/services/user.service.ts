@@ -21,4 +21,17 @@ export class UserService {
   updateProfile(userUuid: string, payload: { name?: string; email?: string }): Observable<UserResponse> {
     return this.http.patch<UserResponse>(`${this.base}/users/${userUuid}`, payload);
   }
+
+  /**
+   * Delete user account permanently (GDPR right to erasure / App Store compliance).
+   * If userUuid is provided, deletes specific user (admin capability);
+   * otherwise deletes the authenticated user's account (/users/me).
+   * Returns HTTP 204 No Content.
+   */
+  deleteAccount(userUuid?: string): Observable<void> {
+    const url = userUuid
+      ? `${this.base}/users/${encodeURIComponent(userUuid)}`
+      : `${this.base}/users/me`;
+    return this.http.delete<void>(url);
+  }
 }

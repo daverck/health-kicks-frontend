@@ -63,5 +63,21 @@ describe('UserService', () => {
     expect(req.request.body).toEqual({ name: 'Nom Modifié' });
     req.flush(updated);
   });
+
+  it('should delete authenticated user account via DELETE /users/me', () => {
+    service.deleteAccount().subscribe();
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/me`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
+
+  it('should delete user by uuid via DELETE /users/{user_uuid}', () => {
+    service.deleteAccount(mockUser.uuid).subscribe();
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/${mockUser.uuid}`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null, { status: 204, statusText: 'No Content' });
+  });
 });
 

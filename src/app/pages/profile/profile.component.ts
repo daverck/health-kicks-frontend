@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -20,11 +21,17 @@ export class ProfileComponent implements OnInit {
   private readonly userService = inject(UserService);
   private readonly fb = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
   readonly translation = inject(TranslationService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorMessage = signal<string | null>(null);
+
+  // Danger Zone: Self-deletion modal & state
+  readonly showDeleteModal = signal(false);
+  readonly deleting = signal(false);
+  readonly deleteErrorMessage = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     name: [''],
@@ -89,7 +96,7 @@ export class ProfileComponent implements OnInit {
 
     const payload = this.form.value;
     this.userService.updateProfile(user.uuid, payload).subscribe({
-      next: (updated) => {
+      next: () => {
         this.saving.set(false);
         this.toast.success('Profil mis à jour !');
         // Refresh the local user copy (me endpoint reflects persisted changes).
@@ -102,6 +109,49 @@ export class ProfileComponent implements OnInit {
             ? 'Backend injoignable.'
             : err?.error?.detail ?? "Impossible d'enregistrer les modifications."
         );
+      },
+    });
+  }
+
+  openDeleteModal(): void {
+    this.deleteErrorMessage.set(null);
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    if (!this.deleting()) {
+      this.showDeleteModal.set(false);
+    }
+  }
+
+  confirmDeleteAccount(): void {
+    if (this.deleting()) return;
+    this.deleting.set(true);
+    this.deleteErrorMessage.set(null);
+
+    this.userService.deleteAccount().subscribe({
+      next: () => {
+        this.deleting.set(false);
+        this.showDeleteModal.set(false);
+        const successMsg = this.translation.translate('profile.delete_success');
+        this.toast.success(
+          successMsg !== 'profile.delete_success'
+            ? successMsg
+            : 'Votre compte a été supprimé avec succès.'
+        );
+        this.auth.logout();
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.deleting.set(false);
+        const defaultError = this.translation.translate('profile.delete_error');
+        const resolvedError =
+          defaultError !== 'profile.delete_error'
+            ? defaultError
+            : 'Échec de la suppression du compte. Veuillez réessayer.';
+        const msg = err?.error?.detail ?? resolvedError;
+        this.deleteErrorMessage.set(msg);
+        this.toast.error(msg);
       },
     });
   }

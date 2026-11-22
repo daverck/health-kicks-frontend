@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { ProfileComponent } from './profile.component';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
@@ -14,17 +15,20 @@ describe('ProfileComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let userServiceSpy: jasmine.SpyObj<UserService>;
   let toastServiceSpy: jasmine.SpyObj<ToastService>;
+  let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['loadMe'], {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['loadMe', 'logout'], {
       user: signal<UserResponse | null>(mockUser),
     });
     authServiceSpy.loadMe.and.returnValue(of(mockUser));
 
-    userServiceSpy = jasmine.createSpyObj('UserService', ['updateProfile']);
+    userServiceSpy = jasmine.createSpyObj('UserService', ['updateProfile', 'deleteAccount']);
     userServiceSpy.updateProfile.and.returnValue(of({ ...mockUser, name: 'Marie Dupont' }));
+    userServiceSpy.deleteAccount.and.returnValue(of(undefined as unknown as void));
 
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [ProfileComponent],
@@ -32,6 +36,7 @@ describe('ProfileComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: UserService, useValue: userServiceSpy },
         { provide: ToastService, useValue: toastServiceSpy },
+        { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
 
@@ -131,5 +136,80 @@ describe('ProfileComponent', () => {
     expect(component.roleBadgeClass('trainer')).toContain('bg-blue-100');
     expect(component.roleBadgeClass('clinician')).toContain('bg-blue-100');
     expect(component.roleBadgeClass('user')).toContain('bg-primary-50');
+  });
+
+  // --- Danger Zone: Account Deletion Tests ---
+
+  it('should open delete account confirmation modal when clicking delete button', () => {
+    fixture.detectChanges();
+
+    const openBtn: HTMLButtonElement = fixture.nativeElement.querySelector('#open-delete-modal-btn');
+    expect(openBtn).toBeTruthy();
+    openBtn.click();
+    fixture.detectChanges();
+
+    expect(component.showDeleteModal()).toBeTrue();
+    const modal = fixture.nativeElement.querySelector('#delete-account-modal');
+    expect(modal).toBeTruthy();
+  });
+
+  it('should close delete account confirmation modal when clicking cancel', () => {
+    fixture.detectChanges();
+
+    component.openDeleteModal();
+    fixture.detectChanges();
+
+    const cancelBtn: HTMLButtonElement = fixture.nativeElement.querySelector('#cancel-delete-btn');
+    expect(cancelBtn).toBeTruthy();
+    cancelBtn.click();
+    fixture.detectChanges();
+
+    expect(component.showDeleteModal()).toBeFalse();
+    const modal = fixture.nativeElement.querySelector('#delete-account-modal');
+    expect(modal).toBeFalsy();
+  });
+
+  it('should call deleteAccount, logout, show success toast, and navigate to /login upon confirmation', () => {
+    fixture.detectChanges();
+
+    component.openDeleteModal();
+    fixture.detectChanges();
+
+    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector('#confirm-delete-btn');
+    expect(confirmBtn).toBeTruthy();
+    confirmBtn.click();
+    fixture.detectChanges();
+
+    expect(userServiceSpy.deleteAccount).toHaveBeenCalled();
+    expect(toastServiceSpy.success).toHaveBeenCalledWith('Votre compte a été supprimé avec succès.');
+    expect(authServiceSpy.logout).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(component.showDeleteModal()).toBeFalse();
+    expect(component.deleting()).toBeFalse();
+  });
+
+  it('should handle deleteAccount error gracefully and display error message', () => {
+    userServiceSpy.deleteAccount.and.returnValue(
+      throwError(() => ({ status: 500, error: { detail: 'Erreur serveur interne' } }))
+    );
+
+    fixture.detectChanges();
+    component.openDeleteModal();
+    fixture.detectChanges();
+
+    const confirmBtn: HTMLButtonElement = fixture.nativeElement.querySelector('#confirm-delete-btn');
+    confirmBtn.click();
+    fixture.detectChanges();
+
+    expect(userServiceSpy.deleteAccount).toHaveBeenCalled();
+    expect(component.deleting()).toBeFalse();
+    expect(component.deleteErrorMessage()).toBe('Erreur serveur interne');
+    expect(toastServiceSpy.error).toHaveBeenCalledWith('Erreur serveur interne');
+    expect(authServiceSpy.logout).not.toHaveBeenCalled();
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
+
+    const errorBanner = fixture.nativeElement.querySelector('#delete-error-banner');
+    expect(errorBanner).toBeTruthy();
+    expect(errorBanner.textContent).toContain('Erreur serveur interne');
   });
 });
