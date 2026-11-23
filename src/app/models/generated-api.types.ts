@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/audit/access-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Query immutable access audit logs for compliance monitoring
+         * @description List tamper-resistant audit logs recording trainer and admin access to patient records.
+         */
+        get: operations["list_access_logs_api_v1_audit_access_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/azure/callback": {
         parameters: {
             query?: never;
@@ -1067,6 +1087,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Export My Data
+         * @description GDPR Article 20 Right to Data Portability: export all user data in a structured ZIP archive.
+         */
+        post: operations["export_my_data_api_v1_users_me_export_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/{user_uuid}": {
         parameters: {
             query?: never;
@@ -1135,6 +1175,48 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AccessAuditLogResponse
+         * @description Representation of an immutable access audit entry.
+         */
+        AccessAuditLogResponse: {
+            /** Action */
+            action: string;
+            /** Actor Email */
+            actor_email: string | null;
+            /** Actor Role */
+            actor_role: string;
+            /**
+             * Actor Uuid
+             * Format: uuid
+             */
+            actor_uuid: string;
+            /**
+             * Created At Utc
+             * Format: date-time
+             */
+            created_at_utc: string;
+            /** Ip Address */
+            ip_address: string | null;
+            /** Patient Pseudonym */
+            patient_pseudonym: string | null;
+            /**
+             * Patient Uuid
+             * Format: uuid
+             */
+            patient_uuid: string;
+            /** Resource */
+            resource: string;
+            /** Resource Id */
+            resource_id: string | null;
+            /** User Agent */
+            user_agent: string | null;
+            /**
+             * Uuid
+             * Format: uuid
+             */
+            uuid: string;
+        };
         /** ActivityEventPage */
         ActivityEventPage: {
             /** Items */
@@ -2170,6 +2252,29 @@ export interface components {
             ticket: string;
         };
         /**
+         * PaginatedAccessAuditLogsResponse
+         * @description Paginated collection of access audit entries.
+         */
+        PaginatedAccessAuditLogsResponse: {
+            /** Items */
+            items: components["schemas"]["AccessAuditLogResponse"][];
+            /**
+             * Page
+             * @description Current page number
+             */
+            page: number;
+            /**
+             * Page Size
+             * @description Entries per page
+             */
+            page_size: number;
+            /**
+             * Total
+             * @description Total matching audit records
+             */
+            total: number;
+        };
+        /**
          * PaginatedFallAlertsResponse
          * @description Paginated response of fall alert summaries.
          */
@@ -2852,6 +2957,52 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    list_access_logs_api_v1_audit_access_logs_get: {
+        parameters: {
+            query?: {
+                /** @description Page number */
+                page?: number;
+                /** @description Entries per page */
+                page_size?: number;
+                /** @description Filter by actor user UUID */
+                actor_uuid?: string | null;
+                /** @description Filter by target patient UUID */
+                patient_uuid?: string | null;
+                /** @description Filter by action (e.g. READ, UPDATE, DELETE) */
+                action?: string | null;
+                /** @description Filter by resource (e.g. profile, fall_alerts) */
+                resource?: string | null;
+                /** @description Start UTC timestamp */
+                from_date?: string | null;
+                /** @description End UTC timestamp */
+                to_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAccessAuditLogsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -4754,6 +4905,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_my_data_api_v1_users_me_export_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
         };
