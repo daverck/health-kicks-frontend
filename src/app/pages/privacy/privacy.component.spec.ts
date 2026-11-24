@@ -26,5 +26,6 @@ describe('PrivacyComponent', () => {
     expect(compiled.querySelector('h1')).toBeTruthy();
     expect(compiled.textContent).toContain('Data Controller & Principles');
     expect(compiled.textContent).toContain('Categories of Data We Process');
+    expect(compiled.textContent).toContain('Web Analytics (Umami)');
   });
 });
