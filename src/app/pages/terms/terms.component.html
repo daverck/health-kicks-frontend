@@ -1,0 +1,106 @@
+<div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
+  <!-- Top Navigation Header -->
+  <header class="w-full border-b border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur px-4 py-3 sm:px-6">
+    <div class="mx-auto flex max-w-5xl items-center justify-between">
+      <a routerLink="/" class="inline-flex items-center gap-2 group">
+        <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 object-contain transition-transform group-hover:scale-105" />
+        <span class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+          Health<span class="text-primary-600 dark:text-primary-400">Kicks</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <a
+          routerLink="/"
+          class="text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition"
+        >
+          ← {{ 'nav.home' | translate }}
+        </a>
+        <div class="h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
+        <app-language-selector />
+        <app-theme-toggle />
+      </div>
+    </div>
+  </header>
+
+  <!-- Document Body -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-10 sm:py-14">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-10 shadow-sm border border-gray-200/80 dark:border-gray-800 space-y-8">
+      <div>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary-50 dark:bg-primary-950/80 text-primary-700 dark:text-primary-300 border border-primary-200/60 dark:border-primary-800/60">
+          {{ 'footer.legal_section' | translate }}
+        </span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-3">
+          {{ 'footer.terms' | translate }}
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+          HealthKicks Biomechanical & Fall Detection Platform — Last revised: November 2026
+        </p>
+      </div>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-bold">1</span>
+          Acceptance of Terms
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          By accessing or using the HealthKicks web platform, companion mobile application, or ESP32-S3 connected footwear hardware, you acknowledge that you have read, understood, and agreed to be bound by these Terms of Use. If you do not agree to these terms, do not access or use the HealthKicks ecosystem.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-bold">2</span>
+          Medical & Safety Disclaimer
+        </h2>
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-xs sm:text-sm leading-relaxed">
+          <strong>Important Disclaimer:</strong> HealthKicks is an assistive biomechanical and fall detection monitoring system. It is <em>not</em> a certified diagnostic medical device, nor a substitute for professional healthcare, emergency medical response (such as 112/911), or clinical supervision. You should never delay seeking medical advice based on data provided by HealthKicks.
+        </div>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-bold">3</span>
+          Connected Footwear & Edge Firmware Usage
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          The HealthKicks firmware operating on the ESP32-S3 microcontroller captures inertial measurement unit (IMU) samples at 19 Hz to execute local real-time inference (activity classification and fall event detection). Users agree not to tamper with, reverse engineer, or deploy unauthorized firmware binaries to the hardware clip that could bypass safety limits or thermal throttling.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-bold">4</span>
+          Account Security & Single Sign-On (SSO)
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          Authentication on HealthKicks relies on federated Single Sign-On (Google and Microsoft OAuth2 / OpenID Connect). You are responsible for safeguarding your credentials with your identity provider and for promptly notifying HealthKicks of any unauthorized access to your account.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-bold">5</span>
+          Intellectual Property & MLOps Models
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          All algorithms, edge ML classifier weights, neural networks, software, user interfaces, documentation, and trademarks associated with HealthKicks are the exclusive intellectual property of HealthKicks and its licensors.
+        </p>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-primary-100 dark:bg-primary-900/50 text-primary-600 dark:text-primary-400 text-xs flex items-center justify-center font-bold">6</span>
+          Contact Information
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          For any legal inquiries regarding these Terms of Use, please reach out to our legal department at
+          <a href="mailto:legal@healthkicks.eu" class="text-primary-600 dark:text-primary-400 underline font-medium">legal@healthkicks.eu</a>.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <!-- Full Footer -->
+  <app-footer variant="full" />
+</div>

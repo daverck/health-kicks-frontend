@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { UserResponse, UserUpdate } from '../../models/api.models';
+import { createZipArchive } from '../utils/export.utils';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -33,5 +34,38 @@ export class UserService {
       ? `${this.base}/users/${encodeURIComponent(userUuid)}`
       : `${this.base}/users/me`;
     return this.http.delete<void>(url);
+  }
+
+  /**
+   * Export all user data under GDPR Article 20 Right to Data Portability.
+   * In local development with mockAuth, generates a structured client-side export Blob.
+   * In production, sends POST /api/v1/users/me/export returning the backend ZIP archive.
+   */
+  exportData(): Observable<Blob> {
+    if (environment.mockAuth) {
+      const mockUserData = {
+        export_version: '1.0',
+        exported_at: new Date().toISOString(),
+        user: environment.mockUser,
+        note: 'HealthKicks GDPR Article 20 Personal Data Export (Dev Mock Archive)',
+        devices: [],
+        step_metrics: [],
+        fall_alerts: [],
+      };
+      const zipBlob = createZipArchive([
+        {
+          filename: 'user_profile.json',
+          content: JSON.stringify(environment.mockUser, null, 2),
+        },
+        {
+          filename: 'gdpr_data_export.json',
+          content: JSON.stringify(mockUserData, null, 2),
+        },
+      ]);
+      return of(zipBlob);
+    }
+    return this.http.post(`${this.base}/users/me/export`, {}, {
+      responseType: 'blob',
+    });
   }
 }

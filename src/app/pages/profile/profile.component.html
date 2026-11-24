@@ -106,6 +106,45 @@
       </form>
     </section>
 
+    <!-- GDPR Article 20: Data Portability -->
+    <section class="card border border-primary-200/80 bg-primary-50/30 dark:border-primary-900/40 dark:bg-primary-950/20" data-testid="profile-export-section">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-primary-700 dark:text-primary-300">
+            <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+              {{ 'profile.data_portability_title' | translate }}
+            </h2>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            {{ 'profile.data_portability_desc' | translate }}
+          </p>
+        </div>
+        <button
+          type="button"
+          id="export-data-btn"
+          (click)="exportData()"
+          [disabled]="exporting()"
+          class="shrink-0 inline-flex items-center gap-2 rounded-lg border border-primary-300 bg-white px-4 py-2 text-sm font-medium text-primary-700 shadow-sm transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:border-primary-800 dark:bg-gray-900 dark:text-primary-300 dark:hover:bg-primary-950/50 disabled:opacity-50"
+        >
+          @if (exporting()) {
+            <svg class="h-4 w-4 animate-spin text-primary-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>{{ 'common.loading' | translate }}</span>
+          } @else {
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>{{ 'profile.export_button' | translate }}</span>
+          }
+        </button>
+      </div>
+    </section>
+
     <!-- Danger Zone: Account deletion -->
     <section class="card border border-red-200 bg-red-50/40 dark:border-red-900/40 dark:bg-red-950/20">
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

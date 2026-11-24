@@ -34,6 +34,26 @@ export const routes: Routes = [
         (m) => m.FallAlertAckComponent
       ),
   },
+  {
+    path: 'terms',
+    title: 'Terms of Use — HealthKicks',
+    loadComponent: () => import('./pages/terms/terms.component').then((m) => m.TermsComponent),
+  },
+  {
+    path: 'privacy',
+    title: 'Privacy Policy — HealthKicks',
+    loadComponent: () => import('./pages/privacy/privacy.component').then((m) => m.PrivacyComponent),
+  },
+  {
+    path: 'gdpr',
+    title: 'GDPR Compliance — HealthKicks',
+    loadComponent: () => import('./pages/gdpr/gdpr.component').then((m) => m.GdprComponent),
+  },
+  {
+    path: 'support',
+    title: 'Help & Support — HealthKicks',
+    loadComponent: () => import('./pages/support/support.component').then((m) => m.SupportComponent),
+  },
 
   {
     path: 'dashboard',

@@ -1,8 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
-import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
-import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslationService } from '../../core/services/translation.service';
 
@@ -35,6 +33,7 @@ import { HomeShowcaseComponent } from './components/home-showcase.component';
 import { HomePrototypesComponent } from './components/home-prototypes.component';
 import { HomeHowItWorksComponent } from './components/home-how-it-works.component';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
+import { AppFooterComponent } from '../../shared/components/app-footer/app-footer.component';
 
 @Component({
   selector: 'app-home',
@@ -42,14 +41,13 @@ import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.dir
   imports: [
     RouterLink,
     TranslatePipe,
-    LanguageSelectorComponent,
-    ThemeToggleComponent,
     HomeHeroComponent,
     HomeFeaturesComponent,
     HomeShowcaseComponent,
     HomePrototypesComponent,
     HomeHowItWorksComponent,
     ScrollRevealDirective,
+    AppFooterComponent,
   ],
   templateUrl: './home.component.html',
 })

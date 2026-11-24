@@ -23,9 +23,10 @@ describe('ProfileComponent', () => {
     });
     authServiceSpy.loadMe.and.returnValue(of(mockUser));
 
-    userServiceSpy = jasmine.createSpyObj('UserService', ['updateProfile', 'deleteAccount']);
+    userServiceSpy = jasmine.createSpyObj('UserService', ['updateProfile', 'deleteAccount', 'exportData']);
     userServiceSpy.updateProfile.and.returnValue(of({ ...mockUser, name: 'Marie Dupont' }));
     userServiceSpy.deleteAccount.and.returnValue(of(undefined as unknown as void));
+    userServiceSpy.exportData.and.returnValue(of(new Blob(['{}'], { type: 'application/json' })));
 
     toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -211,5 +212,14 @@ describe('ProfileComponent', () => {
     const errorBanner = fixture.nativeElement.querySelector('#delete-error-banner');
     expect(errorBanner).toBeTruthy();
     expect(errorBanner.textContent).toContain('Erreur serveur interne');
+  });
+
+  it('should trigger data export when clicking export button', () => {
+    fixture.detectChanges();
+    const exportBtn: HTMLButtonElement = fixture.nativeElement.querySelector('#export-data-btn');
+    expect(exportBtn).toBeTruthy();
+    exportBtn.click();
+    expect(userServiceSpy.exportData).toHaveBeenCalled();
+    expect(toastServiceSpy.success).toHaveBeenCalled();
   });
 });

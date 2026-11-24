@@ -79,5 +79,15 @@ describe('UserService', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(null, { status: 204, statusText: 'No Content' });
   });
+
+  it('should export user data via POST /users/me/export', () => {
+    service.exportData().subscribe((blob) => {
+      expect(blob).toBeTruthy();
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/api/v1/users/me/export`);
+    expect(req.request.method).toBe('POST');
+    req.flush(new Blob(['mock zip'], { type: 'application/zip' }));
+  });
 });
 

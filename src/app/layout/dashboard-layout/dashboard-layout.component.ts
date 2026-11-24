@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
+import { AppFooterComponent } from '../../shared/components/app-footer/app-footer.component';
 
 export type NavIconId =
   | 'steps'
@@ -42,6 +43,7 @@ export interface NavLink {
     TranslatePipe,
     LanguageSelectorComponent,
     ThemeToggleComponent,
+    AppFooterComponent,
   ],
   templateUrl: './dashboard-layout.component.html',
 })

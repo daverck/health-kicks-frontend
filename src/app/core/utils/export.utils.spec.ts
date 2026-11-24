@@ -103,4 +103,19 @@ describe('export.utils', () => {
     expect(createObjectURLSpy).toHaveBeenCalled();
     expect(capturedBlob).not.toBeNull();
   });
+
+  it('should create valid ZIP archive Blob with local and central headers', async () => {
+    const { createZipArchive, computeCrc32 } = await import('./export.utils');
+    const crc = computeCrc32(new TextEncoder().encode('test data'));
+    expect(crc).toBeGreaterThan(0);
+
+    const zipBlob = createZipArchive([
+      { filename: 'hello.txt', content: 'Hello World' },
+      { filename: 'nested/test.json', content: '{"status":"ok"}' },
+    ]);
+
+    expect(zipBlob).toBeTruthy();
+    expect(zipBlob.type).toBe('application/zip');
+    expect(zipBlob.size).toBeGreaterThan(50);
+  });
 });

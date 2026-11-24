@@ -33,6 +33,9 @@ export class ProfileComponent implements OnInit {
   readonly deleting = signal(false);
   readonly deleteErrorMessage = signal<string | null>(null);
 
+  // GDPR Data Portability: Export state
+  readonly exporting = signal(false);
+
   readonly form = this.fb.nonNullable.group({
     name: [''],
     email: [{ value: '', disabled: true }],
@@ -116,6 +119,41 @@ export class ProfileComponent implements OnInit {
   openDeleteModal(): void {
     this.deleteErrorMessage.set(null);
     this.showDeleteModal.set(true);
+  }
+
+  exportData(): void {
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    this.userService.exportData().subscribe({
+      next: (blob) => {
+        this.exporting.set(false);
+        const filename = `healthkicks_data_export_${new Date().toISOString().split('T')[0]}.zip`;
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        anchor.style.display = 'none';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+        const successMsg = this.translation.translate('profile.export_success');
+        this.toast.success(
+          successMsg !== 'profile.export_success'
+            ? successMsg
+            : 'Export de vos données téléchargé avec succès.'
+        );
+      },
+      error: () => {
+        this.exporting.set(false);
+        const errorMsg = this.translation.translate('profile.export_error');
+        this.toast.error(
+          errorMsg !== 'profile.export_error'
+            ? errorMsg
+            : "Échec de l'exportation des données."
+        );
+      },
+    });
   }
 
   closeDeleteModal(): void {

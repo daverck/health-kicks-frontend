@@ -1,0 +1,170 @@
+<div class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
+  <!-- Top Navigation Header -->
+  <header class="w-full border-b border-gray-200/80 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur px-4 py-3 sm:px-6">
+    <div class="mx-auto flex max-w-5xl items-center justify-between">
+      <a routerLink="/" class="inline-flex items-center gap-2 group">
+        <img src="/favicon.svg" alt="HealthKicks Logo" class="h-8 w-8 object-contain transition-transform group-hover:scale-105" />
+        <span class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+          Health<span class="text-primary-600 dark:text-primary-400">Kicks</span>
+        </span>
+      </a>
+
+      <div class="flex items-center gap-3">
+        <a
+          routerLink="/"
+          class="text-xs sm:text-sm font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition"
+        >
+          ← {{ 'nav.home' | translate }}
+        </a>
+        <div class="h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
+        <app-language-selector />
+        <app-theme-toggle />
+      </div>
+    </div>
+  </header>
+
+  <!-- Document Body -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-10 sm:py-14">
+    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 sm:p-10 shadow-sm border border-gray-200/80 dark:border-gray-800 space-y-8">
+      <div>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60">
+          {{ 'footer.legal_section' | translate }}
+        </span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mt-3">
+          {{ 'footer.gdpr' | translate }}
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+          European Union General Data Protection Regulation (EU 2016/679) Compliance Matrix
+        </p>
+      </div>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-xs flex items-center justify-center font-bold">1</span>
+          GDPR Architecture & Rights Matrix
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          HealthKicks is engineered under the European Union General Data Protection Regulation (Regulation EU 2016/679), incorporating Privacy by Design and by Default (Article 25). Below is how our platform implements your statutory data subject rights (Articles 15 through 22) as well as technical security and governance mandates (Articles 30 and 32):
+        </p>
+
+        <div class="space-y-3 pt-2">
+          <!-- Article 15 & 20: Portability -->
+          <div class="p-4 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="font-bold text-sm text-gray-900 dark:text-white">
+                  Right to Access & Data Portability (Articles 15 & 20)
+                </h3>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                  Export your full profile, paired devices, step history, and fall alerts as a standardized ZIP archive with an authenticated request.
+                </p>
+              </div>
+              <a
+                routerLink="/dashboard/profile"
+                class="btn-secondary text-xs px-3 py-1.5 shrink-0"
+              >
+                Profile Export
+              </a>
+            </div>
+          </div>
+
+          <!-- Article 17: Erasure -->
+          <div class="p-4 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h3 class="font-bold text-sm text-gray-900 dark:text-white">
+                  Right to Erasure / Right to be Forgotten (Article 17)
+                </h3>
+                <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                  Permanently purge your account, paired device tokens, step metrics, and emergency contacts. An immutable audit record tracks execution without storing PII.
+                </p>
+              </div>
+              <a
+                routerLink="/dashboard/profile"
+                class="btn-secondary text-xs px-3 py-1.5 shrink-0 text-red-600 dark:text-red-400"
+              >
+                Delete Account
+              </a>
+            </div>
+          </div>
+
+          <!-- Article 32: Security of Processing & Multi-Tier Cryptography -->
+          <div class="p-5 rounded-xl border border-gray-200/80 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 space-y-3" data-testid="gdpr-article-32-card">
+            <div>
+              <h3 class="font-bold text-sm text-gray-900 dark:text-white flex items-center gap-2">
+                <svg class="h-4 w-4 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                Security of Processing & Multi-Tier Cryptography (Article 32)
+              </h3>
+              <p class="text-xs text-gray-600 dark:text-gray-300 mt-1 leading-relaxed">
+                In strict accordance with GDPR Article 32(1)(a), HealthKicks implements layered technical safeguards spanning embedded sensors, mobile edge gateway, and cloud persistence:
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
+              <!-- Tier 1: Sensor & BLE -->
+              <div class="p-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 space-y-1">
+                <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                  <span>BLE GATT Security</span>
+                </span>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                  LESC (Low Energy Secure Connections) with numeric comparison pairing prevents MITM eavesdropping on 19 Hz IMU packets.
+                </p>
+              </div>
+
+              <!-- Tier 2: Mobile & Transport -->
+              <div class="p-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 space-y-1">
+                <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                  </svg>
+                  <span>Mobile & In-Transit</span>
+                </span>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                  Hardware-backed encrypted SQLite on mobile (KeyStore/Keychain) and TLS 1.3 / AWS SigV4 signed WebSockets for MQTT telemetry streams.
+                </p>
+              </div>
+
+              <!-- Tier 3: Cloud & Audit -->
+              <div class="p-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 space-y-1">
+                <span class="font-semibold text-gray-900 dark:text-white flex items-center gap-1.5">
+                  <svg class="h-3.5 w-3.5 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.502 4.502 0 002.25 15z" />
+                  </svg>
+                  <span>Cloud at Rest & Audit</span>
+                </span>
+                <p class="text-gray-500 dark:text-gray-400 leading-relaxed">
+                  AES-256 encryption at rest (Aurora PostgreSQL & DynamoDB EU) combined with append-only immutable database audit triggers.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-xs flex items-center justify-center font-bold">2</span>
+          Data Protection Officer (DPO) Contact
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          For any data protection inquiries, Article 30 registry inspections, or supervisory authority notifications, contact our Data Protection Officer directly:
+        </p>
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-800 text-xs sm:text-sm space-y-1">
+          <p class="font-semibold text-gray-900 dark:text-white">HealthKicks Data Protection Office</p>
+          <p class="text-gray-600 dark:text-gray-300">Email: <a href="mailto:dpo@healthkicks.eu" class="text-primary-600 dark:text-primary-400 underline font-medium">dpo@healthkicks.eu</a></p>
+          <p class="text-gray-600 dark:text-gray-300">
+            Supervisory Lead Authority: <a href="https://www.autoriteprotectiondonnees.be" target="_blank" rel="noopener noreferrer" class="text-primary-600 dark:text-primary-400 underline font-medium">APD / GBA (Autorité de protection des données / Gegevensbeschermingsautoriteit)</a>, Brussels, Belgium
+          </p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Full Footer -->
+  <app-footer variant="full" />
+</div>
