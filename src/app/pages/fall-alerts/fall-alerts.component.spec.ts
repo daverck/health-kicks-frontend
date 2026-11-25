@@ -275,6 +275,9 @@ describe('FallAlertsComponent', () => {
     expect(gpsLink.tagName.toLowerCase()).toBe('a');
     expect(gpsLink.getAttribute('href')).toBe('https://www.google.com/maps?q=50.8466,4.3528');
     expect(gpsLink.getAttribute('target')).toBe('_blank');
+    expect(gpsLink.textContent?.trim()).toBe('');
+    expect(gpsLink.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+    expect(gpsLink.getAttribute('aria-label')).toBeTruthy();
 
     const openModalSpy = spyOn(component, 'openAlertDetail');
     gpsLink.click();

@@ -399,19 +399,29 @@
                     target="_blank"
                     rel="noopener noreferrer"
                     (click)="$event.stopPropagation()"
-                    class="inline-flex items-center gap-1 font-semibold text-primary-600 hover:underline dark:text-primary-400"
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-950/40"
+                    [attr.aria-label]="'fall_alerts.open_maps' | translate"
+                    [attr.title]="'fall_alerts.open_maps' | translate"
                     data-testid="alert-google-maps-link"
                   >
-                    📍 GPS
+                    <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
+                      <path d="M9 3v15m6-12v15" />
+                    </svg>
                   </a>
                 } @else if (alert.has_location) {
                   <button
                     type="button"
                     (click)="onMapsClick(alert, $event)"
-                    class="inline-flex items-center gap-1 font-semibold text-primary-600 hover:underline dark:text-primary-400"
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-md text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-950/40"
+                    [attr.aria-label]="'fall_alerts.open_maps' | translate"
+                    [attr.title]="'fall_alerts.open_maps' | translate"
                     data-testid="alert-google-maps-link"
                   >
-                    📍 GPS
+                    <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
+                      <path d="M9 3v15m6-12v15" />
+                    </svg>
                   </button>
                 } @else {
                   <span class="text-gray-400">{{ 'fall_alerts.no_location' | translate }}</span>
