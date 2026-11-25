@@ -92,7 +92,28 @@ describe('FallAlertAckComponent', () => {
     expect(compiled.textContent).toContain('Marie Dupont');
     expect(compiled.textContent).toContain("Chute vers l'avant");
     expect(compiled.querySelector('[data-testid="maps-link"]')).toBeTruthy();
+    expect(compiled.querySelector('[data-testid="osm-map-iframe"]')).toBeTruthy();
     expect(compiled.querySelector('[data-testid="btn-confirm-ack"]')).toBeTruthy();
+  });
+
+  it('should compute osmEmbedUrl correctly when coordinates are present and null when missing', () => {
+    setupTestBed(sampleToken);
+    mockFallAlertService.getAckInfo.and.returnValue(of(mockInfoEscalating));
+    fixture.detectChanges();
+
+    expect(component.osmEmbedUrl()).not.toBeNull();
+
+    const infoWithoutCoords: FallAlertAckInfo = {
+      ...mockInfoEscalating,
+      lat: null,
+      lon: null,
+    };
+    component.ackInfo.set(infoWithoutCoords);
+    fixture.detectChanges();
+
+    expect(component.osmEmbedUrl()).toBeNull();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('[data-testid="osm-map-iframe"]')).toBeNull();
   });
 
   it('should transition to just_confirmed when user clicks confirmation button', () => {

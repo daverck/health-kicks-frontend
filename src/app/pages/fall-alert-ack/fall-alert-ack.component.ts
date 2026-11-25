@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FallAlertService } from '../../core/services/fall-alert.service';
 import { FallAlertAckInfo, FallAlertAckResult } from '../../models/api.models';
@@ -22,6 +23,7 @@ export type AckViewState =
 export class FallAlertAckComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fallAlertService = inject(FallAlertService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly token = signal<string>('');
   readonly loading = signal<boolean>(true);
@@ -30,6 +32,25 @@ export class FallAlertAckComponent implements OnInit {
   readonly ackResult = signal<FallAlertAckResult | null>(null);
   readonly errorMessage = signal<string | null>(null);
   readonly isExpired = signal<boolean>(false);
+
+  readonly osmEmbedUrl = computed<SafeResourceUrl | null>(() => {
+    const info = this.ackInfo();
+    if (!info || info.lat == null || info.lon == null) {
+      return null;
+    }
+    const lat = info.lat;
+    const lon = info.lon;
+    // Bounding box delta for ~500m zoom around the fall coordinates
+    const delta = 0.005;
+    const minLon = (lon - delta).toFixed(6);
+    const minLat = (lat - delta).toFixed(6);
+    const maxLon = (lon + delta).toFixed(6);
+    const maxLat = (lat + delta).toFixed(6);
+    const formattedLat = lat.toFixed(6);
+    const formattedLon = lon.toFixed(6);
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${minLon}%2C${minLat}%2C${maxLon}%2C${maxLat}&layer=mapnik&marker=${formattedLat}%2C${formattedLon}`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  });
 
   readonly viewState = computed<AckViewState>(() => {
     if (this.loading()) {
