@@ -46,7 +46,7 @@ jobs:
     environment: production
 
     env:
-      AWS_REGION: eu-north-1
+      AWS_REGION: eu-west-1
       AWS_ACCOUNT_ID: "693906847467"
       ECR_REPOSITORY: healthkicks-frontend
       IMAGE_TAG: latest

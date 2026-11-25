@@ -140,7 +140,7 @@ The GitHub Actions workflow is defined in `.github/workflows/deploy.yml`:
 - Triggered automatically on `push` and `pull_request` (executes the Vitest test suite and builds the production bundle).
 - On pushes to `main` (after tests and build pass):
   1. Builds the production Docker image.
-  2. Pushes the image to **Amazon ECR** (`693906847467.dkr.ecr.eu-north-1.amazonaws.com/healthkicks-frontend:latest`).
+  2. Pushes the image to **Amazon ECR** (`693906847467.dkr.ecr.eu-west-1.amazonaws.com/healthkicks-frontend:latest`).
   3. Deploys via SSH to the production EC2 host (`docker pull` and rolling container restart).
 
 ### Required Secrets (Production Environment)
