@@ -4,6 +4,7 @@ export const environment: AppEnvironment = {
   production: false,
   apiUrl: 'https://api.healthkicks.eu',
   mockAuth: true,
+  mockData: true,
   mockUser: {
     uuid: '00000000-0000-0000-0000-000000000001',
     pseudonym: 'SUBJ-DEV-0001',

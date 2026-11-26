@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { correlationIdInterceptor } from './core/interceptors/correlation-id.interceptor';
 import { idempotencyInterceptor } from './core/interceptors/idempotency.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { mockDataInterceptor } from './core/interceptors/mock-data.interceptor';
 import { AuthService } from './core/services/auth.service';
 import { MockAuthService } from './core/services/mock-auth.service';
 import { environment } from '../environments/environment';
@@ -17,7 +18,12 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([correlationIdInterceptor, idempotencyInterceptor, authInterceptor]),
+      withInterceptors([
+        correlationIdInterceptor,
+        idempotencyInterceptor,
+        authInterceptor,
+        ...(environment.mockData ? [mockDataInterceptor] : []),
+      ]),
     ),
     ...(environment.mockAuth
       ? [{ provide: AuthService, useClass: MockAuthService }]

@@ -14,6 +14,7 @@ export interface AppEnvironment {
   production: boolean;
   apiUrl: string;
   mockAuth: boolean;
+  mockData?: boolean;
   mockUser?: MockUserConfig;
   sentryDsn?: string;
 }
