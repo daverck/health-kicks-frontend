@@ -4,6 +4,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import { AppFooterComponent } from '../../shared/components/app-footer/app-footer.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-support',
@@ -17,4 +18,6 @@ import { AppFooterComponent } from '../../shared/components/app-footer/app-foote
   ],
   templateUrl: './support.component.html',
 })
-export class SupportComponent {}
+export class SupportComponent {
+  readonly apiDocsUrl = `${environment.apiUrl}/docs`;
+}

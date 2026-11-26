@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { APP_CONSTANTS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-footer',
@@ -18,4 +19,5 @@ import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 export class AppFooterComponent {
   readonly variant = input<'full' | 'compact'>('full');
   readonly currentYear = new Date().getFullYear();
+  readonly githubRepoUrl = APP_CONSTANTS.githubRepoUrl;
 }

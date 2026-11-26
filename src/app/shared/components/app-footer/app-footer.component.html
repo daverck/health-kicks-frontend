@@ -74,7 +74,7 @@
             </li>
             <li>
               <a
-                href="https://github.com/daverck/health-kicks-ecosystem"
+                [href]="githubRepoUrl"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-1.5 hover:text-primary-600 dark:hover:text-primary-400 transition"
@@ -116,7 +116,7 @@
       <a routerLink="/gdpr" class="hover:text-primary-600 dark:hover:text-primary-400 transition" data-testid="compact-footer-link-gdpr">{{ 'footer.gdpr' | translate }}</a>
       <a routerLink="/support" class="hover:text-primary-600 dark:hover:text-primary-400 transition" data-testid="compact-footer-link-support">{{ 'footer.support' | translate }}</a>
       <a
-        href="https://github.com/daverck/health-kicks-ecosystem"
+        [href]="githubRepoUrl"
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 transition"
