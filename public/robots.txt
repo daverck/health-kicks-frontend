@@ -4,4 +4,4 @@ Disallow: /dashboard/
 Disallow: /auth/
 Disallow: /fall-alerts/ack
 
-Sitemap: https://healthkicks.app/sitemap.xml
+Sitemap: https://app.healthkicks.eu/sitemap.xml
