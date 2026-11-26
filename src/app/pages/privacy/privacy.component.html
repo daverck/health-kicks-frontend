@@ -66,10 +66,28 @@
           <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-800">
             <h3 class="font-bold text-gray-900 dark:text-white mb-1.5 flex items-center gap-2">
               <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              Sensor Telemetry & Falls
+              Sensor Telemetry, Location & Falls
             </h3>
             <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
-              Step cadence, daily counts, physical activity classifications, fall alert timestamps, emergency acknowledgements, and device battery levels.
+              Step cadence, daily counts, physical activity classifications, fall alert timestamps, emergency acknowledgements, device battery levels, and optional GPS coordinates (captured only when an emergency fall alert is triggered and location permission is granted).
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-800">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-1.5 flex items-center gap-2">
+              <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+              Health Connect (Android)
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+              With your explicit permission, the mobile app uses Google Health Connect (<code class="text-[11px]">READ_STEPS</code> and <code class="text-[11px]">WRITE_STEPS</code>) solely to synchronize your daily step counts. Health Connect data is never sold or shared for advertising.
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-800">
+            <h3 class="font-bold text-gray-900 dark:text-white mb-1.5 flex items-center gap-2">
+              <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z" /></svg>
+              Application Diagnostics (Sentry)
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+              Error stack traces and performance diagnostics collected via Sentry with automatic PII, email, and token redaction to ensure service stability.
             </p>
           </div>
           <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-800 md:col-span-2">
@@ -97,11 +115,30 @@
       <section class="space-y-3">
         <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
           <span class="h-6 w-6 rounded-md bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-center font-bold">4</span>
-          Exercising Your Privacy Rights
+          Wellness & Non-Medical Disclaimer
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          HealthKicks is a physical activity and wellness monitoring companion. It is not a certified medical device and is not intended to diagnose, treat, cure, or prevent any disease or medical condition. Emergency fall alerts are best-effort notifications and do not replace emergency services.
+        </p>
+      </section>
+
+      <section id="account-deletion" class="space-y-3">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <span class="h-6 w-6 rounded-md bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-center font-bold">5</span>
+          Exercising Your Privacy Rights & Account Deletion
         </h2>
         <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
           Under the GDPR, you have the right to access, rectify, export, and permanently delete your personal information directly within the application:
         </p>
+        <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200/80 dark:border-gray-800 text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-1.5">
+          <p class="font-semibold text-gray-900 dark:text-white">How to delete your HealthKicks account:</p>
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Open the HealthKicks mobile app or web dashboard (<a routerLink="/dashboard/profile" class="text-emerald-600 dark:text-emerald-400 underline">Profile</a>).</li>
+            <li>Navigate to <strong>Danger Zone → Delete Account</strong> and confirm permanent deletion.</li>
+            <li>Your account profile, device bindings, emergency contacts, and fall alerts are permanently erased. Historical ML studio sessions are irreversibly anonymized.</li>
+            <li>If you cannot sign in, email <a href="mailto:privacy@healthkicks.eu" class="text-emerald-600 dark:text-emerald-400 underline">privacy@healthkicks.eu</a> from your registered address to request deletion.</li>
+          </ol>
+        </div>
         <div class="flex flex-wrap gap-3 pt-2">
           <a
             routerLink="/gdpr"

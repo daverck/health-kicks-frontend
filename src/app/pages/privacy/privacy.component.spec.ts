@@ -26,6 +26,10 @@ describe('PrivacyComponent', () => {
     expect(compiled.querySelector('h1')).toBeTruthy();
     expect(compiled.textContent).toContain('Data Controller & Principles');
     expect(compiled.textContent).toContain('Categories of Data We Process');
+    expect(compiled.textContent).toContain('Health Connect (Android)');
+    expect(compiled.textContent).toContain('Application Diagnostics (Sentry)');
     expect(compiled.textContent).toContain('Web Analytics (Umami)');
+    expect(compiled.textContent).toContain('Wellness & Non-Medical Disclaimer');
+    expect(compiled.querySelector('#account-deletion')).toBeTruthy();
   });
 });
