@@ -21,8 +21,10 @@ Built with **Angular 22** (Standalone components, Signals, Native control flow `
     - **Fall Alert History**: Comprehensive paginated audit trail of all detected fall events, with state filtering (`PENDING`, `ESCALATING`, `ACKNOWLEDGED`, `CANCELLED`, `EXHAUSTED`, `SUPPRESSED`), date range selectors, GPS location display with Google Maps links, and detailed notification logs (email/SMS channels, timestamps, acknowledger identity).
   - **Activity Events & Step Tracking**: Real-time event log, interactive timeline, daily step counting charts with hourly breakdown, and monthly activity calendar.
   - **Studio Mode**: High-frequency IMU capture session runner with countdown, real-time vibration inspection graph (Chart.js), and AWS IoT command dispatch.
-  - **Studio History**: Historical capture session explorer, RBAC filtering (admin vs. regular user), label curation with DynamoDB synchronization, and raw IMU waveform visualization.
-  - **User Profile**: Account details, certified OIDC read-only email display, role badge, and profile update forms.
+  - **Studio History & Model Registry**: Historical capture session explorer, RBAC filtering (admin vs. regular user), label curation with DynamoDB synchronization, raw IMU waveform visualization, and ML model registry inspection.
+  - **Admin Audit Logs**: Compliance access audit log viewer with actor/patient/resource filtering.
+  - **User Profile & GDPR**: Account details, certified OIDC read-only email display, role badge, profile updates, and self-service data export / account deletion.
+- **Privacy Notice (`/privacy`)**: Public GDPR privacy policy disclosing Health Connect usage, Sentry error monitoring, location capture, wellness/non-medical disclaimer, and account deletion instructions (`#account-deletion`).
 - **Public Fall Alert Acknowledgment Page (`/fall-alerts/ack`)**:
   - Accessible, mobile-first emergency page opened directly when a caregiver or family member clicks the link in an alert SMS or email.
   - Safe, read-only metadata retrieval (`GET /api/v1/fall-alerts/ack/info`) preventing premature state mutations by link scrapers or antivirus bots.
@@ -43,6 +45,7 @@ Built with **Angular 22** (Standalone components, Signals, Native control flow `
 - **Framework**: Angular 22 (Standalone Architecture, Signals, Reactive Forms, Native Control Flow)
 - **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`)
 - **Visualizations & 3D**: Chart.js & Three.js (interactive 3D shoe orientation viewer)
+- **Observability**: Sentry (`@sentry/angular`)
 - **Unit Testing**: Vitest 5 (`@analogjs/vite-plugin-angular`, JSDOM)
 - **Package Manager**: pnpm
 
@@ -52,7 +55,7 @@ Built with **Angular 22** (Standalone components, Signals, Native control flow `
 
 ### Prerequisites
 
-- Node.js 22+ (or 24+)
+- Node.js 24+ (see `engines.node` in `package.json`)
 - [pnpm](https://pnpm.io/) 9+
 
 ### Installation
@@ -134,19 +137,10 @@ Open `http://localhost:8080/` in your browser.
 
 ---
 
-## CI/CD Deployment
+## CI/CD & Production Hosting
 
-The GitHub Actions workflow is defined in `.github/workflows/deploy.yml`:
-- Triggered automatically on `push` and `pull_request` (executes the Vitest test suite and builds the production bundle).
-- On pushes to `main` (after tests and build pass):
-  1. Builds the production Docker image.
-  2. Pushes the image to **Amazon ECR** (`693906847467.dkr.ecr.eu-west-1.amazonaws.com/healthkicks-frontend:latest`).
-  3. Deploys via SSH to the production EC2 host (`docker pull` and rolling container restart).
+GitHub Actions workflows in `.github/workflows/`:
+- `ci.yml`: Runs ESLint (`pnpm lint`), production Angular build (`pnpm exec ng build --configuration production`), and Vitest suite (`pnpm test`) on pushes and pull requests.
+- `sast.yml`: Runs static application security testing (Semgrep).
 
-### Required Secrets (Production Environment)
-
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `EC2_HOST`
-- `EC2_USER`
-- `EC2_SSH_KEY`
+In production, the static SPA bundle (`dist/health-kicks-app/browser`) is decoupled from the backend and hosted on **Amazon S3 + CloudFront** (provisioned via OpenTofu in `infra/tofu/`).
